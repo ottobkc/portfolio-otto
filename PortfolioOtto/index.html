@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Otto Kols · Fotógrafo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ef;
+      --ink: #1a1814;
+      --ink-soft: #1a1814;
+      --ink-faint: #4a4742;
+      --accent: #c8a97a;
+      --gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: clamp(14px, 1.5vw, 16px);
+      line-height: 1.7;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--ink);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.2s, width 0.25s, height 0.25s;
+      transform: translate(-50%, -50%);
+      opacity: 0.5;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem var(--gap);
+      background: rgba(245, 243, 239, 0.0);
+      backdrop-filter: blur(0px);
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(245, 243, 239, 0.96);
+      backdrop-filter: blur(12px);
+      padding: 1rem var(--gap);
+      box-shadow: 0 1px 0 rgba(26,24,20,0.08);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.2rem;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      color: rgba(245,243,239,0.95);
+      transition: color 0.4s;
+    }
+
+    nav.scrolled .nav-logo {
+      color: var(--ink);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: rgba(245,243,239,0.9);
+      transition: color 0.3s;
+    }
+
+    nav.scrolled .nav-links a {
+      color: var(--ink);
+    }
+    nav.scrolled .nav-links a:hover {
+      color: var(--ink-soft);
+    }
+    .nav-links a:hover { color: var(--ink); }
+
+    /* HERO */
+    .hero-full {
+      grid-template-columns: 1fr !important;
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+      background: var(--ink);
+    }
+
+    .hero-full::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(26,24,20,0.55);
+      z-index: 1;
+    }
+
+    .hero-full::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(to bottom, rgba(26,24,20,0.5), transparent);
+      z-index: 1;
+    }
+
+    .hero-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      animation: fadeIn 1.4s 0.2s forwards;
+    }
+
+    .hero-left-full {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-full .hero-title { color: #f5f3ef; }
+    .hero-full .hero-title em { color: rgba(245,243,239,0.75); }
+    .hero-full .hero-eyebrow { color: #f5f3ef !important; }
+    .hero-full .hero-sub { color: #f5f3ef !important; font-size: 1rem; }
+    .hero-full .btn { color: #f5f3ef !important; border-color: #f5f3ef !important; }
+    .hero-full .btn:hover { color: var(--accent) !important; border-color: var(--accent) !important; }
+    .hero-full .scroll-text { color: rgba(245,243,239,0.6); }
+    .hero-full .scroll-line { background: linear-gradient(to bottom, rgba(245,243,239,0.6), transparent); }
+
+    .hero-left-full {
+      max-width: 720px;
+      padding-bottom: calc(var(--gap) * 2);
+      background: rgba(26,24,20,0.45);
+      backdrop-filter: blur(4px);
+      padding: 2.5rem 3rem;
+      margin-bottom: calc(var(--gap) * 1.5);
+      margin-left: var(--gap);
+    }
+
+    .hero-full .hero-title {
+      font-size: clamp(4rem, 10vw, 8rem);
+    }
+
+    .hero-full .hero-sub {
+      max-width: 50ch;
+      font-size: 1rem;
+      color: var(--ink-soft);
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: var(--gap);
+      padding-bottom: calc(var(--gap) * 1.5);
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 7vw, 6rem);
+      font-weight: 300;
+      line-height: 1.0;
+      letter-spacing: -0.01em;
+      opacity: 0;
+      animation: fadeUp 1s 0.5s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--ink-soft);
+    }
+
+    .hero-sub {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+      max-width: 28ch;
+      opacity: 0;
+      animation: fadeUp 1s 0.75s forwards;
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      opacity: 0;
+      animation: fadeUp 1s 1s forwards;
+    }
+
+    .btn {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 3px;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-img-wrap {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      animation: fadeIn 1.4s 0.2s forwards;
+    }
+
+    /* Placeholder image grid using CSS art */
+    .hero-img-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #d4c9b8 0%, #bfb09a 40%, #a89880 100%);
+    }
+
+    .hero-img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    /* Simulated grain overlay */
+    .hero-img-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+
+    .hero-number {
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.5);
+      z-index: 3;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeIn 1s 1.5s forwards;
+      z-index: 10;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--ink), transparent);
+      animation: scrollLine 2s 2s infinite;
+    }
+
+    .scroll-text {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    /* SECTION BASE */
+    section {
+      padding: calc(var(--gap) * 2) var(--gap);
+    }
+
+    .section-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 4rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--ink-faint);
+      opacity: 0.3;
+      max-width: 60px;
+    }
+
+    /* ABOUT */
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: calc(var(--gap) * 2);
+      align-items: start;
+    }
+
+    .about-sticky {
+      position: static;
+    }
+
+    .about-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 300;
+      line-height: 1.15;
+      margin-bottom: 2rem;
+    }
+
+    .about-name em { font-style: italic; color: var(--ink-soft); }
+
+    .about-portrait {
+      width: 100%;
+      aspect-ratio: 3/4;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    .about-portrait::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(26,24,20,0.15), transparent);
+    }
+
+    .about-text p {
+      color: var(--ink-soft);
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .about-text p:first-child {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.2rem, 2vw, 1.5rem);
+      color: var(--ink);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 3rem;
+      padding-top: 3rem;
+      border-top: 1px solid rgba(26,24,20,0.1);
+    }
+
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-top: 0.4rem;
+    }
+
+    /* GALLERY */
+    .gallery-section { background: var(--bg); }
+
+    .gallery-intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3rem;
+    }
+
+    .gallery-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 300;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .photo-card {
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    .photo-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(26,24,20,0);
+      transition: background 0.5s;
+    }
+
+    .photo-card:hover::after { background: rgba(26,24,20,0.15); }
+
+    .photo-card .photo-bg {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-card .photo-bg img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      inset: 0;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+
+    .card-1 .photo-bg,
+    .card-2 .photo-bg { position: relative; display: block; }
+
+    .photo-card:hover .photo-bg img {
+      transform: scale(1.04);
+    }
+
+
+
+    .card-1 { grid-column: 1 / 7; grid-row: 1; }
+    .card-2 { grid-column: 7 / 13; grid-row: 1; }
+    .card-3 { grid-column: 1 / 5; grid-row: 2; }
+    .card-4 { grid-column: 5 / 9; grid-row: 2; }
+    .card-5 { grid-column: 9 / 13; grid-row: 2; }
+    .card-6 { grid-column: 5 / 9; grid-row: 3; }
+
+    .card-1 .photo-bg { aspect-ratio: 1503/1000; }
+    .card-2 .photo-bg { aspect-ratio: 1400/934; }
+    .card-3 .photo-bg { aspect-ratio: 934/1400; min-height: 400px; }
+    .card-4 .photo-bg { aspect-ratio: 1740/1170; }
+    .card-5 .photo-bg { aspect-ratio: 934/1400; }
+
+    .card-3 .photo-bg img { object-position: center top; }
+    .card-5 .photo-bg img { object-position: center top; }
+
+    .photo-caption {
+      position: absolute;
+      bottom: 1.2rem;
+      left: 1.2rem;
+      z-index: 2;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .photo-card:hover .photo-caption { opacity: 1; }
+
+    /* SERVICES */
+    .services-section {
+      background: var(--ink);
+      color: var(--bg);
+    }
+
+    .services-section .section-label { color: rgba(245,243,239,0.3); }
+    .services-section .section-label::after { background: rgba(245,243,239,0.2); }
+
+    .services-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+      margin-bottom: 5rem;
+      align-items: end;
+    }
+
+    .services-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 300;
+      line-height: 1.1;
+    }
+
+    .services-title em { font-style: italic; color: var(--accent); }
+
+    .services-desc {
+      color: rgba(245,243,239,0.82);
+      font-size: 0.9rem;
+      align-self: end;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(245,243,239,0.08);
+    }
+
+    .service-card {
+      padding: 3rem 2.5rem;
+      background: var(--ink);
+      transition: background 0.4s;
+      position: relative;
+    }
+
+    .service-card:hover { background: #221f1a; }
+
+    .service-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+    }
+
+    .service-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+      color: var(--bg);
+    }
+
+    .service-desc {
+      font-size: 0.82rem;
+      color: rgba(245,243,239,0.78);
+      line-height: 1.8;
+    }
+
+    .service-divider {
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+      margin: 1.5rem 0;
+      opacity: 0.5;
+    }
+
+    /* CONTACT */
+    .contact-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: calc(var(--gap) * 2);
+      align-items: start;
+    }
+
+    .contact-left h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-left h2 em { font-style: italic; color: var(--ink-soft); }
+
+    .contact-left p {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
+      max-width: 38ch;
+      margin-bottom: 3rem;
+    }
+
+    .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      color: var(--ink-soft);
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      transition: color 0.3s;
+    }
+    .contact-link:hover { color: var(--ink); }
+
+    .contact-link-icon {
+      width: 32px;
+      height: 1px;
+      background: currentColor;
+      transition: width 0.3s;
+    }
+    .contact-link:hover .contact-link-icon { width: 48px; }
+
+    /* FORM */
+    .contact-form { display: flex; flex-direction: column; gap: 0; }
+
+    .form-group {
+      border-bottom: 1px solid rgba(26,24,20,0.12);
+      padding: 1.5rem 0;
+      position: relative;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.6rem;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.95rem;
+      color: var(--ink);
+      padding: 0;
+      appearance: none;
+      cursor: none;
+    }
+
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9590'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0 center;
+      padding-right: 1.5rem;
+    }
+
+    .form-textarea { resize: none; min-height: 80px; }
+
+    ::placeholder { color: rgba(26,24,20,0.25); }
+
+    input[type="date"] {
+      color: var(--ink);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.95rem;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 0.4;
+      cursor: pointer;
+      filter: invert(0.2);
+    }
+
+    input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+      padding: 0;
+    }
+
+    input[type="date"]:not([value]):not(:focus) {
+      color: rgba(26,24,20,0.25);
+    }
+
+    .form-submit {
+      margin-top: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .btn-submit {
+      background: var(--ink);
+      color: var(--bg);
+      border: none;
+      padding: 1rem 2.5rem;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: background 0.3s;
+    }
+    .btn-submit:hover { background: #2e2b24; }
+
+    .form-note {
+      font-size: 0.7rem;
+      color: var(--ink-faint);
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 3rem var(--gap);
+      border-top: 1px solid rgba(26,24,20,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+    }
+
+    .footer-copy {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      color: var(--ink-faint);
+    }
+
+    .footer-ig a {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--ink-soft);
+      transition: color 0.3s;
+    }
+    .footer-ig a:hover { color: var(--ink); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes scrollLine {
+      0%   { transform: scaleY(0); transform-origin: top; opacity: 1; }
+      50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      51%  { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; opacity: 0.3; }
+    }
+
+    /* Reveal on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-right { height: 50vh; position: relative; }
+      .hero-img-wrap { position: absolute; inset: 0; }
+      .about { grid-template-columns: 1fr; }
+      .services-header { grid-template-columns: 1fr; }
+      .services-grid { grid-template-columns: 1fr; }
+      .contact-section { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .card-1, .card-2, .card-3, .card-4, .card-5 {
+        grid-column: auto; grid-row: auto;
+      }
+      .card-1 .photo-bg, .card-2 .photo-bg, .card-4 .photo-bg, .card-5 .photo-bg { height: 260px; }
+      .card-3 .photo-bg { min-height: 260px; }
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">Otto Kols · Fotógrafo</a>
+    <ul class="nav-links">
+      <li><a href="#trabajo">Trabajo</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero hero-full">
+    <img class="hero-bg-img" src="fotos/headhor.jpg" alt="Fotografía de calle" />
+    <div class="hero-left hero-left-full">
+      <p class="hero-eyebrow">Fotografía · Madrid y donde haga falta</p>
+      <h1 class="hero-title">
+        Fotografías<br>
+        <em>que duran.</em>
+      </h1>
+      <p class="hero-sub">
+        Retrato, parejas, bodas y momentos únicos. Basado en Madrid, disponible en cualquier lugar.
+      </p>
+      <div class="hero-cta">
+        <a href="#contacto" class="btn">Hablemos de tu proyecto</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span class="scroll-text">Descubrir</span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="sobre-mi" style="padding-top: calc(var(--gap) * 2.5);">
+    <div class="section-label">Sobre mí</div>
+    <div class="about">
+      <div class="about-sticky reveal">
+        <div class="about-portrait"><img src="fotos/yovert.jpg" alt="Otto Kols, fotógrafo" /></div>
+      </div>
+      <div class="about-text reveal">
+        <div class="about-name">
+          Una mirada<br><em>propia.</em>
+        </div>
+        <p>
+          Creo que una buena fotografía no captura un momento — lo construye. Trabajo despacio, con atención y sin prisa, buscando la imagen que permanece cuando todo lo demás se olvida.
+        </p>
+        <p>
+          Basado en Madrid. Disponible para retratos, sesiones de pareja, prebodas y días de boda. Ocasionalmente, otros proyectos que me hagan sentir algo.
+        </p>
+        <p>
+          Detrás de esta web está también <em>Mirar Despacio</em>, un proyecto sobre fotografía contemplativa que llevo con el mismo espíritu: menos ruido, más presencia.
+        </p>
+        <div class="about-stats">
+          <div>
+            <div class="stat-num">07+</div>
+            <div class="stat-label">Años fotografiando</div>
+          </div>
+          <div>
+            <div class="stat-num">20+</div>
+            <div class="stat-label">Países fotografiados</div>
+          </div>
+          <div>
+            <div class="stat-num">∞</div>
+            <div class="stat-label">Intentos de hacer buena foto</div>
+          </div>
+          <div>
+            <div class="stat-num">1</div>
+            <div class="stat-label">Forma de mirar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="trabajo" class="gallery-section" style="padding-top: calc(var(--gap) * 2.5);">
+    <div class="section-label">Trabajo seleccionado</div>
+    <div class="gallery-intro reveal">
+      <h2 class="gallery-title">
+        <span style="font-family:'Cormorant Garamond',serif;font-weight:300;">Imágenes</span>
+      </h2>
+      <a href="#contacto" class="btn">Ver más / Contactar</a>
+    </div>
+
+    <div class="gallery-grid reveal">
+      <div class="photo-card card-1">
+        <div class="photo-bg"><img src="fotos/boda1horiz.jpg" alt="Boda en Madrid" /></div>
+        <span class="photo-caption">Boda · Fuerteventura</span>
+      </div>
+      <div class="photo-card card-2">
+        <div class="photo-bg"><img src="fotos/desnudoh.jpg" alt="Desnudo artístico" /></div>
+        <span class="photo-caption">Desnudo artístico</span>
+      </div>
+      <div class="photo-card card-3">
+        <div class="photo-bg"><img src="fotos/retrato1vert.jpg" alt="Retrato" /></div>
+        <span class="photo-caption">Retrato</span>
+      </div>
+      <div class="photo-card card-4">
+        <div class="photo-bg"><img src="fotos/boda2horiz.jpg" alt="Boda" /></div>
+        <span class="photo-caption">Boda</span>
+      </div>
+      <div class="photo-card card-5">
+        <div class="photo-bg"><img src="fotos/retrato3vert.jpg" alt="Retrato" /></div>
+        <span class="photo-caption">Retrato · Luz natural</span>
+      </div>
+      <div class="photo-card card-6">
+        <div class="photo-bg"><img src="fotos/walliot.jpg" alt="Fotografía de mascotas" /></div>
+        <span class="photo-caption">Mascotas</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="servicios" class="services-section" style="margin-top: calc(var(--gap) * 2);">
+    <div class="section-label">Servicios</div>
+    <div class="services-header reveal">
+      <h2 class="services-title">
+        Lo que<br><em>ofrezco.</em>
+      </h2>
+      <p class="services-desc">
+        Cada sesión es diferente. Estas son las formas principales en las que trabajamos juntos, siempre adaptadas a lo que necesitas.
+      </p>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <div class="service-num">01</div>
+        <h3 class="service-name">Retrato & Parejas</h3>
+        <div class="service-divider"></div>
+        <p class="service-desc">Sesiones individuales o para dos. Sin poses forzadas, sin artificios. Para personas que quieren una imagen auténtica de sí mismas o de lo que comparten.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">02</div>
+        <h3 class="service-name">Prebodas, Bodas & Eventos</h3>
+        <div class="service-divider"></div>
+        <p class="service-desc">Cobertura documental de días que importan. Bodas, ceremonias civiles, prebodas y otros eventos con significado. En cualquier lugar.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">03</div>
+        <h3 class="service-name">Negocio & Producto</h3>
+        <div class="service-divider"></div>
+        <p class="service-desc">Fotografía para marcas, espacios y productos. Imágenes que comunican lo que haces con la misma atención que pongo en todo lo demás.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-num">04</div>
+        <h3 class="service-name">Mascotas</h3>
+        <div class="service-divider"></div>
+        <p class="service-desc">Fotografía para los que también son familia. Sesiones para capturar su carácter, su presencia, los momentos que no quieres olvidar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contacto">
+    <div class="section-label">Contacto</div>
+    <div class="contact-section">
+      <div class="contact-left reveal">
+        <h2>Cuéntame<br><em>tu proyecto.</em></h2>
+        <p>
+          Si tienes algo en mente — una sesión, una boda, una idea a medio formar — escríbeme. Respondo personalmente, siempre.
+        </p>
+        <div class="contact-links">
+          <a href="mailto:ottobkc@gmail.com" class="contact-link">
+            <span class="contact-link-icon"></span>
+            ottobkc@gmail.com
+          </a>
+          <a href="https://instagram.com/ob.kc" target="_blank" class="contact-link">
+            <span class="contact-link-icon"></span>
+            Instagram · @ob.kc
+          </a>
+          <a href="https://instagram.com/mirardespacio" target="_blank" class="contact-link">
+            <span class="contact-link-icon"></span>
+            Mirar Despacio · podcast en Spotify, Apple Podcasts y YouTube
+          </a>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <form class="contact-form" id="contact-form">
+          <div class="form-group">
+            <label class="form-label" for="nombre">Nombre</label>
+            <input class="form-input" type="text" id="nombre" name="nombre" required placeholder="Tu nombre" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" type="email" id="email" name="email" required placeholder="tu@email.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="servicio">Tipo de sesión</label>
+            <select class="form-select" id="servicio" name="servicio">
+              <option value="" disabled selected>¿Qué tienes en mente?</option>
+              <option>Retrato individual</option>
+              <option>Sesión de pareja</option>
+              <option>Preboda</option>
+              <option>Boda</option>
+              <option>Sesión de mascotas</option>
+              <option>Otro / no sé aún</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fecha">Fecha aproximada</label>
+            <input class="form-input" type="date" id="fecha" name="fecha" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="mensaje">Cuéntame algo</label>
+            <textarea class="form-textarea" id="mensaje" name="mensaje" placeholder="Lo que quieras que sepa antes de responder..."></textarea>
+          </div>
+          <div class="form-submit">
+            <button class="btn-submit" type="submit" id="btn-submit">Enviar mensaje</button>
+            <span class="form-note" id="form-note">Respondo en menos de 48h</span>
+          </div>
+        </form>
+        <div id="form-success" style="display:none; padding: 2rem 0; font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--ink-soft); font-style:italic;">
+          Mensaje recibido. Te escribo pronto.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Otto Kols · Fotógrafo</div>
+    <div class="footer-copy">© 2026 · Madrid</div>
+    <div class="footer-ig"><a href="https://instagram.com/ob.kc" target="_blank">@ob.kc</a></div>
+  </footer>
+
+  <script>
+    // Nav scroll behavior
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        ring.style.width = '56px';
+        ring.style.height = '56px';
+        ring.style.opacity = '0.25';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.style.width = '36px';
+        ring.style.height = '36px';
+        ring.style.opacity = '0.5';
+      });
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    reveals.forEach(el => observer.observe(el));
+
+    // Form — Formspree async
+    const form = document.getElementById('contact-form');
+    const btn = document.getElementById('btn-submit');
+    const note = document.getElementById('form-note');
+    const success = document.getElementById('form-success');
+
+    // ⚠️ Reemplaza xrejydle con el ID que obtengas en formspree.io
+    const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xrejydle';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+      note.textContent = '';
+
+      const data = new FormData(form);
+
+      try {
+        const res = await fetch(FORMSPREE_ENDPOINT, {
+          method: 'POST',
+          body: data,
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (res.ok) {
+          form.style.display = 'none';
+          success.style.display = 'block';
+        } else {
+          btn.textContent = 'Enviar mensaje';
+          btn.disabled = false;
+          note.textContent = 'Algo falló. Escríbeme directamente a tu correo.';
+          note.style.color = '#c0392b';
+        }
+      } catch {
+        btn.textContent = 'Enviar mensaje';
+        btn.disabled = false;
+        note.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        note.style.color = '#c0392b';
+      }
+    });
+  </script>
+</body>
+</html>
