@@ -461,10 +461,16 @@
     }
 
     .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
+      display: flex;
       gap: 1rem;
-      align-items: start;
+      align-items: flex-start;
+    }
+
+    .gallery-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
     .photo-card {
@@ -487,15 +493,12 @@
       width: 100%;
       overflow: hidden;
       position: relative;
+      display: block;
     }
 
     .photo-card .photo-bg img {
       width: 100%;
-      height: 100%;
-      position: absolute;
-      inset: 0;
-      object-fit: cover;
-      object-position: center;
+      height: auto;
       display: block;
       transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
     }
@@ -504,24 +507,23 @@
     .card-2 .photo-bg { position: relative; display: block; }
 
     .photo-card:hover .photo-bg img {
-      transform: scale(1.04);
+      transform: scale(1.03);
     }
 
 
 
-    .card-1 { grid-column: 1 / 7; grid-row: 1; }
-    .card-2 { grid-column: 7 / 13; grid-row: 1; }
-    .card-3 { grid-column: 1 / 5; grid-row: 2; }
-    .card-4 { grid-column: 5 / 9; grid-row: 3; }
-    .card-5 { grid-column: 9 / 13; grid-row: 2; }
-    .card-6 { grid-column: 5 / 9; grid-row: 2; }
-    .card-6 .photo-bg { height: 320px; }
+    .photo-card {
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+    }
 
     .card-1 .photo-bg { aspect-ratio: 1503/1000; }
     .card-2 .photo-bg { aspect-ratio: 1400/934; }
-    .card-3 .photo-bg { aspect-ratio: 934/1400; min-height: 400px; }
+    .card-3 .photo-bg { aspect-ratio: 934/1400; }
     .card-4 .photo-bg { aspect-ratio: 1740/1170; }
     .card-5 .photo-bg { aspect-ratio: 934/1400; }
+    .card-6 .photo-bg { aspect-ratio: 1400/934; }
 
     .card-3 .photo-bg img { object-position: center top; }
     .card-5 .photo-bg img { object-position: center top; }
@@ -821,6 +823,13 @@
 
     /* RESPONSIVE */
     @media (max-width: 900px) {
+      .nav-logo {
+        font-size: 0.85rem;
+        letter-spacing: 0.04em;
+      }
+      nav {
+        padding: 1rem var(--gap);
+      }
       .hero { grid-template-columns: 1fr; }
       .hero-right { height: 50vh; position: relative; }
       .hero-img-wrap { position: absolute; inset: 0; }
@@ -829,11 +838,17 @@
       .services-grid { grid-template-columns: 1fr; }
       .contact-section { grid-template-columns: 1fr; }
       .gallery-grid { grid-template-columns: 1fr 1fr; }
-      .card-1, .card-2, .card-3, .card-4, .card-5 {
-        grid-column: auto; grid-row: auto;
+      .gallery-grid {
+        flex-direction: column;
       }
-      .card-1 .photo-bg, .card-2 .photo-bg, .card-4 .photo-bg, .card-5 .photo-bg { height: 260px; }
-      .card-3 .photo-bg { min-height: 260px; }
+      .gallery-col {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .gallery-col .photo-card {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: 140px;
+      }
       body { cursor: auto; }
       .cursor, .cursor-ring { display: none; }
     }
@@ -864,7 +879,7 @@
         <em>que duran.</em>
       </h1>
       <p class="hero-sub">
-        Retrato, parejas, bodas y momentos únicos. Basado en Madrid, disponible en cualquier lugar.
+        Retrato, parejas, bodas y momentos únicos. Disponible en cualquier lugar.
       </p>
       <div class="hero-cta">
         <a href="#contacto" class="btn">Hablemos de tu proyecto</a>
@@ -891,7 +906,7 @@
           Creo que una buena fotografía no captura un momento — lo construye. Trabajo despacio, con atención y sin prisa, buscando la imagen que permanece cuando todo lo demás se olvida.
         </p>
         <p>
-          Basado en Madrid. Disponible para retratos, sesiones de pareja, prebodas y días de boda. Ocasionalmente, otros proyectos que me hagan sentir algo.
+          Disponible para retratos, sesiones de pareja, prebodas y días de boda. Ocasionalmente, otros proyectos que me hagan sentir algo.
         </p>
         <p>
           Detrás de esta web está también <em>Mirar Despacio</em>, un proyecto sobre fotografía contemplativa que llevo con el mismo espíritu: menos ruido, más presencia.
@@ -929,29 +944,39 @@
     </div>
 
     <div class="gallery-grid reveal">
-      <div class="photo-card card-1">
-        <div class="photo-bg"><img src="fotos/boda1horiz.jpg" alt="Boda en Madrid" /></div>
-        <span class="photo-caption">Boda · Fuerteventura</span>
+      <div class="gallery-col">
+        <div class="photo-card">
+          <div class="photo-bg"><img src="fotos/boda1horiz.jpg" alt="Boda en Fuerteventura" /></div>
+          <span class="photo-caption">Boda · Fuerteventura</span>
+        </div>
+        <div class="photo-card">
+          <div class="photo-bg"><img src="fotos/retrato1vert.jpg" alt="Retrato" /></div>
+          <span class="photo-caption">Retrato</span>
+        </div>
       </div>
-      <div class="photo-card card-2">
-        <div class="photo-bg"><img src="fotos/desnudoh.jpg" alt="Desnudo artístico" /></div>
-        <span class="photo-caption">Desnudo artístico</span>
+      <div class="gallery-col">
+        <div class="photo-card">
+          <div class="photo-bg"><img src="fotos/boda2horiz.jpg" alt="Boda" /></div>
+          <span class="photo-caption">Boda</span>
+        </div>
+        <div class="photo-card">
+          <div class="photo-bg"><img src="fotos/desnudoh.jpg" alt="Desnudo artístico" /></div>
+          <span class="photo-caption">Desnudo artístico</span>
+        </div>
+        <div class="photo-card">
+          <div class="photo-bg"><img src="fotos/walliot.jpg" alt="Fotografía de mascotas" /></div>
+          <span class="photo-caption">Mascotas</span>
+        </div>
       </div>
-      <div class="photo-card card-3">
-        <div class="photo-bg"><img src="fotos/retrato1vert.jpg" alt="Retrato" /></div>
-        <span class="photo-caption">Retrato</span>
-      </div>
-      <div class="photo-card card-4">
-        <div class="photo-bg"><img src="fotos/boda2horiz.jpg" alt="Boda" /></div>
-        <span class="photo-caption">Boda</span>
-      </div>
-      <div class="photo-card card-5">
-        <div class="photo-bg"><img src="fotos/retrato3vert.jpg" alt="Retrato" /></div>
-        <span class="photo-caption">Retrato · Luz natural</span>
-      </div>
-      <div class="photo-card card-6">
-        <div class="photo-bg"><img src="fotos/walliot.jpg" alt="Fotografía de mascotas" /></div>
-        <span class="photo-caption">Mascotas</span>
+      <div class="gallery-col">
+        <div class="photo-card">
+          <div class="photo-bg"><img src="fotos/calle1.jpg" alt="Fotografía de calle" /></div>
+          <span class="photo-caption">Calle · Madrid</span>
+        </div>
+        <div class="photo-card">
+          <div class="photo-bg"><img src="fotos/retrato3vert.jpg" alt="Retrato" /></div>
+          <span class="photo-caption">Retrato · Luz natural</span>
+        </div>
       </div>
     </div>
   </section>
@@ -1013,7 +1038,7 @@
             <span class="contact-link-icon"></span>
             Instagram · @ob.kc
           </a>
-          <a href="https://instagram.com/mirardespacio" target="_blank" class="contact-link">
+          <a href="https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB" target="_blank" class="contact-link">
             <span class="contact-link-icon"></span>
             Mirar Despacio · podcast en Spotify, Apple Podcasts y YouTube
           </a>
