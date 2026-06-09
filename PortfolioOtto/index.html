@@ -3,1085 +3,805 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Otto Kols · Fotógrafo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet" />
+
+  <!-- SEO -->
+  <title>Otto Kols · Fotógrafo en Madrid | Retratos, Bodas y Calle</title>
+  <meta name="description" content="Fotógrafo en Madrid especializado en retratos, parejas, bodas y fotografía de calle. Creador del podcast Mirar Despacio." />
+  <meta name="keywords" content="fotógrafo madrid, retratos madrid, bodas madrid, fotografía de calle, mirar despacio, otto kols" />
+  <meta name="author" content="Otto Kols" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ottokols.es/" />
+
+  <!-- OPEN GRAPH -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ottokols.es/" />
+  <meta property="og:title" content="Otto Kols · Fotógrafo en Madrid" />
+  <meta property="og:description" content="Fotografía de retratos, parejas, bodas y calle en Madrid. Podcast Mirar Despacio." />
+  <meta property="og:image" content="https://ottokols.es/fotos/headhor.jpg" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:site_name" content="Otto Kols · Fotógrafo" />
+
+  <!-- TWITTER CARD -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Otto Kols · Fotógrafo en Madrid" />
+  <meta name="twitter:description" content="Fotografía de retratos, parejas, bodas y calle en Madrid." />
+  <meta name="twitter:image" content="https://ottokols.es/fotos/headhor.jpg" />
+
+  <!-- STRUCTURED DATA -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Otto Kols",
+    "jobTitle": "Fotógrafo",
+    "url": "https://ottokols.es",
+    "sameAs": ["https://instagram.com/ob.kc", "https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB"],
+    "address": { "@type": "PostalAddress", "addressLocality": "Madrid", "addressCountry": "ES" },
+    "image": "https://ottokols.es/fotos/yovert.jpg"
+  }
+  </script>
+
+  <!-- GOOGLE ANALYTICS — descomenta y pon tu ID cuando lo tengas -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  -->
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #f5f3ef;
-      --ink: #1a1814;
-      --ink-soft: #1a1814;
-      --ink-faint: #4a4742;
-      --accent: #c8a97a;
-      --gap: clamp(2rem, 5vw, 5rem);
+      --bg:      #151513;
+      --bg2:     #1c1c1a;
+      --bg3:     #242421;
+      --text:    #e6e0d8;
+      --muted:   #8a8680;
+      --accent:  #c9a96e;
+      --border:  #2e2e2b;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans:  'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --max: 1100px;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
-      color: var(--ink);
-      font-family: 'Jost', sans-serif;
-      font-weight: 300;
-      font-size: clamp(14px, 1.5vw, 16px);
-      line-height: 1.7;
-      cursor: none;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Custom cursor */
-    .cursor {
-      position: fixed;
-      width: 8px; height: 8px;
-      background: var(--ink);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transition: transform 0.15s ease, opacity 0.2s;
-      transform: translate(-50%, -50%);
-    }
-    .cursor-ring {
-      position: fixed;
-      width: 36px; height: 36px;
-      border: 1px solid var(--ink);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9998;
-      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.2s, width 0.25s, height 0.25s;
-      transform: translate(-50%, -50%);
-      opacity: 0.5;
-    }
-    body:hover .cursor { opacity: 1; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
 
-    /* NAV */
+    /* ---- NAV ---- */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
+      background: rgba(21,21,19,0.93);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 60px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 1.5rem var(--gap);
-      background: rgba(245, 243, 239, 0.0);
-      backdrop-filter: blur(0px);
-      transition: background 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease, box-shadow 0.4s ease;
+      justify-content: space-between;
     }
-
-    nav.scrolled {
-      background: rgba(245, 243, 239, 0.96);
-      backdrop-filter: blur(12px);
-      padding: 1rem var(--gap);
-      box-shadow: 0 1px 0 rgba(26,24,20,0.08);
-    }
-
     .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: 1.2rem;
-      letter-spacing: 0.08em;
-      text-decoration: none;
-      color: rgba(245,243,239,0.95);
-      transition: color 0.4s;
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
     }
-
-    nav.scrolled .nav-logo {
-      color: var(--ink);
-    }
-
     .nav-links {
       display: flex;
-      gap: 2.5rem;
+      gap: 2.25rem;
       list-style: none;
     }
-
     .nav-links a {
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      text-decoration: none;
-      color: rgba(245,243,239,0.9);
-      transition: color 0.3s;
+      color: var(--muted);
+      transition: color 0.2s;
     }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.nav-salidas {
+      color: var(--accent);
+      opacity: 0.85;
+    }
+    .nav-links a.nav-salidas:hover { opacity: 1; }
 
-    nav.scrolled .nav-links a {
-      color: var(--ink);
-    }
-    nav.scrolled .nav-links a:hover {
-      color: var(--ink-soft);
-    }
-    .nav-links a:hover { color: var(--ink); }
-
-    /* HERO */
-    .hero-full {
-      grid-template-columns: 1fr !important;
-      min-height: 90vh;
-      display: flex;
+    /* Hamburger */
+    .nav-toggle {
+      display: none;
       flex-direction: column;
-      justify-content: flex-end;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 23px;
+      height: 1.5px;
+      background: var(--text);
+      transition: all 0.28s;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 60px; left: 0; right: 0;
+      background: rgba(21,21,19,0.97);
+      padding: 1.25rem 2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      z-index: 99;
+    }
+    .nav-drawer.open { display: block; }
+    .nav-drawer ul { list-style: none; }
+    .nav-drawer li { padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+    .nav-drawer li:last-child { border: none; }
+    .nav-drawer a {
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .nav-drawer a.nav-salidas { color: var(--accent); }
+
+    /* ---- HERO ---- */
+    .hero {
+      min-height: 100svh;
       position: relative;
+      display: flex;
+      align-items: flex-end;
       overflow: hidden;
-      background: var(--ink);
     }
-
-    .hero-full::before {
-      content: '';
+    .hero-img {
       position: absolute;
       inset: 0;
-      background: rgba(26,24,20,0.55);
-      z-index: 1;
-    }
-
-    .hero-full::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 180px;
-      background: linear-gradient(to bottom, rgba(26,24,20,0.5), transparent);
-      z-index: 1;
-    }
-
-    .hero-bg-img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: cover;
       object-position: center;
-      opacity: 0;
-      animation: fadeIn 1.4s 0.2s forwards;
+      filter: brightness(0.42);
     }
-
-    .hero-left-full {
+    .hero-content {
       position: relative;
       z-index: 2;
+      max-width: var(--max);
+      width: 100%;
+      margin: 0 auto;
+      padding: 3rem 2rem 5.5rem;
     }
-
-    .hero-full .hero-title { color: #f5f3ef; }
-    .hero-full .hero-title em { color: rgba(245,243,239,0.75); }
-    .hero-full .hero-eyebrow { color: #f5f3ef !important; }
-    .hero-full .hero-sub { color: #f5f3ef !important; font-size: 1rem; }
-    .hero-full .btn { color: #f5f3ef !important; border-color: #f5f3ef !important; }
-    .hero-full .btn:hover { color: var(--accent) !important; border-color: var(--accent) !important; }
-    .hero-full .scroll-text { color: rgba(245,243,239,0.6); }
-    .hero-full .scroll-line { background: linear-gradient(to bottom, rgba(245,243,239,0.6), transparent); }
-
-    .hero-left-full {
-      max-width: 720px;
-      padding-bottom: calc(var(--gap) * 2);
-      background: rgba(26,24,20,0.45);
-      backdrop-filter: blur(4px);
-      padding: 2.5rem 3rem;
-      margin-bottom: calc(var(--gap) * 1.5);
-      margin-left: var(--gap);
-    }
-
-    .hero-full .hero-title {
-      font-size: clamp(4rem, 10vw, 8rem);
-    }
-
-    .hero-full .hero-sub {
-      max-width: 50ch;
-      font-size: 1rem;
-      color: var(--ink-soft);
-    }
-
-    .hero {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-left {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: var(--gap);
-      padding-bottom: calc(var(--gap) * 1.5);
-      position: relative;
-      z-index: 2;
-    }
-
-    .hero-eyebrow {
-      font-size: 0.65rem;
-      letter-spacing: 0.25em;
+    .hero-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--ink-faint);
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2.6rem, 7vw, 5.5rem);
+      font-weight: 400;
+      line-height: 1.1;
       margin-bottom: 1.5rem;
-      opacity: 0;
-      animation: fadeUp 1s 0.3s forwards;
     }
-
-    .hero-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(3.5rem, 7vw, 6rem);
-      font-weight: 300;
-      line-height: 1.0;
-      letter-spacing: -0.01em;
-      opacity: 0;
-      animation: fadeUp 1s 0.5s forwards;
-    }
-
-    .hero-title em {
-      font-style: italic;
-      color: var(--ink-soft);
-    }
-
+    .hero h1 em { font-style: italic; color: var(--accent); }
     .hero-sub {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: var(--ink);
-      max-width: 28ch;
-      opacity: 0;
-      animation: fadeUp 1s 0.75s forwards;
+      font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+      color: var(--muted);
+      max-width: 460px;
+      margin-bottom: 2.5rem;
     }
-
-    .hero-cta {
-      margin-top: 3rem;
-      opacity: 0;
-      animation: fadeUp 1s 1s forwards;
-    }
-
     .btn {
       display: inline-block;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
+      padding: 0.72rem 1.6rem;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.76rem;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
-      text-decoration: none;
-      color: var(--ink);
-      border-bottom: 1px solid var(--ink);
-      padding-bottom: 3px;
-      transition: color 0.3s, border-color 0.3s;
+      transition: background 0.2s, color 0.2s;
+      cursor: pointer;
+      background: transparent;
+      font-family: var(--font-sans);
     }
-    .btn:hover { color: var(--accent); border-color: var(--accent); }
+    .btn:hover { background: var(--accent); color: var(--bg); }
+    .btn-solid { background: var(--accent); color: var(--bg); }
+    .btn-solid:hover { background: transparent; color: var(--accent); }
 
-    .hero-right {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-img-wrap {
+    .scroll-hint {
       position: absolute;
-      inset: 0;
-      opacity: 0;
-      animation: fadeIn 1.4s 0.2s forwards;
-    }
-
-    /* Placeholder image grid using CSS art */
-    .hero-img-wrap::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(160deg, #d4c9b8 0%, #bfb09a 40%, #a89880 100%);
-    }
-
-    .hero-img-wrap img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center top;
-      display: block;
-    }
-
-    /* Simulated grain overlay */
-    .hero-img-wrap::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      opacity: 0.5;
-    }
-
-    .hero-number {
-      position: absolute;
-      bottom: 2rem;
-      right: 2rem;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      color: rgba(255,255,255,0.5);
-      z-index: 3;
-    }
-
-    .hero-scroll {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
+      bottom: 2rem; left: 50%;
       transform: translateX(-50%);
+      z-index: 2;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
-      opacity: 0;
-      animation: fadeIn 1s 1.5s forwards;
-      z-index: 10;
+      gap: 0.4rem;
+      color: var(--muted);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
     }
-
-    .scroll-line {
+    .scroll-hint::after {
+      content: '';
+      display: block;
       width: 1px;
-      height: 40px;
-      background: linear-gradient(to bottom, var(--ink), transparent);
-      animation: scrollLine 2s 2s infinite;
+      height: 38px;
+      background: var(--muted);
+      animation: scrollline 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollline {
+      0%,100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
     }
 
-    .scroll-text {
-      font-size: 0.6rem;
+    /* ---- SECTIONS ---- */
+    section { padding: 6rem 2rem; }
+    .container { max-width: var(--max); margin: 0 auto; }
+    .section-label {
+      font-size: 0.68rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--ink-faint);
+      color: var(--accent);
+      margin-bottom: 0.75rem;
     }
-
-    /* SECTION BASE */
-    section {
-      padding: calc(var(--gap) * 2) var(--gap);
-    }
-
-    .section-label {
-      font-size: 0.62rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin-bottom: 4rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--ink-faint);
-      opacity: 0.3;
-      max-width: 60px;
-    }
-
-    /* ABOUT */
-    .about {
-      display: grid;
-      grid-template-columns: 1fr 1.6fr;
-      gap: calc(var(--gap) * 2);
-      align-items: start;
-    }
-
-    .about-sticky {
-      position: static;
-    }
-
-    .about-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      font-weight: 300;
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 400;
       line-height: 1.15;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
+    .section-title em { font-style: italic; color: var(--accent); }
 
-    .about-name em { font-style: italic; color: var(--ink-soft); }
-
-    .about-portrait {
+    /* ---- SOBRE ---- */
+    #sobre { background: var(--bg2); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .about-img-wrap { position: relative; }
+    .about-img-wrap img {
       width: 100%;
       aspect-ratio: 3/4;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .about-portrait img {
-      width: 100%;
-      height: 100%;
       object-fit: cover;
-      object-position: center top;
-      display: block;
+      filter: grayscale(10%);
     }
-
-    .about-portrait::after {
+    .about-img-wrap::after {
       content: '';
       position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(26,24,20,0.15), transparent);
+      bottom: -10px; right: -10px;
+      width: 75%; height: 75%;
+      border: 1px solid var(--accent);
+      z-index: -1;
+      opacity: 0.4;
     }
-
     .about-text p {
-      color: var(--ink-soft);
-      margin-bottom: 1.5rem;
-      font-size: 0.95rem;
-    }
-
-    .about-text p:first-child {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(1.2rem, 2vw, 1.5rem);
-      color: var(--ink);
-      font-weight: 300;
-      line-height: 1.5;
-    }
-
-    .about-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      margin-top: 3rem;
-      padding-top: 3rem;
-      border-top: 1px solid rgba(26,24,20,0.1);
-    }
-
-    .stat-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2.5rem;
-      font-weight: 300;
-      line-height: 1;
-      color: var(--ink);
-    }
-
-    .stat-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin-top: 0.4rem;
-    }
-
-    /* GALLERY */
-    .gallery-section { background: var(--bg); }
-
-    .gallery-intro {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 3rem;
-    }
-
-    .gallery-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 300;
-    }
-
-    .gallery-grid {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-    }
-
-    .gallery-col {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .photo-card {
-      position: relative;
-      overflow: hidden;
-      cursor: none;
-    }
-
-    .photo-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(26,24,20,0);
-      transition: background 0.5s;
-    }
-
-    .photo-card:hover::after { background: rgba(26,24,20,0.15); }
-
-    .photo-card .photo-bg {
-      width: 100%;
-      overflow: hidden;
-      position: relative;
-      display: block;
-    }
-
-    .photo-card .photo-bg img {
-      width: 100%;
-      height: auto;
-      display: block;
-      transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
-    }
-
-    .card-1 .photo-bg,
-    .card-2 .photo-bg { position: relative; display: block; }
-
-    .photo-card:hover .photo-bg img {
-      transform: scale(1.03);
-    }
-
-
-
-    .photo-card {
-      position: relative;
-      overflow: hidden;
-      cursor: none;
-    }
-
-    .card-1 .photo-bg { aspect-ratio: 1503/1000; }
-    .card-2 .photo-bg { aspect-ratio: 1400/934; }
-    .card-3 .photo-bg { aspect-ratio: 934/1400; }
-    .card-4 .photo-bg { aspect-ratio: 1740/1170; }
-    .card-5 .photo-bg { aspect-ratio: 934/1400; }
-    .card-6 .photo-bg { aspect-ratio: 1400/934; }
-
-    .card-3 .photo-bg img { object-position: center top; }
-    .card-5 .photo-bg img { object-position: center top; }
-
-    .photo-caption {
-      position: absolute;
-      bottom: 1.2rem;
-      left: 1.2rem;
-      z-index: 2;
-      font-size: 0.6rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    .photo-card:hover .photo-caption { opacity: 1; }
-
-    /* SERVICES */
-    .services-section {
-      background: var(--ink);
-      color: var(--bg);
-    }
-
-    .services-section .section-label { color: rgba(245,243,239,0.3); }
-    .services-section .section-label::after { background: rgba(245,243,239,0.2); }
-
-    .services-header {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--gap);
-      margin-bottom: 5rem;
-      align-items: end;
-    }
-
-    .services-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 300;
-      line-height: 1.1;
-    }
-
-    .services-title em { font-style: italic; color: var(--accent); }
-
-    .services-desc {
-      color: rgba(245,243,239,0.82);
-      font-size: 0.9rem;
-      align-self: end;
-    }
-
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: rgba(245,243,239,0.08);
-    }
-
-    .service-card {
-      padding: 3rem 2.5rem;
-      background: var(--ink);
-      transition: background 0.4s;
-      position: relative;
-    }
-
-    .service-card:hover { background: #221f1a; }
-
-    .service-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 0.75rem;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      margin-bottom: 2rem;
-    }
-
-    .service-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
-      font-weight: 300;
+      color: var(--muted);
       margin-bottom: 1rem;
-      color: var(--bg);
-    }
-
-    .service-desc {
-      font-size: 0.82rem;
-      color: rgba(245,243,239,0.78);
+      font-size: 1.02rem;
       line-height: 1.8;
     }
-
-    .service-divider {
-      width: 24px;
-      height: 1px;
-      background: var(--accent);
-      margin: 1.5rem 0;
-      opacity: 0.5;
-    }
-
-    /* CONTACT */
-    .contact-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: calc(var(--gap) * 2);
-      align-items: start;
-    }
-
-    .contact-left h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 300;
-      line-height: 1.1;
-      margin-bottom: 1.5rem;
-    }
-
-    .contact-left h2 em { font-style: italic; color: var(--ink-soft); }
-
-    .contact-left p {
-      color: var(--ink-soft);
-      font-size: 0.9rem;
-      max-width: 38ch;
-      margin-bottom: 3rem;
-    }
-
-    .contact-links { display: flex; flex-direction: column; gap: 1rem; }
-
-    .contact-link {
+    .stats-row {
       display: flex;
-      align-items: center;
-      gap: 1rem;
-      text-decoration: none;
-      color: var(--ink-soft);
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-      transition: color 0.3s;
+      gap: 2.5rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
     }
-    .contact-link:hover { color: var(--ink); }
-
-    .contact-link-icon {
-      width: 32px;
-      height: 1px;
-      background: currentColor;
-      transition: width 0.3s;
-    }
-    .contact-link:hover .contact-link-icon { width: 48px; }
-
-    /* FORM */
-    .contact-form { display: flex; flex-direction: column; gap: 0; }
-
-    .form-group {
-      border-bottom: 1px solid rgba(26,24,20,0.12);
-      padding: 1.5rem 0;
-      position: relative;
-    }
-
-    .form-label {
+    .stat-n {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      color: var(--accent);
+      line-height: 1;
       display: block;
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin-bottom: 0.6rem;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      display: block;
     }
 
-    .form-input, .form-select, .form-textarea {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-family: 'Jost', sans-serif;
-      font-weight: 300;
-      font-size: 0.95rem;
-      color: var(--ink);
-      padding: 0;
-      appearance: none;
-      cursor: none;
+    /* ---- GALLERY ---- */
+    #trabajo { background: var(--bg); }
+    .gallery-intro { max-width: 560px; margin-bottom: 3rem; }
+    .gallery-intro p { color: var(--muted); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
     }
-
-    .form-select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9590'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0 center;
-      padding-right: 1.5rem;
-    }
-
-    .form-textarea { resize: none; min-height: 80px; }
-
-    ::placeholder { color: rgba(26,24,20,0.25); }
-
-    input[type="date"] {
-      color: var(--ink);
-      font-family: 'Jost', sans-serif;
-      font-weight: 300;
-      font-size: 0.95rem;
-    }
-
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      opacity: 0.4;
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
       cursor: pointer;
-      filter: invert(0.2);
+      background: var(--bg3);
     }
-
-    input[type="date"]::-webkit-datetime-edit-fields-wrapper {
-      padding: 0;
+    .gallery-item:nth-child(3n+2) { margin-top: 28px; }
+    .gallery-item img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      transition: transform 0.55s ease, filter 0.35s;
+      filter: grayscale(12%);
     }
-
-    input[type="date"]:not([value]):not(:focus) {
-      color: rgba(26,24,20,0.25);
-    }
-
-    .form-submit {
-      margin-top: 3rem;
+    .gallery-item:hover img { transform: scale(1.04); filter: grayscale(0%); }
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0);
       display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .btn-submit {
-      background: var(--ink);
-      color: var(--bg);
-      border: none;
-      padding: 1rem 2.5rem;
-      font-family: 'Jost', sans-serif;
-      font-weight: 300;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      cursor: none;
+      align-items: flex-end;
+      padding: 0.9rem;
       transition: background 0.3s;
     }
-    .btn-submit:hover { background: #2e2b24; }
-
-    .form-note {
+    .gallery-item:hover .gallery-overlay { background: rgba(0,0,0,0.28); }
+    .gallery-label {
       font-size: 0.7rem;
-      color: var(--ink-faint);
-    }
-
-    /* FOOTER */
-    footer {
-      padding: 3rem var(--gap);
-      border-top: 1px solid rgba(26,24,20,0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1rem;
-      font-weight: 300;
-      letter-spacing: 0.08em;
-      color: var(--ink);
-    }
-
-    .footer-copy {
-      font-size: 0.65rem;
-      letter-spacing: 0.12em;
-      color: var(--ink-faint);
-    }
-
-    .footer-ig a {
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      text-decoration: none;
-      color: var(--ink-soft);
+      color: transparent;
       transition: color 0.3s;
     }
-    .footer-ig a:hover { color: var(--ink); }
+    .gallery-item:hover .gallery-label { color: rgba(255,255,255,0.75); }
+    .gallery-cta { margin-top: 3rem; }
 
-    /* ANIMATIONS */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+    /* ---- LIGHTBOX ---- */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.94);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox-inner {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90svh;
+    }
+    .lightbox-inner img {
+      max-width: 88vw;
+      max-height: 84svh;
+      object-fit: contain;
+    }
+    .lightbox-caption {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      margin-top: 0.6rem;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: -2.5rem; right: 0;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 0.2rem;
+    }
+    .lightbox-close:hover { color: var(--text); }
+    .lightbox-prev, .lightbox-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px; height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background 0.2s;
+    }
+    .lightbox-prev { left: -54px; }
+    .lightbox-next { right: -54px; }
+    .lightbox-prev:hover, .lightbox-next:hover { background: rgba(201,169,110,0.15); }
+
+    /* ---- SERVICIOS ---- */
+    #servicios { background: var(--bg2); }
+    .servicios-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5px;
+      margin-top: 3rem;
+    }
+    .servicio-card {
+      background: var(--bg3);
+      padding: 2.5rem;
+      transition: background 0.2s;
+    }
+    .servicio-card:hover { background: #282825; }
+    .servicio-num {
+      font-family: var(--font-serif);
+      font-size: 2.8rem;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .servicio-card h3 {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: 0.65rem;
+    }
+    .servicio-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.75; }
+
+    /* ---- CONTACTO ---- */
+    #contacto { background: var(--bg); }
+    .contacto-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .contacto-info p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      font-size: 1.02rem;
+    }
+    .contacto-links { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 2rem; }
+    .contacto-link {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .contacto-link:hover { color: var(--text); }
+    .contacto-link-icon {
+      width: 34px; height: 34px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    /* ---- FORMS ---- */
+    .form-group { margin-bottom: 1.2rem; }
+    label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.72rem 0.9rem;
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 0;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='6' viewBox='0 0 11 6'%3E%3Cpath d='M1 1l4.5 4 4.5-4' stroke='%238a8680' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+      padding-right: 2.2rem;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+
+    .form-success {
+      display: none;
+      padding: 1.5rem 0;
+      color: var(--accent);
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-style: italic;
     }
 
-    @keyframes scrollLine {
-      0%   { transform: scaleY(0); transform-origin: top; opacity: 1; }
-      50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
-      51%  { transform: scaleY(1); transform-origin: bottom; }
-      100% { transform: scaleY(0); transform-origin: bottom; opacity: 0.3; }
+    /* ---- FOOTER ---- */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 2rem 2rem;
     }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; }
+    .footer-meta {
+      font-size: 0.73rem;
+      color: var(--muted);
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-meta a:hover { color: var(--text); }
 
-    /* Reveal on scroll */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: none;
-    }
-
-    /* RESPONSIVE */
+    /* ---- RESPONSIVE ---- */
     @media (max-width: 900px) {
-      .nav-logo {
-        font-size: 0.85rem;
-        letter-spacing: 0.04em;
-      }
-      nav {
-        padding: 1rem var(--gap);
-      }
-      .hero { grid-template-columns: 1fr; }
-      .hero-right { height: 50vh; position: relative; }
-      .hero-img-wrap { position: absolute; inset: 0; }
-      .about { grid-template-columns: 1fr; }
-      .services-header { grid-template-columns: 1fr; }
-      .services-grid { grid-template-columns: 1fr; }
-      .contact-section { grid-template-columns: 1fr; }
-      .gallery-grid { grid-template-columns: 1fr 1fr; }
-      .gallery-grid {
-        flex-direction: column;
-      }
-      .gallery-col {
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-      .gallery-col .photo-card {
-        flex: 1 1 calc(50% - 0.5rem);
-        min-width: 140px;
-      }
-      body { cursor: auto; }
-      .cursor, .cursor-ring { display: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .about-img-wrap { max-width: 360px; margin: 0 auto; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .gallery-item:nth-child(3n+2) { margin-top: 0; }
+      .gallery-item:nth-child(2n) { margin-top: 22px; }
+      .servicios-grid { grid-template-columns: 1fr; }
+      .contacto-grid { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    @media (max-width: 600px) {
+      section { padding: 4rem 1.25rem; }
+      .nav-inner { padding: 0 1.25rem; }
+      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .gallery-grid { grid-template-columns: 1fr; gap: 4px; }
+      .gallery-item:nth-child(2n) { margin-top: 0; }
+      .gallery-item:nth-child(3n+2) { margin-top: 0; }
+      .servicio-card { padding: 1.75rem 1.5rem; }
+      .stats-row { gap: 1.75rem; }
+      .lightbox-prev { left: -14px; width: 32px; height: 32px; font-size: 1rem; }
+      .lightbox-next { right: -14px; width: 32px; height: 32px; font-size: 1rem; }
     }
   </style>
 </head>
 <body>
 
-  <div class="cursor" id="cursor"></div>
-  <div class="cursor-ring" id="cursorRing"></div>
-
   <!-- NAV -->
   <nav>
-    <a href="#" class="nav-logo">Otto Kols · Fotógrafo</a>
-    <ul class="nav-links">
-      <li><a href="#trabajo">Trabajo</a></li>
-      <li><a href="#servicios">Servicios</a></li>
-      <li><a href="#contacto">Contacto</a></li>
-    </ul>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">Otto Kols</a>
+      <ul class="nav-links">
+        <li><a href="#trabajo">Trabajo</a></li>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="salidas.html" class="nav-salidas">Salidas fotográficas</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </nav>
 
+  <div class="nav-drawer" id="navDrawer">
+    <ul>
+      <li><a href="#trabajo" class="drawer-close">Trabajo</a></li>
+      <li><a href="#servicios" class="drawer-close">Servicios</a></li>
+      <li><a href="salidas.html" class="nav-salidas">Salidas fotográficas</a></li>
+      <li><a href="#contacto" class="drawer-close">Contacto</a></li>
+    </ul>
+  </div>
+
   <!-- HERO -->
-  <section class="hero hero-full">
-    <img class="hero-bg-img" src="fotos/headhor.jpg" alt="Fotografía de calle" />
-    <div class="hero-left hero-left-full">
-      <p class="hero-eyebrow">Fotografía · Madrid y donde haga falta</p>
-      <h1 class="hero-title">
-        Fotografías<br>
-        <em>que duran.</em>
-      </h1>
-      <p class="hero-sub">
-        Retrato, parejas, bodas y momentos únicos. Disponible en cualquier lugar.
-      </p>
-      <div class="hero-cta">
-        <a href="#contacto" class="btn">Hablemos de tu proyecto</a>
-      </div>
+  <section class="hero" id="inicio">
+    <img src="/fotos/headhor.jpg" alt="Fotografía de calle en Madrid" class="hero-img" />
+    <div class="hero-content">
+      <p class="hero-label">Fotografía · Madrid y donde haga falta</p>
+      <h1>Fotografías<br><em>que duran.</em></h1>
+      <p class="hero-sub">Retrato, parejas, bodas y momentos únicos. Disponible en cualquier lugar.</p>
+      <a href="#contacto" class="btn btn-solid">Hablemos de tu proyecto</a>
     </div>
-    <div class="hero-scroll">
-      <div class="scroll-line"></div>
-      <span class="scroll-text">Descubrir</span>
-    </div>
+    <div class="scroll-hint">Descubrir</div>
   </section>
 
-  <!-- ABOUT -->
-  <section id="sobre-mi" style="padding-top: calc(var(--gap) * 2.5);">
-    <div class="section-label">Sobre mí</div>
-    <div class="about">
-      <div class="about-sticky reveal">
-        <div class="about-portrait"><img src="fotos/yovert.jpg" alt="Otto Kols, fotógrafo" /></div>
-      </div>
-      <div class="about-text reveal">
-        <div class="about-name">
-          Una mirada<br><em>propia.</em>
+  <!-- SOBRE -->
+  <section id="sobre">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-img-wrap">
+          <img src="/fotos/yovert.jpg" alt="Otto Kols, fotógrafo" />
         </div>
-        <p>
-          Creo que una buena fotografía no captura un momento — lo construye. Trabajo despacio, con atención y sin prisa, buscando la imagen que permanece cuando todo lo demás se olvida.
-        </p>
-        <p>
-          Disponible para retratos, sesiones de pareja, prebodas y días de boda. Ocasionalmente, otros proyectos que me hagan sentir algo.
-        </p>
-        <p>
-          Detrás de esta web está también <em>Mirar Despacio</em>, un proyecto sobre fotografía contemplativa que llevo con el mismo espíritu: menos ruido, más presencia.
-        </p>
-        <div class="about-stats">
-          <div>
-            <div class="stat-num">07+</div>
-            <div class="stat-label">Años fotografiando</div>
-          </div>
-          <div>
-            <div class="stat-num">20+</div>
-            <div class="stat-label">Países fotografiados</div>
-          </div>
-          <div>
-            <div class="stat-num">∞</div>
-            <div class="stat-label">Intentos de hacer buena foto</div>
-          </div>
-          <div>
-            <div class="stat-num">1</div>
-            <div class="stat-label">Forma de mirar</div>
+        <div class="about-text">
+          <p class="section-label">Sobre mí</p>
+          <h2 class="section-title">Una mirada<br><em>propia.</em></h2>
+          <p>Creo que una buena fotografía no captura un momento — lo construye. Trabajo despacio, con atención y sin prisa, buscando la imagen que permanece cuando todo lo demás se olvida.</p>
+          <p>Disponible para retratos, sesiones de pareja, prebodas y días de boda. Ocasionalmente, otros proyectos que me hagan sentir algo.</p>
+          <p>Detrás de esta web está también <em>Mirar Despacio</em>, un proyecto sobre fotografía contemplativa que llevo con el mismo espíritu: menos ruido, más presencia.</p>
+          <div class="stats-row">
+            <div>
+              <span class="stat-n">07+</span>
+              <span class="stat-label">Años fotografiando</span>
+            </div>
+            <div>
+              <span class="stat-n">20+</span>
+              <span class="stat-label">Países fotografiados</span>
+            </div>
+            <div>
+              <span class="stat-n">∞</span>
+              <span class="stat-label">Intentos de hacer buena foto</span>
+            </div>
+            <div>
+              <span class="stat-n">1</span>
+              <span class="stat-label">Forma de mirar</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- GALLERY -->
-  <section id="trabajo" class="gallery-section" style="padding-top: calc(var(--gap) * 2.5);">
-    <div class="section-label">Trabajo seleccionado</div>
-    <div class="gallery-intro reveal">
-      <h2 class="gallery-title">
-        <span style="font-family:'Cormorant Garamond',serif;font-weight:300;">Imágenes</span>
-      </h2>
-      <a href="#contacto" class="btn">Ver más / Contactar</a>
+  <!-- GALERÍA -->
+  <section id="trabajo">
+    <div class="container">
+      <p class="section-label">Trabajo seleccionado</p>
+      <div class="gallery-intro">
+        <h2 class="section-title">Imágenes</h2>
+        <p>Una selección de trabajo reciente. Haz clic en cualquier imagen para ampliarla.</p>
+      </div>
+      <div class="gallery-grid" id="galleryGrid">
+        <div class="gallery-item" data-src="/fotos/boda1horiz.jpg" data-label="Boda · Fuerteventura">
+          <img src="/fotos/boda1horiz.jpg" alt="Boda en Fuerteventura" loading="lazy" />
+          <div class="gallery-overlay"><span class="gallery-label">Boda · Fuerteventura</span></div>
+        </div>
+        <div class="gallery-item" data-src="/fotos/retrato1vert.jpg" data-label="Retrato">
+          <img src="/fotos/retrato1vert.jpg" alt="Retrato" loading="lazy" />
+          <div class="gallery-overlay"><span class="gallery-label">Retrato</span></div>
+        </div>
+        <div class="gallery-item" data-src="/fotos/boda2horiz.jpg" data-label="Boda">
+          <img src="/fotos/boda2horiz.jpg" alt="Boda" loading="lazy" />
+          <div class="gallery-overlay"><span class="gallery-label">Boda</span></div>
+        </div>
+        <div class="gallery-item" data-src="/fotos/desnudoh.jpg" data-label="Desnudo artístico">
+          <img src="/fotos/desnudoh.jpg" alt="Desnudo artístico" loading="lazy" />
+          <div class="gallery-overlay"><span class="gallery-label">Desnudo artístico</span></div>
+        </div>
+        <div class="gallery-item" data-src="/fotos/walliot.jpg" data-label="Mascotas">
+          <img src="/fotos/walliot.jpg" alt="Fotografía de mascotas" loading="lazy" />
+          <div class="gallery-overlay"><span class="gallery-label">Mascotas</span></div>
+        </div>
+        <div class="gallery-item" data-src="/fotos/calle1.jpg" data-label="Calle · Madrid">
+          <img src="/fotos/calle1.jpg" alt="Fotografía de calle" loading="lazy" />
+          <div class="gallery-overlay"><span class="gallery-label">Calle · Madrid</span></div>
+        </div>
+        <div class="gallery-item" data-src="/fotos/retrato3vert.jpg" data-label="Retrato · Luz natural">
+          <img src="/fotos/retrato3vert.jpg" alt="Retrato luz natural" loading="lazy" />
+          <div class="gallery-overlay"><span class="gallery-label">Retrato · Luz natural</span></div>
+        </div>
+      </div>
+      <div class="gallery-cta">
+        <a href="#contacto" class="btn">Ver más / Contactar</a>
+      </div>
     </div>
+  </section>
 
-    <div class="gallery-grid reveal">
-      <div class="gallery-col">
-        <div class="photo-card">
-          <div class="photo-bg"><img src="fotos/boda1horiz.jpg" alt="Boda en Fuerteventura" /></div>
-          <span class="photo-caption">Boda · Fuerteventura</span>
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-inner">
+      <button class="lightbox-close" id="lightboxClose">✕</button>
+      <button class="lightbox-prev" id="lightboxPrev">‹</button>
+      <button class="lightbox-next" id="lightboxNext">›</button>
+      <img id="lightboxImg" src="" alt="" />
+      <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+  </div>
+
+  <!-- SERVICIOS -->
+  <section id="servicios">
+    <div class="container">
+      <p class="section-label">Servicios</p>
+      <h2 class="section-title">Lo que <em>ofrezco.</em></h2>
+      <div class="servicios-grid">
+        <div class="servicio-card">
+          <div class="servicio-num">01</div>
+          <h3>Retrato &amp; Parejas</h3>
+          <p>Sesiones individuales o para dos. Sin poses forzadas, sin artificios. Para personas que quieren una imagen auténtica de sí mismas o de lo que comparten.</p>
         </div>
-        <div class="photo-card">
-          <div class="photo-bg"><img src="fotos/retrato1vert.jpg" alt="Retrato" /></div>
-          <span class="photo-caption">Retrato</span>
+        <div class="servicio-card">
+          <div class="servicio-num">02</div>
+          <h3>Prebodas, Bodas &amp; Eventos</h3>
+          <p>Cobertura documental de días que importan. Bodas, ceremonias civiles, prebodas y otros eventos con significado. En cualquier lugar.</p>
         </div>
-      </div>
-      <div class="gallery-col">
-        <div class="photo-card">
-          <div class="photo-bg"><img src="fotos/boda2horiz.jpg" alt="Boda" /></div>
-          <span class="photo-caption">Boda</span>
+        <div class="servicio-card">
+          <div class="servicio-num">03</div>
+          <h3>Negocio &amp; Producto</h3>
+          <p>Fotografía para marcas, espacios y productos. Imágenes que comunican lo que haces con la misma atención que pongo en todo lo demás.</p>
         </div>
-        <div class="photo-card">
-          <div class="photo-bg"><img src="fotos/desnudoh.jpg" alt="Desnudo artístico" /></div>
-          <span class="photo-caption">Desnudo artístico</span>
-        </div>
-        <div class="photo-card">
-          <div class="photo-bg"><img src="fotos/walliot.jpg" alt="Fotografía de mascotas" /></div>
-          <span class="photo-caption">Mascotas</span>
-        </div>
-      </div>
-      <div class="gallery-col">
-        <div class="photo-card">
-          <div class="photo-bg"><img src="fotos/calle1.jpg" alt="Fotografía de calle" /></div>
-          <span class="photo-caption">Calle · Madrid</span>
-        </div>
-        <div class="photo-card">
-          <div class="photo-bg"><img src="fotos/retrato3vert.jpg" alt="Retrato" /></div>
-          <span class="photo-caption">Retrato · Luz natural</span>
+        <div class="servicio-card">
+          <div class="servicio-num">04</div>
+          <h3>Mascotas</h3>
+          <p>Fotografía para los que también son familia. Sesiones para capturar su carácter, su presencia, los momentos que no quieres olvidar.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES -->
-  <section id="servicios" class="services-section" style="margin-top: calc(var(--gap) * 2);">
-    <div class="section-label">Servicios</div>
-    <div class="services-header reveal">
-      <h2 class="services-title">
-        Lo que<br><em>ofrezco.</em>
-      </h2>
-      <p class="services-desc">
-        Cada sesión es diferente. Estas son las formas principales en las que trabajamos juntos, siempre adaptadas a lo que necesitas.
-      </p>
-    </div>
-    <div class="services-grid reveal">
-      <div class="service-card">
-        <div class="service-num">01</div>
-        <h3 class="service-name">Retrato & Parejas</h3>
-        <div class="service-divider"></div>
-        <p class="service-desc">Sesiones individuales o para dos. Sin poses forzadas, sin artificios. Para personas que quieren una imagen auténtica de sí mismas o de lo que comparten.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-num">02</div>
-        <h3 class="service-name">Prebodas, Bodas & Eventos</h3>
-        <div class="service-divider"></div>
-        <p class="service-desc">Cobertura documental de días que importan. Bodas, ceremonias civiles, prebodas y otros eventos con significado. En cualquier lugar.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-num">03</div>
-        <h3 class="service-name">Negocio & Producto</h3>
-        <div class="service-divider"></div>
-        <p class="service-desc">Fotografía para marcas, espacios y productos. Imágenes que comunican lo que haces con la misma atención que pongo en todo lo demás.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-num">04</div>
-        <h3 class="service-name">Mascotas</h3>
-        <div class="service-divider"></div>
-        <p class="service-desc">Fotografía para los que también son familia. Sesiones para capturar su carácter, su presencia, los momentos que no quieres olvidar.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
+  <!-- CONTACTO -->
   <section id="contacto">
-    <div class="section-label">Contacto</div>
-    <div class="contact-section">
-      <div class="contact-left reveal">
-        <h2>Cuéntame<br><em>tu proyecto.</em></h2>
-        <p>
-          Si tienes algo en mente — una sesión, una boda, una idea a medio formar — escríbeme. Respondo personalmente, siempre.
-        </p>
-        <div class="contact-links">
-          <a href="mailto:ottobkc@gmail.com" class="contact-link">
-            <span class="contact-link-icon"></span>
-            ottobkc@gmail.com
-          </a>
-          <a href="https://instagram.com/ob.kc" target="_blank" class="contact-link">
-            <span class="contact-link-icon"></span>
-            Instagram · @ob.kc
-          </a>
-          <a href="https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB" target="_blank" class="contact-link">
-            <span class="contact-link-icon"></span>
-            Mirar Despacio · podcast en Spotify, Apple Podcasts y YouTube
-          </a>
+    <div class="container">
+      <div class="contacto-grid">
+        <div class="contacto-info">
+          <p class="section-label">Contacto</p>
+          <h2 class="section-title">Cuéntame <em>tu proyecto.</em></h2>
+          <p>Si tienes algo en mente — una sesión, una boda, una idea a medio formar — escríbeme. Respondo personalmente, siempre.</p>
+          <div class="contacto-links">
+            <a href="mailto:ottobkc@gmail.com" class="contacto-link">
+              <span class="contacto-link-icon">@</span>
+              ottobkc@gmail.com
+            </a>
+            <a href="https://instagram.com/ob.kc" target="_blank" rel="noopener" class="contacto-link">
+              <span class="contacto-link-icon">IG</span>
+              Instagram · @ob.kc
+            </a>
+            <a href="https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB" target="_blank" rel="noopener" class="contacto-link">
+              <span class="contacto-link-icon">▶</span>
+              Mirar Despacio · Spotify, Apple &amp; YouTube
+            </a>
+          </div>
         </div>
-      </div>
-
-      <div class="reveal">
-        <form class="contact-form" id="contact-form">
-          <div class="form-group">
-            <label class="form-label" for="nombre">Nombre</label>
-            <input class="form-input" type="text" id="nombre" name="nombre" required placeholder="Tu nombre" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="email">Email</label>
-            <input class="form-input" type="email" id="email" name="email" required placeholder="tu@email.com" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="servicio">Tipo de sesión</label>
-            <select class="form-select" id="servicio" name="servicio">
-              <option value="" disabled selected>¿Qué tienes en mente?</option>
-              <option>Retrato individual</option>
-              <option>Sesión de pareja</option>
-              <option>Preboda</option>
-              <option>Boda</option>
-              <option>Sesión de mascotas</option>
-              <option>Otro / no sé aún</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="fecha">Fecha aproximada</label>
-            <input class="form-input" type="date" id="fecha" name="fecha" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="mensaje">Cuéntame algo</label>
-            <textarea class="form-textarea" id="mensaje" name="mensaje" placeholder="Lo que quieras que sepa antes de responder..."></textarea>
-          </div>
-          <div class="form-submit">
-            <button class="btn-submit" type="submit" id="btn-submit">Enviar mensaje</button>
-            <span class="form-note" id="form-note">Respondo en menos de 48h</span>
-          </div>
-        </form>
-        <div id="form-success" style="display:none; padding: 2rem 0; font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--ink-soft); font-style:italic;">
-          Mensaje recibido. Te escribo pronto.
+        <div>
+          <form id="contactForm" action="https://formspree.io/f/xwpkpeyp" method="POST">
+            <div class="form-group">
+              <label for="c-nombre">Nombre</label>
+              <input type="text" id="c-nombre" name="nombre" required placeholder="Tu nombre" />
+            </div>
+            <div class="form-group">
+              <label for="c-email">Email</label>
+              <input type="email" id="c-email" name="email" required placeholder="tu@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="c-tipo">Tipo de sesión</label>
+              <select id="c-tipo" name="tipo">
+                <option value="">¿Qué tienes en mente?</option>
+                <option>Retrato individual</option>
+                <option>Sesión de pareja</option>
+                <option>Preboda</option>
+                <option>Boda</option>
+                <option>Sesión de mascotas</option>
+                <option>Otro / no sé aún</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="c-fecha">Fecha aproximada</label>
+              <input type="text" id="c-fecha" name="fecha" placeholder="Ej: septiembre 2025, sin fecha aún..." />
+            </div>
+            <div class="form-group">
+              <label for="c-mensaje">Cuéntame algo</label>
+              <textarea id="c-mensaje" name="mensaje" rows="4" placeholder="El lugar que tienes en mente, el estado de ánimo que buscas, lo que sea..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-solid" style="width:100%;text-align:center;">Enviar mensaje</button>
+          </form>
+          <div class="form-success" id="contactSuccess">Mensaje recibido. Te escribo pronto.</div>
+          <p style="margin-top:0.9rem;font-size:0.73rem;color:var(--muted);">Respondo en menos de 48h</p>
         </div>
       </div>
     </div>
@@ -1089,108 +809,172 @@
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-logo">Otto Kols · Fotógrafo</div>
-    <div class="footer-copy">© 2026 · Madrid</div>
-    <div class="footer-ig"><a href="https://instagram.com/ob.kc" target="_blank">@ob.kc</a></div>
+    <div class="footer-inner">
+      <span class="footer-brand">Otto Kols · Fotógrafo</span>
+      <div class="footer-meta">
+        <span>© 2026 · Madrid</span>
+        <a href="https://instagram.com/ob.kc" target="_blank" rel="noopener">@ob.kc</a>
+        <a href="salidas.html">Salidas fotográficas</a>
+      </div>
+    </div>
   </footer>
 
   <script>
-    // Nav scroll behavior
-    const nav = document.querySelector('nav');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 60) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+    // Hamburger
+    const toggle = document.getElementById('navToggle');
+    const drawer = document.getElementById('navDrawer');
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    document.querySelectorAll('.drawer-close').forEach(l => l.addEventListener('click', () => {
+      toggle.classList.remove('open');
+      drawer.classList.remove('open');
+    }));
+    document.addEventListener('click', e => {
+      if (!toggle.contains(e.target) && !drawer.contains(e.target)) {
+        toggle.classList.remove('open');
+        drawer.classList.remove('open');
       }
     });
 
-    // Custom cursor
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
+    // Lightbox
+    const items = document.querySelectorAll('.gallery-item');
+    const lb = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightboxImg');
+    const lbCap = document.getElementById('lightboxCaption');
+    let cur = 0;
+    const imgs = Array.from(items).map(i => ({ src: i.dataset.src, label: i.dataset.label }));
 
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top  = my + 'px';
-    });
-
-    function animateRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + 'px';
-      ring.style.top  = ry + 'px';
-      requestAnimationFrame(animateRing);
+    function openLb(i) {
+      cur = i;
+      lbImg.src = imgs[i].src;
+      lbCap.textContent = imgs[i].label;
+      lb.classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
-    animateRing();
+    function closeLb() {
+      lb.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    function prev() { cur = (cur - 1 + imgs.length) % imgs.length; lbImg.src = imgs[cur].src; lbCap.textContent = imgs[cur].label; }
+    function next() { cur = (cur + 1) % imgs.length; lbImg.src = imgs[cur].src; lbCap.textContent = imgs[cur].label; }
 
-    document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        ring.style.width = '56px';
-        ring.style.height = '56px';
-        ring.style.opacity = '0.25';
-      });
-      el.addEventListener('mouseleave', () => {
-        ring.style.width = '36px';
-        ring.style.height = '36px';
-        ring.style.opacity = '0.5';
-      });
+    items.forEach((it, i) => it.addEventListener('click', () => openLb(i)));
+    document.getElementById('lightboxClose').addEventListener('click', closeLb);
+    document.getElementById('lightboxPrev').addEventListener('click', e => { e.stopPropagation(); prev(); });
+    document.getElementById('lightboxNext').addEventListener('click', e => { e.stopPropagation(); next(); });
+    lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', e => {
+      if (!lb.classList.contains('active')) return;
+      if (e.key === 'Escape') closeLb();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
     });
 
-    // Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    reveals.forEach(el => observer.observe(el));
-
-    // Form — Formspree async
-    const form = document.getElementById('contact-form');
-    const btn = document.getElementById('btn-submit');
-    const note = document.getElementById('form-note');
-    const success = document.getElementById('form-success');
-
-    // ⚠️ Reemplaza xrejydle con el ID que obtengas en formspree.io
-    const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xrejydle';
-
-    form.addEventListener('submit', async (e) => {
+    // Contacto form
+    const cf = document.getElementById('contactForm');
+    cf.addEventListener('submit', async e => {
       e.preventDefault();
-      btn.textContent = 'Enviando...';
-      btn.disabled = true;
-      note.textContent = '';
-
-      const data = new FormData(form);
-
-      try {
-        const res = await fetch(FORMSPREE_ENDPOINT, {
-          method: 'POST',
-          body: data,
-          headers: { 'Accept': 'application/json' }
-        });
-
-        if (res.ok) {
-          form.style.display = 'none';
-          success.style.display = 'block';
-        } else {
-          btn.textContent = 'Enviar mensaje';
-          btn.disabled = false;
-          note.textContent = 'Algo falló. Escríbeme directamente a tu correo.';
-          note.style.color = '#c0392b';
-        }
-      } catch {
-        btn.textContent = 'Enviar mensaje';
-        btn.disabled = false;
-        note.textContent = 'Error de conexión. Inténtalo de nuevo.';
-        note.style.color = '#c0392b';
+      const btn = cf.querySelector('button');
+      btn.textContent = 'Enviando...'; btn.disabled = true;
+      const r = await fetch(cf.action, { method: 'POST', body: new FormData(cf), headers: { Accept: 'application/json' } }).catch(() => null);
+      if (r && r.ok) {
+        cf.style.display = 'none';
+        document.getElementById('contactSuccess').style.display = 'block';
+      } else {
+        btn.textContent = 'Error — inténtalo de nuevo'; btn.disabled = false;
       }
+    });
+
+    // ---- COOKIES ----
+    const cookieBanner = document.getElementById('cookieBanner');
+    if (!localStorage.getItem('cookie_consent')) {
+      cookieBanner.style.display = 'flex';
+    }
+    document.getElementById('cookieAccept').addEventListener('click', () => {
+      localStorage.setItem('cookie_consent', 'all');
+      cookieBanner.style.display = 'none';
+      // Aquí activa Google Analytics cuando lo tengas:
+      // gtag('consent', 'update', { analytics_storage: 'granted' });
+    });
+    document.getElementById('cookieEssential').addEventListener('click', () => {
+      localStorage.setItem('cookie_consent', 'essential');
+      cookieBanner.style.display = 'none';
     });
   </script>
+
+  <!-- COOKIE BANNER -->
+  <style>
+    #cookieBanner {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 200;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 1.25rem 2rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      border-top: 2px solid var(--accent);
+    }
+    .cookie-text {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #b8b4ae;
+      flex: 1;
+      min-width: 220px;
+    }
+    .cookie-text a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .cookie-text strong { color: var(--bg); font-weight: 400; }
+    .cookie-btns {
+      display: flex;
+      gap: 0.75rem;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .cookie-btn {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0.55rem 1.1rem;
+      border: 1px solid;
+      transition: background 0.2s, color 0.2s;
+      background: transparent;
+    }
+    #cookieAccept {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    #cookieAccept:hover { background: var(--accent); color: var(--ink); }
+    #cookieEssential {
+      border-color: #3a3630;
+      color: #7a756f;
+    }
+    #cookieEssential:hover { border-color: #5a5550; color: #b8b4ae; }
+    @media (max-width: 600px) {
+      #cookieBanner { padding: 1.25rem; }
+      .cookie-btns { width: 100%; }
+      .cookie-btn { flex: 1; text-align: center; }
+    }
+  </style>
+  <div id="cookieBanner">
+    <p class="cookie-text">
+      <strong>Cookies</strong> — Esta web usa cookies esenciales para el funcionamiento del sitio. Si aceptas todas, en el futuro podría incluir analítica anónima para entender mejor qué funciona. Sin publicidad, sin rastreo de terceros.
+    </p>
+    <div class="cookie-btns">
+      <button class="cookie-btn" id="cookieEssential">Solo esenciales</button>
+      <button class="cookie-btn" id="cookieAccept">Aceptar todas</button>
+    </div>
+  </div>
+
 </body>
 </html>
