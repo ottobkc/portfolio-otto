@@ -607,6 +607,29 @@
       .lightbox-next { right: -14px; width: 32px; height: 32px; font-size: 1rem; }
     }
   </style>
+  <!-- Netlify Identity: necesario para procesar enlaces de invitación -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    // Si la URL contiene un token de invitación o recovery, abre el modal automáticamente
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on('init', function(user) {
+        if (!user) {
+          var hash = window.location.hash;
+          if (hash && (hash.indexOf('invite_token=') !== -1 || hash.indexOf('recovery_token=') !== -1)) {
+            window.netlifyIdentity.open();
+          }
+        }
+      });
+      window.netlifyIdentity.on('login', function(user) {
+        // Redirigir a la zona de miembros tras login desde invitación
+        if (window.location.hash && window.location.hash.indexOf('invite_token=') !== -1) {
+          window.location.href = '/recursos.html';
+        } else {
+          window.netlifyIdentity.close();
+        }
+      });
+    }
+  </script>
 </head>
 <body>
 
@@ -794,7 +817,7 @@
           </div>
         </div>
         <div>
-          <form id="contactForm" action="https://formspree.io/f/xwpkpeyp" method="POST">
+          <form id="contactForm" action="https://formspree.io/f/xrejydle" method="POST">
             <div class="form-group">
               <label for="c-nombre">Nombre</label>
               <input type="text" id="c-nombre" name="nombre" required placeholder="Tu nombre" />
@@ -901,14 +924,28 @@
     const cf = document.getElementById('contactForm');
     cf.addEventListener('submit', async e => {
       e.preventDefault();
-      const btn = cf.querySelector('button');
-      btn.textContent = 'Enviando...'; btn.disabled = true;
-      const r = await fetch(cf.action, { method: 'POST', body: new FormData(cf), headers: { Accept: 'application/json' } }).catch(() => null);
-      if (r && r.ok) {
-        cf.style.display = 'none';
-        document.getElementById('contactSuccess').style.display = 'block';
-      } else {
-        btn.textContent = 'Error — inténtalo de nuevo'; btn.disabled = false;
+      const btn = cf.querySelector('button[type="submit"]');
+      const originalText = btn.textContent;
+      btn.textContent = 'Enviando…'; btn.disabled = true;
+      try {
+        const r = await fetch(cf.action, {
+          method: 'POST',
+          body: new FormData(cf),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (r.ok) {
+          cf.style.display = 'none';
+          document.getElementById('contactSuccess').style.display = 'block';
+        } else {
+          const data = await r.json().catch(() => ({}));
+          console.error('Formspree error:', r.status, data);
+          btn.textContent = originalText; btn.disabled = false;
+          alert('No se pudo enviar el mensaje. Por favor escríbeme directamente a hola@ottokols.es');
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        btn.textContent = originalText; btn.disabled = false;
+        alert('Error de red. Por favor escríbeme directamente a hola@ottokols.es');
       }
     });
   </script>

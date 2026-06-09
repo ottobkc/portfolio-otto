@@ -535,10 +535,13 @@
       background: var(--bg2);
     }
     .checkbox-wrap input[type="checkbox"] {
+      appearance: auto;
+      -webkit-appearance: auto;
       width: 17px; height: 17px; min-width: 17px;
       margin-top: 2px;
       cursor: pointer;
       accent-color: var(--accent);
+      flex-shrink: 0;
     }
     .checkbox-wrap label {
       text-transform: none;
