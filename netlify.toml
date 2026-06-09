@@ -1,0 +1,36 @@
+# -----------------------------------------------
+# NETLIFY CONFIGURATION — ottokols.es
+# -----------------------------------------------
+
+[build]
+  publish = "PortfolioOtto"   # ajusta si tu carpeta raíz es distinta
+
+# -----------------------------------------------
+# PROTECCIÓN DE /members/ CON NETLIFY IDENTITY
+# Solo usuarios autenticados pueden acceder
+# -----------------------------------------------
+[[headers]]
+  for = "/members/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# Redirige a salidas.html#acceso si no estás autenticado
+# El widget de Identity se encarga del flujo en el cliente;
+# esta regla protege el acceso directo por URL
+[[redirects]]
+  from   = "/members/*"
+  to     = "/salidas.html#acceso"
+  status = 401
+  force  = false
+  conditions = {Role = ["authenticated"]}
+
+# -----------------------------------------------
+# REDIRECTS GENERALES
+# -----------------------------------------------
+
+# www → apex (sin www)
+[[redirects]]
+  from   = "https://www.ottokols.es/*"
+  to     = "https://ottokols.es/:splat"
+  status = 301
+  force  = true
