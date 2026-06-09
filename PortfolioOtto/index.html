@@ -52,19 +52,24 @@
   </script>
   -->
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #151513;
-      --bg2:     #1c1c1a;
-      --bg3:     #242421;
-      --text:    #e6e0d8;
-      --muted:   #8a8680;
-      --accent:  #c9a96e;
-      --border:  #2e2e2b;
+      --bg:         #f5f3ef;
+      --bg2:        #eeecea;
+      --bg3:        #e6e3de;
+      --ink:        #1a1814;
+      --ink-faint:  #4a4742;
+      --muted:      #7a756f;
+      --accent:     #c8a97a;
+      --border:     #d8d4ce;
       --font-serif: Georgia, 'Times New Roman', serif;
-      --font-sans:  'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font-sans:  'Jost', sans-serif;
       --max: 1100px;
     }
 
@@ -72,10 +77,11 @@
 
     body {
       background: var(--bg);
-      color: var(--text);
+      color: var(--ink);
       font-family: var(--font-sans);
-      font-size: 16px;
-      line-height: 1.6;
+      font-weight: 300;
+      font-size: clamp(14px, 1.5vw, 16px);
+      line-height: 1.7;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -87,7 +93,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
-      background: rgba(21,21,19,0.93);
+      background: rgba(245,243,239,0.93);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
@@ -118,7 +124,7 @@
       color: var(--muted);
       transition: color 0.2s;
     }
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover { color: var(--ink); }
     .nav-links a.nav-salidas {
       color: var(--accent);
       opacity: 0.85;
@@ -139,7 +145,7 @@
       display: block;
       width: 23px;
       height: 1.5px;
-      background: var(--text);
+      background: var(--ink);
       transition: all 0.28s;
     }
     .nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
@@ -150,7 +156,7 @@
       display: none;
       position: fixed;
       top: 60px; left: 0; right: 0;
-      background: rgba(21,21,19,0.97);
+      background: rgba(245,243,239,0.97);
       padding: 1.25rem 2rem 1.5rem;
       border-bottom: 1px solid var(--border);
       z-index: 99;
@@ -181,7 +187,7 @@
       width: 100%; height: 100%;
       object-fit: cover;
       object-position: center;
-      filter: brightness(0.42);
+      filter: brightness(0.38);
     }
     .hero-content {
       position: relative;
@@ -345,8 +351,8 @@
     .gallery-item:nth-child(3n+2) { margin-top: 28px; }
     .gallery-item img {
       width: 100%;
-      aspect-ratio: 3/4;
-      object-fit: cover;
+      height: auto;
+      display: block;
       transition: transform 0.55s ease, filter 0.35s;
       filter: grayscale(12%);
     }
@@ -410,14 +416,14 @@
       cursor: pointer;
       padding: 0.2rem;
     }
-    .lightbox-close:hover { color: var(--text); }
+    .lightbox-close:hover { color: var(--ink); }
     .lightbox-prev, .lightbox-next {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       background: rgba(0,0,0,0.35);
       border: 1px solid var(--border);
-      color: var(--text);
+      color: var(--ink);
       width: 40px; height: 40px;
       display: flex;
       align-items: center;
@@ -443,7 +449,7 @@
       padding: 2.5rem;
       transition: background 0.2s;
     }
-    .servicio-card:hover { background: #282825; }
+    .servicio-card:hover { background: #e0ddd8; }
     .servicio-num {
       font-family: var(--font-serif);
       font-size: 2.8rem;
@@ -482,7 +488,7 @@
       font-size: 0.85rem;
       transition: color 0.2s;
     }
-    .contacto-link:hover { color: var(--text); }
+    .contacto-link:hover { color: var(--ink); }
     .contacto-link-icon {
       width: 34px; height: 34px;
       border: 1px solid var(--border);
@@ -507,9 +513,10 @@
       width: 100%;
       background: var(--bg2);
       border: 1px solid var(--border);
-      color: var(--text);
+      color: var(--ink);
       padding: 0.72rem 0.9rem;
       font-family: var(--font-sans);
+      font-weight: 300;
       font-size: 0.88rem;
       outline: none;
       transition: border-color 0.2s;
@@ -537,8 +544,7 @@
 
     /* ---- FOOTER ---- */
     footer {
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
+      background: var(--ink);
       padding: 2rem 2rem;
     }
     .footer-inner {
@@ -550,7 +556,7 @@
       flex-wrap: wrap;
       gap: 0.75rem;
     }
-    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; }
+    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; color: var(--bg); }
     .footer-meta {
       font-size: 0.73rem;
       color: var(--muted);
@@ -558,7 +564,15 @@
       gap: 1.5rem;
       flex-wrap: wrap;
     }
-    .footer-meta a:hover { color: var(--text); }
+    .footer-meta a { color: var(--muted); }
+    .footer-meta a:hover { color: var(--bg); }
+      font-size: 0.73rem;
+      color: var(--muted);
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-meta a:hover { color: var(--ink); }
 
     /* ---- RESPONSIVE ---- */
     @media (max-width: 900px) {
@@ -887,23 +901,6 @@
       }
     });
 
-    // ---- COOKIES ----
-    const cookieBanner = document.getElementById('cookieBanner');
-    if (!localStorage.getItem('cookie_consent')) {
-      cookieBanner.style.display = 'flex';
-    }
-    document.getElementById('cookieAccept').addEventListener('click', () => {
-      localStorage.setItem('cookie_consent', 'all');
-      cookieBanner.style.display = 'none';
-      // Aquí activa Google Analytics cuando lo tengas:
-      // gtag('consent', 'update', { analytics_storage: 'granted' });
-    });
-    document.getElementById('cookieEssential').addEventListener('click', () => {
-      localStorage.setItem('cookie_consent', 'essential');
-      cookieBanner.style.display = 'none';
-    });
-  </script>
-
   <!-- COOKIE BANNER -->
   <style>
     #cookieBanner {
@@ -927,18 +924,8 @@
       flex: 1;
       min-width: 220px;
     }
-    .cookie-text a {
-      color: var(--accent);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
     .cookie-text strong { color: var(--bg); font-weight: 400; }
-    .cookie-btns {
-      display: flex;
-      gap: 0.75rem;
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
+    .cookie-btns { display: flex; gap: 0.75rem; flex-shrink: 0; flex-wrap: wrap; }
     .cookie-btn {
       font-family: var(--font-sans);
       font-size: 0.72rem;
@@ -950,15 +937,9 @@
       transition: background 0.2s, color 0.2s;
       background: transparent;
     }
-    #cookieAccept {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    #cookieAccept { border-color: var(--accent); color: var(--accent); }
     #cookieAccept:hover { background: var(--accent); color: var(--ink); }
-    #cookieEssential {
-      border-color: #3a3630;
-      color: #7a756f;
-    }
+    #cookieEssential { border-color: #3a3630; color: #7a756f; }
     #cookieEssential:hover { border-color: #5a5550; color: #b8b4ae; }
     @media (max-width: 600px) {
       #cookieBanner { padding: 1.25rem; }
@@ -975,6 +956,22 @@
       <button class="cookie-btn" id="cookieAccept">Aceptar todas</button>
     </div>
   </div>
+
+  <script>
+    // ---- COOKIES ----
+    const cookieBanner = document.getElementById('cookieBanner');
+    if (!localStorage.getItem('cookie_consent')) {
+      cookieBanner.style.display = 'flex';
+    }
+    document.getElementById('cookieAccept').addEventListener('click', () => {
+      localStorage.setItem('cookie_consent', 'all');
+      cookieBanner.style.display = 'none';
+    });
+    document.getElementById('cookieEssential').addEventListener('click', () => {
+      localStorage.setItem('cookie_consent', 'essential');
+      cookieBanner.style.display = 'none';
+    });
+  </script>
 
 </body>
 </html>
