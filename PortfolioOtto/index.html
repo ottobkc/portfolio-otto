@@ -197,6 +197,14 @@
       margin: 0 auto;
       padding: 3rem 2rem 5.5rem;
     }
+    .hero-content-box {
+      display: inline-block;
+      background: rgba(26,24,20,0.55);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      padding: 2.5rem 3rem 2.5rem 2.5rem;
+      max-width: 580px;
+    }
     .hero-label {
       font-size: 0.72rem;
       letter-spacing: 0.18em;
@@ -210,11 +218,12 @@
       font-weight: 400;
       line-height: 1.1;
       margin-bottom: 1.5rem;
+      color: #f5f3ef;
     }
     .hero h1 em { font-style: italic; color: var(--accent); }
     .hero-sub {
       font-size: clamp(0.9rem, 1.8vw, 1.05rem);
-      color: var(--muted);
+      color: #c8c4be;
       max-width: 460px;
       margin-bottom: 2.5rem;
     }
@@ -630,10 +639,12 @@
   <section class="hero" id="inicio">
     <img src="/fotos/headhor.jpg" alt="Fotografía de calle en Madrid" class="hero-img" />
     <div class="hero-content">
-      <p class="hero-label">Fotografía · Madrid y donde haga falta</p>
-      <h1>Fotografías<br><em>que duran.</em></h1>
-      <p class="hero-sub">Retrato, parejas, bodas y momentos únicos. Disponible en cualquier lugar.</p>
-      <a href="#contacto" class="btn btn-solid">Hablemos de tu proyecto</a>
+      <div class="hero-content-box">
+        <p class="hero-label">Fotografía · Madrid y donde haga falta</p>
+        <h1>Fotografías<br><em>que duran.</em></h1>
+        <p class="hero-sub">Retrato, parejas, bodas y momentos únicos. Disponible en cualquier lugar.</p>
+        <a href="#contacto" class="btn btn-solid">Hablemos de tu proyecto</a>
+      </div>
     </div>
     <div class="scroll-hint">Descubrir</div>
   </section>
@@ -900,6 +911,7 @@
         btn.textContent = 'Error — inténtalo de nuevo'; btn.disabled = false;
       }
     });
+  </script>
 
   <!-- COOKIE BANNER -->
   <style>
@@ -958,7 +970,6 @@
   </div>
 
   <script>
-    // ---- COOKIES ----
     const cookieBanner = document.getElementById('cookieBanner');
     if (!localStorage.getItem('cookie_consent')) {
       cookieBanner.style.display = 'flex';
