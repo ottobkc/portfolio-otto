@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guía rápida · Fotografía callejera</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef;
+      --ink: #1a1814;
+      --muted: #7a756f;
+      --accent: #c8a97a;
+      --accent2: #5a8a5e;
+      --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-weight: 300;
+      font-size: 11pt;
+      line-height: 1.6;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 14mm 14mm 12mm;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1.5px solid var(--ink);
+      padding-bottom: 7px;
+      margin-bottom: 14px;
+    }
+    .header-left {}
+    .brand {
+      font-size: 7pt;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 3px;
+    }
+    .header h1 {
+      font-family: var(--font-serif);
+      font-size: 20pt;
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+    .header h1 em { font-style: italic; color: var(--accent); }
+    .header-right {
+      text-align: right;
+      font-size: 7pt;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      line-height: 1.8;
+      padding-top: 4px;
+    }
+
+    /* ── Grid de dos columnas ── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .full { grid-column: 1 / -1; }
+
+    /* ── Bloques ── */
+    .block {
+      background: #eeecea;
+      border-left: 2.5px solid var(--accent);
+      padding: 9px 11px;
+    }
+    .block.green { border-left-color: var(--accent2); }
+    .block.plain { background: transparent; border-left-color: var(--border); border-left-width: 1px; }
+
+    .block-label {
+      font-size: 6.5pt;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+    .block.green .block-label { color: var(--accent2); }
+    .block.plain .block-label { color: var(--muted); }
+
+    .block h2 {
+      font-family: var(--font-serif);
+      font-size: 10.5pt;
+      font-weight: 400;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+    .block ul {
+      list-style: none;
+      padding: 0;
+    }
+    .block ul li {
+      font-size: 9pt;
+      color: var(--ink);
+      padding: 2.5px 0;
+      padding-left: 12px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .block ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 8pt;
+    }
+    .block.green ul li::before { color: var(--accent2); }
+    .block.plain ul li::before { color: var(--muted); }
+    .block p {
+      font-size: 9pt;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .block strong { font-weight: 500; color: var(--ink); }
+
+    /* ── Ajustes sugeridos ── */
+    .settings-row {
+      display: flex;
+      gap: 8px;
+    }
+    .setting-pill {
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 8pt;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      font-family: var(--font-sans);
+    }
+    .setting-label {
+      font-size: 7pt;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    /* ── Cita ── */
+    .quote {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      margin: 8px 0;
+      text-align: center;
+    }
+    .quote p {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 9.5pt;
+      color: var(--muted);
+    }
+    .quote span {
+      font-size: 7pt;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
+      padding-top: 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer p { font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; }
+    .footer .dot { color: var(--accent); margin: 0 5px; }
+
+    /* ── Print ── */
+    @media print {
+      body { margin: 0; padding: 14mm 14mm 12mm; background: white; }
+      @page { size: A4; margin: 0; }
+    }
+    @media screen {
+      body { box-shadow: 0 4px 32px rgba(0,0,0,0.1); margin: 2rem auto; }
+    }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <p class="brand">Mirar Despacio +</p>
+      <h1>Fotografía <em>callejera.</em></h1>
+    </div>
+    <div class="header-right">
+      <p>Guía rápida · Cheatlist</p>
+      <p>ottokols.es</p>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="block">
+      <p class="block-label">Mentalidad</p>
+      <ul>
+        <li>Sal sin objetivo concreto. La foto llega cuando paras de buscarla.</li>
+        <li>Camina despacio. Más despacio de lo que crees necesario.</li>
+        <li>Quédate en un sitio. Deja que la escena venga a ti.</li>
+        <li>No dispares para no arrepentirte. Dispara cuando algo te detenga.</li>
+        <li>El miedo a molestar se aprende y se desaprende. Empieza pequeño.</li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <p class="block-label">Ajustes de partida</p>
+      <div class="setting-label">Un punto de inicio, no una regla</div>
+      <div class="settings-row" style="margin-bottom:8px;">
+        <span class="setting-pill">ISO 800</span>
+        <span class="setting-pill">f/8</span>
+        <span class="setting-pill">1/500s</span>
+      </div>
+      <ul>
+        <li><strong>ISO:</strong> súbelo sin miedo. El grano tiene carácter.</li>
+        <li><strong>Apertura:</strong> f/8 da margen de enfoque en movimiento.</li>
+        <li><strong>Velocidad:</strong> congela el gesto, no lo pierdas.</li>
+        <li><strong>Modo M o Av/A:</strong> lo ideal es disparar en manual para tener control total. Si no tienes soltura todavía, usa el automático sin vergüenza, pero ve aprendiendo a salir de él.</li>
+      </ul>
+    </div>
+
+    <div class="block green">
+      <p class="block-label">Composición rápida</p>
+      <ul>
+        <li>Busca marcos naturales: arcos, puertas, sombras.</li>
+        <li>La diagonal genera tensión. Úsala a propósito.</li>
+        <li>Pon al sujeto donde mira, no donde está.</li>
+        <li>El espacio vacío también cuenta. A veces es la foto.</li>
+        <li>Baja o sube. El ángulo cambia la historia entera.</li>
+      </ul>
+    </div>
+
+    <div class="block green">
+      <p class="block-label">Luz en la calle</p>
+      <ul>
+        <li><strong>Mediodía:</strong> sombras duras. Busca contraluz o refugios.</li>
+        <li><strong>Hora dorada:</strong> luz lateral, texturas, calidez.</li>
+        <li><strong>Nublado:</strong> luz difusa ideal para retratos y detalles.</li>
+        <li><strong>Noche:</strong> mezcla de fuentes. ISO alto, acepta el ruido.</li>
+        <li>Las ventanas son focos gratis. Coloca al sujeto frente a ellas.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="quote">
+    <p>"La fotografía no es sobre cámaras, objetivos o películas. Es sobre la imagen en tu cabeza."</p>
+    <span>— Arnold Newman</span>
+  </div>
+
+  <div class="grid-3">
+
+    <div class="block plain">
+      <p class="block-label">Qué mirar</p>
+      <ul>
+        <li>Gestos, no poses.</li>
+        <li>Contrastes: edad, tamaño, textura.</li>
+        <li>Repetición y ruptura del patrón.</li>
+        <li>Reflejos, sombras, siluetas.</li>
+        <li>Lo ordinario en contexto extraordinario.</li>
+      </ul>
+    </div>
+
+    <div class="block plain">
+      <p class="block-label">Errores frecuentes</p>
+      <ul>
+        <li>Disparar desde lejos por miedo.</li>
+        <li>Fondo caótico sin intención.</li>
+        <li>Horizonte sin control.</li>
+        <li>Sujeto centrado siempre.</li>
+        <li>Borrar en cámara antes de editar en frío.</li>
+      </ul>
+    </div>
+
+    <div class="block plain">
+      <p class="block-label">Ejercicio del día</p>
+      <ul>
+        <li>Un color dominante.</li>
+        <li>Solo sombras.</li>
+        <li>Sin personas, solo huellas.</li>
+        <li>Un marco dentro del encuadre.</li>
+        <li>30 minutos, sin moverse del sitio.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>Mirar Despacio +<span class="dot">·</span>Área exclusiva</p>
+    <p>ottokols.es<span class="dot">·</span>© 2026 Otto Kols</p>
+  </div>
+
+</body>
+</html>

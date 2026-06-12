@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guía rápida · Retrato urbano</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --ink: #1a1814; --muted: #7a756f; --accent: #c8a97a;
+      --accent2: #5a8a5e; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+    }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: 11pt; line-height: 1.6; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 14mm 14mm 12mm; -webkit-font-smoothing: antialiased; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid var(--ink); padding-bottom: 7px; margin-bottom: 14px; }
+    .brand { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2); margin-bottom: 3px; }
+    .header h1 { font-family: var(--font-serif); font-size: 20pt; font-weight: 400; line-height: 1.1; }
+    .header h1 em { font-style: italic; color: var(--accent); }
+    .header-right { text-align: right; font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; line-height: 1.8; padding-top: 4px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .block { background: #eeecea; border-left: 2.5px solid var(--accent); padding: 9px 11px; }
+    .block.green { border-left-color: var(--accent2); }
+    .block.plain { background: transparent; border-left-color: var(--border); border-left-width: 1px; }
+    .block-label { font-size: 6.5pt; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+    .block.green .block-label { color: var(--accent2); }
+    .block.plain .block-label { color: var(--muted); }
+    .block ul { list-style: none; padding: 0; }
+    .block ul li { font-size: 9pt; color: var(--ink); padding: 2.5px 0; padding-left: 12px; position: relative; line-height: 1.5; }
+    .block ul li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-size: 8pt; }
+    .block.green ul li::before { color: var(--accent2); }
+    .block.plain ul li::before { color: var(--muted); }
+    .block p { font-size: 9pt; color: var(--muted); line-height: 1.55; }
+    .block strong { font-weight: 500; color: var(--ink); }
+    .settings-row { display: flex; gap: 8px; }
+    .setting-pill { background: var(--ink); color: var(--bg); font-size: 8pt; letter-spacing: 0.06em; padding: 3px 9px; }
+    .setting-label { font-size: 7pt; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+    .quote { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px 0; margin: 8px 0; text-align: center; }
+    .quote p { font-family: var(--font-serif); font-style: italic; font-size: 9.5pt; color: var(--muted); }
+    .quote span { font-size: 7pt; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+    .footer { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 7px; display: flex; justify-content: space-between; }
+    .footer p { font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; }
+    .footer .dot { color: var(--accent); margin: 0 5px; }
+    @media print { body { margin: 0; background: white; } @page { size: A4; margin: 0; } }
+    @media screen { body { box-shadow: 0 4px 32px rgba(0,0,0,0.1); margin: 2rem auto; } }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <p class="brand">Mirar Despacio +</p>
+      <h1>Retrato <em>urbano.</em></h1>
+    </div>
+    <div class="header-right">
+      <p>Guía rápida · Cheatlist</p>
+      <p>ottokols.es</p>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="block">
+      <p class="block-label">Ajustes de partida</p>
+      <div class="setting-label">Luz natural exterior</div>
+      <div class="settings-row" style="margin-bottom:8px;">
+        <span class="setting-pill">ISO 400</span>
+        <span class="setting-pill">f/2.8</span>
+        <span class="setting-pill">1/200s</span>
+      </div>
+      <ul>
+        <li><strong>Apertura:</strong> entre f/1.8 y f/4 según cuántas personas haya.</li>
+        <li><strong>Velocidad:</strong> lo suficiente para congelar pequeños gestos.</li>
+        <li><strong>Foco:</strong> siempre sobre los ojos. Siempre.</li>
+        <li>Modo A o M. Prioridad apertura si usas A.</li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <p class="block-label">La luz hace el retrato</p>
+      <ul>
+        <li><strong>Ventana lateral:</strong> la luz más bonita que existe. Gratuita.</li>
+        <li><strong>Sombra de edificio:</strong> suave, uniforme, sin sombras duras.</li>
+        <li><strong>Contraluz:</strong> separa al sujeto del fondo. Cuidado con la exposición.</li>
+        <li><strong>Nublado:</strong> softbox natural. Ideal para pieles y detalles.</li>
+        <li>Mediodía: evítalo o busca refugio con techo abierto.</li>
+      </ul>
+    </div>
+
+    <div class="block green">
+      <p class="block-label">El sujeto y tú</p>
+      <ul>
+        <li>Pide permiso cuando quieras algo concreto. La mayoría acepta.</li>
+        <li>Explica en una frase qué estás haciendo y por qué ellos.</li>
+        <li>Haz más fotos de las que crees necesitar. Los mejores gestos llegan al final.</li>
+        <li>No pongas la cámara delante hasta que haya conexión mínima.</li>
+        <li>En retrato robado: cerca, rápido, sin dudar.</li>
+      </ul>
+    </div>
+
+    <div class="block green">
+      <p class="block-label">Fondo y contexto</p>
+      <ul>
+        <li>El fondo cuenta la historia del sujeto. Elígelo.</li>
+        <li>Líneas guía detrás del sujeto: refuerzan o distraen.</li>
+        <li>Colores del fondo que compitan con el sujeto: problema.</li>
+        <li>Bokeh no es solución: es herramienta. No siempre toca.</li>
+        <li>A veces el contexto urbano es el protagonista, no la persona.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="quote">
+    <p>"Un retrato no es una semejanza. Cuando los dedos son perfectos, el retrato está muerto."</p>
+    <span>— John Singer Sargent</span>
+  </div>
+
+  <div class="grid-3">
+
+    <div class="block plain">
+      <p class="block-label">Focales</p>
+      <ul>
+        <li><strong>35 mm:</strong> reportaje, contexto, cerca.</li>
+        <li><strong>50 mm:</strong> natural, versátil, el ojo humano.</li>
+        <li><strong>85 mm:</strong> bokeh, compresión, distancia cómoda.</li>
+        <li>Evita gran angular cerca de la cara.</li>
+        <li>La compresión de tele aplana facciones.</li>
+      </ul>
+    </div>
+
+    <div class="block plain">
+      <p class="block-label">Errores frecuentes</p>
+      <ul>
+        <li>Foco en la nariz o la oreja.</li>
+        <li>Sombra de sol duro en el rostro.</li>
+        <li>Fondo con elementos que salen de la cabeza.</li>
+        <li>Demasiado espacio por encima del sujeto.</li>
+        <li>Disparar sin que el sujeto esté cómodo.</li>
+      </ul>
+    </div>
+
+    <div class="block plain">
+      <p class="block-label">Ejercicio</p>
+      <ul>
+        <li>Retrata a alguien sin que salga la cara.</li>
+        <li>Solo manos. Solo gestos.</li>
+        <li>Mismo sujeto, tres fondos distintos.</li>
+        <li>Retrato en contraluz sin perder detalles.</li>
+        <li>Un extraño, un minuto, sin planificar.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>Mirar Despacio +<span class="dot">·</span>Área exclusiva</p>
+    <p>ottokols.es<span class="dot">·</span>© 2026 Otto Kols</p>
+  </div>
+
+</body>
+</html>

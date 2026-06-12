@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Banco de Ejercicios · Mirar Despacio +</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
+      --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
+      --accent: #c8a97a; --accent2: #5a8a5e; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+      --max: 960px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: clamp(14px, 1.5vw, 16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
+    a { color: inherit; text-decoration: none; }
+
+    nav { background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; }
+    .nav-back { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+    .nav-back:hover { color: var(--ink); }
+
+    .page-header { max-width: var(--max); margin: 0 auto; padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border); }
+    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.75rem; }
+    .page-header h1 { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin-bottom: 0.5rem; }
+    .page-header h1 em { font-style: italic; color: var(--accent); }
+    .page-header p { color: var(--muted); font-size: 0.92rem; }
+
+    .content { max-width: var(--max); margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+    /* Filtros */
+    .filtros { display: flex; gap: 0.5rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+    .filtro-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font-sans); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.35rem 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .filtro-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .filtro-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+    /* Ejercicio card */
+    .ejercicio { border-bottom: 1px solid var(--border); padding: 2rem 0; display: none; }
+    .ejercicio.visible { display: block; }
+    .ejercicio-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; margin-bottom: 1rem; }
+    .ejercicio-meta { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.6rem; flex-wrap: wrap; }
+    .ejercicio-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .ejercicio-tag.nivel-1 { border-color: var(--accent2); color: var(--accent2); }
+    .ejercicio-tag.nivel-2 { border-color: var(--accent); color: var(--accent); }
+    .ejercicio-tag.nivel-3 { border-color: var(--ink-faint); color: var(--ink-faint); }
+    .ejercicio h2 { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; color: var(--ink); margin-bottom: 0.4rem; }
+    .ejercicio h2 em { font-style: italic; color: var(--accent); }
+    .ejercicio-intro { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.25rem; max-width: 640px; }
+    .ejercicio-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .ejercicio-col h3 { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+    .ejercicio-col ul { list-style: none; padding: 0; }
+    .ejercicio-col ul li { font-size: 0.85rem; color: var(--ink-faint); padding: 0.25rem 0 0.25rem 1rem; position: relative; line-height: 1.5; border-bottom: 1px solid var(--bg3); }
+    .ejercicio-col ul li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; }
+    .ejercicio-col ul li:last-child { border-bottom: none; }
+    .ejercicio-objetivo { background: var(--bg2); padding: 0.9rem 1.1rem; margin-top: 1.25rem; border-left: 2px solid var(--accent2); }
+    .ejercicio-objetivo p { font-size: 0.85rem; color: var(--ink-faint); line-height: 1.55; }
+    .ejercicio-objetivo strong { color: var(--ink); font-weight: 400; }
+
+    .contador-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .contador-label strong { color: var(--ink); font-weight: 400; }
+
+    footer { background: var(--ink); padding: 2rem; }
+    .footer-inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; color: var(--bg); }
+    .footer-meta { font-size: 0.73rem; color: var(--muted); }
+
+    @media (max-width: 600px) {
+      .ejercicio-body { grid-template-columns: 1fr; }
+      .content, .page-header { padding-left: 1.25rem; padding-right: 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo">Mirar Despacio +</span>
+    <a href="/recursos.html" class="nav-back">← Recursos</a>
+  </nav>
+
+  <div class="page-header">
+    <p class="page-label">Recursos · Mirar Despacio +</p>
+    <h1>Banco de <em>ejercicios.</em></h1>
+    <p>Ejercicios con estructura. Para practicar con intención, no solo con ganas.</p>
+  </div>
+
+  <div class="content">
+
+    <div class="filtros">
+      <button class="filtro-btn active" data-filtro="todos">Todos</button>
+      <button class="filtro-btn" data-filtro="narrativa">Narrativa</button>
+      <button class="filtro-btn" data-filtro="tecnica">Técnica</button>
+      <button class="filtro-btn" data-filtro="percepcion">Percepción</button>
+      <button class="filtro-btn" data-filtro="restriccion">Restricción</button>
+    </div>
+
+    <p class="contador-label">Mostrando <strong id="contadorVisible">—</strong> ejercicios</p>
+
+    <!-- ── EJERCICIOS ── -->
+
+    <div class="ejercicio visible" data-categoria="narrativa">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Narrativa</span>
+        <span class="ejercicio-tag nivel-1">Iniciación</span>
+        <span class="ejercicio-tag">30–60 min</span>
+      </div>
+      <h2>La historia en <em>tres fotos.</em></h2>
+      <p class="ejercicio-intro">El fotógrafo más hábil no es el que hace más fotos, sino el que sabe cuántas necesita para contar algo. Este ejercicio te obliga a pensar antes de disparar.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>Las tres fotos</h3>
+          <ul>
+            <li><strong>Foto 1 · Contexto:</strong> dónde ocurre, a qué hora, qué ambiente. El espectador aterriza.</li>
+            <li><strong>Foto 2 · Protagonista:</strong> quién o qué es el centro. No tiene que ser una persona.</li>
+            <li><strong>Foto 3 · Detalle:</strong> el elemento pequeño que da significado a todo lo anterior.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Reglas del ejercicio</h3>
+          <ul>
+            <li>Las tres fotos deben funcionar juntas y también por separado.</li>
+            <li>No pueden ser del mismo encuadre recortado de tres maneras.</li>
+            <li>Elige la historia antes de salir o en los primeros cinco minutos.</li>
+            <li>No planifiques las fotos: deja que la escena te las dé.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> desarrolla la visión narrativa. Fuerza la selección y el orden. Es el primer paso para entender el ensayo fotográfico.</p>
+      </div>
+    </div>
+
+    <div class="ejercicio visible" data-categoria="restriccion">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Restricción</span>
+        <span class="ejercicio-tag nivel-1">Iniciación</span>
+        <span class="ejercicio-tag">30 min exactos</span>
+      </div>
+      <h2>30 minutos, <em>30 disparos.</em></h2>
+      <p class="ejercicio-intro">Ni uno más. La restricción no es un castigo: es una forma de hacer que cada disparo cuente. Cuando sabes que tienes treinta, dejas de disparar para no perder nada y empiezas a esperar para no malgastar nada.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>Cómo hacerlo</h3>
+          <ul>
+            <li>Pon un temporizador de 30 minutos.</li>
+            <li>Cuenta los disparos mentalmente o en la pantalla.</li>
+            <li>No borres en cámara: lo que está, está.</li>
+            <li>Cuando llegues a 30, para aunque no haya terminado el tiempo.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Variaciones</h3>
+          <ul>
+            <li>10 fotos en 1 hora: más exigente, más selección.</li>
+            <li>30 minutos, 30 fotos, un solo tema.</li>
+            <li>5 fotos en toda la mañana: para quien ya domina el ejercicio.</li>
+            <li>Sin límite de tiempo pero máximo 5 disparos por escena.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> corta el hábito de disparar en ráfaga y esperar que alguna salga. Entrena la decisión y la anticipación.</p>
+      </div>
+    </div>
+
+    <div class="ejercicio visible" data-categoria="percepcion">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Percepción</span>
+        <span class="ejercicio-tag nivel-1">Iniciación</span>
+        <span class="ejercicio-tag">1–2 horas</span>
+      </div>
+      <h2>Un color <em>dominante.</em></h2>
+      <p class="ejercicio-intro">Eliges un color antes de salir. No vale cambiarlo. Durante toda la salida solo fotografías cuando ese color aparece como protagonista del encuadre.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>Cómo funciona</h3>
+          <ul>
+            <li>Elige el color en casa: rojo, azul, amarillo, negro, blanco.</li>
+            <li>El color debe ocupar al menos un tercio del encuadre.</li>
+            <li>Puede ser en cualquier elemento: ropa, pared, coche, luz.</li>
+            <li>Blanco y negro al final en edición: opcional pero revelador.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Qué aprenderás</h3>
+          <ul>
+            <li>A ver el color como estructura, no solo como pigmento.</li>
+            <li>Cómo el color organiza el peso visual del encuadre.</li>
+            <li>Que la ciudad tiene paletas constantes que nunca habías notado.</li>
+            <li>A pre-visualizar antes de levantar la cámara.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> entrena la percepción selectiva. Después de este ejercicio, verás el color de forma distinta en cada salida, lo uses o no.</p>
+      </div>
+    </div>
+
+    <div class="ejercicio visible" data-categoria="percepcion">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Percepción</span>
+        <span class="ejercicio-tag nivel-2">Intermedio</span>
+        <span class="ejercicio-tag">1–2 horas</span>
+      </div>
+      <h2>Una <em>emoción.</em></h2>
+      <p class="ejercicio-intro">No la ilustres. No busques una cara que la exprese. Fotografía la emoción en espacios, objetos, luz, gestos mínimos. Si alguien mira la foto y no sabe qué emoción es, puede que hayas acertado.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>Emociones para empezar</h3>
+          <ul>
+            <li>Espera: no impaciencia, espera quieta.</li>
+            <li>Soledad que no duele.</li>
+            <li>Concentración.</li>
+            <li>Calma justo antes de algo.</li>
+            <li>Nostalgia de algo que no has vivido tú.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Cómo no hacerlo</h3>
+          <ul>
+            <li>No fotografíes caras con gestos obvios.</li>
+            <li>No construyas la escena: encuéntrala.</li>
+            <li>No expliques la emoción con el pie de foto.</li>
+            <li>Si necesita texto para entenderse, la foto no llega sola.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> desarrolla el lenguaje visual no literal. Es el salto entre documentar y expresar.</p>
+      </div>
+    </div>
+
+    <div class="ejercicio visible" data-categoria="tecnica">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Técnica</span>
+        <span class="ejercicio-tag nivel-2">Intermedio</span>
+        <span class="ejercicio-tag">1 hora</span>
+      </div>
+      <h2>Fotografiar sin <em>mirar la pantalla.</em></h2>
+      <p class="ejercicio-intro">Desactiva el live view o tapa el monitor. Compón, dispara, confía. El miedo a no saber qué ha salido es exactamente lo que hay que entrenar.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>Reglas</h3>
+          <ul>
+            <li>No mires la pantalla en ningún momento de la salida.</li>
+            <li>Si tienes visor óptico o EVF, úsalo exclusivamente.</li>
+            <li>No borres nada hasta llegar a casa.</li>
+            <li>Edita antes de juzgar: muchas sorpresas vienen del desenfoque.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Qué trabajas</h3>
+          <ul>
+            <li>Confianza en la exposición sin feedback inmediato.</li>
+            <li>Enfoque mental en la escena, no en el resultado.</li>
+            <li>La relación entre intención y resultado: la brecha es la práctica.</li>
+            <li>Independencia de la validación instantánea.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> rompe la dependencia del histograma y la revisión inmediata. Te devuelve al acto puro de ver y decidir.</p>
+      </div>
+    </div>
+
+    <div class="ejercicio visible" data-categoria="narrativa">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Narrativa</span>
+        <span class="ejercicio-tag nivel-2">Intermedio</span>
+        <span class="ejercicio-tag">2–3 horas</span>
+      </div>
+      <h2>El mismo sitio, <em>horas distintas.</em></h2>
+      <p class="ejercicio-intro">Elige un lugar. Vuelve al menos dos veces: mañana y tarde, o noche y mediodía. El ejercicio consiste en entender cómo la luz y el tiempo cambian la narrativa de un espacio idéntico.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>El ejercicio</h3>
+          <ul>
+            <li>Mismo encuadre general en las dos visitas.</li>
+            <li>Busca también los cambios: quién está, quién falta, qué ha cambiado.</li>
+            <li>Edita las dos series por separado antes de compararlas.</li>
+            <li>Selecciona una foto de cada momento: las que mejor representan la diferencia.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Variaciones</h3>
+          <ul>
+            <li>El mismo sitio en distintas estaciones.</li>
+            <li>Con lluvia y sin lluvia.</li>
+            <li>Día entre semana y fin de semana.</li>
+            <li>Con gente y vacío: madrugada vs. hora punta.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> enseña que un lugar no es un lugar: es un lugar en un momento. La fotografía no captura sitios, captura instantes de sitios.</p>
+      </div>
+    </div>
+
+    <div class="ejercicio visible" data-categoria="restriccion">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Restricción</span>
+        <span class="ejercicio-tag nivel-3">Avanzado</span>
+        <span class="ejercicio-tag">1–2 horas</span>
+      </div>
+      <h2>Solo <em>verticales.</em></h2>
+      <p class="ejercicio-intro">Durante toda la salida, solo fotografías en formato vertical. Sin excepciones. La restricción obliga a reaprender encuadres que das por sentados en horizontal.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>Lo que cambia</h3>
+          <ul>
+            <li>Las líneas guía funcionan de manera diferente.</li>
+            <li>El cielo y el suelo cobran más peso.</li>
+            <li>Las personas en movimiento encajan de otra forma.</li>
+            <li>Los fondos se comprimen: menos contexto lateral.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Variaciones</h3>
+          <ul>
+            <li>Solo horizontales: el ejercicio inverso.</li>
+            <li>Solo cuadrado: el formato más difícil de componer bien.</li>
+            <li>Alterna: una foto vertical, una horizontal, sin mezclar.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> el formato es una decisión narrativa, no de pantalla. Este ejercicio lo hace consciente.</p>
+      </div>
+    </div>
+
+    <div class="ejercicio visible" data-categoria="tecnica">
+      <div class="ejercicio-meta">
+        <span class="ejercicio-tag">Técnica</span>
+        <span class="ejercicio-tag nivel-3">Avanzado</span>
+        <span class="ejercicio-tag">Variable</span>
+      </div>
+      <h2>ISO 6400, <em>sin pedir perdón.</em></h2>
+      <p class="ejercicio-intro">ISO fijo en 6400 durante toda la salida. Apertura y velocidad libres. El objetivo no es salvar la foto del ruido: es aprender a usarlo como parte del lenguaje.</p>
+      <div class="ejercicio-body">
+        <div class="ejercicio-col">
+          <h3>La práctica</h3>
+          <ul>
+            <li>No apliques reducción de ruido en edición.</li>
+            <li>Busca escenas donde el grano refuerce la atmósfera.</li>
+            <li>Blanco y negro al final: el ruido en monocromático tiene otra calidad.</li>
+            <li>Compara con fotos tuyas a ISO 100: decide qué prefieres.</li>
+          </ul>
+        </div>
+        <div class="ejercicio-col">
+          <h3>Contextos donde funciona</h3>
+          <ul>
+            <li>Noche urbana.</li>
+            <li>Interiores con poca luz.</li>
+            <li>Retratos en sombra.</li>
+            <li>Cualquier escena que se beneficie de un aspecto de película.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ejercicio-objetivo">
+        <p><strong>Para qué sirve:</strong> desmonta el miedo al ruido como fallo técnico y lo convierte en una herramienta expresiva.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">Otto Kols · Fotógrafo</span>
+      <span class="footer-meta">© 2026 · Madrid</span>
+    </div>
+  </footer>
+
+  <script>
+    const filtros = document.querySelectorAll('.filtro-btn');
+    const ejercicios = document.querySelectorAll('.ejercicio');
+
+    function actualizarContador() {
+      const visibles = document.querySelectorAll('.ejercicio.visible').length;
+      document.getElementById('contadorVisible').textContent = visibles;
+    }
+
+    filtros.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filtros.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.filtro;
+        ejercicios.forEach(e => {
+          if (f === 'todos' || e.dataset.categoria === f) {
+            e.classList.add('visible');
+          } else {
+            e.classList.remove('visible');
+          }
+        });
+        actualizarContador();
+      });
+    });
+
+    actualizarContador();
+  </script>
+
+</body>
+</html>

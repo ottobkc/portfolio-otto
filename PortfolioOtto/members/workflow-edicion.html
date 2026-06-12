@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Workflow de edición · Mirar Despacio +</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --ink: #1a1814; --muted: #7a756f; --accent: #c8a97a;
+      --accent2: #5a8a5e; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+    }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: 11pt; line-height: 1.6; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 14mm 14mm 12mm; -webkit-font-smoothing: antialiased; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid var(--ink); padding-bottom: 7px; margin-bottom: 14px; }
+    .brand { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2); margin-bottom: 3px; }
+    .header h1 { font-family: var(--font-serif); font-size: 20pt; font-weight: 400; line-height: 1.1; }
+    .header h1 em { font-style: italic; color: var(--accent); }
+    .header-right { text-align: right; font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; line-height: 1.8; padding-top: 4px; }
+
+    /* Steps flow */
+    .steps { margin-bottom: 10px; }
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 7.5pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-num.green { background: var(--accent2); }
+    .step-num.gold { background: var(--accent); color: var(--ink); }
+    .step-content {}
+    .step-title { font-size: 9.5pt; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+    .step-desc { font-size: 8.5pt; color: var(--muted); line-height: 1.5; }
+    .step-tips { margin-top: 4px; }
+    .step-tip { font-size: 8pt; color: var(--ink-faint, #4a4742); padding-left: 10px; position: relative; line-height: 1.5; }
+    .step-tip::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-size: 7pt; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; margin-top: 10px; }
+    .block { background: #eeecea; border-left: 2.5px solid var(--accent); padding: 9px 11px; }
+    .block.green { border-left-color: var(--accent2); }
+    .block-label { font-size: 6.5pt; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+    .block.green .block-label { color: var(--accent2); }
+    .block ul { list-style: none; padding: 0; }
+    .block ul li { font-size: 8.5pt; color: var(--ink); padding: 2px 0; padding-left: 11px; position: relative; line-height: 1.5; }
+    .block ul li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-size: 7.5pt; }
+    .block.green ul li::before { color: var(--accent2); }
+    .block strong { font-weight: 500; }
+
+    .quote { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 7px 0; margin: 8px 0; text-align: center; }
+    .quote p { font-family: var(--font-serif); font-style: italic; font-size: 9pt; color: var(--muted); }
+    .quote span { font-size: 7pt; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+    .footer { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 7px; display: flex; justify-content: space-between; }
+    .footer p { font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; }
+    .footer .dot { color: var(--accent); margin: 0 5px; }
+    @media print { body { margin: 0; background: white; } @page { size: A4; margin: 0; } }
+    @media screen { body { box-shadow: 0 4px 32px rgba(0,0,0,0.1); margin: 2rem auto; } }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <p class="brand">Mirar Despacio +</p>
+      <h1>Workflow de <em>edición.</em></h1>
+    </div>
+    <div class="header-right">
+      <p>Guía rápida · Cheatlist</p>
+      <p>ottokols.es</p>
+    </div>
+  </div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <p class="step-title">Importación y copia de seguridad</p>
+        <p class="step-desc">Antes de tocar nada, los archivos están a salvo.</p>
+        <div class="step-tips">
+          <p class="step-tip">Copia en dos sitios: disco externo y/o nube antes de editar.</p>
+          <p class="step-tip">Organiza por fecha o salida desde el principio. Luego no se reorganiza.</p>
+          <p class="step-tip">No borres nada de la tarjeta hasta confirmar la copia.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num green">2</div>
+      <div class="step-content">
+        <p class="step-title">Primera selección · Descarte rápido</p>
+        <p class="step-desc">Eliminar lo claramente desechable sin detenerse en nada.</p>
+        <div class="step-tips">
+          <p class="step-tip">Fuera lo movido, lo desenfocado sin intención y los duplicados redundantes.</p>
+          <p class="step-tip">No edites aún. Solo mira y descarta. En Lightroom: X para rechazar, Enter para seguir.</p>
+          <p class="step-tip">Si dudas entre dos similares, guarda los dos por ahora.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num green">3</div>
+      <div class="step-content">
+        <p class="step-title">Segunda selección · Las que tienen algo</p>
+        <p class="step-desc">De lo que queda, ¿cuáles merecen tiempo?</p>
+        <div class="step-tips">
+          <p class="step-tip">Marca con estrella o color las que tienen potencial real.</p>
+          <p class="step-tip">Criterio: ¿hay algo que valga la pena en esta foto? No tiene que ser perfecta, tiene que tener algo.</p>
+          <p class="step-tip">Vuelve a esta selección al día siguiente. El ojo fresco cambia decisiones.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num gold">4</div>
+      <div class="step-content">
+        <p class="step-title">Revelado básico · Exposición y tonos</p>
+        <p class="step-desc">El orden importa. Siempre de lo global a lo particular.</p>
+        <div class="step-tips">
+          <p class="step-tip"><strong>1.</strong> Exposición general: el punto de partida.</p>
+          <p class="step-tip"><strong>2.</strong> Altas luces y blancos: baja si hay quemados, sube si faltan.</p>
+          <p class="step-tip"><strong>3.</strong> Sombras y negros: recupera detalle en sombras, pero no lo aplanes todo.</p>
+          <p class="step-tip"><strong>4.</strong> Contraste: añade lo que la cámara quitó en RAW.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num gold">5</div>
+      <div class="step-content">
+        <p class="step-title">Color y balance de blancos</p>
+        <p class="step-desc">La temperatura de color define la atmósfera de la foto.</p>
+        <div class="step-tips">
+          <p class="step-tip">Ajusta balance de blancos antes de tocar saturación o vivacidad.</p>
+          <p class="step-tip">Curva de tonos: pequeño S para añadir contraste sin perder rango dinámico.</p>
+          <p class="step-tip">Saturación: +5 a +15 máximo. La vivacidad es más segura que la saturación general.</p>
+          <p class="step-tip">Colores individuales (HSL): ajusta el color dominante, no todo a la vez.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <p class="step-title">Recorte y composición final</p>
+        <p class="step-desc">Lo que se puede mejorar sin perder calidad.</p>
+        <div class="step-tips">
+          <p class="step-tip">Solo recorta si mejora la composición. No para "salvar" una foto mala.</p>
+          <p class="step-tip">Endereza el horizonte si está torcido sin intención.</p>
+          <p class="step-tip">Cuidado con recortar demasiado en fotos que ya vienen con la composición justa.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <p class="step-title">Exportación</p>
+        <p class="step-desc">El formato correcto para cada uso.</p>
+        <div class="step-tips">
+          <p class="step-tip"><strong>Web / RRSS:</strong> JPEG, calidad 80–90, sRGB, 2000–2500px en el lado largo.</p>
+          <p class="step-tip"><strong>Impresión:</strong> TIFF o JPEG máxima calidad, Adobe RGB o sRGB según la imprenta, resolución nativa.</p>
+          <p class="step-tip"><strong>Archivo:</strong> DNG o RAW original, nunca borres el original.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid">
+    <div class="block">
+      <p class="block-label">Orden de ajustes en Lightroom</p>
+      <ul>
+        <li>Recorte y corrección de lente</li>
+        <li>Exposición → altas luces → sombras</li>
+        <li>Blancos → negros → contraste</li>
+        <li>Balance de blancos</li>
+        <li>Curva de tonos</li>
+        <li>HSL / Colores individuales</li>
+        <li>Reducción de ruido (si toca)</li>
+        <li>Nitidez (al final, para exportación)</li>
+      </ul>
+    </div>
+    <div class="block green">
+      <p class="block-label">Reglas de oro</p>
+      <ul>
+        <li>Nunca edites el mismo día que disparas.</li>
+        <li>La selección es más importante que la edición.</li>
+        <li>Una foto buena no necesita mucho trabajo. Si llevas media hora en ella, puede que no sea la foto.</li>
+        <li>El histograma es un mapa, no un juez.</li>
+        <li>Compara siempre con el original antes de guardar.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Mirar Despacio +<span class="dot">·</span>Área exclusiva</p>
+    <p>ottokols.es<span class="dot">·</span>© 2026 Otto Kols</p>
+  </div>
+
+</body>
+</html>
