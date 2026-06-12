@@ -132,6 +132,33 @@
     }
     .resource-card:hover { background: var(--bg3); }
 
+    /* Tool cards — same grid but with launch arrow */
+    .tool-card {
+      background: var(--bg2);
+      padding: 1.75rem;
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      transition: background 0.2s;
+      color: inherit;
+      position: relative;
+    }
+    .tool-card:hover { background: var(--bg3); }
+    .tool-card .launch-arrow {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--accent);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .tool-card:hover .launch-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
     .resource-icon {
       width: 40px; height: 40px;
       border: 1px solid var(--border);
@@ -140,6 +167,17 @@
       justify-content: center;
       font-size: 0.9rem;
       color: var(--accent2);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+    .tool-icon {
+      width: 40px; height: 40px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--accent);
       flex-shrink: 0;
       background: var(--bg);
     }
@@ -159,6 +197,16 @@
       color: var(--accent);
       border: 1px solid var(--border);
       padding: 2px 7px;
+    }
+    .tool-tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 2px 7px;
+      background: rgba(200,169,122,0.06);
     }
 
     .coming-soon {
@@ -189,12 +237,72 @@
     .footer-meta a { color: var(--muted); }
     .footer-meta a:hover { color: var(--bg); }
 
+    /* ── Cheatlists grid (3 columnas) ── */
+    .cheatlists-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-bottom: 3.5rem;
+    }
+    .cheatlist-card {
+      background: var(--bg2);
+      padding: 1.4rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: background 0.2s;
+      color: inherit;
+      position: relative;
+    }
+    .cheatlist-card:hover { background: var(--bg3); }
+    .cheatlist-icon {
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.15rem;
+    }
+    .cheatlist-card h3 {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .cheatlist-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+    .print-tag {
+      display: inline-block;
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      border: 1px solid rgba(90,138,94,0.3);
+      padding: 1px 6px;
+      margin-top: auto;
+    }
+    .cheatlist-card .launch-arrow {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      font-size: 0.78rem;
+      color: var(--accent);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .cheatlist-card:hover .launch-arrow { opacity: 1; transform: translateX(0); }
+
+    @media (max-width: 700px) {
+      .cheatlists-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 600px) {
       .resources-grid { grid-template-columns: 1fr; }
+      .cheatlists-grid { grid-template-columns: 1fr; }
       .page-header, .content { padding-left: 1.25rem; padding-right: 1.25rem; }
       nav { padding: 0 1.25rem; }
     }
   </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
 </head>
 <body>
 
@@ -214,6 +322,205 @@
 
   <div class="content">
 
+    <!-- ── Herramientas interactivas ── -->
+    <p class="resources-label">Herramientas interactivas</p>
+    <div class="resources-grid">
+
+      <a href="/members/receta-fotografica.html" class="tool-card">
+        <div class="tool-icon">◈</div>
+        <div class="resource-body">
+          <h3>Receta Fotográfica</h3>
+          <p>Dinos qué foto quieres hacer — cámara, objetivo, luz, escena — y te devolvemos los ajustes exactos con explicación IA.</p>
+          <span class="tool-tag">Interactivo · IA</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/members/simulador-visual.html" class="tool-card">
+        <div class="tool-icon">⊙</div>
+        <div class="resource-body">
+          <h3>Simulador Visual</h3>
+          <p>Mueve apertura, velocidad, ISO y focal en tiempo real y observa cómo cambia la exposición, el bokeh y el movimiento en escena.</p>
+          <span class="tool-tag">Interactivo</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/members/dof-calculator.html" class="tool-card">
+        <div class="tool-icon">⟷</div>
+        <div class="resource-body">
+          <h3>Profundidad de Campo</h3>
+          <p>Calculadora precisa de zona nítida con visualizador de escena. Incluye distancia hiperfocal para cualquier sensor y focal.</p>
+          <span class="tool-tag">Calculadora</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/members/composicion.html" class="tool-card">
+        <div class="tool-icon">⬡</div>
+        <div class="resource-body">
+          <h3>Composición</h3>
+          <p>Sube tu foto y coloca el sujeto y el horizonte arrastrando. Recibe análisis de tercios, espacio de mirada y peso visual.</p>
+          <span class="tool-tag">Análisis · Tu foto</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/members/generador-retos.html" class="tool-card">
+        <div class="tool-icon">⚄</div>
+        <div class="resource-body">
+          <h3>Generador de Retos</h3>
+          <p>Un sujeto, una técnica, una limitación, un objetivo. Aleatorio o filtrado por modo. Guarda los que quieras para usarlos en la próxima salida.</p>
+          <span class="tool-tag">Interactivo</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/members/banco-ejercicios.html" class="tool-card">
+        <div class="tool-icon">◫</div>
+        <div class="resource-body">
+          <h3>Banco de Ejercicios</h3>
+          <p>Ejercicios con estructura real. Con instrucciones, variaciones y para qué sirve cada uno. Filtrables por categoría.</p>
+          <span class="tool-tag">Referencia</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+    </div>
+
+    <!-- ── Guías rápidas imprimibles ── -->
+    <p class="resources-label">Guías rápidas · Imprimibles A4</p>
+    <div class="cheatlists-grid">
+
+      <a href="/members/cheatlists/guia-calle.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Fotografía callejera</h3>
+        <p>Mentalidad, ajustes, composición, luz y errores frecuentes en una página.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/members/cheatlists/guia-nocturna.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Fotografía nocturna</h3>
+        <p>Ajustes con y sin trípode, fuentes de luz que buscar, errores del ruido.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/members/cheatlists/guia-retrato-urbano.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Retrato urbano</h3>
+        <p>Luz natural, relación con el sujeto, focales, fondo y contexto.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/members/cheatlists/guia-composicion.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Composición fotográfica</h3>
+        <p>Tercios, líneas, marcos, peso visual y equilibrio. Con diagrama.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/members/cheatlists/guia-sin-fotos.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Cuando no encuentras fotos</h3>
+        <p>Palancas reales para salir del bloqueo. Sin frases de motivación.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/members/cheatlists/guia-luz-mala.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Cuando la luz es mala</h3>
+        <p>Sol duro, cielo blanco, interior oscuro, lluvia. Cada condición tiene sus fotos.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/members/cheatlists/checklist-salidas.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Checklist de salida</h3>
+        <p>Equipo, configuración, mentalidad. Antes y después. Con espacio de notas.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/members/cheatlists/workflow-edicion.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Workflow de edición</h3>
+        <p>7 pasos en orden. Del importar al exportar. Con reglas de oro al final.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+    </div>
+
+    <!-- ── Localizaciones y mapas de luz ── -->
+    <p class="resources-label">Dónde y cuándo ir</p>
+    <div class="resources-grid">
+
+      <a href="/members/localizaciones.html" class="tool-card">
+        <div class="tool-icon">◎</div>
+        <div class="resource-body">
+          <h3>Localizaciones · Madrid</h3>
+          <p>Lavapiés, Gran Vía, Retiro, Malasaña, Debod, La Latina. Mejor hora, focal, dificultad y consejo específico para cada una.</p>
+          <span class="tool-tag">Referencia</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/members/mapas-luz.html" class="tool-card">
+        <div class="tool-icon">◐</div>
+        <div class="resource-body">
+          <h3>Mapas de luz</h3>
+          <p>Hora dorada, sol duro, nublado, hora azul, noche urbana. Qué buscar, cómo componer, cómo editar y errores frecuentes en cada condición.</p>
+          <span class="tool-tag">Referencia</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+    </div>
+
+    <!-- ── Análisis fotográfico ── -->
+    <p class="resources-label">Análisis fotográfico</p>
+    <div class="resources-grid">
+
+      <a href="/members/analisis-fotos.html" class="tool-card" style="grid-column:1/-1;">
+        <div class="tool-icon">◉</div>
+        <div class="resource-body">
+          <h3>Análisis de fotografías famosas</h3>
+          <p>HCB, Vivian Maier, Saul Leiter, Alex Webb. Qué está pasando en la foto, por qué funciona y qué te llevas a la calle. Sin reverencia innecesaria.</p>
+          <span class="tool-tag">Análisis editorial</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+    </div>
+
+    <!-- ── Pack legal ── -->
+    <p class="resources-label">Legal</p>
+    <div class="resources-grid">
+
+      <a href="/members/pack-legal.html" class="tool-card">
+        <div class="tool-icon">§</div>
+        <div class="resource-body">
+          <h3>Pack legal para fotógrafos</h3>
+          <p>Qué puedes fotografiar en España, derechos de imagen, menores, qué hacer si te piden borrar y modelo de autorización imprimible.</p>
+          <span class="tool-tag">Referencia · España</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <div class="coming-soon" style="display:flex; align-items:center; justify-content:center;">
+        Más recursos en preparación
+      </div>
+
+    </div>
+
+    <!-- ── Tarjetas de misión ── -->
     <p class="resources-label">Tarjetas de misión</p>
     <div class="resources-grid">
       <a href="/members/tarjetas-mision-pack1.pdf" class="resource-card" download>
@@ -235,6 +542,7 @@
       <div class="coming-soon">Más packs en preparación</div>
     </div>
 
+    <!-- ── Episodios exclusivos ── -->
     <p class="resources-label">Episodios exclusivos · Podcast</p>
     <div class="resources-grid">
       <div class="coming-soon" style="grid-column:1/-1;">
@@ -256,10 +564,12 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
-    netlifyIdentity.on('init', user => {
-      if (!user) {
+    var isPreview = !window.location.hostname.includes('ottokols');
+
+    netlifyIdentity.on('init', function(user) {
+      if (!user && !isPreview) {
         window.location.replace('/salidas.html#acceso');
-      } else {
+      } else if (user) {
         document.getElementById('welcomeUser').textContent =
           user.user_metadata?.full_name || user.email;
       }
