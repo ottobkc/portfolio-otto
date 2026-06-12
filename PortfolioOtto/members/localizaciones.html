@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Localizaciones · Mirar Despacio +</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
+      --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
+      --accent: #c8a97a; --accent2: #5a8a5e; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+      --max: 960px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: clamp(14px, 1.5vw, 16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
+    a { color: inherit; text-decoration: none; }
+
+    nav { background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; }
+    .nav-back { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+    .nav-back:hover { color: var(--ink); }
+
+    .page-header { max-width: var(--max); margin: 0 auto; padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border); }
+    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.75rem; }
+    .page-header h1 { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin-bottom: 0.5rem; }
+    .page-header h1 em { font-style: italic; color: var(--accent); }
+    .page-header p { color: var(--muted); font-size: 0.92rem; }
+
+    .content { max-width: var(--max); margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+    /* Filtros */
+    .filtros { display: flex; gap: 0.5rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+    .filtro-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font-sans); font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.35rem 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .filtro-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .filtro-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+    /* Loc card */
+    .loc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin-bottom: 1px; }
+    .loc-card { background: var(--bg2); padding: 2rem; display: none; transition: background 0.2s; }
+    .loc-card.visible { display: block; }
+    .loc-card:hover { background: var(--bg3); }
+
+    .loc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .loc-nombre { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 400; }
+    .loc-nombre em { font-style: italic; color: var(--accent); }
+    .loc-nivel {
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .loc-nivel.facil { border-color: var(--accent2); color: var(--accent2); }
+    .loc-nivel.medio { border-color: var(--accent); color: var(--accent); }
+    .loc-nivel.avanzado { border-color: var(--ink-faint); color: var(--ink-faint); }
+
+    .loc-tags { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .loc-tag { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--border); color: var(--muted); padding: 1px 7px; }
+
+    .loc-desc { font-size: 0.85rem; color: var(--ink-faint); line-height: 1.6; margin-bottom: 1.25rem; }
+
+    .loc-details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .loc-detail {}
+    .loc-detail-label { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.2rem; }
+    .loc-detail-value { font-size: 0.82rem; color: var(--ink); line-height: 1.45; }
+
+    .loc-tip { background: var(--bg); border-left: 2px solid var(--accent2); padding: 0.75rem 0.9rem; margin-top: 1rem; }
+    .loc-tip p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+    .loc-tip strong { color: var(--ink); font-weight: 400; }
+
+    /* Placeholder para añadir localizaciones */
+    .add-prompt {
+      background: var(--bg2);
+      border: 1px dashed var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-top: 1px;
+    }
+
+    footer { background: var(--ink); padding: 2rem; }
+    .footer-inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; color: var(--bg); }
+    .footer-meta { font-size: 0.73rem; color: var(--muted); }
+
+    @media (max-width: 600px) {
+      .loc-grid { grid-template-columns: 1fr; }
+      .loc-details { grid-template-columns: 1fr; }
+      .content, .page-header { padding-left: 1.25rem; padding-right: 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo">Mirar Despacio +</span>
+    <a href="/recursos.html" class="nav-back">← Recursos</a>
+  </nav>
+
+  <div class="page-header">
+    <p class="page-label">Recursos · Mirar Despacio +</p>
+    <h1>Localizaciones <em>Madrid.</em></h1>
+    <p>Dónde ir, cuándo ir, qué buscar cuando llegas.</p>
+  </div>
+
+  <div class="content">
+
+    <div class="filtros">
+      <button class="filtro-btn active" data-filtro="todos">Todas</button>
+      <button class="filtro-btn" data-filtro="calle">Calle</button>
+      <button class="filtro-btn" data-filtro="arquitectura">Arquitectura</button>
+      <button class="filtro-btn" data-filtro="naturaleza">Naturaleza / Parque</button>
+      <button class="filtro-btn" data-filtro="noche">Noche</button>
+    </div>
+
+    <div class="loc-grid">
+
+      <div class="loc-card visible" data-categoria="calle">
+        <div class="loc-header">
+          <h2 class="loc-nombre"><em>Lavapiés</em></h2>
+          <span class="loc-nivel facil">Fácil</span>
+        </div>
+        <div class="loc-tags">
+          <span class="loc-tag">Calle</span>
+          <span class="loc-tag">Retrato</span>
+          <span class="loc-tag">Color</span>
+        </div>
+        <p class="loc-desc">El barrio más fotogénico de Madrid en este momento. Capas de tiempo en las mismas calles: murales nuevos sobre fachadas viejas, gente de todas partes, luz lateral en las calles estrechas. Funciona a cualquier hora pero tiene su mejor versión a media tarde.</p>
+        <div class="loc-details">
+          <div class="loc-detail">
+            <p class="loc-detail-label">Mejor hora</p>
+            <p class="loc-detail-value">16:00–19:00. La luz entra lateral por las calles en dirección Norte-Sur.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Qué fotografiar</p>
+            <p class="loc-detail-value">Personas en terrazas, murales como fondo, ropa tendida, mercado de la Cebada.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Focal recomendada</p>
+            <p class="loc-detail-value">28–35 mm. Las calles son estrechas y el 50 te queda justo.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Dificultad</p>
+            <p class="loc-detail-value">Baja. La gente está acostumbrada a fotógrafos. Hay mucho donde mirar.</p>
+          </div>
+        </div>
+        <div class="loc-tip">
+          <p><strong>Consejo:</strong> el callejón de Embajadores entre las 17:00 y las 18:30 tiene luz de película. Quédate parado en la esquina y deja que pase la escena.</p>
+        </div>
+      </div>
+
+      <div class="loc-card visible" data-categoria="calle arquitectura">
+        <div class="loc-header">
+          <h2 class="loc-nombre"><em>Gran Vía</em></h2>
+          <span class="loc-nivel medio">Medio</span>
+        </div>
+        <div class="loc-tags">
+          <span class="loc-tag">Calle</span>
+          <span class="loc-tag">Arquitectura</span>
+          <span class="loc-tag">Noche</span>
+        </div>
+        <p class="loc-desc">El escaparate de Madrid. Más interesante de lo que parece si evitas el turismo fotográfico obvio. La Gran Vía de noche, con lluvia o con sol duro de mediodía es completamente distinta. Busca lo que nadie está fotografiando: los porteros, las sombras de los marquesinos, la geometría de los edificios vista desde abajo.</p>
+        <div class="loc-details">
+          <div class="loc-detail">
+            <p class="loc-detail-label">Mejor hora</p>
+            <p class="loc-detail-value">Noche (neones y movimiento) o amanecer (vacía y luminosa).</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Qué fotografiar</p>
+            <p class="loc-detail-value">Contraluz de edificios, siluetas bajo marquesinas, rastros de luz de tráfico.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Focal recomendada</p>
+            <p class="loc-detail-value">18–24 mm para arquitectura. 50 mm para personas en contexto.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Dificultad</p>
+            <p class="loc-detail-value">Media. Mucha gente pero también mucho ruido visual que gestionar.</p>
+          </div>
+        </div>
+        <div class="loc-tip">
+          <p><strong>Consejo:</strong> el tramo entre Callao y el edificio Metrópolis a las 7:00 un domingo de verano es una de las mejores experiencias fotográficas de Madrid. Vacío y con luz.</p>
+        </div>
+      </div>
+
+      <div class="loc-card visible" data-categoria="calle naturaleza">
+        <div class="loc-header">
+          <h2 class="loc-nombre">El <em>Retiro</em></h2>
+          <span class="loc-nivel facil">Fácil</span>
+        </div>
+        <div class="loc-tags">
+          <span class="loc-tag">Naturaleza</span>
+          <span class="loc-tag">Retrato</span>
+          <span class="loc-tag">Luz</span>
+        </div>
+        <p class="loc-desc">Un parque con todas las condiciones de luz en un radio de 100 metros: agua para reflejos, árboles para luz filtrada, zonas abiertas para siluetas, arquitectura para encuadres. Funciona en cualquier estación aunque el otoño y la hora dorada de invierno son sus mejores momentos.</p>
+        <div class="loc-details">
+          <div class="loc-detail">
+            <p class="loc-detail-label">Mejor hora</p>
+            <p class="loc-detail-value">Hora dorada: una hora antes del ocaso. En otoño, cualquier mañana con niebla.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Qué fotografiar</p>
+            <p class="loc-detail-value">Reflejos en el estanque, luz entre árboles, personas leyendo o durmiendo.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Focal recomendada</p>
+            <p class="loc-detail-value">50–85 mm. Compresión suave para retratos entre árboles.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Dificultad</p>
+            <p class="loc-detail-value">Baja. Abundancia de opciones, difícil irse con la tarjeta vacía.</p>
+          </div>
+        </div>
+        <div class="loc-tip">
+          <p><strong>Consejo:</strong> el paseo de las estatuas a primera hora de la mañana, cuando la luz rasante proyecta sombras largas sobre el pavimento. Lleva el gran angular.</p>
+        </div>
+      </div>
+
+      <div class="loc-card visible" data-categoria="calle">
+        <div class="loc-header">
+          <h2 class="loc-nombre"><em>Malasaña</em></h2>
+          <span class="loc-nivel facil">Fácil</span>
+        </div>
+        <div class="loc-tags">
+          <span class="loc-tag">Calle</span>
+          <span class="loc-tag">Noche</span>
+          <span class="loc-tag">Color</span>
+        </div>
+        <p class="loc-desc">Barrio con mucha personalidad visual: tipografías de los años 70, negocios vintage, una mezcla de generaciones que convive en las mismas terrazas. De noche tiene una luz de bar que lo llena todo de naranja cálido.</p>
+        <div class="loc-details">
+          <div class="loc-detail">
+            <p class="loc-detail-label">Mejor hora</p>
+            <p class="loc-detail-value">20:00–23:00. La gente sale, los bares iluminan la calle desde dentro.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Qué fotografiar</p>
+            <p class="loc-detail-value">Fachadas con luz de bar, grupos en terrazas, detalles de tiendas antiguas.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Focal recomendada</p>
+            <p class="loc-detail-value">35 mm. Las calles son más anchas que Lavapiés.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Dificultad</p>
+            <p class="loc-detail-value">Baja-media. De noche el ruido visual se reduce: las luces organizan el encuadre.</p>
+          </div>
+        </div>
+        <div class="loc-tip">
+          <p><strong>Consejo:</strong> la plaza del Dos de Mayo a las 21:30 un viernes tiene una energía muy específica. Quédate en un lateral y deja que la escena ocurra.</p>
+        </div>
+      </div>
+
+      <div class="loc-card visible" data-categoria="arquitectura naturaleza">
+        <div class="loc-header">
+          <h2 class="loc-nombre">Templo de <em>Debod</em></h2>
+          <span class="loc-nivel medio">Medio</span>
+        </div>
+        <div class="loc-tags">
+          <span class="loc-tag">Arquitectura</span>
+          <span class="loc-tag">Luz</span>
+          <span class="loc-tag">Atardecer</span>
+        </div>
+        <p class="loc-desc">El lugar más fotografiado de Madrid tiene una trampa: todos hacen la misma foto. El ejercicio real aquí es encontrar la tuya. El reflejo en el agua, el contraluz sin el templo, la gente mirando la puesta de sol, los pies de alguien sentado en el borde.</p>
+        <div class="loc-details">
+          <div class="loc-detail">
+            <p class="loc-detail-label">Mejor hora</p>
+            <p class="loc-detail-value">Una hora antes del atardecer. El cielo rosa sobre el templo es el cliché. Busca la otra foto.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Qué fotografiar</p>
+            <p class="loc-detail-value">El reflejo en el agua, personas mirando el horizonte, siluetas contra el cielo.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Focal recomendada</p>
+            <p class="loc-detail-value">Variable: 85 mm para retratos contra la luz, 18 mm para encuadres amplios.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Dificultad</p>
+            <p class="loc-detail-value">Media-alta. La dificultad es salir con algo original cuando hay 50 fotógrafos.</p>
+          </div>
+        </div>
+        <div class="loc-tip">
+          <p><strong>Consejo:</strong> llega una hora antes de lo que crees necesario. La luz buena dura quince minutos. Los primeros cuarenta son para explorar sin disparar.</p>
+        </div>
+      </div>
+
+      <div class="loc-card visible" data-categoria="calle arquitectura">
+        <div class="loc-header">
+          <h2 class="loc-nombre">La <em>Latina</em></h2>
+          <span class="loc-nivel facil">Fácil</span>
+        </div>
+        <div class="loc-tags">
+          <span class="loc-tag">Calle</span>
+          <span class="loc-tag">Mercado</span>
+          <span class="loc-tag">Fin de semana</span>
+        </div>
+        <p class="loc-desc">Los domingos en el rastro es una de las experiencias fotográficas más ricas de Madrid. Vendedores, compradores, turistas, vecinos, objetos imposibles. Entre semana el barrio tiene otra cara: más tranquila, con luz que baja entre las calles medievales.</p>
+        <div class="loc-details">
+          <div class="loc-detail">
+            <p class="loc-detail-label">Mejor hora</p>
+            <p class="loc-detail-value">Domingo 9:00–12:00 para el Rastro. Entre semana, cualquier tarde.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Qué fotografiar</p>
+            <p class="loc-detail-value">Vendedores y objetos en el Rastro, calles con sombras largas, la Cava Baja por la mañana.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Focal recomendada</p>
+            <p class="loc-detail-value">28–35 mm. Las calles son estrechas y el ambiente es cercano.</p>
+          </div>
+          <div class="loc-detail">
+            <p class="loc-detail-label">Dificultad</p>
+            <p class="loc-detail-value">Baja. El Rastro tiene mucho movimiento y nadie te presta atención.</p>
+          </div>
+        </div>
+        <div class="loc-tip">
+          <p><strong>Consejo:</strong> el callejón del Rastro entre las cajas vacías y los vendedores preparando el puesto, a las 8:30, antes de que llegue la gente. Otra ciudad.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="add-prompt">
+      Más localizaciones en preparación — Madrid, otras ciudades y salidas especiales.
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">Otto Kols · Fotógrafo</span>
+      <span class="footer-meta">© 2026 · Madrid</span>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.filtro;
+        document.querySelectorAll('.loc-card').forEach(card => {
+          if (f === 'todos' || card.dataset.categoria.includes(f)) {
+            card.classList.add('visible');
+          } else {
+            card.classList.remove('visible');
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

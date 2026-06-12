@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Mapas de Luz · Mirar Despacio +</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
+      --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
+      --accent: #c8a97a; --accent2: #5a8a5e; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+      --max: 960px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: clamp(14px, 1.5vw, 16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
+    a { color: inherit; text-decoration: none; }
+
+    nav { background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; }
+    .nav-back { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+    .nav-back:hover { color: var(--ink); }
+
+    .page-header { max-width: var(--max); margin: 0 auto; padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border); }
+    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.75rem; }
+    .page-header h1 { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin-bottom: 0.5rem; }
+    .page-header h1 em { font-style: italic; color: var(--accent); }
+    .page-header p { color: var(--muted); font-size: 0.92rem; }
+
+    .content { max-width: var(--max); margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+    /* Nav de condiciones */
+    .luz-nav { display: flex; gap: 1px; margin-bottom: 3rem; overflow-x: auto; }
+    .luz-nav-item {
+      background: var(--bg2);
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+      transition: background 0.2s;
+      border: none;
+      font-family: var(--font-sans);
+    }
+    .luz-nav-item:hover { background: var(--bg3); }
+    .luz-nav-item.active { background: var(--ink); }
+    .luz-nav-item .luz-icon { font-size: 1.2rem; display: block; margin-bottom: 0.35rem; }
+    .luz-nav-item .luz-name {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+    }
+    .luz-nav-item.active .luz-name { color: var(--bg); }
+
+    /* Panel de condición */
+    .luz-panel { display: none; }
+    .luz-panel.active { display: block; }
+
+    .luz-intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      margin-bottom: 1px;
+    }
+    .luz-intro-left {
+      background: var(--bg2);
+      padding: 2rem;
+    }
+    .luz-intro-left h2 {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+    .luz-intro-left h2 em { font-style: italic; color: var(--accent); }
+    .luz-intro-left p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+
+    .luz-settings {
+      background: var(--ink);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .settings-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+    .settings-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .pill {
+      background: rgba(245,243,239,0.1);
+      border: 1px solid rgba(245,243,239,0.15);
+      color: var(--bg);
+      font-size: 0.78rem;
+      padding: 0.35rem 0.85rem;
+      letter-spacing: 0.05em;
+    }
+    .pill.highlight { background: rgba(200,169,122,0.2); border-color: var(--accent); color: var(--accent); }
+    .settings-note { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+    .luz-details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-bottom: 1px;
+    }
+    .luz-detail-block {
+      background: var(--bg2);
+      padding: 1.5rem;
+    }
+    .luz-detail-block h3 { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+    .luz-detail-block ul { list-style: none; padding: 0; }
+    .luz-detail-block ul li { font-size: 0.83rem; color: var(--ink-faint); padding: 0.3rem 0 0.3rem 1rem; position: relative; line-height: 1.5; border-bottom: 1px solid var(--bg3); }
+    .luz-detail-block ul li:last-child { border-bottom: none; }
+    .luz-detail-block ul li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; }
+
+    .luz-errores {
+      background: var(--bg2);
+      border-left: 2px solid var(--accent);
+      padding: 1.5rem 2rem;
+    }
+    .luz-errores h3 { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+    .errores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem; }
+    .error-item { font-size: 0.83rem; color: var(--muted); padding-left: 1rem; position: relative; line-height: 1.5; }
+    .error-item::before { content: '×'; position: absolute; left: 0; color: var(--accent); font-size: 0.8rem; }
+
+    footer { background: var(--ink); padding: 2rem; }
+    .footer-inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; color: var(--bg); }
+    .footer-meta { font-size: 0.73rem; color: var(--muted); }
+
+    @media (max-width: 700px) {
+      .luz-intro, .luz-details-grid { grid-template-columns: 1fr; }
+      .errores-grid { grid-template-columns: 1fr; }
+      .luz-nav { gap: 0; }
+      .luz-nav-item { padding: 0.75rem 1rem; min-width: 80px; }
+      .content, .page-header { padding-left: 1.25rem; padding-right: 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo">Mirar Despacio +</span>
+    <a href="/recursos.html" class="nav-back">← Recursos</a>
+  </nav>
+
+  <div class="page-header">
+    <p class="page-label">Recursos · Mirar Despacio +</p>
+    <h1>Mapas de <em>luz.</em></h1>
+    <p>Qué hacer con cada tipo de luz. Sin excusas para ninguna condición.</p>
+  </div>
+
+  <div class="content">
+
+    <div class="luz-nav">
+      <button class="luz-nav-item active" data-panel="dorada">
+        <span class="luz-icon">◐</span>
+        <span class="luz-name">Hora dorada</span>
+      </button>
+      <button class="luz-nav-item" data-panel="duro">
+        <span class="luz-icon">○</span>
+        <span class="luz-name">Sol duro</span>
+      </button>
+      <button class="luz-nav-item" data-panel="nublado">
+        <span class="luz-icon">◌</span>
+        <span class="luz-name">Nublado</span>
+      </button>
+      <button class="luz-nav-item" data-panel="azul">
+        <span class="luz-icon">◑</span>
+        <span class="luz-name">Hora azul</span>
+      </button>
+      <button class="luz-nav-item" data-panel="noche">
+        <span class="luz-icon">●</span>
+        <span class="luz-name">Noche urbana</span>
+      </button>
+    </div>
+
+    <!-- ── HORA DORADA ── -->
+    <div class="luz-panel active" id="panel-dorada">
+      <div class="luz-intro">
+        <div class="luz-intro-left">
+          <h2>Hora <em>dorada.</em></h2>
+          <p>La primera hora después del amanecer y la última antes del ocaso. La luz es lateral, cálida, con sombras largas y suaves. Es la condición más generosa para casi cualquier tipo de fotografía: calle, retrato, arquitectura, naturaleza. El problema es que dura poco. Hay que llegar antes de que empiece.</p>
+        </div>
+        <div class="luz-settings">
+          <p class="settings-label">Ajustes de referencia</p>
+          <div class="settings-pills">
+            <span class="pill">ISO 200–800</span>
+            <span class="pill">f/4–8</span>
+            <span class="pill highlight">1/250–1/1000s</span>
+          </div>
+          <p class="settings-note">La luz cambia rápido: ajusta la exposición cada 5–10 minutos. Prioridad apertura es tu mejor aliado aquí.</p>
+        </div>
+      </div>
+      <div class="luz-details-grid">
+        <div class="luz-detail-block">
+          <h3>Qué buscar</h3>
+          <ul>
+            <li>Sombras largas que cruzan el encuadre.</li>
+            <li>Luz lateral que revela texturas en fachadas y suelo.</li>
+            <li>Personas iluminadas de lado con fondo en sombra.</li>
+            <li>Contraluz con bordillo dorado alrededor del sujeto.</li>
+            <li>Superficies que reflejan la luz cálida: charcos, cristales.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Composición</h3>
+          <ul>
+            <li>Usa las sombras como elementos de composición activos.</li>
+            <li>Ponle la luz lateral al sujeto: tridimensionalidad inmediata.</li>
+            <li>Busca la silueta contra el cielo en los últimos minutos.</li>
+            <li>El contraluz necesita compensación de +1 a +1.5 stops.</li>
+            <li>Encuadra con el sol fuera de campo para suavizar el flare.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Edición</h3>
+          <ul>
+            <li>Sube las sombras sin perder el contraste general.</li>
+            <li>Los amarillos y naranjas ya vienen ricos: no exageres.</li>
+            <li>Balance de blancos: no corrijas hacia neutro, deja la calidez.</li>
+            <li>El blanco y negro en hora dorada tiene un contraste natural enorme.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="luz-errores">
+        <h3>Errores frecuentes</h3>
+        <div class="errores-grid">
+          <p class="error-item">Llegar tarde y encontrar la luz ya alta.</p>
+          <p class="error-item">Sobreexponer las altas luces sin posibilidad de recuperar.</p>
+          <p class="error-item">No ajustar la exposición mientras la luz cambia.</p>
+          <p class="error-item">Hipersaturar en edición lo que ya es saturado.</p>
+          <p class="error-item">No explorar el encuadre antes de que empiece la luz buena.</p>
+          <p class="error-item">Quedarse quieto cuando la luz pide moverte.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SOL DURO ── -->
+    <div class="luz-panel" id="panel-duro">
+      <div class="luz-intro">
+        <div class="luz-intro-left">
+          <h2>Sol <em>duro.</em></h2>
+          <p>Mediodía. Luz cenital, sombras duras, contrastes extremos. La condición que todo el mundo evita y que tiene sus propias fotos. No busques lo mismo que en hora dorada. Esta luz pide otro tipo de imágenes: geometrías, sombras como sujeto, siluetas, contraluz extremo.</p>
+        </div>
+        <div class="luz-settings">
+          <p class="settings-label">Ajustes de referencia</p>
+          <div class="settings-pills">
+            <span class="pill">ISO 100–400</span>
+            <span class="pill highlight">f/8–11</span>
+            <span class="pill">1/1000–1/2000s</span>
+          </div>
+          <p class="settings-note">La luz es abundante. Baja el ISO al mínimo. Cuida las altas luces: lo que quemas no lo recuperas.</p>
+        </div>
+      </div>
+      <div class="luz-details-grid">
+        <div class="luz-detail-block">
+          <h3>Qué buscar</h3>
+          <ul>
+            <li>Sombras duras con bordes definidos como elemento gráfico.</li>
+            <li>Contraluz extremo: siluetas recortadas con limpieza.</li>
+            <li>Personas bajo toldos o en portales: luz controlada.</li>
+            <li>Reflejos en superficies brillantes.</li>
+            <li>Detalles de textura con la luz perpendicular.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Dónde meterse</h3>
+          <ul>
+            <li>Bajo puentes y pasos elevados: luz lateral y dura.</li>
+            <li>Calles estrechas orientadas Norte-Sur: luz que cae recta.</li>
+            <li>Mercados cubiertos con luz entrando por huecos.</li>
+            <li>Zonas de sombra de edificios altos con fondo iluminado.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Edición</h3>
+          <ul>
+            <li>Recupera sombras antes de cualquier otro ajuste.</li>
+            <li>Baja las altas luces al máximo si hay quemados.</li>
+            <li>Blanco y negro: el contraste extremo funciona muy bien.</li>
+            <li>No aclares la foto para compensar: aumenta el contraste.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="luz-errores">
+        <h3>Errores frecuentes</h3>
+        <div class="errores-grid">
+          <p class="error-item">Intentar retratos con sol directo en la cara.</p>
+          <p class="error-item">Quemar altas luces y luego subir sombras: doble problema.</p>
+          <p class="error-item">Ignorar las sombras como sujeto fotográfico.</p>
+          <p class="error-item">No usar las zonas de sombra de edificios a favor.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NUBLADO ── -->
+    <div class="luz-panel" id="panel-nublado">
+      <div class="luz-intro">
+        <div class="luz-intro-left">
+          <h2>Día <em>nublado.</em></h2>
+          <p>El softbox más grande del mundo. La luz es difusa, suave, sin dirección dominante. Los colores son más fieles, las pieles más bonitas, los detalles más visibles. La gente lo llama mala luz. Es la mejor luz para retratos y para fotografía de detalle.</p>
+        </div>
+        <div class="luz-settings">
+          <p class="settings-label">Ajustes de referencia</p>
+          <div class="settings-pills">
+            <span class="pill">ISO 400–1600</span>
+            <span class="pill highlight">f/2–4</span>
+            <span class="pill">1/200–1/500s</span>
+          </div>
+          <p class="settings-note">Sin dirección de luz, la apertura define el carácter de la foto. Abre más para separar sujeto del fondo.</p>
+        </div>
+      </div>
+      <div class="luz-details-grid">
+        <div class="luz-detail-block">
+          <h3>Qué buscar</h3>
+          <ul>
+            <li>Retratos: sin sombras duras, la piel respira.</li>
+            <li>Colores saturados sin quemar: flores, ropa, señales.</li>
+            <li>Texturas finas: madera, tela, piel, papel.</li>
+            <li>Escenas con mucho detalle que el sol duro ocultaría.</li>
+            <li>El agua bajo nubes tiene un gris profundo muy rico.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Composición</h3>
+          <ul>
+            <li>Elimina el cielo del encuadre: está vacío y distrae.</li>
+            <li>Compensa la falta de contraste con composición más fuerte.</li>
+            <li>Usa colores complementarios como estructura visual.</li>
+            <li>El primer plano borroso funciona bien sin luz directa.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Edición</h3>
+          <ul>
+            <li>Añade contraste en edición: la luz plana lo necesita.</li>
+            <li>Balance de blancos: nublado o 6000–6500K para calidez.</li>
+            <li>No sobreexpongas: ya tienes toda la información, protégela.</li>
+            <li>Blanco y negro: la gama de grises es más rica de lo que parece.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="luz-errores">
+        <h3>Errores frecuentes</h3>
+        <div class="errores-grid">
+          <p class="error-item">Incluir el cielo blanco y vacío en el encuadre.</p>
+          <p class="error-item">No añadir contraste en edición: la foto queda lavada.</p>
+          <p class="error-item">Pensar que no hay fotos porque no hay sol.</p>
+          <p class="error-item">Corregir el balance de blancos hacia frío: pierde calidez.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HORA AZUL ── -->
+    <div class="luz-panel" id="panel-azul">
+      <div class="luz-intro">
+        <div class="luz-intro-left">
+          <h2>Hora <em>azul.</em></h2>
+          <p>Los 20–30 minutos después del ocaso (o antes del amanecer). El cielo tiene un azul profundo que equilibra perfectamente con la luz artificial de la ciudad. Es la ventana en la que el exterior y el interior tienen la misma exposición. Dura poco. Llega preparado.</p>
+        </div>
+        <div class="luz-settings">
+          <p class="settings-label">Ajustes de referencia</p>
+          <div class="settings-pills">
+            <span class="pill">ISO 800–3200</span>
+            <span class="pill">f/4–8</span>
+            <span class="pill highlight">1/30–1/125s</span>
+          </div>
+          <p class="settings-note">La velocidad depende de si quieres congelar o no el movimiento. Trípode o apoyo si bajas de 1/60s con focal larga.</p>
+        </div>
+      </div>
+      <div class="luz-details-grid">
+        <div class="luz-detail-block">
+          <h3>Qué buscar</h3>
+          <ul>
+            <li>Fachadas iluminadas con cielo azul de fondo.</li>
+            <li>Escaparates: interior cálido, exterior frío. El contraste de color es la foto.</li>
+            <li>Reflejos del cielo en superficies mojadas.</li>
+            <li>Siluetas de personas contra el cielo azul y las luces.</li>
+            <li>El horizonte urbano con el gradiente de color completo.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Composición</h3>
+          <ul>
+            <li>Incluye el cielo: es la foto. A diferencia del nublado, aquí el cielo es protagonista.</li>
+            <li>Mezcla temperatura de color: no corrijas. El azul y el naranja conviven.</li>
+            <li>Las personas en movimiento borrosas refuerzan la atmósfera.</li>
+            <li>Encuadres amplios para capturar el gradiente completo.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Edición</h3>
+          <ul>
+            <li>No corrijas el balance de blancos hacia neutro: destruyes la hora azul.</li>
+            <li>Sube ligeramente las sombras para ver el detalle en zonas oscuras.</li>
+            <li>Potencia el azul del cielo con cuidado: fácil pasarse.</li>
+            <li>El blanco y negro pierde la razón de ser de esta luz.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="luz-errores">
+        <h3>Errores frecuentes</h3>
+        <div class="errores-grid">
+          <p class="error-item">Llegar tarde: cuando el cielo ya está negro, se acabó.</p>
+          <p class="error-item">Corregir el balance de blancos y eliminar el contraste de color.</p>
+          <p class="error-item">No tener el encuadre preparado antes de que empiece la ventana.</p>
+          <p class="error-item">Subexponer: la ciudad necesita exposición suficiente para rendir bien.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOCHE URBANA ── -->
+    <div class="luz-panel" id="panel-noche">
+      <div class="luz-intro">
+        <div class="luz-intro-left">
+          <h2>Noche <em>urbana.</em></h2>
+          <p>Múltiples fuentes de luz, mezcla de temperaturas de color, contrastes extremos entre luces y sombras. La noche urbana es caótica visualmente y eso es exactamente lo que la hace rica. No hay una receta: hay que leer cada escena por separado.</p>
+        </div>
+        <div class="luz-settings">
+          <p class="settings-label">Ajustes de referencia</p>
+          <div class="settings-pills">
+            <span class="pill highlight">ISO 3200–12800</span>
+            <span class="pill">f/1.8–2.8</span>
+            <span class="pill">1/60–1/250s</span>
+          </div>
+          <p class="settings-note">Sin trípode, prioriza velocidad sobre ISO. El ruido es aceptable; la foto movida, no.</p>
+        </div>
+      </div>
+      <div class="luz-details-grid">
+        <div class="luz-detail-block">
+          <h3>Qué buscar</h3>
+          <ul>
+            <li>Farola como fuente principal: sujeto debajo, fondo oscuro.</li>
+            <li>Luz de escaparate que sale a la calle y ilumina una zona pequeña.</li>
+            <li>Neones: color, textura, reflejos.</li>
+            <li>Personas que cruzan entre zonas iluminadas y en sombra.</li>
+            <li>Rastros de coches en larga exposición.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Sin trípode</h3>
+          <ul>
+            <li>Apóyate en superficies: paredes, farolas, coches.</li>
+            <li>Espira antes de disparar, aguanta la respiración.</li>
+            <li>Ráfaga de 3: una de las tres suele salir más nítida.</li>
+            <li>No bajes de 1/focal en mano: con 50mm, mínimo 1/60s.</li>
+          </ul>
+        </div>
+        <div class="luz-detail-block">
+          <h3>Edición</h3>
+          <ul>
+            <li>No corrijas la mezcla de temperaturas de color: es el carácter.</li>
+            <li>Blanco y negro: el ruido tiene calidad de grano de película.</li>
+            <li>Baja las altas luces si hay quemados en neones o luces directas.</li>
+            <li>Sube sombras con cuidado: el negro profundo es parte de la noche.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="luz-errores">
+        <h3>Errores frecuentes</h3>
+        <div class="errores-grid">
+          <p class="error-item">Subir ISO con miedo y tener la foto movida igualmente.</p>
+          <p class="error-item">Fondo negro sin información: no hay foto, hay fallo.</p>
+          <p class="error-item">Intentar corregir el balance de blancos hacia neutro.</p>
+          <p class="error-item">Editar añadiendo brillo en lugar de leer la escena.</p>
+          <p class="error-item">No revisar el foco en el monitor antes de seguir disparando.</p>
+          <p class="error-item">Olvidar la batería extra: el frío las vacía más rápido.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">Otto Kols · Fotógrafo</span>
+      <span class="footer-meta">© 2026 · Madrid</span>
+    </div>
+  </footer>
+
+  <script>
+    const navItems = document.querySelectorAll('.luz-nav-item');
+    const panels = document.querySelectorAll('.luz-panel');
+
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        navItems.forEach(n => n.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        item.classList.add('active');
+        document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>
