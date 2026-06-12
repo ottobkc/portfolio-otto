@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Composición · Mirar Despacio +</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --ink: #1a1814; --muted: #7a756f;
+      --accent: #c8a97a; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+    }
+    body { background: var(--bg); font-family: var(--font-sans); font-weight: 300; -webkit-font-smoothing: antialiased; }
+    #app-loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100svh; color: var(--muted); font-size: 0.85rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    #app-root { display: none; }
+    nav {
+      background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 60px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; color: var(--ink); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-back {
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--ink); }
+    .btn-logout-nav {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; font-family: var(--font-sans); padding: 0.4rem 0.9rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-logout-nav:hover { border-color: var(--ink); color: var(--ink); }
+    @media (max-width: 600px) { nav { padding: 0 1.25rem; } }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <div id="app-loading">Verificando acceso…</div>
+
+  <div id="app-root">
+    <nav>
+      <span class="nav-logo">Mirar Despacio +</span>
+      <div class="nav-right">
+        <a href="/recursos.html" class="nav-back">← Recursos</a>
+        <button class="btn-logout-nav" id="logoutBtn">Cerrar sesión</button>
+      </div>
+    </nav>
+    <div id="react-mount"></div>
+  </div>
+
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    function showApp() {
+      document.getElementById('app-loading').style.display = 'none';
+      document.getElementById('app-root').style.display = 'block';
+    }
+
+    // En preview/localhost Identity no carga: mostramos el contenido directamente
+    var isPreview = !window.location.hostname.includes('ottokols');
+    if (isPreview) { showApp(); }
+
+    netlifyIdentity.on('init', function(user) {
+      if (!user && !isPreview) {
+        window.location.replace('/salidas.html#acceso');
+      } else {
+        showApp();
+      }
+    });
+    netlifyIdentity.init();
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      netlifyIdentity.logout();
+      window.location.replace('/recursos.html#acceso');
+    });
+  </script>
+
+  <script type="text/babel">
+    const { useState, useRef, useCallback, useEffect } = React;
+
+
+
+// ─── Palette ────────────────────────────────────────────────────────────────
+const C = {
+  bg:       "#f5f3ef",
+  surface:  "#ffffff",
+  text:     "#1a1814",
+  muted:    "#8a7f72",
+  gold:     "#c8a97a",
+  goldDim:  "#e0cba8",
+  goldDeep: "#a8845a",
+  good:     "#4a7c59",
+  warn:     "#b07a2a",
+  bad:      "#8c3a2e",
+  gridLine: "rgba(200,169,122,0.5)",
+  subjectFill: "rgba(200,169,122,0.85)",
+  horizonLine: "rgba(90,140,200,0.8)",
+};
+
+// ─── Scoring helpers ─────────────────────────────────────────────────────────
+// Returns { score 0–100, label, comment }
+
+function scoreThirds(nx, ny) {
+  // thirds snap zones: 0.28–0.38 and 0.62–0.72 for both axes
+  const thirds = [1/3, 2/3];
+  const tol = 0.09;
+  const onV = thirds.some(t => Math.abs(nx - t) < tol);
+  const onH = thirds.some(t => Math.abs(ny - t) < tol);
+  const nearCenter = Math.abs(nx - 0.5) < 0.1 && Math.abs(ny - 0.5) < 0.1;
+
+  if (onV && onH) return { score: 100, label: "Intersección perfecta", comment: "El sujeto está en un punto de poder — donde la mirada llega de forma natural." };
+  if (onV || onH) return { score: 72, label: "En línea de tercio", comment: "Bien encuadrado en una línea. Podrías refinar un eje más para llegar al punto de poder." };
+  if (nearCenter) return { score: 38, label: "Composición central", comment: "El centro funciona para simetría deliberada, pero puede resultar estático sin justificación visual." };
+  return { score: 22, label: "Fuera de tercios", comment: "El sujeto flota en una zona sin tensión compositiva. Prueba acercarlo a 1/3 o 2/3 del encuadre." };
+}
+
+function scoreHorizon(hy) {
+  const thirds = [1/3, 2/3];
+  const tol = 0.07;
+  const onThird = thirds.some(t => Math.abs(hy - t) < tol);
+  const centered = Math.abs(hy - 0.5) < 0.06;
+  if (onThird) return { score: 100, label: "Horizonte en tercio", comment: "El horizonte divide el encuadre con peso visual equilibrado. Clásico y efectivo." };
+  if (centered) return { score: 42, label: "Horizonte central", comment: "El horizonte parte la imagen en dos mitades iguales — suele restar dinamismo salvo en reflexiones." };
+  if (hy < 0.2 || hy > 0.8) return { score: 55, label: "Horizonte extremo", comment: "Posición audaz: da mucho peso a cielo o tierra. Funciona si hay algo que justifique ese espacio." };
+  return { score: 65, label: "Horizonte libre", comment: "No está en tercio pero tampoco en el centro. Un pequeño ajuste lo anclaría mejor." };
+}
+
+function scoreLook(nx, lookDir) {
+  // lookDir: "left" | "right" | "camera"
+  // Space in front of gaze should be larger than behind
+  const spaceRight = 1 - nx;
+  const spaceLeft  = nx;
+  if (lookDir === "camera") return { score: 85, label: "Mirada a cámara", comment: "La mirada directa crea conexión con el espectador. El espacio alrededor define si es confrontación o intimidad." };
+  if (lookDir === "right") {
+    if (spaceRight > 0.28) return { score: 100, label: "Espacio de mirada correcto", comment: "Hay espacio hacia donde mira el sujeto — la mirada tiene hacia dónde ir dentro del encuadre." };
+    if (spaceRight < 0.15) return { score: 20, label: "Mirada cortada", comment: "El sujeto mira hacia el borde — la mirada 'choca' con el marco. Desplázalo hacia la izquierda." };
+    return { score: 62, label: "Poco espacio de mirada", comment: "El sujeto mira a la derecha pero el espacio es justo. Un poco más de margen daría aire." };
+  }
+  if (lookDir === "left") {
+    if (spaceLeft > 0.28) return { score: 100, label: "Espacio de mirada correcto", comment: "Hay espacio hacia donde mira el sujeto — la mirada tiene hacia dónde ir dentro del encuadre." };
+    if (spaceLeft < 0.15) return { score: 20, label: "Mirada cortada", comment: "El sujeto mira hacia el borde — la mirada 'choca' con el marco. Desplázalo hacia la derecha." };
+    return { score: 62, label: "Poco espacio de mirada", comment: "El sujeto mira a la izquierda pero el espacio es justo. Un poco más de margen daría aire." };
+  }
+  return { score: 70, label: "Mirada neutra", comment: "" };
+}
+
+function scoreNegativeSpace(nx, ny) {
+  // Negative space: subject not filling the center, some clear quadrant available
+  const distFromCenter = Math.sqrt((nx-0.5)**2 + (ny-0.5)**2);
+  if (distFromCenter > 0.3) return { score: 92, label: "Espacio negativo generoso", comment: "El sujeto deja un cuadrante limpio — la respiración en la imagen da protagonismo al silencio." };
+  if (distFromCenter > 0.18) return { score: 68, label: "Espacio negativo moderado", comment: "Hay algo de espacio pero el sujeto domina el centro. Más desplazamiento crearía más tensión." };
+  return { score: 35, label: "Espacio negativo reducido", comment: "El sujeto ocupa el centro y no deja respiro visual. El espacio vacío también cuenta." };
+}
+
+function scoreWeight(nx, ny, hy) {
+  // Visual weight: subject in lower half feels grounded; upper half = lightness/tension
+  // Horizon should be consistent with subject placement
+  const subjectInLower = ny > 0.5;
+  const horizonConsistent = subjectInLower ? hy > 0.4 : hy < 0.6;
+  const offCenterH = Math.abs(nx - 0.5) > 0.15;
+
+  if (offCenterH && horizonConsistent) return { score: 88, label: "Peso visual equilibrado", comment: "El sujeto y el horizonte se coordinan — la imagen se siente estable sin ser rígida." };
+  if (offCenterH) return { score: 65, label: "Peso asimétrico", comment: "El sujeto está descentrado, lo que da dinamismo, pero el horizonte no acompaña del todo." };
+  return { score: 50, label: "Peso central", comment: "Todo tiende al centro. Desplazar sujeto u horizonte añadiría tensión visual." };
+}
+
+function totalScore(s) {
+  return Math.round(s.thirds * 0.30 + s.horizon * 0.20 + s.look * 0.25 + s.negative * 0.15 + s.weight * 0.10);
+}
+
+function scoreColor(s) {
+  if (s >= 78) return C.good;
+  if (s >= 52) return C.warn;
+  return C.bad;
+}
+
+function scoreEmoji(s) {
+  if (s >= 78) return "✦";
+  if (s >= 52) return "◈";
+  return "◇";
+}
+
+// ─── Look direction selector ─────────────────────────────────────────────────
+function LookSelector({ value, onChange }) {
+  const opts = [
+    { id: "left",   icon: "←", label: "Izquierda" },
+    { id: "camera", icon: "◉", label: "Cámara" },
+    { id: "right",  icon: "→", label: "Derecha" },
+  ];
+  return (
+    <div style={{ display: "flex", gap: 6 }}>
+      {opts.map(o => (
+        <button key={o.id} onClick={() => onChange(o.id)} style={{
+          flex: 1, padding: "8px 4px", borderRadius: 7, border: `1.5px solid ${value === o.id ? C.gold : C.goldDim}`,
+          background: value === o.id ? C.gold : C.surface, color: value === o.id ? "#fff" : C.muted,
+          cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 300,
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 2, transition: "all 0.15s",
+        }}>
+          <span style={{ fontSize: 18, lineHeight: 1 }}>{o.icon}</span>
+          <span style={{ fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>{o.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─── Score badge ─────────────────────────────────────────────────────────────
+function ScoreBadge({ label, score, comment, weight }) {
+  const col = scoreColor(score);
+  return (
+    <div style={{
+      padding: "10px 12px", borderRadius: 8, background: C.bg,
+      borderLeft: `3px solid ${col}`, marginBottom: 8,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 3 }}>
+        <span style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</span>
+        <span style={{ fontSize: 15, fontWeight: 400, color: col }}>{score}<span style={{ fontSize: 10, color: C.muted }}>/100</span></span>
+      </div>
+      <div style={{ height: 3, background: C.goldDim, borderRadius: 2, marginBottom: 6 }}>
+        <div style={{ height: "100%", width: `${score}%`, background: col, borderRadius: 2, transition: "width 0.4s ease" }} />
+      </div>
+      {comment && <p style={{ fontSize: 12, color: C.muted, margin: 0, lineHeight: 1.5 }}>{comment}</p>}
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+function ComposicionGame() {
+  const [imgSrc, setImgSrc]       = useState(null);
+  const [imgDims, setImgDims]     = useState({ w: 0, h: 0 });
+  const [subjectPos, setSubject]  = useState({ x: 0.33, y: 0.33 });
+  const [horizonY, setHorizon]    = useState(0.33);
+  const [lookDir, setLookDir]     = useState("right");
+  const [showGrid, setShowGrid]   = useState(true);
+  const [dragging, setDragging]   = useState(null); // "subject" | "horizon"
+  const canvasRef  = useRef(null);
+  const fileRef    = useRef(null);
+
+  // Load image
+  const handleFile = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      setImgDims({ w: img.naturalWidth, h: img.naturalHeight });
+      setImgSrc(url);
+    };
+    img.src = url;
+  }, []);
+
+  // Compute scores
+  const scores = {
+    thirds:   scoreThirds(subjectPos.x, subjectPos.y),
+    horizon:  scoreHorizon(horizonY),
+    look:     scoreLook(subjectPos.x, lookDir),
+    negative: scoreNegativeSpace(subjectPos.x, subjectPos.y),
+    weight:   scoreWeight(subjectPos.x, subjectPos.y, horizonY),
+  };
+  const total = totalScore({
+    thirds: scores.thirds.score, horizon: scores.horizon.score,
+    look: scores.look.score, negative: scores.negative.score, weight: scores.weight.score,
+  });
+
+  // Drag handlers on the canvas overlay
+  const getRelPos = useCallback((e, el) => {
+    const rect = el.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return {
+      x: Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)),
+      y: Math.max(0, Math.min(1, (clientY - rect.top)  / rect.height)),
+    };
+  }, []);
+
+  const onPointerDown = useCallback((e, type) => {
+    e.preventDefault();
+    setDragging(type);
+  }, []);
+
+  const onPointerMove = useCallback((e) => {
+    if (!dragging) return;
+    e.preventDefault();
+    const el = canvasRef.current;
+    if (!el) return;
+    const pos = getRelPos(e, el);
+    if (dragging === "subject") setSubject({ x: pos.x, y: pos.y });
+    if (dragging === "horizon") setHorizon(pos.y);
+  }, [dragging, getRelPos]);
+
+  const onPointerUp = useCallback(() => setDragging(null), []);
+
+  useEffect(() => {
+    window.addEventListener("pointerup",   onPointerUp);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("touchend",    onPointerUp);
+    return () => {
+      window.removeEventListener("pointerup",   onPointerUp);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("touchend",    onPointerUp);
+    };
+  }, [onPointerMove, onPointerUp]);
+
+  // Canvas dimensions — capped at 700px wide, maintain aspect ratio
+  const MAX_W = 680;
+  const aspect = imgDims.w && imgDims.h ? imgDims.h / imgDims.w : 2/3;
+  const canvasW = MAX_W;
+  const canvasH = imgSrc ? Math.round(canvasW * aspect) : 380;
+
+  const totalColor = scoreColor(total);
+
+  return (
+    <div style={{
+      fontFamily: "'Jost','Inter',sans-serif", fontWeight: 300,
+      background: C.bg, color: C.text, minHeight: "100vh",
+      padding: "28px 16px 56px", boxSizing: "border-box",
+    }}>
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <p style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: C.gold, margin: "0 0 6px" }}>
+          Mirar Despacio +
+        </p>
+        <h1 style={{ fontSize: 26, fontWeight: 300, margin: "0 0 5px", letterSpacing: "0.02em" }}>
+          Composición
+        </h1>
+        <p style={{ fontSize: 13, color: C.muted, margin: 0 }}>
+          Coloca el sujeto y el horizonte. El encuadre te habla.
+        </p>
+      </div>
+
+      <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>
+
+        {/* Upload zone */}
+        {!imgSrc && (
+          <div
+            onClick={() => fileRef.current?.click()}
+            style={{
+              border: `2px dashed ${C.goldDim}`, borderRadius: 12,
+              padding: "48px 20px", textAlign: "center", cursor: "pointer",
+              background: C.surface, transition: "border-color 0.2s",
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = C.gold}
+            onMouseLeave={e => e.currentTarget.style.borderColor = C.goldDim}
+          >
+            <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.4 }}>⬡</div>
+            <p style={{ color: C.muted, fontSize: 14, margin: "0 0 4px" }}>Sube tu foto</p>
+            <p style={{ color: C.goldDim, fontSize: 11, margin: 0 }}>JPG, PNG — queda en tu dispositivo, no se envía a ningún servidor</p>
+            <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFile} />
+          </div>
+        )}
+
+        {imgSrc && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
+
+            {/* Left: canvas */}
+            <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+
+              {/* Controls bar */}
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                marginBottom: 10,
+              }}>
+                <button onClick={() => { setImgSrc(null); fileRef.current.value = ""; }} style={{
+                  background: "none", border: `1px solid ${C.goldDim}`, borderRadius: 6,
+                  padding: "5px 12px", fontSize: 11, color: C.muted, cursor: "pointer", fontFamily: "inherit",
+                  letterSpacing: "0.06em", textTransform: "uppercase",
+                }}>
+                  Cambiar foto
+                </button>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 12, color: C.muted }}>
+                  <input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)}
+                    style={{ accentColor: C.gold }} />
+                  Cuadrícula
+                </label>
+              </div>
+
+              {/* Canvas */}
+              <div ref={canvasRef} style={{
+                position: "relative", width: "100%", paddingTop: `${aspect * 100}%`,
+                background: "#111", borderRadius: 10, overflow: "hidden",
+                cursor: dragging ? "grabbing" : "default", touchAction: "none",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+              }}>
+                <div style={{ position: "absolute", inset: 0 }}>
+
+                  {/* Photo */}
+                  <img src={imgSrc} alt="" style={{
+                    position: "absolute", inset: 0, width: "100%", height: "100%",
+                    objectFit: "fill", userSelect: "none", pointerEvents: "none",
+                  }} />
+
+                  {/* Grid overlay */}
+                  {showGrid && (
+                    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+                      {[1/3, 2/3].map(f => (
+                        <g key={f}>
+                          <line x1={`${f*100}%`} y1="0" x2={`${f*100}%`} y2="100%"
+                            stroke={C.gridLine} strokeWidth="1" strokeDasharray="4 4" />
+                          <line x1="0" y1={`${f*100}%`} x2="100%" y2={`${f*100}%`}
+                            stroke={C.gridLine} strokeWidth="1" strokeDasharray="4 4" />
+                        </g>
+                      ))}
+                      {/* intersection dots */}
+                      {[1/3, 2/3].flatMap(fx => [1/3, 2/3].map(fy => (
+                        <circle key={`${fx}-${fy}`} cx={`${fx*100}%`} cy={`${fy*100}%`} r="4"
+                          fill={C.gold} opacity="0.7" />
+                      )))}
+                    </svg>
+                  )}
+
+                  {/* Horizon line — draggable */}
+                  <div
+                    onPointerDown={e => onPointerDown(e, "horizon")}
+                    style={{
+                      position: "absolute", left: 0, right: 0,
+                      top: `${horizonY * 100}%`, height: 20,
+                      transform: "translateY(-50%)",
+                      cursor: "ns-resize", zIndex: 5,
+                      display: "flex", alignItems: "center",
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute", left: 0, right: 0, height: 2,
+                      background: C.horizonLine, boxShadow: "0 0 6px rgba(90,140,200,0.4)",
+                    }} />
+                    <div style={{
+                      position: "absolute", right: 6,
+                      background: "rgba(90,140,200,0.85)", color: "#fff",
+                      fontSize: 9, padding: "2px 6px", borderRadius: 4,
+                      letterSpacing: "0.08em", textTransform: "uppercase",
+                      pointerEvents: "none",
+                    }}>horizonte</div>
+                  </div>
+
+                  {/* Subject marker — draggable */}
+                  <div
+                    onPointerDown={e => onPointerDown(e, "subject")}
+                    style={{
+                      position: "absolute", zIndex: 6, cursor: "grab",
+                      left: `${subjectPos.x * 100}%`, top: `${subjectPos.y * 100}%`,
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  >
+                    {/* Outer ring */}
+                    <div style={{
+                      width: 44, height: 44, borderRadius: "50%",
+                      border: `2px solid ${C.gold}`,
+                      background: "rgba(200,169,122,0.18)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      boxShadow: `0 0 0 3px rgba(200,169,122,0.15)`,
+                      transition: dragging === "subject" ? "none" : "box-shadow 0.2s",
+                    }}>
+                      {/* Look direction arrow */}
+                      <span style={{ fontSize: 18, color: C.gold, userSelect: "none", lineHeight: 1 }}>
+                        {lookDir === "left" ? "←" : lookDir === "right" ? "→" : "◉"}
+                      </span>
+                    </div>
+                    <div style={{
+                      position: "absolute", bottom: -16, left: "50%", transform: "translateX(-50%)",
+                      fontSize: 8, color: C.gold, whiteSpace: "nowrap",
+                      letterSpacing: "0.08em", textTransform: "uppercase",
+                      textShadow: "0 1px 3px rgba(0,0,0,0.6)",
+                    }}>sujeto</div>
+                  </div>
+
+                  {/* Look space indicator */}
+                  {lookDir !== "camera" && (() => {
+                    const sx = subjectPos.x;
+                    const spaceRight = 1 - sx;
+                    const spaceLeft  = sx;
+                    const adequate = lookDir === "right" ? spaceRight > 0.28 : spaceLeft > 0.28;
+                    return (
+                      <div style={{
+                        position: "absolute", top: `${subjectPos.y * 100}%`,
+                        ...(lookDir === "right"
+                          ? { left: `${subjectPos.x * 100}%`, right: 0 }
+                          : { left: 0, right: `${(1 - subjectPos.x) * 100}%` }),
+                        height: 2, transform: "translateY(-50%)",
+                        background: adequate ? "rgba(74,124,89,0.4)" : "rgba(140,58,46,0.4)",
+                        zIndex: 4, pointerEvents: "none",
+                        borderTop: `1px dashed ${adequate ? "rgba(74,124,89,0.6)" : "rgba(140,58,46,0.6)"}`,
+                      }} />
+                    );
+                  })()}
+
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <p style={{ fontSize: 11, color: C.muted, marginTop: 8, textAlign: "center", letterSpacing: "0.02em" }}>
+                Arrastra <span style={{ color: C.gold }}>●</span> para mover el sujeto · Arrastra <span style={{ color: "#5a8cc8" }}>—</span> para el horizonte
+              </p>
+            </div>
+
+            {/* Right: controls + scores */}
+            <div style={{ flex: "1 1 260px", minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
+
+              {/* Look direction */}
+              <div style={{ background: C.surface, borderRadius: 10, padding: "16px" }}>
+                <p style={{ fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: C.muted, margin: "0 0 10px" }}>
+                  Dirección de mirada
+                </p>
+                <LookSelector value={lookDir} onChange={setLookDir} />
+              </div>
+
+              {/* Total score */}
+              <div style={{
+                background: C.surface, borderRadius: 10, padding: "18px 16px",
+                borderTop: `3px solid ${totalColor}`,
+                display: "flex", alignItems: "center", gap: 16,
+              }}>
+                <div style={{
+                  width: 58, height: 58, borderRadius: "50%",
+                  border: `2.5px solid ${totalColor}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  <span style={{ fontSize: 22, fontWeight: 400, color: totalColor }}>{total}</span>
+                </div>
+                <div>
+                  <p style={{ fontSize: 10, color: C.muted, textTransform: "uppercase", letterSpacing: "0.12em", margin: "0 0 3px" }}>
+                    Composición global
+                  </p>
+                  <p style={{ fontSize: 14, color: totalColor, margin: 0, fontWeight: 300 }}>
+                    {total >= 78 ? "Bien compuesta" : total >= 55 ? "Con potencial" : "Para revisar"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Individual scores */}
+              <div style={{ background: C.surface, borderRadius: 10, padding: "16px" }}>
+                <p style={{ fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: C.muted, margin: "0 0 12px" }}>
+                  Análisis
+                </p>
+                <ScoreBadge label="Regla de tercios"   score={scores.thirds.score}   comment={scores.thirds.comment}   />
+                <ScoreBadge label="Horizonte"           score={scores.horizon.score}  comment={scores.horizon.comment}  />
+                <ScoreBadge label="Espacio de mirada"   score={scores.look.score}     comment={scores.look.comment}     />
+                <ScoreBadge label="Espacio negativo"    score={scores.negative.score} comment={scores.negative.comment} />
+                <ScoreBadge label="Peso visual"         score={scores.weight.score}   comment={scores.weight.comment}   />
+              </div>
+
+              {/* Position readout */}
+              <div style={{
+                background: C.surface, borderRadius: 10, padding: "12px 14px",
+                display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8,
+              }}>
+                {[
+                  { label: "Sujeto X", val: `${Math.round(subjectPos.x * 100)}%` },
+                  { label: "Sujeto Y", val: `${Math.round(subjectPos.y * 100)}%` },
+                  { label: "Horizonte", val: `${Math.round(horizonY * 100)}%` },
+                ].map(d => (
+                  <div key={d.label} style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: 9, color: C.muted, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 3px" }}>{d.label}</p>
+                    <p style={{ fontSize: 16, fontWeight: 400, color: C.text, margin: 0 }}>{d.val}</p>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* Theory note */}
+        <div style={{ background: C.surface, borderRadius: 10, padding: "18px 18px", maxWidth: 760 }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: C.muted, margin: "0 0 10px" }}>
+            Sobre estas reglas
+          </p>
+          <p style={{ fontSize: 13, color: C.muted, margin: 0, lineHeight: 1.7 }}>
+            La regla de tercios es una guía, no una ley. La fotografía contemplativa a veces la rompe deliberadamente: el centro puede ser una afirmación de quietud, el horizonte partido puede ser una decisión poética. Usa esta herramienta para <em>entender</em> las convenciones antes de transgredirlas con intención.
+          </p>
+        </div>
+
+        <p style={{ textAlign: "center", fontSize: 10, color: C.goldDim, letterSpacing: "0.16em", margin: 0 }}>
+          MIRAR DESPACIO +
+        </p>
+
+      </div>
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('react-mount'));
+    root.render(React.createElement(ComposicionGame));
+  </script>
+</body>
+</html>

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Simulador Visual · Mirar Despacio +</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --ink: #1a1814; --muted: #7a756f;
+      --accent: #c8a97a; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+    }
+    body { background: var(--bg); font-family: var(--font-sans); font-weight: 300; -webkit-font-smoothing: antialiased; }
+    #app-loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100svh; color: var(--muted); font-size: 0.85rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    #app-root { display: none; }
+    nav {
+      background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 60px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; color: var(--ink); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-back {
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--ink); }
+    .btn-logout-nav {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; font-family: var(--font-sans); padding: 0.4rem 0.9rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-logout-nav:hover { border-color: var(--ink); color: var(--ink); }
+    @media (max-width: 600px) { nav { padding: 0 1.25rem; } }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <div id="app-loading">Verificando acceso…</div>
+
+  <div id="app-root">
+    <nav>
+      <span class="nav-logo">Mirar Despacio +</span>
+      <div class="nav-right">
+        <a href="/recursos.html" class="nav-back">← Recursos</a>
+        <button class="btn-logout-nav" id="logoutBtn">Cerrar sesión</button>
+      </div>
+    </nav>
+    <div id="react-mount"></div>
+  </div>
+
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    function showApp() {
+      document.getElementById('app-loading').style.display = 'none';
+      document.getElementById('app-root').style.display = 'block';
+    }
+
+    // En preview/localhost Identity no carga: mostramos el contenido directamente
+    var isPreview = !window.location.hostname.includes('ottokols');
+    if (isPreview) { showApp(); }
+
+    netlifyIdentity.on('init', function(user) {
+      if (!user && !isPreview) {
+        window.location.replace('/salidas.html#acceso');
+      } else {
+        showApp();
+      }
+    });
+    netlifyIdentity.init();
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      netlifyIdentity.logout();
+      window.location.replace('/recursos.html#acceso');
+    });
+  </script>
+
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+
+
+
+const C = {
+  bg:      "#f5f3ef",
+  surface: "#ffffff",
+  text:    "#1a1814",
+  muted:   "#8a7f72",
+  gold:    "#c8a97a",
+  goldDim: "#e0cba8",
+  goldDeep:"#a8845a",
+};
+
+// ─── Data ────────────────────────────────────────────────────────────────────
+const APERTURES = [1.0,1.4,1.8,2.0,2.8,4.0,5.6,8.0,11,16];
+const SHUTTERS  = [1/2000,1/1000,1/500,1/250,1/125,1/60,1/30,1/15,1/8,1/4,0.5,1];
+const ISOS      = [100,200,400,800,1600,3200,6400,12800];
+const FOCALS    = [14,24,35,50,85,135,200];
+
+const SHUTTER_LABELS = ["1/2000","1/1000","1/500","1/250","1/125","1/60","1/30","1/15","1/8","1/4","1/2","1\""];
+const FOCAL_LABELS   = ["14mm","24mm","35mm","50mm","85mm","135mm","200mm"];
+
+// Base EV by light situation
+const LIGHTS = [
+  { id:"sol",     label:"Sol pleno",       ev:15, sunX:85, sunY:18, sunColor:"#ffe87a", skyTop:"#5ab0f0", skyBot:"#a8d8f8" },
+  { id:"nublado", label:"Nublado",         ev:12, sunX:50, sunY:10, sunColor:"#ddd",   skyTop:"#b0bec5", skyBot:"#cfd8dc" },
+  { id:"dorada",  label:"Hora dorada",     ev:11, sunX:88, sunY:42, sunColor:"#ffb347", skyTop:"#ff7043", skyBot:"#ffcc80" },
+  { id:"azul",    label:"Hora azul",       ev:8,  sunX:10, sunY:55, sunColor:"#90caf9", skyTop:"#1a237e", skyBot:"#3949ab" },
+  { id:"noche",   label:"Noche urbana",    ev:6,  sunX:50, sunY:20, sunColor:"#fff",   skyTop:"#0d0d1a", skyBot:"#1a1a2e" },
+  { id:"interior",label:"Interior",        ev:8,  sunX:15, sunY:15, sunColor:"#ffe082", skyTop:"#37474f", skyBot:"#546e7a" },
+];
+
+function evFromSettings(ap, sh, iso) {
+  return Math.log2((ap * ap) / sh) - Math.log2(iso / 100);
+}
+
+// Brightness multiplier for the scene overlay.
+// f/16 (high N) → high achieved EV → achieved > target → diff positive → image darker.
+// f/1.4 (low N) → low achieved EV → achieved < target → diff negative → image brighter.
+// Formula: brightness = 2^(targetEV - achievedEV)
+//   diff > 0 → 2^positive → >1 → overexposed (bright)
+//   diff < 0 → 2^negative → <1 → underexposed (dark)
+// But wait: f/16 raises N², raises achievedEV, so achieved > target → diff = target-achieved < 0 → dark. Correct!
+function exposureBrightness(targetEV, ap, sh, iso) {
+  const achieved = evFromSettings(ap, sh, iso);
+  // diff positive = overexposed (image brighter than target)
+  // diff negative = underexposed (image darker than target)
+  const diff = targetEV - achieved;
+  return Math.max(0, Math.min(2.5, Math.pow(2, diff) * 0.9));
+}
+
+// DoF blur amount (0 = sharp, 1 = very blurry)
+function dofBlur(ap, focal) {
+  // simplified: larger aperture + longer focal = more blur
+  const base = (focal / 50) * (2.8 / ap);
+  return Math.min(1, Math.max(0, (base - 0.3) / 3));
+}
+
+// Motion blur amount (0 = frozen, 1 = full trails)
+function motionBlur(sh) {
+  if (sh <= 1/500) return 0;
+  if (sh >= 1/30)  return 1;
+  return (sh - 1/500) / (1/30 - 1/500);
+}
+
+// Grain amount from ISO
+function grainAmount(iso) {
+  return Math.max(0, Math.min(1, (Math.log2(iso/100)) / 7));
+}
+
+// Focal field of view factor (higher = narrower, more compression)
+function fovFactor(focal) {
+  return 50 / focal; // 1 at 50mm; <1 at wide; >1 at tele — wait, inverted for display
+  // wider focal → more scene visible → scale > 1
+}
+
+function fmtShutter(s) {
+  if (s >= 1) return `${s}"`;
+  return `1/${Math.round(1/s)}`;
+}
+
+// ─── SVG Scene ───────────────────────────────────────────────────────────────
+function Scene({ ap, shutterIdx, iso, focalIdx, lightId }) {
+  const sh     = SHUTTERS[shutterIdx];
+  const focal  = FOCALS[focalIdx];
+  const light  = LIGHTS.find(l => l.id === lightId);
+
+  const brightness = exposureBrightness(light.ev, ap, sh, iso);
+  const blur       = dofBlur(ap, focal);
+  const motion     = motionBlur(sh);
+  const grain      = grainAmount(iso);
+
+  // Focal affects apparent subject size and background compression
+  const subjectScale = 0.45 + (focal / 200) * 0.35; // bigger at tele
+  const bgParallax   = focal > 50 ? 1.3 : focal < 35 ? 0.75 : 1.0; // bg appears closer at tele
+
+  // Brightness as overlay opacity
+  const darkOverlay  = brightness < 1 ? `rgba(0,0,0,${(1-brightness)*0.72})` : "transparent";
+  const lightOverlay = brightness > 1 ? `rgba(255,255,255,${(brightness-1)*0.55})` : "transparent";
+
+  // Motion blur: pedestrian horizontal offset
+  const trailWidth = motion * 60;
+
+  // Background blur (DoF)
+  const bgBlurPx = blur * 14;
+  const bgBlurStyle = bgBlurPx > 0.5 ? `blur(${bgBlurPx.toFixed(1)}px)` : "none";
+
+  // Grain noise (CSS filter)
+  const contrastBoost = 1 + grain * 0.3;
+
+  const W = 480, H = 300;
+  const cx = W/2, cy = H/2;
+
+  // Sun direction angle for shadow
+  const sunAngle = lightId === "dorada" ? 160 : lightId === "azul" ? 200 : 120;
+  const shadowLen = lightId === "noche" ? 0 : 30 + (1 - brightness) * 15;
+
+  return (
+    <div style={{ position:"relative", borderRadius:10, overflow:"hidden",
+      boxShadow:"0 6px 32px rgba(0,0,0,0.18)", background:"#111" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ display:"block", width:"100%", height:"auto" }}>
+        <defs>
+          <filter id="bgBlur">
+            <feGaussianBlur stdDeviation={bgBlurPx} />
+          </filter>
+          <filter id="grain">
+            <feTurbulence type="fractalNoise" baseFrequency={0.65+grain*0.2} numOctaves="3"
+              stitchTiles="stitch" result="noise"/>
+            <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+            <feBlend in="SourceGraphic" in2="grayNoise" mode="overlay" result="blend"/>
+            <feComponentTransfer in="blend">
+              <feFuncR type="linear" slope={contrastBoost} intercept={-(contrastBoost-1)*0.5}/>
+              <feFuncG type="linear" slope={contrastBoost} intercept={-(contrastBoost-1)*0.5}/>
+              <feFuncB type="linear" slope={contrastBoost} intercept={-(contrastBoost-1)*0.5}/>
+            </feComponentTransfer>
+          </filter>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={light.skyTop}/>
+            <stop offset="100%" stopColor={light.skyBot}/>
+          </linearGradient>
+          <clipPath id="sceneClip">
+            <rect width={W} height={H}/>
+          </clipPath>
+        </defs>
+
+        <g clipPath="url(#sceneClip)">
+
+          {/* ── Background group (blurred by DoF) ── */}
+          <g filter={bgBlurPx > 0.5 ? "url(#bgBlur)" : undefined}
+             transform={`scale(${bgParallax}) translate(${(1-bgParallax)*W/2/bgParallax}, ${(1-bgParallax)*H/bgParallax})`}>
+
+            {/* Sky */}
+            <rect x={0} y={0} width={W} height={H*0.62} fill="url(#sky)"/>
+
+            {/* Sun / moon */}
+            {lightId === "noche" ? (
+              <circle cx={W*0.5} cy={H*0.18} r={10} fill="#fff" opacity={0.9}/>
+            ) : (
+              <circle cx={W*light.sunX/100} cy={H*light.sunY/100} r={lightId==="dorada"?18:22}
+                fill={light.sunColor} opacity={0.9}
+                filter={lightId==="dorada"?"blur(4px)":undefined}/>
+            )}
+
+            {/* City buildings silhouette */}
+            {[
+              {x:20,w:30,h:80},{x:55,w:24,h:110},{x:82,w:28,h:65},
+              {x:115,w:36,h:95},{x:155,w:20,h:75},{x:180,w:32,h:120},
+              {x:218,w:26,h:85},{x:250,w:40,h:100},{x:296,w:22,h:70},
+              {x:325,w:34,h:90},{x:365,w:28,h:115},{x:400,w:30,h:80},
+              {x:435,w:24,h:95},{x:460,w:36,h:60},
+            ].map((b,i) => (
+              <rect key={i} x={b.x} y={H*0.62-b.h} width={b.w} height={b.h}
+                fill={lightId==="noche" ? "#1a1a2e" : "#3a3530"} opacity={lightId==="noche"?0.95:0.55}/>
+            ))}
+
+            {/* Street lights at night */}
+            {lightId==="noche" && [80,180,300,400].map((x,i) => (
+              <g key={i}>
+                <line x1={x} y1={H*0.62} x2={x} y2={H*0.62-40} stroke="#888" strokeWidth="2"/>
+                <circle cx={x} cy={H*0.62-40} r={5} fill="#ffe082" opacity={0.9}/>
+                <circle cx={x} cy={H*0.62-40} r={15} fill="#ffe082" opacity={0.12}/>
+              </g>
+            ))}
+
+            {/* Ground */}
+            <rect x={0} y={H*0.62} width={W} height={H*0.38}
+              fill={lightId==="noche" ? "#111" : "#c8b99a"}/>
+
+            {/* Pavement lines */}
+            {[-60,-20,20,60,100,140].map((offset,i) => (
+              <rect key={i} x={cx+offset*bgParallax} y={H*0.68} width={30} height={6}
+                fill={lightId==="noche"?"#2a2a2a":"#b0a088"} opacity={0.4}/>
+            ))}
+          </g>
+
+          {/* ── Motion trail (behind subject) ── */}
+          {motion > 0.05 && (
+            <g opacity={motion * 0.6}>
+              {[1,2,3].map(i => (
+                <ellipse key={i}
+                  cx={cx - 30 - trailWidth*i*0.3} cy={H*0.72}
+                  rx={20+i*8} ry={28+i*4}
+                  fill={lightId==="noche"?"#334":"#b0a088"} opacity={0.3/i}/>
+              ))}
+            </g>
+          )}
+
+          {/* ── Subject (always sharp — it's the focus point) ── */}
+          <g transform={`translate(${cx}, ${H*0.62}) scale(${subjectScale})`} filter="url(#grain)">
+
+            {/* Shadow */}
+            {shadowLen > 0 && (
+              <ellipse cx={Math.cos(sunAngle*Math.PI/180)*shadowLen*0.4}
+                cy={8}
+                rx={14} ry={shadowLen*0.35}
+                fill="rgba(0,0,0,0.25)"
+                transform={`rotate(${sunAngle-90}, 0, 0)`}/>
+            )}
+
+            {/* Legs */}
+            <line x1={-10} y1={0} x2={-14} y2={-70} stroke={C.ink} strokeWidth={9} strokeLinecap="round"/>
+            <line x1={10}  y1={0} x2={14}  y2={-70} stroke={C.ink} strokeWidth={9} strokeLinecap="round"/>
+
+            {/* Body */}
+            <rect x={-18} y={-130} width={36} height={65} rx={8}
+              fill={C.ink}/>
+
+            {/* Arm with camera */}
+            <line x1={-18} y1={-120} x2={-38} y2={-105} stroke={C.ink} strokeWidth={8} strokeLinecap="round"/>
+            <rect x={-52} y={-118} width={20} height={14} rx={3} fill={C.ink}/>
+            <circle cx={-42} cy={-111} r={4} fill="#888"/>
+
+            {/* Head */}
+            <circle cx={0} cy={-152} r={22} fill={C.ink}/>
+
+            {/* Face highlight */}
+            <circle cx={-6} cy={-155} r={5} fill="rgba(255,255,255,0.12)"/>
+
+          </g>
+
+          {/* ── Bright/dark overlays for exposure ── */}
+          <rect x={0} y={0} width={W} height={H} fill={darkOverlay}  style={{pointerEvents:"none"}}/>
+          <rect x={0} y={0} width={W} height={H} fill={lightOverlay} style={{pointerEvents:"none"}}/>
+
+          {/* ── Grain overlay ── */}
+          {grain > 0.05 && (
+            <rect x={0} y={0} width={W} height={H}
+              fill="transparent" filter="url(#grain)" opacity={grain*0.6}
+              style={{mixBlendMode:"overlay", pointerEvents:"none"}}/>
+          )}
+
+          {/* ── Vignette ── */}
+          <radialGradient id="vign" cx="50%" cy="50%" r="70%">
+            <stop offset="60%" stopColor="transparent"/>
+            <stop offset="100%" stopColor={`rgba(0,0,0,${0.3 + grain*0.3})`}/>
+          </radialGradient>
+          <rect x={0} y={0} width={W} height={H} fill="url(#vign)"
+            style={{pointerEvents:"none"}}/>
+
+          {/* ── Focal length indicator line (FOV) ── */}
+          {focalIdx !== 3 && (() => {
+            const fov = fovFactor(focal);
+            const lineY = H - 12;
+            const halfW = Math.min(W*0.48, W * 0.48 * fov);
+            return (
+              <g opacity={0.5}>
+                <line x1={cx-halfW} y1={lineY} x2={cx+halfW} y2={lineY}
+                  stroke={C.gold} strokeWidth={1.5} strokeDasharray="4 3"/>
+                <line x1={cx-halfW} y1={lineY-4} x2={cx-halfW} y2={lineY+4}
+                  stroke={C.gold} strokeWidth={1.5}/>
+                <line x1={cx+halfW} y1={lineY-4} x2={cx+halfW} y2={lineY+4}
+                  stroke={C.gold} strokeWidth={1.5}/>
+              </g>
+            );
+          })()}
+
+        </g>
+      </svg>
+
+      {/* Readout overlay */}
+      <div style={{
+        position:"absolute", top:10, left:12,
+        display:"flex", gap:8, flexWrap:"wrap",
+      }}>
+        {[fmtAp(ap), fmtShutter(sh), `ISO ${iso}`, `${focal}mm`].map(v => (
+          <span key={v} style={{
+            background:"rgba(26,24,20,0.7)", color:"#f5f3ef",
+            fontSize:11, padding:"3px 8px", borderRadius:4,
+            fontFamily:"monospace", letterSpacing:"0.04em",
+          }}>{v}</span>
+        ))}
+      </div>
+
+      {/* Effect indicators */}
+      <div style={{
+        position:"absolute", bottom:10, right:12,
+        display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4,
+      }}>
+        {blur > 0.15 && (
+          <Pill color={C.gold} label={`Bokeh ${blur > 0.6 ? "pronunciado" : "suave"}`}/>
+        )}
+        {motion > 0.08 && (
+          <Pill color="#90caf9" label={`Movimiento ${motion > 0.6 ? "difuso" : "leve"}`}/>
+        )}
+        {grain > 0.3 && (
+          <Pill color="#ce93d8" label={`Grano ${grain > 0.65 ? "fuerte" : "moderado"}`}/>
+        )}
+        {brightness < 0.55 && <Pill color="#ef9a9a" label="Subexpuesto"/>}
+        {brightness > 1.45 && <Pill color="#ffe082" label="Sobreexpuesto"/>}
+      </div>
+    </div>
+  );
+}
+
+function Pill({ color, label }) {
+  return (
+    <span style={{
+      background:"rgba(26,24,20,0.72)", color, borderLeft:`2px solid ${color}`,
+      fontSize:10, padding:"3px 8px", borderRadius:"0 4px 4px 0",
+      letterSpacing:"0.06em", textTransform:"uppercase",
+    }}>{label}</span>
+  );
+}
+
+function fmtAp(a) { return `f/${a % 1 === 0 ? a : a.toFixed(1)}`; }
+
+// ─── Slider ───────────────────────────────────────────────────────────────────
+function ParamSlider({ label, value, max, labels, onChange, unit }) {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:5 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline" }}>
+        <span style={{ fontSize:10, letterSpacing:"0.12em", textTransform:"uppercase", color:C.muted }}>{label}</span>
+        <span style={{ fontSize:17, fontWeight:400, color:C.text, fontFamily:"monospace" }}>
+          {labels[value]}{unit || ""}
+        </span>
+      </div>
+      <input type="range" min={0} max={max} step={1} value={value}
+        onChange={e => onChange(parseInt(e.target.value))}
+        style={{ width:"100%", accentColor:C.gold, cursor:"pointer", height:4 }}
+      />
+      <div style={{ display:"flex", justifyContent:"space-between", fontSize:9, color:C.goldDim }}>
+        <span>{labels[0]}</span><span>{labels[labels.length-1]}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Effect explanation ───────────────────────────────────────────────────────
+function EffectCard({ icon, title, children, active, color }) {
+  return (
+    <div style={{
+      background: active ? `${color}12` : C.bg,
+      border:`1.5px solid ${active ? color : C.goldDim}`,
+      borderRadius:10, padding:"13px 14px",
+      transition:"all 0.3s",
+    }}>
+      <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:7 }}>
+        <span style={{ fontSize:18 }}>{icon}</span>
+        <span style={{ fontSize:11, textTransform:"uppercase", letterSpacing:"0.1em",
+          color: active ? color : C.muted }}>{title}</span>
+      </div>
+      <p style={{ fontSize:12, color:C.muted, margin:0, lineHeight:1.6 }}>{children}</p>
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+function Simulador() {
+  const [apIdx,   setAp]      = useState(2);  // f/1.8
+  const [shIdx,   setSh]      = useState(4);  // 1/125
+  const [isoIdx,  setIso]     = useState(1);  // ISO 200
+  const [focalIdx,setFocal]   = useState(3);  // 50mm
+  const [lightId, setLight]   = useState("sol");
+  const [tab,     setTab]     = useState("exposicion"); // "exposicion" | "focal" | "luz"
+
+  const ap    = APERTURES[apIdx];
+  const sh    = SHUTTERS[shIdx];
+  const iso   = ISOS[isoIdx];
+  const focal = FOCALS[focalIdx];
+  const light = LIGHTS.find(l => l.id === lightId);
+
+  const ev       = evFromSettings(ap, sh, iso);
+  const targetEV = light.ev;
+  // evDiff > 0 = overexposed (too much light), evDiff < 0 = underexposed
+  // achieved EV > targetEV means settings let in too much light → overexposed
+  const evDiff   = targetEV - ev;  // positive = underexposed, negative = overexposed
+  const blur     = dofBlur(ap, focal);
+  const motion   = motionBlur(sh);
+  const grain    = grainAmount(iso);
+
+  const apLabels  = APERTURES.map(a => fmtAp(a));
+  const shLabels  = SHUTTER_LABELS;
+  const isoLabels = ISOS.map(i => `ISO ${i}`);
+
+  return (
+    <div style={{
+      fontFamily:"'Jost','Inter',sans-serif", fontWeight:300,
+      background:C.bg, color:C.text, minHeight:"100vh",
+      padding:"28px 16px 56px", boxSizing:"border-box",
+    }}>
+      {/* Header */}
+      <div style={{ textAlign:"center", marginBottom:28 }}>
+        <p style={{ fontSize:10, letterSpacing:"0.2em", textTransform:"uppercase", color:C.gold, margin:"0 0 6px" }}>
+          Mirar Despacio +
+        </p>
+        <h1 style={{ fontSize:26, fontWeight:300, margin:"0 0 6px", letterSpacing:"0.02em" }}>
+          Simulador Visual
+        </h1>
+        <p style={{ fontSize:13, color:C.muted, margin:0 }}>
+          Mueve los controles y observa cómo cambia la imagen.
+        </p>
+      </div>
+
+      <div style={{ maxWidth:740, margin:"0 auto", display:"flex", flexDirection:"column", gap:18 }}>
+
+        {/* ── Scene ── */}
+        <Scene ap={ap} shutterIdx={shIdx} iso={iso} focalIdx={focalIdx} lightId={lightId}/>
+
+        {/* ── Exposure meter ── */}
+        <div style={{ background:C.surface, borderRadius:10, padding:"12px 16px" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:7 }}>
+            <span style={{ fontSize:10, textTransform:"uppercase", letterSpacing:"0.12em", color:C.muted }}>
+              Exposímetro
+            </span>
+            <span style={{
+              fontSize:13, fontWeight:400,
+              color: Math.abs(evDiff) < 0.5 ? "#4a7c59" : Math.abs(evDiff) < 1.5 ? C.goldDeep : "#8c3a2e",
+            }}>
+              {evDiff < -0.3 ? `+${Math.abs(evDiff).toFixed(1)} EV sobreexpuesto` :
+               evDiff > 0.3 ? `${evDiff.toFixed(1)} EV subexpuesto` : "Exposición correcta ✦"}
+            </span>
+          </div>
+          {/* Bar */}
+          <div style={{ position:"relative", height:8, background:C.bg, borderRadius:4 }}>
+            <div style={{
+              position:"absolute", left:"50%", top:0, bottom:0,
+              width:2, background:C.goldDim, borderRadius:1,
+            }}/>
+            {/* Needle */}
+            <div style={{
+              position:"absolute", top:"50%",
+              left:`${Math.min(95, Math.max(5, 50 - evDiff * 14))}%`,
+              transform:"translate(-50%,-50%)",
+              width:12, height:12, borderRadius:"50%",
+              background: Math.abs(evDiff) < 0.5 ? "#4a7c59" : Math.abs(evDiff) < 1.5 ? C.gold : "#8c3a2e",
+              transition:"left 0.25s ease",
+              boxShadow:`0 0 0 3px ${Math.abs(evDiff)<0.5?"#4a7c5940":C.goldDim}`,
+            }}/>
+            {/* Scale labels */}
+            {[-3,-2,-1,0,1,2,3].map(v => (
+              <span key={v} style={{
+                position:"absolute", left:`${50+v*14}%`, bottom:-14,
+                transform:"translateX(-50%)",
+                fontSize:9, color:C.goldDim,
+              }}>{v===0?"0":v>0?`+${v}`:v}</span>
+            ))}
+          </div>
+          <div style={{ height:14 }}/>
+        </div>
+
+        {/* ── Tabs ── */}
+        <div style={{
+          display:"flex", gap:4, background:C.surface,
+          borderRadius:10, padding:5,
+        }}>
+          {[
+            { id:"exposicion", label:"Triángulo", icon:"◈" },
+            { id:"focal",      label:"Focal",     icon:"⊙" },
+            { id:"luz",        label:"Luz",        icon:"☀" },
+          ].map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{
+              flex:1, padding:"9px 8px", borderRadius:7, border:"none",
+              background: tab===t.id ? C.gold : "transparent",
+              color: tab===t.id ? "#fff" : C.muted,
+              cursor:"pointer", fontFamily:"inherit", fontWeight:300,
+              fontSize:13, display:"flex", alignItems:"center",
+              justifyContent:"center", gap:6, transition:"all 0.15s",
+            }}>
+              <span>{t.icon}</span>{t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Tab: Triángulo de exposición ── */}
+        {tab === "exposicion" && (
+          <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
+            display:"flex", flexDirection:"column", gap:20 }}>
+
+            <ParamSlider label="Apertura"  value={apIdx}  max={APERTURES.length-1}
+              labels={apLabels}  onChange={setAp}/>
+            <ParamSlider label="Velocidad" value={shIdx}  max={SHUTTERS.length-1}
+              labels={shLabels}  onChange={setSh}/>
+            <ParamSlider label="ISO"       value={isoIdx} max={ISOS.length-1}
+              labels={isoLabels} onChange={setIso}/>
+
+            {/* Effect cards */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginTop:4 }}>
+              <EffectCard icon="◉" title="Apertura" active={blur>0.1} color={C.gold}>
+                {ap <= 1.8
+                  ? `f/${ap} — zona nítida muy fina. El fondo se separa con fuerza.`
+                  : ap >= 8
+                  ? `f/${ap} — todo en foco. Ideal para paisaje y calle.`
+                  : `f/${ap} — equilibrio entre bokeh y profundidad.`}
+              </EffectCard>
+              <EffectCard icon="⚡" title="Velocidad" active={motion>0.05} color="#90caf9">
+                {sh <= 1/500
+                  ? `${fmtShutter(sh)} — el movimiento queda congelado.`
+                  : sh >= 1/30
+                  ? `${fmtShutter(sh)} — rastros visibles. Necesitas trípode.`
+                  : `${fmtShutter(sh)} — zona de riesgo según la focal y el sujeto.`}
+              </EffectCard>
+              <EffectCard icon="◫" title="ISO" active={grain>0.2} color="#ce93d8">
+                {iso <= 400
+                  ? `ISO ${iso} — imagen limpia, sin grano visible.`
+                  : iso >= 3200
+                  ? `ISO ${iso} — grano notable. Valorar si suma o resta.`
+                  : `ISO ${iso} — grano contenido con buena exposición.`}
+              </EffectCard>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Focal ── */}
+        {tab === "focal" && (
+          <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
+            display:"flex", flexDirection:"column", gap:18 }}>
+
+            <ParamSlider label="Focal" value={focalIdx} max={FOCALS.length-1}
+              labels={FOCAL_LABELS} onChange={setFocal}/>
+
+            {/* Focal comparison cards */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+              {[
+                { range:[0,1],  icon:"🌐", title:"Gran angular (14–24mm)",
+                  text:"Campo visual amplio, sujeto pequeño en la escena, fondos alejados. Distorsión perspectiva en bordes." },
+                { range:[2,3],  icon:"👁", title:"Normal (35–50mm)",
+                  text:"Perspectiva próxima a la visión humana. Versátil para calle, eventos y retratos contextuales." },
+                { range:[4,4],  icon:"🎭", title:"Retrato (85mm)",
+                  text:"Compresión suave, separación del fondo natural, sin distorsión facial. El focal clásico del retrato." },
+                { range:[5,6],  icon:"🔭", title:"Tele (135–200mm)",
+                  text:"Gran compresión perspectiva, fondo muy cercano visualmente, bokeh intenso incluso cerrado." },
+              ].map((c,i) => {
+                const active = focalIdx >= c.range[0] && focalIdx <= c.range[1];
+                return (
+                  <div key={i} style={{
+                    background: active ? `${C.gold}15` : C.bg,
+                    border:`1.5px solid ${active ? C.gold : C.goldDim}`,
+                    borderRadius:10, padding:"12px 13px", transition:"all 0.25s",
+                  }}>
+                    <div style={{ fontSize:10, textTransform:"uppercase", letterSpacing:"0.1em",
+                      color: active ? C.goldDeep : C.muted, marginBottom:5 }}>
+                      {c.icon} {c.title}
+                    </div>
+                    <p style={{ fontSize:12, color:C.muted, margin:0, lineHeight:1.55 }}>{c.text}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Also let aperture be adjusted here for context */}
+            <div style={{ borderTop:`1px solid ${C.goldDim}`, paddingTop:16 }}>
+              <p style={{ fontSize:10, color:C.muted, textTransform:"uppercase",
+                letterSpacing:"0.1em", margin:"0 0 12px" }}>
+                Apertura (afecta al bokeh con esta focal)
+              </p>
+              <ParamSlider label="Apertura" value={apIdx} max={APERTURES.length-1}
+                labels={apLabels} onChange={setAp}/>
+            </div>
+          </div>
+        )}
+
+        {/* ── Tab: Luz ── */}
+        {tab === "luz" && (
+          <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
+            display:"flex", flexDirection:"column", gap:16 }}>
+
+            <p style={{ fontSize:10, letterSpacing:"0.12em", textTransform:"uppercase",
+              color:C.muted, margin:0 }}>Situación de luz</p>
+
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
+              {LIGHTS.map(l => (
+                <button key={l.id} onClick={() => setLight(l.id)} style={{
+                  padding:"10px 8px", borderRadius:9,
+                  border:`1.5px solid ${lightId===l.id ? C.gold : C.goldDim}`,
+                  background: lightId===l.id ? `${C.gold}18` : C.bg,
+                  color: lightId===l.id ? C.goldDeep : C.muted,
+                  cursor:"pointer", fontFamily:"inherit", fontWeight:300,
+                  fontSize:12, display:"flex", flexDirection:"column",
+                  alignItems:"center", gap:4, transition:"all 0.15s",
+                }}>
+                  <span style={{ fontSize:20 }}>
+                    {l.id==="sol"?"☀":l.id==="nublado"?"☁":l.id==="dorada"?"🌅":
+                     l.id==="azul"?"🌆":l.id==="noche"?"🌃":"💡"}
+                  </span>
+                  <span style={{ fontSize:10, textAlign:"center", lineHeight:1.3 }}>{l.label}</span>
+                  <span style={{ fontSize:9, color:C.goldDim }}>EV {l.ev}</span>
+                </button>
+              ))}
+            </div>
+
+            <div style={{ background:C.bg, borderRadius:9, padding:"13px 14px",
+              borderLeft:`3px solid ${C.gold}` }}>
+              <p style={{ fontSize:10, color:C.muted, textTransform:"uppercase",
+                letterSpacing:"0.1em", margin:"0 0 6px" }}>
+                {light.label} — EV {light.ev}
+              </p>
+              <p style={{ fontSize:13, color:C.text, margin:0, lineHeight:1.65 }}>
+                {lightId==="sol" && "Luz dura, sombras marcadas. Cuidado con las altas luces quemadas. El medidor tiende a subexponer con cielo azul."}
+                {lightId==="nublado" && "Luz difusa y envolvente, sin sombras duras. Ideal para retratos. El contraste baja, los colores se suavizan."}
+                {lightId==="dorada" && "La hora dorada. Luz cálida y lateral. Las texturas se realzan. Trabaja rápido: cambia en minutos."}
+                {lightId==="azul" && "Después del atardecer, antes de la noche. Tonos fríos y azules. El cielo se equilibra con las luces artificiales."}
+                {lightId==="noche" && "EV muy bajo. ISO alto inevitable. Las luces artificiales crean manchas de color. Abraza el grano."}
+                {lightId==="interior" && "Contraste fuerte entre ventanas y sombras. El balance de blancos es crítico. Las mezclas de luz complican la exposición."}
+              </p>
+            </div>
+
+            {/* ISO suggestion */}
+            <div style={{ fontSize:12, color:C.muted, background:C.bg,
+              borderRadius:8, padding:"10px 13px" }}>
+              ISO de partida sugerido para esta luz:{" "}
+              <strong style={{ color:C.text }}>
+                {light.ev >= 14 ? "100–200"
+                : light.ev >= 11 ? "200–400"
+                : light.ev >= 8  ? "800–1600"
+                : "1600–6400"}
+              </strong>
+            </div>
+          </div>
+        )}
+
+        <p style={{ textAlign:"center", fontSize:10, color:C.goldDim, letterSpacing:"0.16em", marginTop:4 }}>
+          MIRAR DESPACIO +
+        </p>
+      </div>
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('react-mount'));
+    root.render(React.createElement(Simulador));
+  </script>
+</body>
+</html>
