@@ -14,17 +14,29 @@
     }
     body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: 11pt; line-height: 1.6; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 14mm 14mm 12mm; -webkit-font-smoothing: antialiased; }
     .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid var(--ink); padding-bottom: 7px; margin-bottom: 14px; }
-    .brand { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2); margin-bottom: 3px; }
+    .brand { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--md-orange); margin-bottom: 3px; }
     .header h1 { font-family: var(--font-serif); font-size: 20pt; font-weight: 400; line-height: 1.1; }
-    .header h1 em { font-style: italic; color: var(--accent); }
+    .header h1 em {
+      font-style: italic;
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .header-right { text-align: right; font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; line-height: 1.8; padding-top: 4px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .block { background: #eeecea; border-left: 2.5px solid var(--accent); padding: 9px 11px; }
     .block.green { border-left-color: var(--accent2); }
     .block.plain { background: transparent; border-left-color: var(--border); border-left-width: 1px; }
-    .block-label { font-size: 6.5pt; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
-    .block.green .block-label { color: var(--accent2); }
+    .block-label { font-size: 6.5pt; letter-spacing: 0.2em; text-transform: uppercase; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 5px; }
+    .block.green .block-label { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .block.plain .block-label { color: var(--muted); }
     .block ul { list-style: none; padding: 0; }
     .block ul li { font-size: 9pt; color: var(--ink); padding: 2.5px 0; padding-left: 12px; position: relative; line-height: 1.5; }
