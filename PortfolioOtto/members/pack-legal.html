@@ -12,7 +12,7 @@
     :root {
       --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
       --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
-      --accent: #c8a97a; --accent2: #5a8a5e; --border: #d8d4ce;
+      --accent: #c8a97a; --accent2: #5a8a5e; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce;
       --font-serif: Georgia, 'Times New Roman', serif;
       --font-sans: 'Jost', sans-serif;
       --max: 800px;
@@ -27,9 +27,12 @@
     .nav-back:hover { color: var(--ink); }
 
     .page-header { max-width: var(--max); margin: 0 auto; padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border); }
-    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.75rem; }
+    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--md-orange); margin-bottom: 0.75rem; }
     .page-header h1 { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin-bottom: 0.5rem; }
-    .page-header h1 em { font-style: italic; color: var(--accent); }
+    .page-header h1 em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .page-header p { color: var(--muted); font-size: 0.92rem; max-width: 560px; }
 
     .aviso-legal {
@@ -50,7 +53,10 @@
     .seccion { margin-bottom: 3rem; }
     .seccion-label { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
     .seccion h2 { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; margin-bottom: 0.75rem; }
-    .seccion h2 em { font-style: italic; color: var(--accent); }
+    .seccion h2 em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .seccion p { font-size: 0.88rem; color: var(--ink-faint); line-height: 1.7; margin-bottom: 0.75rem; }
     .seccion p strong { color: var(--ink); font-weight: 400; }
 
@@ -59,7 +65,10 @@
     .regla-block.ok { border-top: 2px solid var(--accent2); }
     .regla-block.no { border-top: 2px solid #b85c5c; }
     .regla-block h3 { font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.6rem; }
-    .regla-block.ok h3 { color: var(--accent2); }
+    .regla-block.ok h3 { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .regla-block.no h3 { color: #b85c5c; }
     .regla-block ul { list-style: none; padding: 0; }
     .regla-block ul li { font-size: 0.82rem; color: var(--ink-faint); padding: 0.25rem 0 0.25rem 1rem; position: relative; line-height: 1.5; border-bottom: 1px solid var(--bg3); }
@@ -88,7 +97,10 @@
       font-size: 0.6rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--accent);
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .modelo h3 { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 400; margin-bottom: 1rem; text-align: center; }
     .modelo-body { font-size: 0.82rem; color: var(--ink-faint); line-height: 1.8; }

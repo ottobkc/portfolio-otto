@@ -12,7 +12,7 @@
     :root {
       --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
       --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
-      --accent: #c8a97a; --accent2: #5a8a5e; --border: #d8d4ce;
+      --accent: #c8a97a; --accent2: #5a8a5e; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce;
       --font-serif: Georgia, 'Times New Roman', serif;
       --font-sans: 'Jost', sans-serif;
       --max: 960px;
@@ -27,9 +27,12 @@
     .nav-back:hover { color: var(--ink); }
 
     .page-header { max-width: var(--max); margin: 0 auto; padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border); }
-    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.75rem; }
+    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--md-orange); margin-bottom: 0.75rem; }
     .page-header h1 { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 400; margin-bottom: 0.5rem; }
-    .page-header h1 em { font-style: italic; color: var(--accent); }
+    .page-header h1 em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .page-header p { color: var(--muted); font-size: 0.92rem; }
 
     .content { max-width: var(--max); margin: 0 auto; padding: 3rem 2rem 6rem; }
@@ -48,7 +51,10 @@
 
     .loc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
     .loc-nombre { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 400; }
-    .loc-nombre em { font-style: italic; color: var(--accent); }
+    .loc-nombre em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .loc-nivel {
       font-size: 0.6rem;
       letter-spacing: 0.12em;
