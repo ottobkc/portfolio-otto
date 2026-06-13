@@ -28,6 +28,8 @@
       --muted:      #7a756f;
       --accent:     #c8a97a;
       --accent2:    #5a8a5e;
+      --md-orange:  #e8821a;
+      --md-pink:    #e8347a;
       --border:     #d8d4ce;
       --font-serif: Georgia, 'Times New Roman', serif;
       --font-sans:  'Jost', sans-serif;
@@ -77,7 +79,7 @@
       font-weight: 400;
     }
     .nav-links a:hover { color: var(--ink); }
-    .nav-links a.active { color: var(--accent); }
+    .nav-links a.active { color: var(--md-orange); }
 
     .nav-toggle {
       display: none;
@@ -107,7 +109,7 @@
     .nav-drawer li { padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
     .nav-drawer li:last-child { border: none; }
     .nav-drawer a { font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
-    .nav-drawer a.active { color: var(--accent); }
+    .nav-drawer a.active { color: var(--md-orange); }
 
     /* ---- PAGE HERO ---- */
     .page-hero {
@@ -130,7 +132,7 @@
       font-size: 0.68rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--accent2);
+      color: var(--md-orange);
       margin-bottom: 0.75rem;
     }
     .page-title {
@@ -141,7 +143,13 @@
       margin-bottom: 1.5rem;
       color: var(--ink);
     }
-    .page-title em { font-style: italic; color: var(--accent); }
+    .page-title em {
+      font-style: italic;
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     .page-intro {
       font-size: clamp(1rem, 2vw, 1.12rem);
       color: var(--ink-faint);
@@ -159,7 +167,10 @@
       font-size: 0.68rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--accent);
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 0.75rem;
     }
     .section-title {
@@ -170,7 +181,10 @@
       margin-bottom: 1.25rem;
       color: var(--ink);
     }
-    .section-title em { font-style: italic; color: var(--accent); }
+    .section-title em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
 
     /* ---- QUÉ SON ---- */
     .que-grid {
@@ -186,7 +200,10 @@
       font-size: 1.02rem;
     }
     .que-text strong { color: var(--ink); font-weight: 500; }
-    .que-text em { color: var(--accent); font-style: italic; }
+    .que-text em { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; font-style: italic; }
 
     .steps { display: flex; flex-direction: column; }
     .step {
@@ -283,7 +300,10 @@
     .misiones-nota-icon {
       font-family: var(--font-serif);
       font-size: 1.4rem;
-      color: var(--accent);
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       line-height: 1;
       flex-shrink: 0;
       margin-top: 2px;
@@ -378,16 +398,25 @@
       margin-bottom: 0.6rem;
       color: var(--ink);
     }
-    .modelo-card.featured h3 { color: var(--accent2); }
+    .modelo-card.featured h3 { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .modelo-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.75; margin-bottom: 1rem; }
     .modelo-card strong { color: var(--ink-faint); font-weight: 500; }
     .modelo-price {
       font-family: var(--font-serif);
       font-size: 1.6rem;
-      color: var(--accent);
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-top: 0.5rem;
     }
-    .modelo-card.featured .modelo-price { color: var(--accent2); }
+    .modelo-card.featured .modelo-price { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .modelo-features { list-style: none; margin-top: 1rem; }
     .modelo-features li {
       font-size: 0.85rem;
@@ -429,7 +458,10 @@
 
     .members-logged { display: none; }
     .members-logged p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
-    .members-logged strong { color: var(--accent2); }
+    .members-logged strong { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
 
     .members-links { display: flex; flex-direction: column; gap: 1px; margin-bottom: 1.5rem; }
     .members-link {
@@ -444,7 +476,10 @@
       transition: border-color 0.2s, background 0.2s;
     }
     .members-link:hover { border-color: var(--accent2); background: #eef2ee; }
-    .members-link-icon { font-size: 0.75rem; color: var(--accent2); flex-shrink: 0; width: 20px; }
+    .members-link-icon { font-size: 0.75rem; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; flex-shrink: 0; width: 20px; }
     .members-link-name { font-size: 0.85rem; display: block; }
     .members-link-desc { font-size: 0.72rem; color: var(--muted); display: block; }
 
@@ -580,7 +615,10 @@
       font-family: var(--font-serif);
       font-size: 1rem;
       font-style: italic;
-      color: var(--accent2);
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     /* ---- FOOTER ---- */
@@ -620,6 +658,41 @@
       .misiones-grid { grid-template-columns: 1fr; }
       .modelo-card { padding: 1.75rem 1.5rem; }
     }
+
+    /* ---- MINI LOGIN BAR ---- */
+    .mini-login-bar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0.45rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    .mini-login-bar p { font-size: 0.72rem; color: var(--muted); }
+    #miniLoginTrigger {
+      color: var(--md-orange);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .mini-login-logged { display: none; align-items: center; gap: 0.75rem; }
+    .mini-login-logged span { font-size: 0.72rem; color: var(--muted); }
+    .mini-login-logged strong { color: var(--md-orange); font-weight: 500; }
+    .mini-btn-recursos {
+      font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--md-orange); border: 1px solid var(--md-orange);
+      padding: 0.28rem 0.7rem; transition: background 0.2s, color 0.2s;
+      font-family: var(--font-sans); background: transparent; text-decoration: none; display: inline-block;
+    }
+    .mini-btn-recursos:hover { background: var(--md-orange); color: #fff; }
+    .mini-btn-logout {
+      background: none; border: none; font-size: 0.68rem; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; font-family: var(--font-sans); padding: 0;
+    }
+    .mini-btn-logout:hover { color: var(--ink); }
+    @media (max-width: 600px) { .mini-login-bar { padding: 0.4rem 1.25rem; } }
+
   </style>
   <!-- Umami Analytics -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
@@ -650,6 +723,18 @@
     </ul>
   </div>
 
+  <!-- MINI LOGIN BAR -->
+  <div class="mini-login-bar">
+    <div id="miniLoginOff">
+      <p>Suscriptores de <strong style="color:var(--md-orange);font-weight:500;">Mirar Despacio+</strong>: <span id="miniLoginTrigger">Inicia sesión</span></p>
+    </div>
+    <div class="mini-login-logged" id="miniLoginOn">
+      <span>Hola, <strong id="miniMemberName"></strong></span>
+      <a href="/recursos.html" class="mini-btn-recursos">Ver recursos</a>
+      <button class="mini-btn-logout" id="miniLogout">Salir</button>
+    </div>
+  </div>
+
   <div class="page-hero">
     <div class="breadcrumb">
       <a href="/">ottokols.es</a>
@@ -659,6 +744,106 @@
     <p class="page-label">Mirar Despacio · en la calle</p>
     <h1 class="page-title">Salidas<br><em>fotográficas.</em></h1>
     <p class="page-intro">Encuentros periódicos para salir a fotografiar Madrid en grupo. Sin clases, sin jerarquías. Solo cámaras, calles y ganas de mirar despacio.</p>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- MODELO -->
+  <div class="section modelo-section">
+    <div class="container">
+      <p class="section-label">Modelo y acceso</p>
+      <h2 class="section-title" style="margin-bottom:2.5rem;">Cómo <em>funciona.</em></h2>
+      <div class="modelo-grid">
+        <div class="modelo-card">
+          <h3>Salida libre</h3>
+          <p>El modelo de base. Apúntate, ven y participa. Al final, si quieres contribuir para que el proyecto siga adelante, genial. Si no estás en ese momento, también está bien.</p>
+          <p>El objetivo de las primeras salidas es <strong>crear grupo</strong> y encontrar el ritmo antes de hablar de estructuras.</p>
+          <ul class="modelo-features">
+            <li>Acceso libre y abierto</li>
+            <li>Contribución voluntaria al finalizar</li>
+            <li>Visionado en grupo incluido</li>
+            <li>Sin requisitos de nivel ni equipo</li>
+          </ul>
+          <div class="modelo-price">Contribución libre</div>
+        </div>
+        <div class="modelo-card featured">
+          <span class="modelo-badge">Próximamente</span>
+          <h3>Mirar Despacio +</h3>
+          <p>Una membresía mensual para quienes quieran ir más lejos. Acceso prioritario a las salidas, contenido exclusivo del podcast, comunidad privada y descuentos en sesiones.</p>
+          <p>Si te gusta la idea, usa el formulario de arriba para inscribirte y estarás entre los primeros en saberlo cuando lancemos la membresía.</p>
+          <ul class="modelo-features">
+            <li>Acceso prioritario a todas las salidas</li>
+            <li>Episodios y contenido exclusivo del podcast</li>
+            <li>Tarjetas de misión descargables</li>
+            <li>Comunidad privada de suscriptores</li>
+            <li>Descuento en sesiones fotográficas</li>
+          </ul>
+          <div class="modelo-price">Próximamente</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- FORMULARIO -->
+  <div class="section form-section" id="inscripcion">
+    <div class="container">
+      <div class="form-layout">
+        <div class="form-info">
+          <p class="section-label">Inscripción</p>
+          <h2 class="section-title">Apúntate a la <em>próxima salida.</em></h2>
+          <p>Todavía no hay fecha fija. Rellena el formulario y te avisamos en cuanto confirmemos zona, día y hora. Sin compromiso.</p>
+          <p>Las salidas tienen un <strong>aforo limitado</strong> para que el grupo no sea demasiado grande y el ritmo sea tranquilo. Priorizamos por orden de inscripción.</p>
+          <div class="aviso-legal">
+            <strong>Uso de imagen</strong>
+            Durante las salidas pueden tomarse fotografías del grupo en las que aparezcas. Al inscribirte aceptas que esas imágenes puedan usarse para documentar y dar a conocer el proyecto <em>Mirar Despacio</em> en web y redes sociales, sin uso comercial de terceros. Puedes revocar este consentimiento escribiéndonos.
+          </div>
+        </div>
+        <div>
+          <form id="salidasForm" action="https://formspree.io/f/mlgkdlno" method="POST">
+            <div class="form-group">
+              <label for="s-nombre">Nombre *</label>
+              <input type="text" id="s-nombre" name="nombre" required placeholder="Tu nombre" />
+            </div>
+            <div class="form-group">
+              <label for="s-email">Email *</label>
+              <input type="email" id="s-email" name="email" required placeholder="tu@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="s-instagram">Instagram <span style="text-transform:none;font-size:0.7rem;">(opcional)</span></label>
+              <input type="text" id="s-instagram" name="instagram" placeholder="@tu_usuario" />
+            </div>
+            <div class="form-group">
+              <label for="s-camara">¿Con qué fotografías?</label>
+              <select id="s-camara" name="camara">
+                <option value="">Selecciona...</option>
+                <option>Cámara réflex o mirrorless</option>
+                <option>Cámara compacta o analógica</option>
+                <option>Móvil</option>
+                <option>Cualquier cosa que tenga a mano</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="s-mensaje">¿Algo que quieras contarnos? <span style="text-transform:none;font-size:0.7rem;">(opcional)</span></label>
+              <textarea id="s-mensaje" name="mensaje" rows="3" placeholder="Nivel de experiencia, expectativas, barrios que te gusten..."></textarea>
+            </div>
+            <div class="checkbox-wrap">
+              <input type="checkbox" id="s-imagen" name="acepta_imagen" value="si" required />
+              <label for="s-imagen"><strong>Acepto el uso de imagen.</strong> Entiendo que durante la salida pueden hacerse fotografías en las que aparezca. Doy mi consentimiento para que esas imágenes puedan usarse para documentar y promocionar el proyecto <em>Mirar Despacio</em> en web y redes sociales, sin fines comerciales de terceros.</label>
+            </div>
+            <div class="checkbox-wrap">
+              <input type="checkbox" id="s-lopd" name="acepta_lopd" value="si" required />
+              <label for="s-lopd">He leído el aviso de uso de imagen y acepto que mis datos se usen para gestionar mi inscripción y enviarme información sobre las salidas. No se cederán a terceros.</label>
+            </div>
+            <button type="submit" class="btn btn-green" style="width:100%;text-align:center;margin-top:0.5rem;">Quiero apuntarme</button>
+          </form>
+          <div class="form-success" id="salidasSuccess">
+            Inscripción recibida. Te avisamos en cuanto confirmemos la próxima salida.
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <hr class="divider" />
@@ -706,6 +891,40 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- ACCESO SUSCRIPTORES -->
+  <div class="section members-section" id="acceso">
+    <div class="members-inner">
+      <div class="members-text">
+        <p class="section-label">Mirar Despacio +</p>
+        <h2 class="section-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">Área de <em>suscriptores.</em></h2>
+        <p>Si eres suscriptor de <strong>Mirar Despacio+</strong>, aquí tienes acceso a los recursos exclusivos: tarjetas de misión descargables, episodios privados del podcast y materiales de las salidas.</p>
+        <p>¿Aún no eres suscriptor? Las primeras salidas son libres — apúntate en el formulario de esta página y cuando lancemos la membresía estarás entre los primeros en saberlo.</p>
+      </div>
+      <div class="members-box">
+        <div id="membersLogin">
+          <h3>Acceso exclusivo</h3>
+          <p>Inicia sesión con tu cuenta de suscriptor.</p>
+          <div data-netlify-identity-button></div>
+        </div>
+        <div class="members-logged" id="membersLogged">
+          <p>Bienvenido, <strong id="memberName"></strong></p>
+          <div class="members-links">
+            <a href="/recursos.html" class="members-link">
+              <span class="members-link-icon">→</span>
+              <span>
+                <span class="members-link-name">Ver todos los recursos</span>
+                <span class="members-link-desc">Tarjetas, episodios y materiales</span>
+              </span>
+            </a>
+          </div>
+          <button class="btn-logout" id="membersLogout">Cerrar sesión</button>
         </div>
       </div>
     </div>
@@ -794,140 +1013,6 @@
     </div>
   </div>
 
-  <hr class="divider" />
-
-  <!-- MODELO -->
-  <div class="section modelo-section">
-    <div class="container">
-      <p class="section-label">Modelo y acceso</p>
-      <h2 class="section-title" style="margin-bottom:2.5rem;">Cómo <em>funciona.</em></h2>
-      <div class="modelo-grid">
-        <div class="modelo-card">
-          <h3>Salida libre</h3>
-          <p>El modelo de base. Apúntate, ven y participa. Al final, si quieres contribuir para que el proyecto siga adelante, genial. Si no estás en ese momento, también está bien.</p>
-          <p>El objetivo de las primeras salidas es <strong>crear grupo</strong> y encontrar el ritmo antes de hablar de estructuras.</p>
-          <ul class="modelo-features">
-            <li>Acceso libre y abierto</li>
-            <li>Contribución voluntaria al finalizar</li>
-            <li>Visionado en grupo incluido</li>
-            <li>Sin requisitos de nivel ni equipo</li>
-          </ul>
-          <div class="modelo-price">Contribución libre</div>
-        </div>
-        <div class="modelo-card featured">
-          <span class="modelo-badge">Próximamente</span>
-          <h3>Mirar Despacio +</h3>
-          <p>Una membresía mensual para quienes quieran ir más lejos. Acceso prioritario a las salidas, contenido exclusivo del podcast, comunidad privada y descuentos en sesiones.</p>
-          <p>Si te gusta la idea, apúntate a las salidas ahora y estarás entre los primeros en saberlo.</p>
-          <ul class="modelo-features">
-            <li>Acceso prioritario a todas las salidas</li>
-            <li>Episodios y contenido exclusivo del podcast</li>
-            <li>Tarjetas de misión descargables</li>
-            <li>Comunidad privada de suscriptores</li>
-            <li>Descuento en sesiones fotográficas</li>
-          </ul>
-          <div class="modelo-price">Próximamente</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider" />
-
-  <!-- ACCESO SUSCRIPTORES -->
-  <div class="section members-section" id="acceso">
-    <div class="members-inner">
-      <div class="members-text">
-        <p class="section-label">Mirar Despacio +</p>
-        <h2 class="section-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">Área de <em>suscriptores.</em></h2>
-        <p>Si eres suscriptor de <strong>Mirar Despacio+</strong>, aquí tienes acceso a los recursos exclusivos: tarjetas de misión descargables, episodios privados del podcast y materiales de las salidas.</p>
-        <p>¿Aún no eres suscriptor? Las primeras salidas son libres — apúntate abajo y cuando lancemos la membresía estarás entre los primeros en saberlo.</p>
-      </div>
-      <div class="members-box">
-        <div id="membersLogin">
-          <h3>Acceso exclusivo</h3>
-          <p>Inicia sesión con tu cuenta de suscriptor.</p>
-          <div data-netlify-identity-button></div>
-        </div>
-        <div class="members-logged" id="membersLogged">
-          <p>Bienvenido, <strong id="memberName"></strong></p>
-          <div class="members-links">
-            <a href="/recursos.html" class="members-link">
-              <span class="members-link-icon">→</span>
-              <span>
-                <span class="members-link-name">Ver todos los recursos</span>
-                <span class="members-link-desc">Tarjetas, episodios y materiales</span>
-              </span>
-            </a>
-          </div>
-          <button class="btn-logout" id="membersLogout">Cerrar sesión</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider" />
-
-  <!-- FORMULARIO -->
-  <div class="section form-section" id="inscripcion">
-    <div class="container">
-      <div class="form-layout">
-        <div class="form-info">
-          <p class="section-label">Inscripción</p>
-          <h2 class="section-title">Apúntate a la <em>próxima salida.</em></h2>
-          <p>Todavía no hay fecha fija. Rellena el formulario y te avisamos en cuanto confirmemos zona, día y hora. Sin compromiso.</p>
-          <p>Las salidas tienen un <strong>aforo limitado</strong> para que el grupo no sea demasiado grande y el ritmo sea tranquilo. Priorizamos por orden de inscripción.</p>
-          <div class="aviso-legal">
-            <strong>Uso de imagen</strong>
-            Durante las salidas pueden tomarse fotografías del grupo en las que aparezcas. Al inscribirte aceptas que esas imágenes puedan usarse para documentar y dar a conocer el proyecto <em>Mirar Despacio</em> en web y redes sociales, sin uso comercial de terceros. Puedes revocar este consentimiento escribiéndonos.
-          </div>
-        </div>
-        <div>
-          <form id="salidasForm" action="https://formspree.io/f/mlgkdlno" method="POST">
-            <div class="form-group">
-              <label for="s-nombre">Nombre *</label>
-              <input type="text" id="s-nombre" name="nombre" required placeholder="Tu nombre" />
-            </div>
-            <div class="form-group">
-              <label for="s-email">Email *</label>
-              <input type="email" id="s-email" name="email" required placeholder="tu@email.com" />
-            </div>
-            <div class="form-group">
-              <label for="s-instagram">Instagram <span style="text-transform:none;font-size:0.7rem;">(opcional)</span></label>
-              <input type="text" id="s-instagram" name="instagram" placeholder="@tu_usuario" />
-            </div>
-            <div class="form-group">
-              <label for="s-camara">¿Con qué fotografías?</label>
-              <select id="s-camara" name="camara">
-                <option value="">Selecciona...</option>
-                <option>Cámara réflex o mirrorless</option>
-                <option>Cámara compacta o analógica</option>
-                <option>Móvil</option>
-                <option>Cualquier cosa que tenga a mano</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="s-mensaje">¿Algo que quieras contarnos? <span style="text-transform:none;font-size:0.7rem;">(opcional)</span></label>
-              <textarea id="s-mensaje" name="mensaje" rows="3" placeholder="Nivel de experiencia, expectativas, barrios que te gusten..."></textarea>
-            </div>
-            <div class="checkbox-wrap">
-              <input type="checkbox" id="s-imagen" name="acepta_imagen" value="si" required />
-              <label for="s-imagen"><strong>Acepto el uso de imagen.</strong> Entiendo que durante la salida pueden hacerse fotografías en las que aparezca. Doy mi consentimiento para que esas imágenes puedan usarse para documentar y promocionar el proyecto <em>Mirar Despacio</em> en web y redes sociales, sin fines comerciales de terceros.</label>
-            </div>
-            <div class="checkbox-wrap">
-              <input type="checkbox" id="s-lopd" name="acepta_lopd" value="si" required />
-              <label for="s-lopd">He leído el aviso de uso de imagen y acepto que mis datos se usen para gestionar mi inscripción y enviarme información sobre las salidas. No se cederán a terceros.</label>
-            </div>
-            <button type="submit" class="btn btn-green" style="width:100%;text-align:center;margin-top:0.5rem;">Quiero apuntarme</button>
-          </form>
-          <div class="form-success" id="salidasSuccess">
-            Inscripción recibida. Te avisamos en cuanto confirmemos la próxima salida.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- LIGHTBOX -->
   <style>
     .lightbox {
@@ -998,10 +1083,28 @@
       loggedBox.style.display = 'none';
     }
 
+    // Mini login bar
+    const miniLoginOff   = document.getElementById('miniLoginOff');
+    const miniLoginOn    = document.getElementById('miniLoginOn');
+    const miniMemberName = document.getElementById('miniMemberName');
+    const miniLogoutBtn  = document.getElementById('miniLogout');
+    const miniTrigger    = document.getElementById('miniLoginTrigger');
+    function miniShowLogged(u) {
+      miniLoginOff.style.display = 'none';
+      miniLoginOn.style.display  = 'flex';
+      miniMemberName.textContent = u.user_metadata?.full_name || u.email;
+    }
+    function miniShowLogin() {
+      miniLoginOff.style.display = 'block';
+      miniLoginOn.style.display  = 'none';
+    }
+    miniTrigger   && miniTrigger.addEventListener('click',   () => netlifyIdentity.open());
+    miniLogoutBtn && miniLogoutBtn.addEventListener('click', () => netlifyIdentity.logout());
+
     if (window.netlifyIdentity) {
-      netlifyIdentity.on('init',   user => { user ? showLogged(user) : showLogin(); });
-      netlifyIdentity.on('login',  user => { showLogged(user); netlifyIdentity.close(); });
-      netlifyIdentity.on('logout', ()   => showLogin());
+      netlifyIdentity.on('init',   user => { if (user) { showLogged(user); miniShowLogged(user); } else { showLogin(); miniShowLogin(); } });
+      netlifyIdentity.on('login',  user => { showLogged(user); miniShowLogged(user); netlifyIdentity.close(); });
+      netlifyIdentity.on('logout', ()   => { showLogin(); miniShowLogin(); });
       netlifyIdentity.init();
     }
     logoutBtn && logoutBtn.addEventListener('click', () => netlifyIdentity.logout());

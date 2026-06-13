@@ -20,6 +20,8 @@
       --muted:     #7a756f;
       --accent:    #c8a97a;
       --accent2:   #5a8a5e;
+      --md-orange: #e8821a;
+      --md-pink:   #e8347a;
       --border:    #d8d4ce;
       --font-serif: Georgia, 'Times New Roman', serif;
       --font-sans:  'Jost', sans-serif;
@@ -84,7 +86,7 @@
       font-size: 0.65rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--accent2);
+      color: var(--md-orange);
       margin-bottom: 0.75rem;
     }
     .page-header h1 {
@@ -94,9 +96,15 @@
       margin-bottom: 0.5rem;
       color: var(--ink);
     }
-    .page-header h1 em { font-style: italic; color: var(--accent); }
+    .page-header h1 em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
     .page-header p { color: var(--muted); font-size: 0.92rem; }
-    #welcomeUser { color: var(--accent2); font-weight: 400; }
+    #welcomeUser { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; font-weight: 400; }
 
     .content {
       max-width: var(--max);
@@ -149,7 +157,7 @@
       top: 1.5rem;
       right: 1.5rem;
       font-size: 0.85rem;
-      color: var(--accent);
+      color: var(--md-orange);
       opacity: 0;
       transform: translateX(-4px);
       transition: opacity 0.2s, transform 0.2s;
@@ -166,7 +174,7 @@
       align-items: center;
       justify-content: center;
       font-size: 0.9rem;
-      color: var(--accent2);
+      color: var(--md-orange);
       flex-shrink: 0;
       background: var(--bg);
     }
@@ -177,7 +185,7 @@
       align-items: center;
       justify-content: center;
       font-size: 1rem;
-      color: var(--accent);
+      color: var(--md-orange);
       flex-shrink: 0;
       background: var(--bg);
     }
@@ -194,7 +202,7 @@
       font-size: 0.62rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--md-orange);
       border: 1px solid var(--border);
       padding: 2px 7px;
     }
@@ -203,7 +211,7 @@
       font-size: 0.62rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--md-orange);
       border: 1px solid var(--accent);
       padding: 2px 7px;
       background: rgba(200,169,122,0.06);
@@ -257,7 +265,7 @@
     .cheatlist-card:hover { background: var(--bg3); }
     .cheatlist-icon {
       font-size: 0.75rem;
-      color: var(--accent);
+      color: var(--md-orange);
       letter-spacing: 0.08em;
       margin-bottom: 0.15rem;
     }
@@ -274,7 +282,7 @@
       font-size: 0.58rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--accent2);
+      color: var(--md-orange);
       border: 1px solid rgba(90,138,94,0.3);
       padding: 1px 6px;
       margin-top: auto;
@@ -284,7 +292,7 @@
       top: 1.2rem;
       right: 1.2rem;
       font-size: 0.78rem;
-      color: var(--accent);
+      color: var(--md-orange);
       opacity: 0;
       transform: translateX(-4px);
       transition: opacity 0.2s, transform 0.2s;
