@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guía rápida · Flash de mano</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --ink: #1a1814; --muted: #7a756f; --accent: #c8a97a;
+      --accent2: #5a8a5e; --border: #d8d4ce;
+      --md-orange: #e8821a; --md-pink: #e8347a;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+    }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: 11pt; line-height: 1.6; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 14mm 14mm 12mm; -webkit-font-smoothing: antialiased; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1.5px solid var(--ink); padding-bottom: 7px; margin-bottom: 14px; }
+    .brand { font-size: 7pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--md-orange); margin-bottom: 3px; }
+    .header h1 { font-family: var(--font-serif); font-size: 20pt; font-weight: 400; line-height: 1.1; color: var(--ink); }
+    .header h1 em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .header-right { text-align: right; font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; line-height: 1.8; padding-top: 4px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .block { background: #eeecea; border-left: 2.5px solid var(--accent); padding: 9px 11px; }
+    .block.green { border-left-color: var(--accent2); }
+    .block.plain { background: transparent; border-left-color: var(--border); border-left-width: 1px; }
+    .block-label { font-size: 6.5pt; letter-spacing: 0.2em; text-transform: uppercase; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 5px; }
+    .block.plain .block-label { background: none; -webkit-text-fill-color: var(--muted); color: var(--muted); }
+    .block ul { list-style: none; padding: 0; }
+    .block ul li { font-size: 9pt; color: var(--ink); padding: 2.5px 0; padding-left: 12px; position: relative; line-height: 1.5; }
+    .block ul li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-size: 8pt; }
+    .block.green ul li::before { color: var(--accent2); }
+    .block.plain ul li::before { color: var(--muted); }
+    .block p { font-size: 9pt; color: var(--muted); line-height: 1.55; }
+    .block strong { font-weight: 500; color: var(--ink); }
+
+    /* Fórmula destacada */
+    .formula-block { background: var(--ink); color: var(--bg); padding: 10px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 16px; }
+    .formula-main { font-family: var(--font-serif); font-size: 16pt; font-weight: 400; letter-spacing: 0.05em; flex-shrink: 0; }
+    .formula-main em { font-style: italic; color: var(--accent); }
+    .formula-desc { font-size: 8pt; line-height: 1.6; color: #c8c4be; }
+    .formula-desc strong { color: var(--bg); font-weight: 500; }
+
+    /* Tabla número guía */
+    .ng-table { width: 100%; border-collapse: collapse; font-size: 8pt; margin: 6px 0; }
+    .ng-table th { font-size: 6.5pt; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-weight: 400; padding: 3px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+    .ng-table td { padding: 3px 6px; border-bottom: 1px solid #e4e0da; color: var(--ink); }
+    .ng-table tr:last-child td { border-bottom: none; }
+    .ng-table td.highlight { font-weight: 500; color: var(--md-orange); }
+
+    /* Diagrama ley cuadrado inverso */
+    .inverse-diagram {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      margin: 8px 0 6px;
+      height: 80px; /* altura total fija: 12px val + 44px barra max + 12px label */
+      padding-top: 14px; /* espacio para el valor de arriba */
+    }
+    .inv-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      gap: 0;
+    }
+    .inv-val {
+      font-size: 6pt;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+    .inv-fill {
+      background: var(--accent);
+      width: 100%;
+      border-top: 1.5px solid var(--md-orange);
+      flex-shrink: 0;
+    }
+    .inv-label {
+      font-size: 6pt;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      line-height: 1;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+
+    /* Settings pills */
+    .settings-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 5px 0; }
+    .setting-pill { background: var(--ink); color: var(--bg); font-size: 7.5pt; letter-spacing: 0.06em; padding: 2px 8px; font-family: var(--font-sans); }
+    .setting-pill.gold { background: var(--accent); color: var(--ink); }
+    .setting-label { font-size: 6.5pt; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; margin-top: 6px; }
+
+    .quote { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px 0; margin: 8px 0; text-align: center; }
+    .quote p { font-family: var(--font-serif); font-style: italic; font-size: 9.5pt; color: var(--muted); }
+    .quote span { font-size: 7pt; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+    .footer { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 7px; display: flex; justify-content: space-between; }
+    .footer p { font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; }
+    .footer .dot { color: var(--accent); margin: 0 5px; }
+    @media print { body { margin: 0; background: white; } @page { size: A4; margin: 0; } }
+    @media screen { body { box-shadow: 0 4px 32px rgba(0,0,0,0.1); margin: 2rem auto; } }
+  </style>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <p class="brand">Mirar Despacio +</p>
+      <h1>Flash de <em>mano.</em></h1>
+    </div>
+    <div class="header-right">
+      <p>Guía rápida · Cheatlist</p>
+      <p>ottokols.es</p>
+    </div>
+  </div>
+
+  <!-- FÓRMULA NÚMERO GUÍA -->
+  <div class="formula-block">
+    <div class="formula-main"><em>NG</em> = f · d</div>
+    <div class="formula-desc">
+      <strong>NG</strong> = Número Guía del flash (dato del fabricante, a ISO 100)<br>
+      <strong>f</strong> = apertura necesaria &nbsp;·&nbsp; <strong>d</strong> = distancia al sujeto en metros<br>
+      Despejada: <strong>f = NG ÷ d</strong> &nbsp;·&nbsp; <strong>d = NG ÷ f</strong>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="block">
+      <p class="block-label">Número guía en la práctica</p>
+      <p class="setting-label">Ejemplos con NG 40 (ISO 100)</p>
+      <table class="ng-table">
+        <tr><th>Distancia</th><th>Apertura</th><th>Resultado</th></tr>
+        <tr><td>1 m</td><td class="highlight">f/40</td><td>Imposible — sobreexpuesto</td></tr>
+        <tr><td>2 m</td><td class="highlight">f/20</td><td>Cierra al máximo que puedas</td></tr>
+        <tr><td>4 m</td><td class="highlight">f/10</td><td>Cerca de f/11 → correcto</td></tr>
+        <tr><td>5 m</td><td class="highlight">f/8</td><td>Exposición correcta</td></tr>
+        <tr><td>10 m</td><td class="highlight">f/4</td><td>Límite del flash</td></tr>
+      </table>
+      <ul style="margin-top:5px;">
+        <li>Si subes a ISO 200, el NG efectivo × 1,4. A ISO 400, × 2.</li>
+        <li>Potencia al 50% → NG ÷ √2 (≈ 0,7 del original).</li>
+        <li>Potencia al 25% → NG ÷ 2.</li>
+      </ul>
+    </div>
+
+    <div class="block">
+      <p class="block-label">Ley del cuadrado inverso</p>
+      <p style="font-size:8.5pt;color:var(--ink);margin-bottom:4px;">La luz se reduce al cuadrado de la distancia. Dobles la distancia → recibes ¼ de luz (–2 pasos).</p>
+      <!-- Diagrama visual -->
+      <div class="inverse-diagram">
+        <div class="inv-bar"><div class="inv-val">f/8</div><div class="inv-fill" style="height:44px;opacity:1;"></div><div class="inv-label">1 m</div></div>
+        <div class="inv-bar"><div class="inv-val">f/5.6</div><div class="inv-fill" style="height:31px;opacity:0.75;"></div><div class="inv-label">1.4 m</div></div>
+        <div class="inv-bar"><div class="inv-val">f/4</div><div class="inv-fill" style="height:22px;opacity:0.5;"></div><div class="inv-label">2 m</div></div>
+        <div class="inv-bar"><div class="inv-val">f/2.8</div><div class="inv-fill" style="height:15px;opacity:0.35;"></div><div class="inv-label">2.8 m</div></div>
+        <div class="inv-bar"><div class="inv-val">f/2</div><div class="inv-fill" style="height:11px;opacity:0.25;"></div><div class="inv-label">4 m</div></div>
+      </div>
+      <ul>
+        <li><strong>+1 paso de apertura</strong> = × 1,4 la distancia posible.</li>
+        <li>Útil para separar sujeto del fondo: aleja el sujeto y el fondo queda oscuro.</li>
+        <li>Acerca el flash al sujeto para abrir apertura y reducir profundidad de campo.</li>
+      </ul>
+    </div>
+
+    <div class="block green">
+      <p class="block-label">Velocidad de sincronización</p>
+      <ul>
+        <li><strong>Velocidad de sync:</strong> máxima a la que la cortinilla está abierta del todo. En la mayoría de cámaras: 1/200 s o 1/250 s.</li>
+        <li>Por encima de ese límite aparece una franja negra en la imagen.</li>
+        <li><strong>HSS (High Speed Sync):</strong> permite velocidades superiores, pero reduce la potencia efectiva del flash.</li>
+        <li>Para flash de relleno en exterior con HSS: 1/1000 s o más para matar la luz ambiente.</li>
+        <li>La velocidad de obturación controla la luz ambiente. La apertura controla el flash.</li>
+      </ul>
+    </div>
+
+    <div class="block green">
+      <p class="block-label">Modos de disparo</p>
+      <p class="setting-label">TTL</p>
+      <ul>
+        <li>El flash mide la escena y decide la potencia. Rápido, menos control.</li>
+        <li>Usa compensación de flash (FEC) para corregir: –1 a –2 EV en retratos suele quedar natural.</li>
+      </ul>
+      <p class="setting-label" style="margin-top:6px;">Manual</p>
+      <ul>
+        <li>Tú fijas la potencia (1/1, 1/2, 1/4…). Resultados repetibles.</li>
+        <li>Úsalo siempre que el sujeto no se mueva de sitio.</li>
+        <li>Calcula con la fórmula NG o mide con fotómetro.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="quote">
+    <p>"El flash no crea la luz. La pone donde tú decides."</p>
+    <span>— Mirar Despacio</span>
+  </div>
+
+  <div class="grid-3">
+
+    <div class="block plain">
+      <p class="block-label">Flash de relleno · Exterior</p>
+      <p class="setting-label">Punto de partida</p>
+      <div class="settings-row">
+        <span class="setting-pill">ISO 100</span>
+        <span class="setting-pill">f/8</span>
+        <span class="setting-pill">1/200s</span>
+      </div>
+      <ul>
+        <li>Expón primero para el fondo/ambiente.</li>
+        <li>Ajusta el flash para iluminar el sujeto sin que se note.</li>
+        <li>FEC –1 o –2 EV: aspecto natural.</li>
+        <li>Difusor o rebote si tienes techo cerca.</li>
+      </ul>
+    </div>
+
+    <div class="block plain">
+      <p class="block-label">Rebote</p>
+      <ul>
+        <li>Apunta al techo o pared lateral, nunca de frente.</li>
+        <li>El techo actúa como fuente grande → luz suave.</li>
+        <li>Distancia efectiva = flash → techo → sujeto. Suma los metros.</li>
+        <li>Techo de color afecta al balance de blancos.</li>
+        <li>En exterior sin superficie: diffúsor directo o modificador.</li>
+      </ul>
+    </div>
+
+    <div class="block plain">
+      <p class="block-label">Errores frecuentes</p>
+      <ul>
+        <li>Superar la velocidad de sync → franja negra.</li>
+        <li>Flash demasiado potente → sujeto quemado, fondo negro.</li>
+        <li>No compensar el TTL → retratos sobreexpuestos.</li>
+        <li>Olvidar que dobles la distancia = –2 pasos de luz.</li>
+        <li>Usar el flash directo sin difusor → luz dura y sombras feas.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>Mirar Despacio +<span class="dot">·</span>Área exclusiva</p>
+    <p>ottokols.es<span class="dot">·</span>© 2026 Otto Kols</p>
+  </div>
+
+</body>
+</html>
