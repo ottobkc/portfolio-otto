@@ -1,0 +1,36 @@
+{
+  "proximas": [
+    {
+      "fecha": "Domingo 28 de junio de 2025",
+      "zona": "Barrio de las Letras",
+      "hora": "Por confirmar",
+      "activa": true
+    }
+  ],
+  "galeria": [
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle1_rgx5tu.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle2_w49gyn.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle3_kbjxhj.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle4_gy0zb7.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle5_tkupf1.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle6_vusvf0.jpg",
+      "alt": "Fotografía de calle Madrid"
+    }
+  ]
+}

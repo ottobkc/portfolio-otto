@@ -741,9 +741,14 @@
       <span>/</span>
       <span>Salidas fotográficas</span>
     </div>
-    <p class="page-label">Mirar Despacio · en la calle</p>
-    <h1 class="page-title">Salidas<br><em>fotográficas.</em></h1>
-    <p class="page-intro">Encuentros periódicos para salir a fotografiar Madrid en grupo. Sin clases, sin jerarquías. Solo cámaras, calles y ganas de mirar despacio.</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;">
+      <div>
+        <p class="page-label">Mirar Despacio · en la calle</p>
+        <h1 class="page-title">Salidas<br><em>fotográficas.</em></h1>
+        <p class="page-intro">Encuentros periódicos para salir a fotografiar Madrid en grupo. Sin clases, sin jerarquías. Solo cámaras, calles y ganas de mirar despacio.</p>
+      </div>
+      <img src="/fotos/logo-mirar-despacio.png" alt="Mirar Despacio" style="height:80px;width:auto;flex-shrink:0;mix-blend-mode:multiply;opacity:0.9;margin-top:0.5rem;" />
+    </div>
   </div>
 
   <hr class="divider" />
@@ -770,7 +775,7 @@
           <span class="modelo-badge">Próximamente</span>
           <h3>Mirar Despacio +</h3>
           <p>Una membresía mensual para quienes quieran ir más lejos. Acceso prioritario a las salidas, contenido exclusivo del podcast, comunidad privada y descuentos en sesiones.</p>
-          <p>Si te gusta la idea, usa el formulario de arriba para inscribirte y estarás entre los primeros en saberlo cuando lancemos la membresía.</p>
+          <p>Si te gusta la idea, <a href="#inscripcion" style="color:inherit;text-decoration:underline;">apúntate en el formulario</a> y estarás entre los primeros en saberlo cuando lancemos la membresía.</p>
           <ul class="modelo-features">
             <li>Acceso prioritario a todas las salidas</li>
             <li>Episodios y contenido exclusivo del podcast</li>
@@ -793,7 +798,7 @@
         <div class="form-info">
           <p class="section-label">Inscripción</p>
           <h2 class="section-title">Apúntate a la <em>próxima salida.</em></h2>
-          <p>Todavía no hay fecha fija. Rellena el formulario y te avisamos en cuanto confirmemos zona, día y hora. Sin compromiso.</p>
+          <p id="fechaTexto">Cargando fecha...</p>
           <p>Las salidas tienen un <strong>aforo limitado</strong> para que el grupo no sea demasiado grande y el ritmo sea tranquilo. Priorizamos por orden de inscripción.</p>
           <div class="aviso-legal">
             <strong>Uso de imagen</strong>
@@ -989,26 +994,7 @@
       <p class="section-label">Madrid · calle · luz</p>
       <h2 class="section-title" style="margin-bottom:2rem;">El tipo de <em>imágenes.</em></h2>
       <div class="salidas-gallery" id="salidasGallery">
-        <!-- Añade o elimina <div> según las fotos que tengas.
-             El grid se reajusta solo. Nombres: calle1.jpg … calle7.jpg -->
-        <div class="salidas-gallery-item" data-src="/fotos/salidas/calle1.jpg">
-          <img src="/fotos/salidas/calle1.jpg" alt="Fotografía de calle Madrid" loading="lazy" />
-        </div>
-        <div class="salidas-gallery-item" data-src="/fotos/salidas/calle2.jpg">
-          <img src="/fotos/salidas/calle2.jpg" alt="Fotografía de calle Madrid" loading="lazy" />
-        </div>
-        <div class="salidas-gallery-item" data-src="/fotos/salidas/calle3.jpg">
-          <img src="/fotos/salidas/calle3.jpg" alt="Fotografía de calle Madrid" loading="lazy" />
-        </div>
-        <div class="salidas-gallery-item" data-src="/fotos/salidas/calle4.jpg">
-          <img src="/fotos/salidas/calle4.jpg" alt="Fotografía de calle Madrid" loading="lazy" />
-        </div>
-        <div class="salidas-gallery-item" data-src="/fotos/salidas/calle5.jpg">
-          <img src="/fotos/salidas/calle5.jpg" alt="Fotografía de calle Madrid" loading="lazy" />
-        </div>
-        <div class="salidas-gallery-item" data-src="/fotos/salidas/calle6.jpg">
-          <img src="/fotos/salidas/calle6.jpg" alt="Fotografía de calle Madrid" loading="lazy" />
-        </div>
+        <!-- Fotos cargadas desde salidas-data.json -->
       </div>
     </div>
   </div>
@@ -1240,5 +1226,65 @@
     });
   </script>
 
+
+  <script>
+    // Carga datos desde salidas-data.json (fechas + galería)
+    fetch('/salidas-data.json')
+      .then(r => r.json())
+      .then(data => {
+        // — FECHA —
+        const fechaEl = document.getElementById('fechaTexto');
+        if (fechaEl) {
+          const proximas = (data.proximas || []).filter(s => s.activa);
+          if (proximas.length > 0) {
+            const s = proximas[0];
+            let txt = `Próxima salida: <strong>${s.fecha}</strong>`;
+            if (s.zona && s.zona !== 'Por confirmar') txt += ` · ${s.zona}`;
+            if (s.hora && s.hora !== 'Por confirmar') txt += ` · ${s.hora}`;
+            fechaEl.innerHTML = txt;
+          } else {
+            fechaEl.textContent = 'Todavía no hay fecha fija. Rellena el formulario y te avisamos en cuanto confirmemos zona, día y hora. Sin compromiso.';
+          }
+        }
+
+        // — GALERÍA —
+        const gallery = document.getElementById('salidasGallery');
+        if (gallery && data.galeria && data.galeria.length > 0) {
+          gallery.innerHTML = '';
+          data.galeria.forEach(foto => {
+            const item = document.createElement('div');
+            item.className = 'salidas-gallery-item';
+            item.dataset.src = foto.src;
+            const img = document.createElement('img');
+            img.src = foto.src;
+            img.alt = foto.alt || 'Fotografía de calle Madrid';
+            img.loading = 'lazy';
+            item.appendChild(img);
+            gallery.appendChild(item);
+          });
+          // Reasignar eventos del lightbox a los nuevos items
+          initGalleryLightbox();
+        }
+      })
+      .catch(() => {
+        // Fallback silencioso: el texto de fecha queda como estaba
+        const fechaEl = document.getElementById('fechaTexto');
+        if (fechaEl) fechaEl.textContent = 'Todavía no hay fecha fija. Rellena el formulario y te avisamos en cuanto confirmemos zona, día y hora. Sin compromiso.';
+      });
+
+    function initGalleryLightbox() {
+      const items = document.querySelectorAll('.salidas-gallery-item');
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lightboxImg');
+      if (!lb || !lbImg) return;
+      items.forEach(item => {
+        item.addEventListener('click', () => {
+          lbImg.src = item.dataset.src || item.querySelector('img').src;
+          lb.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        });
+      });
+    }
+  </script>
 </body>
 </html>
