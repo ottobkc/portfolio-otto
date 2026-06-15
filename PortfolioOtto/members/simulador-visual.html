@@ -64,9 +64,9 @@
   </div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
 
   <script>
     function showApp() {
@@ -93,7 +93,7 @@
     });
   </script>
 
-  <script type="text/babel">
+  <script type="text/babel" data-presets="react,env">
     const { useState, useMemo } = React;
 
 
@@ -109,9 +109,9 @@ const C = {
 };
 
 // ─── Data ────────────────────────────────────────────────────────────────────
-const APERTURES = [1.0,1.4,1.8,2.0,2.8,4.0,5.6,8.0,11,16];
-const SHUTTERS  = [1/2000,1/1000,1/500,1/250,1/125,1/60,1/30,1/15,1/8,1/4,0.5,1];
-const ISOS      = [100,200,400,800,1600,3200,6400,12800];
+const APERTURES = [1.0,1.2,1.4,1.8,2.0,2.8,3.5,4.0,5.6,7.1,8.0,11,16,22];
+const SHUTTERS  = [1,0.5,1/4,1/8,1/15,1/30,1/60,1/125,1/250,1/500,1/1000,1/2000];
+const ISOS      = [50,100,200,400,800,1600,3200,6400,12800,25600,51200,102400];
 const FOCALS    = [14,24,35,50,85,135,200];
 
 const SHUTTER_LABELS = ["1/2000","1/1000","1/500","1/250","1/125","1/60","1/30","1/15","1/8","1/4","1/2","1\""];
@@ -463,9 +463,9 @@ function EffectCard({ icon, title, children, active, color }) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 function Simulador() {
-  const [apIdx,   setAp]      = useState(2);  // f/1.8
-  const [shIdx,   setSh]      = useState(4);  // 1/125
-  const [isoIdx,  setIso]     = useState(1);  // ISO 200
+  const [apIdx,   setAp]      = useState(3);  // f/1.8
+  const [shIdx,   setSh]      = useState(7);  // 1/125
+  const [isoIdx,  setIso]     = useState(2);  // ISO 200
   const [focalIdx,setFocal]   = useState(3);  // 50mm
   const [lightId, setLight]   = useState("sol");
   const [tab,     setTab]     = useState("exposicion"); // "exposicion" | "focal" | "luz"
@@ -609,7 +609,7 @@ function Simulador() {
               <EffectCard icon="◫" title="ISO" active={grain>0.2} color="#ce93d8">
                 {iso <= 400
                   ? `ISO ${iso} — imagen limpia, sin grano visible.`
-                  : iso >= 3200
+                  : iso >= 6400
                   ? `ISO ${iso} — grano notable. Valorar si suma o resta.`
                   : `ISO ${iso} — grano contenido con buena exposición.`}
               </EffectCard>

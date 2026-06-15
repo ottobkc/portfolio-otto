@@ -64,9 +64,9 @@
   </div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
 
   <script>
     function showApp() {
@@ -93,20 +93,46 @@
     });
   </script>
 
-  <script type="text/babel">
+  <script type="text/babel" data-presets="react,env">
     const { useState, useMemo } = React;
 
 
 
 // ─── Sensor sizes (crop factor relative to full frame 36×24mm) ───────────────
 const CAMERAS = [
-  { id: "ff",   label: "Full Frame (35mm)", cropFactor: 1.0,  sensorW: 36,   sensorH: 24   },
-  { id: "apsc", label: "APS-C (Sony/Nikon)", cropFactor: 1.5,  sensorW: 23.5, sensorH: 15.6 },
-  { id: "apsc_canon", label: "APS-C (Canon)", cropFactor: 1.6, sensorW: 22.3, sensorH: 14.9 },
-  { id: "mft",  label: "Micro 4/3",          cropFactor: 2.0,  sensorW: 17.3, sensorH: 13   },
-  { id: "phone",label: "Smartphone (1/1.7\")", cropFactor: 4.5, sensorW: 7.6,  sensorH: 5.7  },
+  // ── Genéricos ─────────────────────────────────────────────────────────────
+  { id: "ff",         label: "Full Frame",              cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "apsc",       label: "APS-C (Sony/Nikon/Fuji)", cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
+  { id: "apsc_canon", label: "APS-C (Canon)",           cropFactor: 1.6, sensorW: 22.3, sensorH: 14.9 },
+  { id: "mft",        label: "Micro 4/3",               cropFactor: 2.0, sensorW: 17.3, sensorH: 13   },
+  { id: "mobile",     label: "Móvil",                   cropFactor: 6.0, sensorW: 6.3,  sensorH: 4.7  },
+  // ── Sony ──────────────────────────────────────────────────────────────────
+  { id: "a7rII",   label: "Sony A7R II",      cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "a7III",   label: "Sony A7 III",      cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "a7IV",    label: "Sony A7 IV",       cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "a7sIII",  label: "Sony A7S III",     cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "a6700",   label: "Sony A6700",       cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
+  { id: "a6400",   label: "Sony A6400",       cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
+  // ── Canon ─────────────────────────────────────────────────────────────────
+  { id: "r6ii",  label: "Canon EOS R6 II",    cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "r5ii",  label: "Canon EOS R5 II",    cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "r7",    label: "Canon EOS R7",       cropFactor: 1.6, sensorW: 22.3, sensorH: 14.9 },
+  { id: "r50",   label: "Canon EOS R50",      cropFactor: 1.6, sensorW: 22.3, sensorH: 14.9 },
+  // ── Nikon ─────────────────────────────────────────────────────────────────
+  { id: "z6iii", label: "Nikon Z6 III",       cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "z6ii",  label: "Nikon Z6 II",        cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "z50ii", label: "Nikon Z50 II",       cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
+  // ── Fujifilm ──────────────────────────────────────────────────────────────
+  { id: "xt5",    label: "Fujifilm X-T5",     cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
+  { id: "x100vi", label: "Fujifilm X100VI",   cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
+  // ── MFT ───────────────────────────────────────────────────────────────────
+  { id: "gh7",   label: "Panasonic GH7",      cropFactor: 2.0, sensorW: 17.3, sensorH: 13   },
+  { id: "om1ii", label: "OM System OM-1 II",  cropFactor: 2.0, sensorW: 17.3, sensorH: 13   },
+  // ── Leica / Pentax ────────────────────────────────────────────────────────
+  { id: "leicaQ3", label: "Leica Q3",         cropFactor: 1.0, sensorW: 36,   sensorH: 24   },
+  { id: "k3iii",   label: "Pentax K-3 III",   cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
+  { id: "k50",     label: "Pentax K-50",      cropFactor: 1.5, sensorW: 23.5, sensorH: 15.6 },
 ];
-
 const FOCAL_LENGTHS = [14, 18, 24, 28, 35, 50, 70, 85, 100, 135, 200];
 const APERTURES     = [1.4, 1.8, 2.0, 2.8, 4.0, 5.6, 8.0, 11, 16, 22];
 

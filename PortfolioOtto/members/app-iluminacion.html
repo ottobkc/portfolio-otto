@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Simulador de iluminación · Mirar Despacio +</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
+      --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
+      --accent: #c8a97a; --accent2: #5a8a5e; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+      --max: 1100px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: clamp(14px,1.5vw,16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
+    a { color: inherit; text-decoration: none; }
+
+    nav { background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(6px); }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; }
+    .nav-back { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+    .nav-back:hover { color: var(--ink); }
+
+    .page-header { max-width: var(--max); margin: 0 auto; padding: 3.5rem 2rem 2.5rem; border-bottom: 1px solid var(--border); }
+    .page-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--md-orange); margin-bottom: 0.75rem; }
+    .page-header h1 { font-family: var(--font-serif); font-size: clamp(1.8rem,4vw,2.6rem); font-weight: 400; margin-bottom: 0.5rem; }
+    .page-header h1 em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .page-header p { color: var(--muted); font-size: 0.92rem; }
+
+    .content { max-width: var(--max); margin: 0 auto; padding: 2rem 2rem 6rem; }
+
+    /* ── Layout ── */
+    .sim-layout { display: grid; grid-template-columns: 1fr 310px; gap: 2rem; align-items: start; }
+
+    /* ── Canvas ── */
+    .canvas-wrap { background: var(--bg2); border: 1px solid var(--border); position: relative; }
+    #studioCanvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+
+    /* ── Barra de herramientas ── */
+    .toolbar { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .tool-btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      font-family: var(--font-sans);
+      font-size: 0.67rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0.38rem 0.75rem;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+      transition: all 0.15s;
+    }
+    .tool-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .tool-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .tool-btn .t-icon { font-size: 0.9rem; line-height: 1; }
+    .tool-sep { width: 1px; height: 24px; background: var(--border); margin: 0 0.2rem; }
+
+    .clear-btn {
+      background: none;
+      border: 1px solid var(--border);
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0.38rem 0.9rem;
+      cursor: pointer;
+      margin-left: auto;
+      transition: all 0.2s;
+    }
+    .clear-btn:hover { border-color: #c0392b; color: #c0392b; }
+
+    .drag-hint { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.6rem; }
+
+    /* ── Leyenda ── */
+    .legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 0.7rem; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--muted); }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Panel derecho ── */
+    .sim-right { position: sticky; top: 80px; }
+
+    /* Guía desplegable */
+    .guide-wrap { margin-bottom: 1.5rem; }
+    .guide-label { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: block; }
+    .guide-select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      color: var(--ink);
+      padding: 0.5rem 0.75rem;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a756f'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+    }
+    .guide-select:focus { outline: 1px solid var(--md-orange); }
+
+    /* Panel info */
+    .info-panel {}
+    .info-block { margin-bottom: 1.5rem; }
+    .info-block-label {
+      font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 0.55rem; display: block;
+    }
+    .info-block h3 { font-family: var(--font-serif); font-size: 1rem; font-weight: 400; margin-bottom: 0.35rem; }
+    .info-block p { font-size: 0.83rem; color: var(--ink-faint); line-height: 1.6; }
+    .info-block ul { list-style: none; padding: 0; }
+    .info-block ul li { font-size: 0.82rem; color: var(--ink-faint); padding: 0.28rem 0 0.28rem 1rem; position: relative; border-bottom: 1px solid var(--bg3); line-height: 1.5; }
+    .info-block ul li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; }
+    .info-block ul li:last-child { border-bottom: none; }
+    .info-block ul li strong { color: var(--ink); font-weight: 400; }
+
+    .tip-block { background: var(--bg2); border-left: 2px solid var(--accent2); padding: 0.75rem 1rem; font-size: 0.82rem; color: var(--ink-faint); line-height: 1.55; }
+    .tip-block strong { color: var(--ink); font-weight: 400; }
+
+    .pills-row { display: flex; gap: 0.35rem; flex-wrap: wrap; margin: 0.4rem 0 0; }
+    .pill { background: var(--ink); color: var(--bg); font-size: 0.68rem; letter-spacing: 0.05em; padding: 2px 8px; }
+    .pill.gold { background: var(--accent); color: var(--ink); }
+
+    /* Selected element info */
+    .sel-info { background: var(--bg2); border: 1px solid var(--border); padding: 0.8rem 1rem; margin-bottom: 1rem; font-size: 0.82rem; }
+    .sel-info-name { font-weight: 500; color: var(--ink); margin-bottom: 0.2rem; font-size: 0.85rem; }
+    .sel-info-desc { color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
+    .sel-del { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: #c0392b; cursor: pointer; border: none; background: none; font-family: var(--font-sans); margin-top: 0.4rem; padding: 0; }
+    .sel-del:hover { text-decoration: underline; }
+
+    footer { background: var(--ink); padding: 2rem; margin-top: 4rem; }
+    .footer-inner { max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; }
+    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; color: var(--bg); }
+    .footer-meta { font-size: 0.73rem; color: var(--muted); }
+
+    @media (max-width: 780px) {
+      .sim-layout { grid-template-columns: 1fr; }
+      .sim-right { position: static; }
+      .content, .page-header { padding-left: 1.25rem; padding-right: 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Mirar Despacio +</span>
+  <a href="/recursos.html" class="nav-back">← Recursos</a>
+</nav>
+
+<div class="page-header">
+  <p class="page-label">Herramientas · Mirar Despacio + &nbsp;<span style="background:#1a1814;color:#c8a97a;font-size:0.6rem;letter-spacing:0.15em;padding:2px 7px;vertical-align:middle;">BETA</span></p>
+  <h1>Simulador de <em>iluminación.</em></h1>
+  <p>Coloca los elementos en el estudio y construye tu montaje. Usa la guía para saber cómo conseguir un resultado concreto.</p>
+  <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--muted);border-left:2px solid var(--border);padding-left:0.75rem;">Versión beta · en pruebas. Puede contener errores o cambiar. Si encuentras algo raro, <a href="mailto:info@ottokols.es" style="color:var(--md-orange);text-decoration:underline;">cuéntamelo</a>.</p>
+</div>
+
+<div class="content">
+  <div class="sim-layout">
+
+    <!-- IZQUIERDA: canvas + toolbar -->
+    <div class="sim-left">
+      <div class="toolbar">
+        <button class="tool-btn" onclick="addEl('flash_key')" title="Flash principal"><span class="t-icon">⚡</span> Flash key</button>
+        <button class="tool-btn" onclick="addEl('flash_fill')" title="Flash de relleno"><span class="t-icon">⚡</span> Flash fill</button>
+        <button class="tool-btn" onclick="addEl('flash_back')" title="Flash de pelo / contraluz"><span class="t-icon">⚡</span> Flash pelo</button>
+        <div class="tool-sep"></div>
+        <button class="tool-btn" onclick="addEl('softbox')" title="Softbox"><span class="t-icon">▭</span> Softbox</button>
+        <button class="tool-btn" onclick="addEl('paraguas')" title="Paraguas"><span class="t-icon">☂</span> Paraguas</button>
+        <button class="tool-btn" onclick="addEl('reflector')" title="Reflector"><span class="t-icon">◯</span> Reflector</button>
+        <div class="tool-sep"></div>
+        <button class="tool-btn" onclick="addEl('sujeto')" title="Sujeto"><span class="t-icon">◉</span> Sujeto</button>
+        <button class="tool-btn" onclick="addEl('camara')" title="Cámara"><span class="t-icon">▣</span> Cámara</button>
+        <button class="tool-btn" onclick="addEl('fondo')" title="Fondo"><span class="t-icon">▬</span> Fondo</button>
+        <button class="clear-btn" onclick="clearAll()">Limpiar todo</button>
+      </div>
+
+      <p class="drag-hint">Haz clic para añadir · Arrastra para mover · Clic sobre un elemento para seleccionarlo</p>
+
+      <div class="canvas-wrap">
+        <canvas id="studioCanvas" width="720" height="480"></canvas>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#e8821a"></div>Flash key</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c8a97a"></div>Flash fill / pelo</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#5a8a5e"></div>Reflector</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1a1814"></div>Sujeto · Cámara</div>
+      </div>
+    </div>
+
+    <!-- DERECHA: guía + info -->
+    <div class="sim-right">
+
+      <div class="guide-wrap">
+        <span class="guide-label">Quiero conseguir…</span>
+        <select class="guide-select" id="guideSelect" onchange="showGuide(this.value)">
+          <option value="">— Elige un resultado —</option>
+          <option value="fondo-blanco">Fondo completamente blanco</option>
+          <option value="silueta">Solo la silueta del sujeto</option>
+          <option value="retrato-suave">Retrato suave, sin sombras duras</option>
+          <option value="retrato-caracter">Retrato con carácter y sombras marcadas</option>
+          <option value="separar-fondo">Separar al sujeto del fondo</option>
+          <option value="luz-ventana">Imitar la luz de una ventana</option>
+          <option value="relleno-exterior">Flash de relleno en exterior</option>
+          <option value="fotometro">Cómo usar el fotómetro de mano</option>
+        </select>
+      </div>
+
+      <div id="selectedInfo"></div>
+      <div class="info-panel" id="infoPanel">
+        <div class="info-block">
+          <span class="info-block-label">Por dónde empezar</span>
+          <h3>El canvas está en blanco</h3>
+          <p>Añade elementos con los botones de arriba y colócalos donde quieras. O elige un resultado en el desplegable para ver cómo montarlo.</p>
+        </div>
+        <div class="tip-block"><strong>Regla básica:</strong> coloca primero al sujeto y la cámara. Luego añade la luz principal (key). Todo lo demás — fill, reflectores, pelo — se añade para resolver los problemas que crea la key.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-brand">Otto Kols · Fotógrafo</span>
+    <span class="footer-meta">Mirar Despacio + · ottokols.es</span>
+  </div>
+</footer>
+
+<script>
+// ── CANVAS SETUP ──────────────────────────────────
+const canvas = document.getElementById('studioCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let elements = [];
+let dragging = null, dragOffX = 0, dragOffY = 0;
+let selected = null;
+let pendingAdd = null; // tipo a añadir en el próximo click sobre canvas
+
+// ── DEFINICIONES ──────────────────────────────────
+const DEFS = {
+  flash_key:  { label: 'Flash key',   color: '#e8821a', r: 22, shape: 'flash',     emitsLight: true,  info: { name: 'Flash key (luz principal)', desc: 'La fuente dominante. Establece la dirección y calidad de luz. Siempre la primera en colocar y medir con el fotómetro.', tips: ['Potencia: empieza al 50%, ajusta con el fotómetro.','El modificador (softbox, beauty, paraguas) cambia la calidad.','Mide siempre en la posición del sujeto, esfera hacia la fuente.'] } },
+  flash_fill: { label: 'Flash fill',  color: '#c8a97a', r: 19, shape: 'flash',     emitsLight: true,  info: { name: 'Flash fill (relleno)', desc: 'Reduce las sombras creadas por la key sin eliminarlas. Siempre menos potente.', tips: ['Ratio 2:1 (1 stop menos): natural y suave.','Ratio 4:1 (2 stops): más carácter, más sombra.','Puede sustituirse por un reflector si no tienes segundo flash.'] } },
+  flash_back: { label: 'Flash pelo',  color: '#b87a1a', r: 17, shape: 'flash',     emitsLight: true,  info: { name: 'Flash de pelo / contraluz', desc: 'Ilumina desde arriba o detrás. Separa al sujeto del fondo y añade profundidad.', tips: ['Colócalo por encima y detrás del sujeto.','Potencia baja: 1/4 o 1/8 de la key.','Con grid para no derramar luz en el objetivo.'] } },
+  softbox:    { label: 'Softbox',     color: '#e8821a', r: 28, shape: 'softbox',   emitsLight: true,  info: { name: 'Softbox', desc: 'Fuente grande que produce luz suave. Cuanto más grande y más cerca, más suave.', tips: ['Acércalo al sujeto para más suavidad.','Rectangular: catch-light rectangular en los ojos.','Con grid interior: reduce el derrame lateral.'] } },
+  paraguas:   { label: 'Paraguas',    color: '#e8821a', r: 26, shape: 'paraguas',  emitsLight: true,  info: { name: 'Paraguas', desc: 'Luz amplia y envolvente. Más económico que el softbox, pero derrama luz por todos lados.', tips: ['Difusor blanco: luz suave hacia adelante.','Reflectante plateado: flash apunta al interior y rebota.','Difícil de controlar en espacios pequeños.'] } },
+  reflector:  { label: 'Reflector',   color: '#5a8a5e', r: 24, shape: 'reflector', emitsLight: false, info: { name: 'Reflector', desc: 'Devuelve la luz de la key sin necesitar un segundo flash. Versátil y con resultado natural.', tips: ['Plateado: más contraste y temperatura fría.','Dorado: calidez. Blanco: relleno neutro.','Acércalo para más relleno; aléjalo para menos.'] } },
+  sujeto:     { label: 'Sujeto',      color: '#1a1814', r: 24, shape: 'sujeto',    emitsLight: false, info: { name: 'Sujeto', desc: 'El punto de referencia del montaje. Todo lo demás se coloca en relación a él.', tips: ['El fotómetro siempre se mide en su posición.','Su distancia al fondo afecta al derrame de luz.','La dirección en la que mira define qué lado iluminar.'] } },
+  camara:     { label: 'Cámara',      color: '#3a3632', r: 20, shape: 'camara',    emitsLight: false, info: { name: 'Cámara', desc: 'Su posición define el eje de referencia para las luces.', tips: ['Velocidad máxima: velocidad de sync (1/200 o 1/250).','La apertura controla la exposición del flash.','El ISO afecta a la sensibilidad al flash.'] } },
+  fondo:      { label: 'Fondo',       color: '#d8d4ce', r: 50, shape: 'fondo',     emitsLight: false, info: { name: 'Fondo', desc: 'Papel, tela o vinilo. Su distancia al sujeto es clave para controlar la luz de fondo.', tips: ['Mínimo 2 m entre sujeto y fondo para high key.','Fondo negro: absorbe la luz, no necesita iluminación.','Papel blanco requiere luces propias para quemarlo a blanco puro.'] } },
+};
+
+// ── DIBUJO ───────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Suelo referencia
+  ctx.save();
+  ctx.strokeStyle = '#d8d4ce'; ctx.lineWidth = 1; ctx.setLineDash([4,6]);
+  ctx.beginPath(); ctx.moveTo(0, H*0.85); ctx.lineTo(W, H*0.85); ctx.stroke();
+  ctx.setLineDash([]); ctx.restore();
+
+  // Rayos primero
+  elements.forEach(drawRays);
+  // Elementos encima
+  elements.forEach(drawEl);
+}
+
+function drawRays(el) {
+  const def = DEFS[el.type];
+  if (!def.emitsLight) return;
+  const sujetos = elements.filter(e => e.type === 'sujeto');
+  if (!sujetos.length) return;
+  const target = sujetos.reduce((a,b) => dist(el,a)<dist(el,b)?a:b);
+  const dx = target.x-el.x, dy = target.y-el.y;
+  const d = Math.sqrt(dx*dx+dy*dy); if (d<1) return;
+  const ux=dx/d, uy=dy/d;
+
+  ctx.save();
+  ctx.strokeStyle = def.color;
+  ctx.globalAlpha = 0.45;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(el.x,el.y); ctx.lineTo(target.x-ux*22, target.y-uy*22); ctx.stroke();
+
+  // Flecha
+  ctx.setLineDash([]); ctx.globalAlpha = 0.8;
+  const ax=target.x-ux*24, ay=target.y-uy*24;
+  const ang = Math.atan2(uy,ux);
+  ctx.beginPath();
+  ctx.moveTo(ax,ay);
+  ctx.lineTo(ax-9*Math.cos(ang-0.45), ay-9*Math.sin(ang-0.45));
+  ctx.moveTo(ax,ay);
+  ctx.lineTo(ax-9*Math.cos(ang+0.45), ay-9*Math.sin(ang+0.45));
+  ctx.stroke();
+
+  // Cono para softbox/paraguas
+  if (['softbox','paraguas'].includes(el.type)) {
+    ctx.globalAlpha = 0.12; ctx.lineWidth=1; ctx.setLineDash([3,5]);
+    [-0.5,0.5].forEach(off=>{
+      const rx=ux*Math.cos(off)-uy*Math.sin(off), ry=ux*Math.sin(off)+uy*Math.cos(off);
+      ctx.beginPath(); ctx.moveTo(el.x,el.y); ctx.lineTo(el.x+rx*d*0.9, el.y+ry*d*0.9); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+  ctx.restore();
+}
+
+function drawEl(el) {
+  const def = DEFS[el.type];
+  const isSel = el===selected;
+  const s = def.r;
+  ctx.save(); ctx.translate(el.x, el.y);
+
+  if (isSel) {
+    ctx.beginPath(); ctx.arc(0,0,s+9,0,Math.PI*2);
+    ctx.strokeStyle='#e8821a'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  switch(def.shape) {
+    case 'flash':
+      ctx.fillStyle=def.color;
+      ctx.beginPath(); ctx.roundRect(-s*0.55,-s*0.38,s*1.1,s*0.76,3); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font=`bold ${s*0.55}px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('⚡',0,0);
+      ctx.fillStyle='#3a3632'; ctx.fillRect(-3,s*0.38,6,s*0.32);
+      break;
+    case 'softbox':
+      ctx.fillStyle=def.color; ctx.globalAlpha=0.9;
+      ctx.beginPath(); ctx.roundRect(-s*0.7,-s*0.4,s*1.4,s*0.8,4); ctx.fill();
+      ctx.globalAlpha=0.25; ctx.fillStyle='#fff';
+      ctx.fillRect(-s*0.58,-s*0.28,s*1.16,s*0.56);
+      ctx.globalAlpha=1; ctx.fillStyle='#fff'; ctx.font=`${s*0.3}px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('SOFT',0,0);
+      ctx.fillStyle='#3a3632'; ctx.fillRect(-3,s*0.4,6,s*0.3);
+      break;
+    case 'paraguas':
+      ctx.fillStyle=def.color; ctx.globalAlpha=0.85;
+      ctx.beginPath(); ctx.arc(0,-s*0.1,s*0.6,Math.PI,0); ctx.fill();
+      ctx.globalAlpha=1; ctx.strokeStyle='#3a3632'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.moveTo(0,-s*0.1); ctx.lineTo(0,s*0.6); ctx.stroke();
+      break;
+    case 'reflector':
+      ctx.strokeStyle=def.color; ctx.lineWidth=2.5;
+      ctx.globalAlpha=0.15; ctx.fillStyle=def.color;
+      ctx.beginPath(); ctx.arc(0,0,s*0.6,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=1;
+      ctx.beginPath(); ctx.arc(0,0,s*0.6,0,Math.PI*2); ctx.stroke();
+      ctx.globalAlpha=0.5; ctx.lineWidth=1.5;
+      for(let i=0;i<6;i++){const a=i/6*Math.PI*2; ctx.beginPath(); ctx.moveTo(Math.cos(a)*s*0.22,Math.sin(a)*s*0.22); ctx.lineTo(Math.cos(a)*s*0.52,Math.sin(a)*s*0.52); ctx.stroke();}
+      ctx.globalAlpha=1; ctx.fillStyle=def.color; ctx.font=`500 ${s*0.38}px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('R',0,0);
+      break;
+    case 'sujeto':
+      ctx.fillStyle='#c8c4be'; ctx.strokeStyle=def.color; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.ellipse(0,s*0.35,s*0.42,s*0.6,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#d8d4ce';
+      ctx.beginPath(); ctx.arc(0,-s*0.3,s*0.42,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      break;
+    case 'camara':
+      ctx.fillStyle=def.color;
+      ctx.beginPath(); ctx.roundRect(-s*0.6,-s*0.42,s*1.2,s*0.84,4); ctx.fill();
+      ctx.fillStyle='#2a2824'; ctx.beginPath(); ctx.arc(0,0,s*0.32,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#c8a97a'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle='#1a1814'; ctx.beginPath(); ctx.arc(0,0,s*0.16,0,Math.PI*2); ctx.fill();
+      break;
+    case 'fondo':
+      ctx.fillStyle='#e8e5e0'; ctx.strokeStyle='#d8d4ce'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.roundRect(-s,-s*0.35,s*2,s*0.7,4); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#7a756f'; ctx.font=`${s*0.18}px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('FONDO',0,0);
+      break;
+  }
+
+  // Etiqueta
+  ctx.fillStyle = isSel ? '#e8821a' : '#7a756f';
+  ctx.font=`10px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText(def.label, 0, s*0.75);
+
+  ctx.restore();
+}
+
+function dist(a,b){ return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2); }
+
+// ── INTERACCIÓN ───────────────────────────────────
+function canvasPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const sx = W/r.width, sy = H/r.height;
+  const cx = (e.touches?.[0]?.clientX ?? e.clientX) - r.left;
+  const cy = (e.touches?.[0]?.clientY ?? e.clientY) - r.top;
+  return { x: cx*sx, y: cy*sy };
+}
+
+function hitTest(pos) {
+  for (let i=elements.length-1;i>=0;i--) {
+    const el=elements[i];
+    if (dist(pos,el) < DEFS[el.type].r * 1.1) return el;
+  }
+  return null;
+}
+
+canvas.addEventListener('mousedown', e => {
+  const pos = canvasPos(e);
+  const hit = hitTest(pos);
+  if (hit) {
+    dragging=hit; dragOffX=pos.x-hit.x; dragOffY=pos.y-hit.y;
+    selected=hit;
+    elements.splice(elements.indexOf(hit),1); elements.push(hit);
+    showElementInfo(hit);
+    draw();
+  } else {
+    selected=null;
+    clearSelectedInfo();
+    draw();
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const pos=canvasPos(e);
+  dragging.x = Math.max(30, Math.min(W-30, pos.x-dragOffX));
+  dragging.y = Math.max(30, Math.min(H-40, pos.y-dragOffY));
+  draw();
+});
+
+canvas.addEventListener('mouseup', ()=>{ dragging=null; });
+canvas.addEventListener('mouseleave', ()=>{ dragging=null; });
+
+canvas.addEventListener('touchstart', e=>{ e.preventDefault(); const pos=canvasPos(e); const hit=hitTest(pos); if(hit){dragging=hit;dragOffX=pos.x-hit.x;dragOffY=pos.y-hit.y;selected=hit;elements.splice(elements.indexOf(hit),1);elements.push(hit);showElementInfo(hit);draw();}else{selected=null;clearSelectedInfo();draw();} },{passive:false});
+canvas.addEventListener('touchmove', e=>{ e.preventDefault(); if(!dragging)return; const pos=canvasPos(e); dragging.x=Math.max(30,Math.min(W-30,pos.x-dragOffX)); dragging.y=Math.max(30,Math.min(H-40,pos.y-dragOffY)); draw(); },{passive:false});
+canvas.addEventListener('touchend',()=>{dragging=null;});
+
+// ── AÑADIR ELEMENTOS ─────────────────────────────
+function addEl(type) {
+  const cx = 120 + Math.random()*(W-240);
+  const cy = 60  + Math.random()*(H*0.65);
+  elements.push({ type, x:cx, y:cy, id:Date.now() });
+  draw();
+}
+
+function deleteSelected() {
+  if (!selected) return;
+  elements = elements.filter(e=>e!==selected);
+  selected=null; clearSelectedInfo(); draw();
+}
+
+function clearAll() {
+  elements=[]; selected=null;
+  clearSelectedInfo();
+  document.getElementById('guideSelect').value='';
+  document.getElementById('infoPanel').innerHTML=`
+    <div class="info-block">
+      <span class="info-block-label">Por dónde empezar</span>
+      <h3>Canvas limpio</h3>
+      <p>Añade elementos con los botones de arriba o elige un resultado en el desplegable.</p>
+    </div>
+    <div class="tip-block"><strong>Regla básica:</strong> coloca primero al sujeto y la cámara. Luego añade la luz principal (key). Todo lo demás se añade para resolver los problemas que crea la key.</div>
+  `;
+  draw();
+}
+
+// ── INFO PANEL ───────────────────────────────────
+function showElementInfo(el) {
+  const info = DEFS[el.type].info;
+  document.getElementById('selectedInfo').innerHTML=`
+    <div class="sel-info">
+      <div class="sel-info-name">${info.name}</div>
+      <div class="sel-info-desc">${info.desc}</div>
+      <ul style="margin-top:0.4rem;">${info.tips.map(t=>`<li style="font-size:0.78rem;color:var(--muted);padding:0.18rem 0 0.18rem 0.9rem;position:relative;border-bottom:1px solid var(--bg3);"><span style="position:absolute;left:0;color:var(--accent);">—</span>${t}</li>`).join('')}</ul>
+      <button class="sel-del" onclick="deleteSelected()">Eliminar este elemento</button>
+    </div>
+  `;
+}
+
+function clearSelectedInfo() {
+  document.getElementById('selectedInfo').innerHTML='';
+}
+
+// ── GUÍAS ────────────────────────────────────────
+// ── SVGs de referencia por guía ──────────────────
+const guideSVGs = {
+
+/* ─────────────────────────────────────────────────────────
+   TODOS LOS DIAGRAMAS: vista cenital (plano desde arriba)
+   Convenciones:
+   · Sujeto = círculo relleno gris con indicador de frente
+   · Cámara = rectángulo oscuro con lente (círculo) apuntando al sujeto
+   · Flash/softbox = rectángulo naranja con cono de luz (triángulo)
+   · Reflector = media luna verde
+   · Fondo = línea gruesa horizontal en la parte superior
+   · Las cotas y ángulos se anotan con líneas finas
+───────────────────────────────────────────────────────── */
+
+// Helper: sujeto cenital en cx,cy con frente apuntando a ang (radianes, 0=derecha)
+// Se dibuja inline en cada SVG
+
+'fondo-blanco': `<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+
+  <!-- Fondo (pared/papel) arriba -->
+  <rect x="30" y="22" width="240" height="10" rx="1" fill="#3a3632"/>
+  <text x="150" y="19" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#3a3632">FONDO (papel/tela blanca)</text>
+
+  <!-- Luces de fondo apuntando al fondo, una a cada lado -->
+  <!-- BG izquierda -->
+  <g transform="translate(55,55)">
+    <polygon points="-12,-8 12,-8 0,18" fill="#c8a97a" opacity="0.3"/>
+    <rect x="-12" y="-20" width="24" height="14" rx="2" fill="#c8a97a"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">BG L</text>
+    <text x="0" y="28" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c8a97a">al fondo</text>
+  </g>
+  <!-- BG derecha -->
+  <g transform="translate(245,55)">
+    <polygon points="-12,-8 12,-8 0,18" fill="#c8a97a" opacity="0.3"/>
+    <rect x="-12" y="-20" width="24" height="14" rx="2" fill="#c8a97a"/>
+    <text x="0" y="-8" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">BG R</text>
+    <text x="0" y="28" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c8a97a">al fondo</text>
+  </g>
+
+  <!-- Separación ≥ 2m -->
+  <line x1="30" y1="110" x2="270" y2="110" stroke="#d8d4ce" stroke-width="0.8" stroke-dasharray="3,4"/>
+  <text x="150" y="108" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c0392b">≥ 2 metros</text>
+
+  <!-- Key arriba izquierda del sujeto -->
+  <g transform="translate(90,130)">
+    <polygon points="-14,0 14,0 0,30" fill="#e8821a" opacity="0.25"/>
+    <rect x="-14" y="-16" width="28" height="16" rx="2" fill="#e8821a"/>
+    <text x="0" y="-4" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">KEY</text>
+  </g>
+  <!-- Fill arriba derecha del sujeto -->
+  <g transform="translate(210,130)">
+    <polygon points="-14,0 14,0 0,30" fill="#c8a97a" opacity="0.25"/>
+    <rect x="-14" y="-16" width="28" height="16" rx="2" fill="#c8a97a"/>
+    <text x="0" y="-4" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">FILL</text>
+  </g>
+
+  <!-- Sujeto cenital -->
+  <circle cx="150" cy="168" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <!-- Indicador de frente (mirando hacia la cámara, abajo) -->
+  <line x1="150" y1="168" x2="150" y2="186" stroke="#1a1814" stroke-width="2"/>
+  <text x="150" y="162" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+
+  <!-- Cámara abajo -->
+  <g transform="translate(150,218)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+  </g>
+  <!-- Eje óptico cámara-sujeto -->
+  <line x1="150" y1="186" x2="150" y2="207" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+
+  <!-- Rayos key y fill al sujeto -->
+  <line x1="95" y1="160" x2="135" y2="162" stroke="#e8821a" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>
+  <line x1="205" y1="160" x2="165" y2="162" stroke="#c8a97a" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>
+
+  <!-- Anotación potencia fondo -->
+  <text x="150" y="78" text-anchor="middle" font-family="Jost,sans-serif" font-size="7.5" fill="#c8a97a" font-weight="500">fondo +2 EV sobre sujeto</text>
+</svg>`,
+
+'silueta': `<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+
+  <!-- Fondo iluminado -->
+  <rect x="30" y="22" width="240" height="10" rx="1" fill="white" stroke="#d8d4ce" stroke-width="1"/>
+  <text x="150" y="19" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#3a3632">FONDO ILUMINADO</text>
+
+  <!-- Flash detrás del sujeto apuntando al fondo -->
+  <g transform="translate(150,75)">
+    <!-- Cono de luz hacia el fondo (arriba) -->
+    <polygon points="-20,-35 20,-35 0,0" fill="#e8821a" opacity="0.2"/>
+    <rect x="-16" y="-8" width="32" height="18" rx="2" fill="#e8821a"/>
+    <text x="0" y="4" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">FLASH</text>
+    <text x="0" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#e8821a">→ fondo</text>
+  </g>
+
+  <!-- Sujeto cenital en silueta -->
+  <circle cx="150" cy="155" r="18" fill="#1a1814" stroke="#3a3632" stroke-width="1.5"/>
+  <text x="150" y="159" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#d8d4ce">S</text>
+
+  <!-- Sin luz frontal — indicador -->
+  <line x1="150" y1="173" x2="150" y2="195" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+
+  <!-- Cámara -->
+  <g transform="translate(150,218)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+  </g>
+
+  <!-- Cruz "sin luz frontal" -->
+  <line x1="100" y1="148" x2="128" y2="162" stroke="#c0392b" stroke-width="2"/>
+  <line x1="100" y1="162" x2="128" y2="148" stroke="#c0392b" stroke-width="2"/>
+  <text x="80" y="172" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c0392b">sin luz</text>
+  <text x="80" y="180" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c0392b">frontal</text>
+
+  <text x="150" y="234" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Flash detrás · cámara de frente · sujeto sin iluminar</text>
+</svg>`,
+
+'retrato-suave': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+
+  <!-- Fondo -->
+  <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+
+  <!-- Softbox centrado arriba (clamshell key) -->
+  <g transform="translate(150,65)">
+    <!-- Cono de luz amplio hacia el sujeto -->
+    <polygon points="-32,0 32,0 20,55 -20,55" fill="#e8821a" opacity="0.12"/>
+    <rect x="-28" y="-14" width="56" height="18" rx="3" fill="#e8821a"/>
+    <rect x="-24" y="-11" width="48" height="12" rx="1" fill="white" opacity="0.2"/>
+    <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="white" font-weight="500">SOFTBOX</text>
+    <text x="0" y="14" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#e8821a">centrado · 30–45° abajo</text>
+  </g>
+
+  <!-- Sujeto -->
+  <circle cx="150" cy="158" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <line x1="150" y1="158" x2="150" y2="176" stroke="#1a1814" stroke-width="2"/>
+  <text x="150" y="153" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+
+  <!-- Reflector debajo del sujeto (entre sujeto y cámara) -->
+  <!-- Media luna representada como arco -->
+  <path d="M 120,198 A 35,20 0 0,1 180,198" fill="#5a8a5e" opacity="0.25" stroke="#5a8a5e" stroke-width="1.5"/>
+  <text x="150" y="212" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#5a8a5e">REFLECTOR</text>
+  <text x="150" y="221" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#5a8a5e">apunta hacia arriba al sujeto</text>
+
+  <!-- Cámara -->
+  <g transform="translate(150,245)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+  </g>
+
+  <!-- Eje vertical -->
+  <line x1="150" y1="80" x2="150" y2="140" stroke="#e8821a" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+  <line x1="150" y1="176" x2="150" y2="235" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+
+  <!-- Ratio -->
+  <text x="52" y="125" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#e8821a">key</text>
+  <text x="248" y="205" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#5a8a5e">fill</text>
+  <text x="150" y="258" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Clamshell · ratio 2:1 o 3:1</text>
+</svg>`,
+
+'retrato-caracter': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+
+  <!-- Fondo -->
+  <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+
+  <!-- Key lateral izquierda, a 45° -->
+  <g transform="translate(62,118) rotate(-45)">
+    <polygon points="-18,0 18,0 10,50 -10,50" fill="#e8821a" opacity="0.2"/>
+    <rect x="-18" y="-14" width="36" height="16" rx="2" fill="#e8821a"/>
+    <text x="0" y="-2" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="white" font-weight="500">KEY</text>
+  </g>
+  <!-- Ángulo 45° anotado -->
+  <path d="M 90,145 A 22,22 0 0,1 108,130" fill="none" stroke="#e8821a" stroke-width="1"/>
+  <text x="78" y="160" font-family="Jost,sans-serif" font-size="7" fill="#e8821a">45°</text>
+
+  <!-- Sujeto -->
+  <circle cx="155" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <!-- Frente mirando a la cámara (abajo-derecha) -->
+  <line x1="155" y1="148" x2="166" y2="162" stroke="#1a1814" stroke-width="2"/>
+  <text x="155" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <!-- Zona iluminada / sombra -->
+  <path d="M 137,138 A 18,18 0 0,0 137,160" fill="#e8821a" opacity="0.15"/>
+  <path d="M 155,130 A 18,18 0 0,1 173,148 A 18,18 0 0,1 155,166 L 155,130Z" fill="#1a1814" opacity="0.25"/>
+
+  <!-- Sin fill — espacio vacío con texto -->
+  <text x="228" y="130" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#c0392b">sin fill</text>
+  <line x1="200" y1="136" x2="240" y2="148" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="200" y1="148" x2="240" y2="136" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Flash de pelo opcional arriba detrás -->
+  <g transform="translate(200,62)">
+    <polygon points="-10,0 10,0 5,28 -5,28" fill="#b87a1a" opacity="0.25"/>
+    <rect x="-14" y="-12" width="28" height="14" rx="2" fill="#b87a1a"/>
+    <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="6" fill="white">PELO</text>
+    <text x="0" y="36" text-anchor="middle" font-family="Jost,sans-serif" font-size="6" fill="#b87a1a">(opcional)</text>
+  </g>
+
+  <!-- Cámara abajo derecha -->
+  <g transform="translate(230,218)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+  </g>
+  <!-- Eje cámara-sujeto -->
+  <line x1="166" y1="162" x2="215" y2="207" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+
+  <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Key lateral 45° · sin fill · ratio ≥ 4:1</text>
+</svg>`,
+
+'separar-fondo': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+
+  <!-- Fondo -->
+  <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.5"/>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+
+  <!-- Flash de pelo detrás y encima del sujeto (en planta: detrás) -->
+  <g transform="translate(150,62)">
+    <!-- Cono hacia el sujeto (abajo en planta) -->
+    <polygon points="-14,0 14,0 8,36 -8,36" fill="#b87a1a" opacity="0.2"/>
+    <rect x="-18" y="-13" width="36" height="15" rx="2" fill="#b87a1a"/>
+    <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">FLASH PELO</text>
+    <text x="0" y="44" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#b87a1a">rim light</text>
+  </g>
+
+  <!-- Key lateral izquierda -->
+  <g transform="translate(58,148) rotate(-30)">
+    <polygon points="-14,0 14,0 8,42 -8,42" fill="#e8821a" opacity="0.2"/>
+    <rect x="-16" y="-13" width="32" height="15" rx="2" fill="#e8821a"/>
+    <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">KEY</text>
+  </g>
+
+  <!-- Fill lateral derecha (opcional, más suave) -->
+  <g transform="translate(240,148) rotate(150)">
+    <polygon points="-12,0 12,0 6,36 -6,36" fill="#c8a97a" opacity="0.15"/>
+    <rect x="-14" y="-12" width="28" height="13" rx="2" fill="#c8a97a"/>
+    <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="6" fill="white">FILL</text>
+  </g>
+
+  <!-- Sujeto -->
+  <circle cx="150" cy="160" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <!-- Rim light aura -->
+  <circle cx="150" cy="160" r="21" fill="none" stroke="#b87a1a" stroke-width="2" stroke-dasharray="3,2" opacity="0.6"/>
+  <line x1="150" y1="160" x2="150" y2="178" stroke="#1a1814" stroke-width="2"/>
+  <text x="150" y="155" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+
+  <!-- Separación al fondo -->
+  <line x1="30" y1="110" x2="270" y2="110" stroke="#d8d4ce" stroke-width="0.8" stroke-dasharray="2,4"/>
+  <text x="270" y="108" text-anchor="end" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">distancia</text>
+
+  <!-- Cámara -->
+  <g transform="translate(150,228)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+  </g>
+  <line x1="150" y1="178" x2="150" y2="217" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+
+  <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Flash pelo detrás · key lateral · fondo alejado</text>
+</svg>`,
+
+'luz-ventana': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+
+  <!-- Fondo -->
+  <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+
+  <!-- Softbox vertical (strip) lateral izquierda — en planta es un rectángulo estrecho -->
+  <g transform="translate(42,148)">
+    <!-- Cono de luz lateral al sujeto -->
+    <polygon points="0,-22 0,22 55,14 55,-14" fill="#e8821a" opacity="0.12"/>
+    <!-- Softbox vertical (en planta: rectángulo alto y estrecho) -->
+    <rect x="-8" y="-26" width="16" height="52" rx="2" fill="#e8821a"/>
+    <text x="0" y="4" text-anchor="middle" font-family="Jost,sans-serif" font-size="6" fill="white" transform="rotate(-90,0,0)">STRIP SOFTBOX</text>
+    <text x="28" y="34" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#e8821a">90°</text>
+  </g>
+
+  <!-- Sujeto -->
+  <circle cx="155" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <!-- Sombra lado contrario suave -->
+  <path d="M 155,130 A 18,18 0 0,1 173,148 A 18,18 0 0,1 155,166 L155,130Z" fill="#1a1814" opacity="0.18"/>
+  <line x1="155" y1="148" x2="155" y2="166" stroke="#1a1814" stroke-width="2"/>
+  <text x="155" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+
+  <!-- Reflector lado derecho, opcional -->
+  <path d="M 205,125 A 30,28 0 0,1 205,170" fill="#5a8a5e" opacity="0.18" stroke="#5a8a5e" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="225" y="142" font-family="Jost,sans-serif" font-size="6.5" fill="#5a8a5e">reflector</text>
+  <text x="225" y="150" font-family="Jost,sans-serif" font-size="6.5" fill="#5a8a5e">(opcional)</text>
+
+  <!-- Línea de eje 90° -->
+  <line x1="58" y1="148" x2="135" y2="148" stroke="#e8821a" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
+
+  <!-- Cámara -->
+  <g transform="translate(155,225)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+  </g>
+  <line x1="155" y1="166" x2="155" y2="214" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+
+  <text x="150" y="252" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Softbox lateral 90° · reflector opcional enfrente</text>
+</svg>`,
+
+'relleno-exterior': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#d8eef8;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#5a7a8a" letter-spacing="1">VISTA CENITAL · EXTERIOR</text>
+
+  <!-- Sol (fuente ambiente) — arriba lejos, luz vienendo de arriba -->
+  <circle cx="150" cy="36" r="22" fill="#f0d020" opacity="0.85"/>
+  <text x="150" y="40" text-anchor="middle" font-family="Jost,sans-serif" font-size="7.5" fill="#8a6000" font-weight="500">SOL</text>
+  <!-- Rayos sol -->
+  <line x1="150" y1="59" x2="150" y2="90" stroke="#e8c21a" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5"/>
+  <line x1="138" y1="57" x2="132" y2="85" stroke="#e8c21a" stroke-width="1" stroke-dasharray="4,3" opacity="0.35"/>
+  <line x1="162" y1="57" x2="168" y2="85" stroke="#e8c21a" stroke-width="1" stroke-dasharray="4,3" opacity="0.35"/>
+
+  <!-- Sujeto de espaldas al sol (frente a la cámara, abajo) -->
+  <circle cx="150" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <!-- Rim de sol en la parte de arriba del círculo -->
+  <path d="M 133,140 A 18,18 0 0,1 167,140" fill="none" stroke="#e8c21a" stroke-width="3" opacity="0.7"/>
+  <!-- Frente mirando a la cámara (abajo) -->
+  <line x1="150" y1="148" x2="150" y2="166" stroke="#1a1814" stroke-width="2"/>
+  <text x="150" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <!-- Sombra sol en cara (parte delantera) -->
+  <path d="M 133,148 A 18,18 0 0,0 167,148" fill="#1a1814" opacity="0.2"/>
+
+  <!-- Flash de relleno frontal (entre cámara y sujeto, o al lado de la cámara) -->
+  <g transform="translate(90,210)">
+    <polygon points="-12,0 12,0 6,-38 -6,-38" fill="#e8821a" opacity="0.2"/>
+    <rect x="-16" y="0" width="32" height="16" rx="2" fill="#e8821a"/>
+    <text x="0" y="11" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">FLASH</text>
+    <text x="0" y="26" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#e8821a">–1 a –2 EV</text>
+  </g>
+
+  <!-- Cámara -->
+  <g transform="translate(200,218)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">CÁMARA</text>
+  </g>
+  <!-- Eje cámara-sujeto -->
+  <line x1="185" y1="210" x2="162" y2="164" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+
+  <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#5a7a8a">Sol detrás · contraluz · flash de relleno frontal</text>
+</svg>`,
+
+  'fotometro': `<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · USO DEL FOTÓMETRO</text>
+  <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+  <g transform="translate(45,120) rotate(-20)">
+    <polygon points="-16,0 16,0 9,50 -9,50" fill="#e8821a" opacity="0.18"/>
+    <rect x="-18" y="-14" width="36" height="16" rx="2" fill="#e8821a"/>
+    <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">KEY</text>
+  </g>
+  <text x="28" y="88" font-family="Jost,sans-serif" font-size="6.5" fill="#e8821a">paso 2: mide solo KEY</text>
+  <g transform="translate(255,120) rotate(160)">
+    <polygon points="-14,0 14,0 8,44 -8,44" fill="#c8a97a" opacity="0.15"/>
+    <rect x="-16" y="-13" width="32" height="15" rx="2" fill="#c8a97a"/>
+    <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">FILL</text>
+  </g>
+  <text x="272" y="88" text-anchor="end" font-family="Jost,sans-serif" font-size="6.5" fill="#c8a97a">paso 3: mide solo FILL</text>
+  <circle cx="150" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <line x1="150" y1="148" x2="150" y2="166" stroke="#1a1814" stroke-width="2"/>
+  <text x="150" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <g transform="translate(150,148)">
+    <circle cx="-11" cy="-11" r="7" fill="white" stroke="#7a756f" stroke-width="1.2" opacity="0.95"/>
+    <text x="-11" y="-8" text-anchor="middle" font-family="Jost,sans-serif" font-size="5" fill="#7a756f">⊙</text>
+    <rect x="-5" y="-4" width="22" height="28" rx="3" fill="#2a2824"/>
+    <rect x="-2" y="-1" width="16" height="10" rx="1" fill="#1a3a1a"/>
+    <text x="6" y="7" text-anchor="middle" font-family="Jost,sans-serif" font-size="5.5" fill="#c8a97a" font-weight="500">f/8</text>
+    <circle cx="6" cy="18" r="3.5" fill="#e8821a"/>
+  </g>
+  <line x1="139" y1="137" x2="96" y2="112" stroke="#7a756f" stroke-width="1" stroke-dasharray="3,2"/>
+  <polygon points="99,109 90,116 101,114" fill="#7a756f"/>
+  <text x="112" y="108" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">esfera apunta a la fuente</text>
+  <rect x="176" y="126" width="76" height="38" rx="2" fill="#1a3a1a" opacity="0.92"/>
+  <text x="214" y="139" text-anchor="middle" font-family="Jost,sans-serif" font-size="6" fill="#7a9a7a">ISO 100 · 1/125s</text>
+  <text x="214" y="154" text-anchor="middle" font-family="Jost,sans-serif" font-size="10" fill="#c8a97a" font-weight="500">f / 8</text>
+  <line x1="176" y1="145" x2="166" y2="148" stroke="#c8a97a" stroke-width="1"/>
+  <g transform="translate(150,228)">
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
+    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+  </g>
+  <line x1="150" y1="166" x2="150" y2="217" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <rect x="18" y="252" width="264" height="42" rx="2" fill="#eeecea"/>
+  <text x="150" y="263" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">1. Fija ISO + velocidad de sync en el fotómetro</text>
+  <text x="150" y="273" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#e8821a">2. Dispara KEY sola, esfera hacia KEY → anota (ej. f/8)</text>
+  <text x="150" y="283" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c8a97a">3. Dispara FILL sola, esfera hacia FILL → anota (ej. f/5.6)</text>
+  <text x="150" y="293" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#5a8a5e">4. Usa en cámara la apertura de KEY. Ratio: 1 stop = 2:1</text>
+</svg>`,
+
+};
+
+
+const guides = {
+  'fondo-blanco': {
+    title: 'Fondo completamente blanco',
+    desc: 'Necesitas sobreexponer el fondo al menos 2 stops por encima del sujeto. La clave está en la separación y en iluminar el fondo de forma independiente.',
+    pasos: [
+      '<strong>Separa al sujeto del fondo mínimo 2 metros.</strong> Más separación = más control.',
+      'Coloca <strong>una o dos luces apuntando al fondo</strong> (no al sujeto). Deben cubrir todo el ancho del papel o tela uniformemente.',
+      'Ilumina al sujeto por separado con tu key + fill habitual.',
+      'Mide con el fotómetro: el fondo debe estar <strong>+1.5 a +2 stops por encima</strong> del sujeto.',
+      'Ajusta hasta que el histograma muestre el fondo pegado al extremo derecho sin que el sujeto queme.',
+    ],
+    tip: 'Si el sujeto está demasiado cerca del fondo, la luz de fondo lo baña en blanco y pierdes el contorno. La separación lo es todo.',
+    ajustes: ['ISO 100', 'f/8 (sujeto)', 'f/16 (fondo)'],
+  },
+  'silueta': {
+    title: 'Solo la silueta del sujeto',
+    desc: 'El sujeto queda en negro total. Toda la luz viene de detrás o del fondo. No necesitas iluminar al sujeto en absoluto.',
+    pasos: [
+      'Coloca la fuente de luz <strong>detrás del sujeto</strong> o ilumina el fondo directamente.',
+      'El sujeto no recibe ninguna luz frontal. Si hay luz de fill, elimínala.',
+      'Expón para la luz de fondo: el sujeto quedará subexpuesto automáticamente.',
+      'Cuanto más brillante sea el fondo y más oscuro el entorno, más limpia será la silueta.',
+      'Comprueba que no hay luz rebotando desde paredes o suelo hacia el sujeto.',
+    ],
+    tip: 'Funciona muy bien con una ventana grande como fondo, o con un fondo iluminado. En estudio: un flash detrás del sujeto apuntando al fondo o hacia el objetivo.',
+    ajustes: ['Expón para el fondo', 'Sujeto: sin luz frontal'],
+  },
+  'retrato-suave': {
+    title: 'Retrato suave, sin sombras duras',
+    desc: 'Luz envolvente, sombras rellenas, piel favorecedora. El clamshell (key arriba + reflector abajo) es el esquema más eficaz para esto.',
+    pasos: [
+      'Coloca un <strong>softbox grande centrado</strong> sobre el eje de la cámara, elevado 30–45° por encima de los ojos del sujeto.',
+      'Añade un <strong>reflector debajo</strong> de la cámara apuntando hacia arriba para rellenar las sombras bajo el mentón y los ojos.',
+      'O sustituye el reflector por un segundo flash suave (ratio 2:1 o 3:1).',
+      'Cuanto más grande sea el softbox y más cerca del sujeto, más suave será la luz.',
+    ],
+    tip: 'El softbox más grande que tengas, lo más cerca posible. Eso es lo que hace la diferencia, no la marca ni el precio.',
+    ajustes: ['ISO 100', 'f/8', '1/125s'],
+  },
+  'retrato-caracter': {
+    title: 'Retrato con carácter y sombras marcadas',
+    desc: 'Luz lateral con poco o ningún relleno. Las sombras definen el volumen y el estado de ánimo. Rembrandt, pasillo de alta ratio o luz única.',
+    pasos: [
+      'Coloca la key a <strong>45–90° lateral</strong> del sujeto, a la altura de los ojos o ligeramente por encima.',
+      '<strong>Sin fill o con fill muy reducido</strong> (ratio 4:1 o más). Las sombras son parte de la imagen.',
+      'Para luz Rembrandt: ajusta la altura hasta ver el <strong>triángulo de luz</strong> bajo el ojo del lado oscuro.',
+      'Opcional: flash de pelo desde arriba detrás para separar del fondo.',
+      'No uses softbox grande. Un beauty dish o reflector desnudo dan más carácter.',
+    ],
+    tip: 'El triángulo Rembrandt tiene el tamaño de la nariz y no toca ni el ojo ni la mejilla. Si lo toca, sube o baja ligeramente la luz.',
+    ajustes: ['ISO 100', 'f/5.6', '1/125s'],
+  },
+  'separar-fondo': {
+    title: 'Separar al sujeto del fondo',
+    desc: 'El sujeto destaca limpiamente del fondo. Se consigue con luz de pelo desde arriba detrás, o aumentando la diferencia de exposición entre sujeto y fondo.',
+    pasos: [
+      'Coloca un <strong>flash de pelo</strong> por encima y detrás del sujeto, apuntando hacia su cabeza y hombros.',
+      'Potencia baja: 1/4 o 1/8 de la key. Añade un grid para evitar que derrame al objetivo.',
+      'Alternativa: <strong>ilumina el fondo por separado</strong> con un tono o color distinto al del sujeto.',
+      'También puedes oscurecer el fondo simplemente alejando al sujeto de él y no iluminándolo.',
+    ],
+    tip: 'La ley del cuadrado inverso trabaja a tu favor: si el fondo está a 3 metros de la key y el sujeto a 1 metro, el fondo recibe mucha menos luz sin hacer nada especial.',
+    ajustes: ['Flash pelo: 1/4 de la key', 'Con grid si es posible'],
+  },
+  'luz-ventana': {
+    title: 'Imitar la luz de una ventana',
+    desc: 'Una sola fuente grande, lateral, suave y direccional. El softbox rectangular grande es el equivalente más fiel a una ventana.',
+    pasos: [
+      'Coloca el softbox grande a <strong>90° lateral</strong> del sujeto, a la altura de los ojos.',
+      'Inclina ligeramente hacia abajo: 10–20°. Igual que la luz que entra por una ventana alta.',
+      'Sin fill, o con un reflector blanco en el lado opuesto para rellenar ligeramente.',
+      'Sujeto cerca del softbox: cuanto más cerca, más suave y envolvente es la luz.',
+      'Fondo neutro o negro: la ventana real no ilumina el fondo.',
+    ],
+    tip: 'Si quieres el look más realista, usa un softbox alargado en vertical (tipo strip). La proporción vertical imita mejor una ventana que un cuadrado.',
+    ajustes: ['ISO 100–400', 'f/4–f/8', '1/125s'],
+  },
+  'relleno-exterior': {
+    title: 'Flash de relleno en exterior',
+    desc: 'El flash compensa las sombras duras del sol o reduce el contraste en días nublados. La clave es equilibrar flash y luz ambiente.',
+    pasos: [
+      '<strong>Expón primero para el fondo</strong> o el ambiente en modo manual. Fija esos valores.',
+      'Enciende el flash y baja su potencia hasta que el sujeto reciba luz sin que "parezca flash".',
+      'Compensación de flash: <strong>–1 a –2 EV</strong> suele dar un resultado natural.',
+      'No superes la velocidad de sync (1/200 o 1/250). Para velocidades más altas, activa HSS si tu equipo lo permite.',
+      'En sol duro: coloca al sujeto de espaldas al sol (contraluz) y el flash compensa la cara.',
+    ],
+    tip: 'La velocidad de obturación controla la luz ambiente. La apertura controla el flash. Ajústalos por separado para equilibrar los dos.',
+    ajustes: ['ISO 100', 'Velocidad → ambiente', 'Apertura → flash'],
+  },
+  'fotometro': {
+    title: 'Cómo usar el fotómetro de mano',
+    desc: 'El fotómetro de mano mide la luz <strong>incidente</strong> — la que llega al sujeto — no la reflejada como hace la cámara. El resultado siempre es la exposición real, independientemente del color o tono del sujeto.',
+    pasos: [
+      '<strong>Fija ISO y velocidad de sync</strong> en el fotómetro (ej. ISO 100, 1/125s). Estos valores son fijos durante toda la sesión.',
+      'Colócate donde está el sujeto. <strong>Apaga el flash fill</strong>. Dispara solo la KEY con el botón del fotómetro o el disparador remoto.',
+      'La esfera (lumisphere) apunta <strong>hacia la fuente de luz</strong> que estás midiendo, no hacia la cámara.',
+      'Anota la apertura que te da (ej. f/8). Esa es la apertura correcta para la KEY.',
+      '<strong>Apaga la KEY, enciende el FILL</strong>. Repite la medición apuntando la esfera al fill.',
+      'Compara las dos aperturas: 1 stop de diferencia = ratio 2:1. 2 stops = ratio 4:1. 3 stops = ratio 8:1.',
+      '<strong>Pon en la cámara la apertura que te dio la KEY.</strong> Ajusta la potencia de los flashes hasta conseguir la apertura que quieres usar.',
+    ],
+    tip: 'Si quieres f/8 en cámara pero el fotómetro da f/11, baja la potencia del flash. Si da f/5.6, súbela. Así controlas exactamente la exposición sin adivinar.',
+    ajustes: ['ISO 100', '1/125s (sync)', 'Apertura → la dicta la KEY'],
+  },
+};
+
+function showGuide(key) {
+  if (!key) {
+    document.getElementById('infoPanel').innerHTML=`
+      <div class="info-block">
+        <span class="info-block-label">Por dónde empezar</span>
+        <h3>Elige un resultado</h3>
+        <p>Selecciona en el desplegable qué quieres conseguir y te explicamos cómo montarlo.</p>
+      </div>`;
+    return;
+  }
+  const g = guides[key];
+  const svg = guideSVGs[key] || '';
+  const pillsHtml = g.ajustes?.length
+    ? `<div class="info-block"><span class="info-block-label">Ajustes de partida</span><div class="pills-row">${g.ajustes.map(a=>`<span class="pill">${a}</span>`).join('')}</div></div>`
+    : '';
+  document.getElementById('infoPanel').innerHTML=`
+    <div class="info-block">
+      <span class="info-block-label">Esquema de referencia</span>
+      <h3>${g.title}</h3>
+      <p style="margin-bottom:0.6rem;">${g.desc}</p>
+      ${svg}
+    </div>
+    <div class="info-block">
+      <span class="info-block-label">Cómo montarlo</span>
+      <ul>${g.pasos.map((p,i)=>`<li><span style="color:var(--md-orange);margin-right:4px;font-size:0.7rem;">${i+1}.</span>${p}</li>`).join('')}</ul>
+    </div>
+    ${pillsHtml}
+    <div class="tip-block"><strong>Tip:</strong> ${g.tip}</div>
+  `;
+}
+
+// ── INIT ─────────────────────────────────────────
+draw();
+</script>
+</body>
+</html>
