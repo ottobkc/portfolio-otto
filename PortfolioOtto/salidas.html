@@ -81,6 +81,46 @@
     .nav-links a:hover { color: var(--ink); }
     .nav-links a.active { color: var(--md-orange); }
 
+    /* Dropdown Mirar Despacio */
+    .nav-dropdown { position: relative; }
+    .nav-dropdown-trigger {
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0.85;
+      cursor: pointer;
+    }
+    .nav-dropdown-trigger:hover,
+    .nav-dropdown-trigger.active { opacity: 1; }
+    .nav-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      list-style: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0;
+      min-width: 180px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s, visibility 0.15s;
+    }
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown:focus-within .nav-dropdown-menu { opacity: 1; visibility: visible; }
+    .nav-dropdown-menu li a {
+      display: block;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.74rem;
+      color: var(--muted);
+      white-space: nowrap;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+    .nav-dropdown-menu li a:hover { color: var(--ink); background: var(--bg2); }
+
     .nav-toggle {
       display: none;
       flex-direction: column;
@@ -110,6 +150,26 @@
     .nav-drawer li:last-child { border: none; }
     .nav-drawer a { font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
     .nav-drawer a.active { color: var(--md-orange); }
+
+    /* Drawer móvil: subgrupo Mirar Despacio */
+    .nav-drawer-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .nav-drawer-label {
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-top: 0.2rem;
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-drawer-sub {
+      font-size: 0.78rem !important;
+      color: var(--muted);
+      padding: 0.5rem 0 0.5rem 1rem !important;
+      text-transform: none !important;
+    }
 
     /* ---- PAGE HERO ---- */
     .page-hero {
@@ -200,6 +260,7 @@
       font-size: 1.02rem;
     }
     .que-text strong { color: var(--ink); font-weight: 500; }
+    .encontraras-intro { font-style: italic; color: var(--ink); }
     .que-text em { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -230,6 +291,39 @@
     }
     .step-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
     .step-body strong { color: var(--ink-faint); font-weight: 500; }
+
+    .mini-misiones {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+    .mini-mision-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 0.9rem 1rem;
+      border-radius: 6px;
+    }
+    .mini-mision-nivel {
+      display: block;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+    .mini-mision-card strong {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+    .mini-mision-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin: 0; }
+    .mini-misiones-nota { font-size: 0.8rem; color: var(--muted); margin-top: 0.85rem; font-style: italic; }
+    @media (max-width: 700px) {
+      .mini-misiones { grid-template-columns: 1fr; }
+    }
 
     /* ---- MISIONES ---- */
     .misiones-section { background: var(--bg2); }
@@ -704,9 +798,16 @@
       <a href="/" class="nav-logo">Otto Kols</a>
       <ul class="nav-links">
         <li><a href="/#trabajo">Trabajo</a></li>
+        <li class="nav-dropdown">
+          <a href="/#podcast" class="nav-dropdown-trigger active">Mirar Despacio ▾</a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="/#podcast">Podcast</a></li>
+            <li><a href="salidas.html">Salidas fotográficas</a></li>
+          </ul>
+        </li>
         <li><a href="/#servicios">Servicios</a></li>
-        <li><a href="salidas.html" class="active">Salidas fotográficas</a></li>
         <li><a href="/#contacto">Contacto</a></li>
+        <li><a href="#" id="navLoginTrigger">Acceso suscriptores</a></li>
       </ul>
       <button class="nav-toggle" id="navToggle" aria-label="Menú">
         <span></span><span></span><span></span>
@@ -717,9 +818,14 @@
   <div class="nav-drawer" id="navDrawer">
     <ul>
       <li><a href="/#trabajo">Trabajo</a></li>
+      <li class="nav-drawer-group">
+        <span class="nav-drawer-label">Mirar Despacio</span>
+        <a href="/#podcast" class="nav-drawer-sub">Podcast</a>
+        <a href="salidas.html" class="nav-drawer-sub active">Salidas fotográficas</a>
+      </li>
       <li><a href="/#servicios">Servicios</a></li>
-      <li><a href="salidas.html" class="active">Salidas fotográficas</a></li>
       <li><a href="/#contacto">Contacto</a></li>
+      <li><a href="#" id="navLoginTriggerMobile">Acceso suscriptores</a></li>
     </ul>
   </div>
 
@@ -745,7 +851,7 @@
       <div>
         <p class="page-label">Mirar Despacio · en la calle</p>
         <h1 class="page-title">Salidas<br><em>fotográficas.</em></h1>
-        <p class="page-intro">Encuentros periódicos para salir a fotografiar Madrid en grupo. Sin clases, sin jerarquías. Solo cámaras, calles y ganas de mirar despacio.</p>
+        <p class="page-intro">Encuentros periódicos para salir a fotografiar Madrid en grupo. Sin clases. Solo cámaras, calles y ganas de mirar despacio.</p>
       </div>
       <img src="/fotos/logo-mirar-despacio.png" alt="Mirar Despacio" style="height:80px;width:auto;flex-shrink:0;mix-blend-mode:multiply;opacity:0.9;margin-top:0.5rem;" />
     </div>
@@ -860,10 +966,11 @@
         <div class="que-text">
           <p class="section-label">Qué son</p>
           <h2 class="section-title">Un paseo, <em>una mirada.</em></h2>
-          <p>Las salidas fotográficas son encuentros en los que nos juntamos para <strong>recorrer un barrio de Madrid con la cámara</strong>. El objetivo no es aprender técnica ni seguir un programa. Es salir, mirar, hacer fotos y luego pararnos a verlas juntos.</p>
+          <p>Las salidas fotográficas son encuentros en los que nos juntamos para <strong>recorrer un barrio de Madrid con la cámara</strong>. Es salir, mirar, hacer fotos y luego pararnos a verlas juntos.</p>
           <p>Cada salida tiene su propia zona, su propio ritmo. Algunos días habrá luz buena, otros no. Algunos días todo saldrá mal y eso también es fotografiar.</p>
-          <p>El visionado al final es parte fundamental. Ese momento de <strong>poner las fotos en común</strong> — ver qué ha visto cada uno con la misma luz, en el mismo sitio — es donde ocurre algo interesante.</p>
-          <p>No hace falta ningún nivel. Ni experiencia, ni cámara profesional. Solo <em>ganas de mirar.</em></p>
+          <p class="encontraras-intro">Ven si quieres pasar una mañana diferente.</p>
+          <p><strong>Encontrarás:</strong> hacer fotos en grupo, conocer gente, perder el miedo a la calle y a la cámara.</p>
+          <p><strong>No encontrarás:</strong> un curso. Esto es salir a fotografiar juntos, no una clase.</p>
         </div>
         <div>
           <div class="steps">
@@ -879,13 +986,31 @@
               <div class="step-body">
                 <h4>Tarjetas de misión</h4>
                 <p>Al empezar, cada persona recibe una o dos <strong>tarjetas de misión</strong> según su nivel. Son pequeñas propuestas fotográficas: un concepto, una restricción, una mirada concreta. Puedes seguirlas, ignorarlas o usarlas como punto de partida.</p>
+                <div class="mini-misiones">
+                  <div class="mini-mision-card">
+                    <span class="mini-mision-nivel">Iniciación</span>
+                    <strong>La sombra, no el objeto</strong>
+                    <p>Fotografía sombras sin que el objeto que las proyecta aparezca en el encuadre.</p>
+                  </div>
+                  <div class="mini-mision-card">
+                    <span class="mini-mision-nivel">Medio</span>
+                    <strong>Espera, no busques</strong>
+                    <p>Quédate parado en un encuadre al menos cinco minutos. Fotografía lo que pase dentro de él.</p>
+                  </div>
+                  <div class="mini-mision-card">
+                    <span class="mini-mision-nivel">Avanzado</span>
+                    <strong>Una historia en tres fotos</strong>
+                    <p>Construye una secuencia narrativa con exactamente tres imágenes, legibles en orden.</p>
+                  </div>
+                </div>
+                <p class="mini-misiones-nota">Estos son solo tres ejemplos — hay cientos de tarjetas de misión ya creadas, y cada salida trae las suyas.</p>
               </div>
             </div>
             <div class="step">
               <span class="step-n">03</span>
               <div class="step-body">
                 <h4>Visionado y revelación</h4>
-                <p>Al terminar, nos sentamos a ver las fotos. Cada uno elige las suyas, las cuenta al grupo y <strong>revela su misión</strong>. Ver qué vio cada persona con la misma luz y el mismo barrio — y con qué intención — es donde ocurre lo interesante.</p>
+                <p>Al terminar, buscamos un sitio tranquilo donde tomarnos algo fresquito y nos sentamos a ver las fotos. <em>(Las consumiciones no están incluidas.)</em> Cada uno elige las suyas, las cuenta al grupo y <strong>revela su misión</strong>. Ver qué vio cada persona con la misma luz y el mismo barrio — y con qué intención — aquí es donde ocurre lo interesante.</p>
               </div>
             </div>
             <div class="step">
@@ -903,91 +1028,6 @@
 
   <hr class="divider" />
 
-  <!-- ACCESO SUSCRIPTORES -->
-  <div class="section members-section" id="acceso">
-    <div class="members-inner">
-      <div class="members-text">
-        <p class="section-label">Mirar Despacio +</p>
-        <h2 class="section-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">Área de <em>suscriptores.</em></h2>
-        <p>Si eres suscriptor de <strong>Mirar Despacio+</strong>, aquí tienes acceso a los recursos exclusivos: tarjetas de misión descargables, episodios privados del podcast y materiales de las salidas.</p>
-        <p>¿Aún no eres suscriptor? Las primeras salidas son libres — apúntate en el formulario de esta página y cuando lancemos la membresía estarás entre los primeros en saberlo.</p>
-      </div>
-      <div class="members-box">
-        <div id="membersLogin">
-          <h3>Acceso exclusivo</h3>
-          <p>Inicia sesión con tu cuenta de suscriptor.</p>
-          <div data-netlify-identity-button></div>
-        </div>
-        <div class="members-logged" id="membersLogged">
-          <p>Bienvenido, <strong id="memberName"></strong></p>
-          <div class="members-links">
-            <a href="/recursos.html" class="members-link">
-              <span class="members-link-icon">→</span>
-              <span>
-                <span class="members-link-name">Ver todos los recursos</span>
-                <span class="members-link-desc">Tarjetas, episodios y materiales</span>
-              </span>
-            </a>
-          </div>
-          <button class="btn-logout" id="membersLogout">Cerrar sesión</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider" />
-
-  <!-- MISIONES -->
-  <div class="section misiones-section">
-    <div class="container">
-      <p class="section-label">Las tarjetas de misión</p>
-      <h2 class="section-title">Fotografiar <em>con intención.</em></h2>
-      <div class="misiones-intro">
-        <p>Al comenzar cada salida, repartimos <strong>tarjetas de misión</strong>: pequeñas propuestas fotográficas que puedes llevar contigo mientras caminas. Cada tarjeta propone un concepto, una restricción o una forma de mirar concreta.</p>
-        <p>No son obligatorias ni se evalúan. Están ahí para quien quiera un punto de partida, una excusa para salir de sus patrones habituales o simplemente algo en lo que pensar mientras camina.</p>
-        <p>El momento clave llega en el visionado: cada persona <strong>revela su misión</strong> al presentar sus fotos. Así el grupo puede ver no solo la imagen, sino la intención detrás. Eso cambia completamente la conversación.</p>
-      </div>
-      <div class="misiones-grid">
-        <div class="mision-card nivel-1">
-          <div class="mision-nivel"><span></span>Nivel iniciación</div>
-          <h4>La sombra, no el objeto</h4>
-          <p>Fotografía únicamente sombras. El objeto que las proyecta no tiene que aparecer en el encuadre.</p>
-        </div>
-        <div class="mision-card nivel-1">
-          <div class="mision-nivel"><span></span>Nivel iniciación</div>
-          <h4>Un color</h4>
-          <p>Elige un color al empezar y fotografía solo cosas de ese color durante toda la salida.</p>
-        </div>
-        <div class="mision-card nivel-2">
-          <div class="mision-nivel"><span></span>Nivel medio</div>
-          <h4>Espera, no busques</h4>
-          <p>Elige un encuadre y quédate parado en él al menos cinco minutos. Fotografía lo que pase dentro de él.</p>
-        </div>
-        <div class="mision-card nivel-2">
-          <div class="mision-nivel"><span></span>Nivel medio</div>
-          <h4>Lo que nadie mira</h4>
-          <p>Busca los detalles que la gente pasa por alto: lo que está por debajo de la cintura, los bordes, lo roto, lo olvidado.</p>
-        </div>
-        <div class="mision-card nivel-3">
-          <div class="mision-nivel"><span></span>Nivel avanzado</div>
-          <h4>Una historia en tres fotos</h4>
-          <p>Construye una secuencia narrativa con exactamente tres imágenes. Tienen que poder leerse en orden.</p>
-        </div>
-        <div class="mision-card nivel-3">
-          <div class="mision-nivel"><span></span>Nivel avanzado</div>
-          <h4>El tiempo en una imagen</h4>
-          <p>Haz una sola fotografía que transmita el paso del tiempo. Sin movimiento obvio. Sin relojes.</p>
-        </div>
-      </div>
-      <div class="misiones-nota">
-        <span class="misiones-nota-icon">→</span>
-        <p>Estos son solo ejemplos. Las misiones cambian en cada salida y se adaptan al barrio, la luz y el grupo. <strong>No hace falta haber fotografiado nunca</strong> — muchas veces la gente sin vicios previos las resuelve de las formas más interesantes.</p>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider" />
-
   <!-- GALERÍA -->
   <div class="section galeria-section">
     <div class="container">
@@ -998,6 +1038,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- LIGHTBOX -->
   <style>
@@ -1041,6 +1082,41 @@
     </div>
   </div>
 
+  <hr class="divider" />
+
+  <!-- ACCESO SUSCRIPTORES -->
+  <div class="section members-section" id="acceso">
+    <div class="members-inner">
+      <div class="members-text">
+        <p class="section-label">Mirar Despacio +</p>
+        <h2 class="section-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">Área de <em>suscriptores.</em></h2>
+        <p>Si eres suscriptor de <strong>Mirar Despacio+</strong>, aquí tienes acceso a los recursos exclusivos: tarjetas de misión descargables, episodios privados del podcast y materiales de las salidas.</p>
+        <p>¿Aún no eres suscriptor? Las primeras salidas son libres — apúntate en el formulario de esta página y cuando lancemos la membresía estarás entre los primeros en saberlo.</p>
+      </div>
+      <div class="members-box">
+        <div id="membersLogin">
+          <h3>Acceso exclusivo</h3>
+          <p>Inicia sesión con tu cuenta de suscriptor.</p>
+          <div data-netlify-identity-button></div>
+        </div>
+        <div class="members-logged" id="membersLogged">
+          <p>Bienvenido, <strong id="memberName"></strong></p>
+          <div class="members-links">
+            <a href="/recursos.html" class="members-link">
+              <span class="members-link-icon">→</span>
+              <span>
+                <span class="members-link-name">Ver todos los recursos</span>
+                <span class="members-link-desc">Tarjetas, episodios y materiales</span>
+              </span>
+            </a>
+          </div>
+          <button class="btn-logout" id="membersLogout">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>document.addEventListener('DOMContentLoaded', () => initMembersBox());</script>
+
   <footer>
     <div class="footer-inner">
       <span class="footer-brand">Otto Kols · Fotógrafo</span>
@@ -1054,17 +1130,31 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
-    const loginBox   = document.getElementById('membersLogin');
-    const loggedBox  = document.getElementById('membersLogged');
-    const memberName = document.getElementById('memberName');
-    const logoutBtn  = document.getElementById('membersLogout');
+    // Nota: el bloque "Acceso suscriptores" se renderiza más abajo en el HTML
+    // (se movió al final de la página), así que sus referencias se inicializan
+    // de forma diferida con initMembersBox(), llamada justo después de su HTML.
+    let loginBox, loggedBox, memberName, logoutBtn;
+    function initMembersBox() {
+      loginBox   = document.getElementById('membersLogin');
+      loggedBox  = document.getElementById('membersLogged');
+      memberName = document.getElementById('memberName');
+      logoutBtn  = document.getElementById('membersLogout');
+      logoutBtn && logoutBtn.addEventListener('click', () => netlifyIdentity.logout());
+      // Si Identity ya estaba inicializado y el usuario ya estaba logueado
+      // antes de que este bloque existiera, refleja el estado actual ahora.
+      if (window.netlifyIdentity && netlifyIdentity.currentUser()) {
+        showLogged(netlifyIdentity.currentUser());
+      }
+    }
 
     function showLogged(user) {
+      if (!loginBox) return;
       loginBox.style.display  = 'none';
       loggedBox.style.display = 'block';
       memberName.textContent  = user.user_metadata?.full_name || user.email;
     }
     function showLogin() {
+      if (!loginBox) return;
       loginBox.style.display  = 'block';
       loggedBox.style.display = 'none';
     }
@@ -1087,13 +1177,18 @@
     miniTrigger   && miniTrigger.addEventListener('click',   () => netlifyIdentity.open());
     miniLogoutBtn && miniLogoutBtn.addEventListener('click', () => netlifyIdentity.logout());
 
+    // Acceso suscriptores desde el nav superior
+    const navLoginTrigger       = document.getElementById('navLoginTrigger');
+    const navLoginTriggerMobile = document.getElementById('navLoginTriggerMobile');
+    navLoginTrigger       && navLoginTrigger.addEventListener('click', e => { e.preventDefault(); netlifyIdentity.open(); });
+    navLoginTriggerMobile && navLoginTriggerMobile.addEventListener('click', e => { e.preventDefault(); netlifyIdentity.open(); });
+
     if (window.netlifyIdentity) {
       netlifyIdentity.on('init',   user => { if (user) { showLogged(user); miniShowLogged(user); } else { showLogin(); miniShowLogin(); } });
       netlifyIdentity.on('login',  user => { showLogged(user); miniShowLogged(user); netlifyIdentity.close(); });
       netlifyIdentity.on('logout', ()   => { showLogin(); miniShowLogin(); });
       netlifyIdentity.init();
     }
-    logoutBtn && logoutBtn.addEventListener('click', () => netlifyIdentity.logout());
 
     // Hamburger
     const toggle = document.getElementById('navToggle');
@@ -1113,6 +1208,7 @@
       btn.textContent = 'Enviando...'; btn.disabled = true;
       const r = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } }).catch(() => null);
       if (r && r.ok) {
+        if (window.umami) umami.track('salida_inscripcion');
         form.style.display = 'none';
         document.getElementById('salidasSuccess').style.display = 'block';
       } else {
@@ -1154,6 +1250,8 @@
     // ---- COOKIES ----
     // (ver script debajo del banner)
   </script>
+
+  <hr class="divider" />
 
   <!-- COOKIE BANNER -->
   <style>

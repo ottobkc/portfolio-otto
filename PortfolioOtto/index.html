@@ -127,14 +127,63 @@
       transition: color 0.2s;
     }
     .nav-links a:hover { color: var(--ink); }
-    .nav-links a.nav-salidas {
+
+    /* Dropdown Mirar Despacio */
+    .nav-dropdown { position: relative; }
+    .nav-dropdown-trigger {
       background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       opacity: 0.85;
+      cursor: pointer;
     }
-    .nav-links a.nav-salidas:hover { opacity: 1; }
+    .nav-dropdown-trigger:hover { opacity: 1; }
+    .nav-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      list-style: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0;
+      min-width: 180px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s, visibility 0.15s;
+    }
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown:focus-within .nav-dropdown-menu { opacity: 1; visibility: visible; }
+    .nav-dropdown-menu li a {
+      display: block;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.74rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .nav-dropdown-menu li a:hover { color: var(--ink); background: var(--bg2); }
+
+    /* Drawer móvil: subgrupo Mirar Despacio */
+    .nav-drawer-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .nav-drawer-label {
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-top: 0.2rem;
+      background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-drawer-sub {
+      font-size: 0.78rem !important;
+      color: var(--muted);
+      padding: 0.5rem 0 0.5rem 1rem !important;
+      text-transform: none !important;
+    }
 
     /* Hamburger */
     .nav-toggle {
@@ -499,6 +548,37 @@
       margin-bottom: 0.65rem;
     }
     .servicio-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.75; }
+    .servicio-precio {
+      margin-top: 0.85rem;
+      font-size: 0.78rem !important;
+      letter-spacing: 0.04em;
+      color: var(--accent) !important;
+      font-weight: 500;
+    }
+    .servicios-nota {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ---- PODCAST ---- */
+    #podcast { background: var(--bg); }
+    .podcast-text {
+      max-width: 560px;
+      color: var(--ink-faint);
+      font-size: 1.02rem;
+      line-height: 1.8;
+      margin: 1rem 0 2rem;
+    }
+    .podcast-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .podcast-embed-wrap {
+      max-width: 640px;
+      margin-bottom: 2rem;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .podcast-embed-wrap iframe { display: block; width: 100%; }
 
     /* ---- CONTACTO ---- */
     #contacto { background: var(--bg); }
@@ -670,8 +750,14 @@
       <a href="#" class="nav-logo">Otto Kols</a>
       <ul class="nav-links">
         <li><a href="#trabajo">Trabajo</a></li>
+        <li class="nav-dropdown">
+          <a href="#podcast" class="nav-dropdown-trigger">Mirar Despacio ▾</a>
+          <ul class="nav-dropdown-menu">
+            <li><a href="#podcast">Podcast</a></li>
+            <li><a href="salidas.html">Salidas fotográficas</a></li>
+          </ul>
+        </li>
         <li><a href="#servicios">Servicios</a></li>
-        <li><a href="salidas.html" class="nav-salidas">Salidas fotográficas</a></li>
         <li><a href="#contacto">Contacto</a></li>
       </ul>
       <button class="nav-toggle" id="navToggle" aria-label="Menú">
@@ -683,8 +769,12 @@
   <div class="nav-drawer" id="navDrawer">
     <ul>
       <li><a href="#trabajo" class="drawer-close">Trabajo</a></li>
+      <li class="nav-drawer-group">
+        <span class="nav-drawer-label">Mirar Despacio</span>
+        <a href="#podcast" class="drawer-close nav-drawer-sub">Podcast</a>
+        <a href="salidas.html" class="nav-drawer-sub">Salidas fotográficas</a>
+      </li>
       <li><a href="#servicios" class="drawer-close">Servicios</a></li>
-      <li><a href="salidas.html" class="nav-salidas">Salidas fotográficas</a></li>
       <li><a href="#contacto" class="drawer-close">Contacto</a></li>
     </ul>
   </div>
@@ -701,42 +791,6 @@
       </div>
     </div>
     <div class="scroll-hint">Descubrir</div>
-  </section>
-
-  <!-- SOBRE -->
-  <section id="sobre">
-    <div class="container">
-      <div class="about-grid">
-        <div class="about-img-wrap">
-          <img src="/fotos/yovert.jpg" alt="Otto Kols, fotógrafo" />
-        </div>
-        <div class="about-text">
-          <p class="section-label">Sobre mí</p>
-          <h2 class="section-title">Una mirada<br><em>propia.</em></h2>
-          <p>Creo que una buena fotografía no captura un momento — lo construye. Trabajo despacio, con atención y sin prisa, buscando la imagen que permanece cuando todo lo demás se olvida.</p>
-          <p>Disponible para retratos, sesiones de pareja, prebodas y días de boda. Ocasionalmente, otros proyectos que me hagan sentir algo.</p>
-          <p>Detrás de esta web está también <em>Mirar Despacio</em>, un proyecto sobre fotografía contemplativa que llevo con el mismo espíritu: menos ruido, más presencia.</p>
-          <div class="stats-row">
-            <div>
-              <span class="stat-n">07+</span>
-              <span class="stat-label">Años fotografiando</span>
-            </div>
-            <div>
-              <span class="stat-n">20+</span>
-              <span class="stat-label">Países fotografiados</span>
-            </div>
-            <div>
-              <span class="stat-n">∞</span>
-              <span class="stat-label">Intentos de hacer buena foto</span>
-            </div>
-            <div>
-              <span class="stat-n">1</span>
-              <span class="stat-label">Forma de mirar</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- GALERÍA -->
@@ -794,6 +848,67 @@
     </div>
   </div>
 
+  <!-- PODCAST / MIRAR DESPACIO -->
+  <section id="podcast">
+    <div class="container">
+      <p class="section-label">Mirar Despacio</p>
+      <h2 class="section-title">El podcast<br><em>Mirar Despacio.</em></h2>
+      <p class="podcast-text">Un podcast sobre fotografía… y sobre las cosas que pasan cuando decides mirar el mundo con un poco más de calma.</p>
+      <div class="podcast-embed-wrap">
+        <iframe
+          src="https://open.spotify.com/embed/show/6G7RStaXJqr4S39eUei6BB?utm_source=generator&theme=0"
+          width="100%"
+          height="352"
+          frameborder="0"
+          allowfullscreen=""
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          title="Reproductor del podcast Mirar Despacio en Spotify">
+        </iframe>
+      </div>
+      <div class="podcast-links">
+        <a href="https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB" class="btn" target="_blank" rel="noopener">Abrir en Spotify</a>
+        <a href="salidas.html" class="btn btn-solid">Ver salidas fotográficas</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE -->
+  <section id="sobre">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-img-wrap">
+          <img src="/fotos/yovert.jpg" alt="Otto Kols, fotógrafo" />
+        </div>
+        <div class="about-text">
+          <p class="section-label">Sobre mí</p>
+          <h2 class="section-title">Una mirada<br><em>propia.</em></h2>
+          <p>Creo que una buena fotografía no captura un momento — lo construye. Trabajo despacio, con atención y sin prisa, buscando la imagen que permanece cuando todo lo demás se olvida.</p>
+          <p>Disponible para retratos, sesiones de pareja, prebodas y días de boda. Ocasionalmente, otros proyectos que me hagan sentir algo.</p>
+          <p>Detrás de esta web está también <em>Mirar Despacio</em>, un proyecto sobre fotografía contemplativa que llevo con el mismo espíritu: menos ruido, más presencia.</p>
+          <div class="stats-row">
+            <div>
+              <span class="stat-n">07+</span>
+              <span class="stat-label">Años fotografiando</span>
+            </div>
+            <div>
+              <span class="stat-n">20+</span>
+              <span class="stat-label">Países fotografiados</span>
+            </div>
+            <div>
+              <span class="stat-n">∞</span>
+              <span class="stat-label">Intentos de hacer buena foto</span>
+            </div>
+            <div>
+              <span class="stat-n">1</span>
+              <span class="stat-label">Forma de mirar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- SERVICIOS -->
   <section id="servicios">
     <div class="container">
@@ -804,25 +919,31 @@
           <div class="servicio-num">01</div>
           <h3>Retrato &amp; Parejas</h3>
           <p>Sesiones individuales o para dos. Sin poses forzadas, sin artificios. Para personas que quieren una imagen auténtica de sí mismas o de lo que comparten.</p>
+          <p class="servicio-precio">90–140€ orientativo · según sesión</p>
         </div>
         <div class="servicio-card">
           <div class="servicio-num">02</div>
           <h3>Prebodas, Bodas &amp; Eventos</h3>
           <p>Cobertura documental de días que importan. Bodas, ceremonias civiles, prebodas y otros eventos con significado. En cualquier lugar.</p>
+          <p class="servicio-precio">A consultar</p>
         </div>
         <div class="servicio-card">
           <div class="servicio-num">03</div>
           <h3>Negocio &amp; Producto</h3>
           <p>Fotografía para marcas, espacios y productos. Imágenes que comunican lo que haces con la misma atención que pongo en todo lo demás.</p>
+          <p class="servicio-precio">A consultar</p>
         </div>
         <div class="servicio-card">
           <div class="servicio-num">04</div>
           <h3>Mascotas</h3>
           <p>Fotografía para los que también son familia. Sesiones para capturar su carácter, su presencia, los momentos que no quieres olvidar.</p>
+          <p class="servicio-precio">70–80€ orientativo</p>
         </div>
       </div>
+      <p class="servicios-nota">Precios orientativos — cuéntame lo que necesitas y te preparo un presupuesto sin compromiso.</p>
     </div>
   </section>
+
 
   <!-- CONTACTO -->
   <section id="contacto">
