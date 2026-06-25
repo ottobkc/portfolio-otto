@@ -64,9 +64,9 @@
   </div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
 
   <script>
     function showApp() {
@@ -78,17 +78,29 @@
     var isPreview = !window.location.hostname.includes('ottokols');
     if (isPreview) { showApp(); }
 
-    netlifyIdentity.on('init', function(user) {
-      if (!user && !isPreview) {
-        window.location.replace('/salidas.html#acceso');
-      } else {
-        showApp();
+    // Blindaje: si el script de Netlify Identity no llega a cargar, antes esto
+    // lanzaba un ReferenceError que detenía todos los scripts siguientes —
+    // incluido el que monta React — dejando la página en blanco sin aviso.
+    try {
+      if (typeof netlifyIdentity === "undefined") {
+        throw new Error("netlifyIdentity no disponible");
       }
-    });
-    netlifyIdentity.init();
+      netlifyIdentity.on('init', function(user) {
+        if (!user && !isPreview) {
+          window.location.replace('/salidas.html#acceso');
+        } else {
+          showApp();
+        }
+      });
+      netlifyIdentity.init();
+    } catch (e) {
+      console.warn('Netlify Identity no disponible, mostrando contenido sin verificación de sesión en cliente:', e);
+      showApp();
+    }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      netlifyIdentity.logout();
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    logoutBtnEl && logoutBtnEl.addEventListener('click', () => {
+      if (typeof netlifyIdentity !== "undefined") netlifyIdentity.logout();
       window.location.replace('/recursos.html#acceso');
     });
   </script>
@@ -114,17 +126,18 @@ const SHUTTERS  = [1,0.5,1/4,1/8,1/15,1/30,1/60,1/125,1/250,1/500,1/1000,1/2000]
 const ISOS      = [50,100,200,400,800,1600,3200,6400,12800,25600,51200,102400];
 const FOCALS    = [14,24,35,50,85,135,200];
 
-const SHUTTER_LABELS = ["1/2000","1/1000","1/500","1/250","1/125","1/60","1/30","1/15","1/8","1/4","1/2","1\""];
+const SHUTTER_LABELS = ["1\"","1/2","1/4","1/8","1/15","1/30","1/60","1/125","1/250","1/500","1/1000","1/2000"];
 const FOCAL_LABELS   = ["14mm","24mm","35mm","50mm","85mm","135mm","200mm"];
 
 // Base EV by light situation
 const LIGHTS = [
-  { id:"sol",     label:"Sol pleno",       ev:15, sunX:85, sunY:18, sunColor:"#ffe87a", skyTop:"#5ab0f0", skyBot:"#a8d8f8" },
-  { id:"nublado", label:"Nublado",         ev:12, sunX:50, sunY:10, sunColor:"#ddd",   skyTop:"#b0bec5", skyBot:"#cfd8dc" },
-  { id:"dorada",  label:"Hora dorada",     ev:11, sunX:88, sunY:42, sunColor:"#ffb347", skyTop:"#ff7043", skyBot:"#ffcc80" },
-  { id:"azul",    label:"Hora azul",       ev:8,  sunX:10, sunY:55, sunColor:"#90caf9", skyTop:"#1a237e", skyBot:"#3949ab" },
-  { id:"noche",   label:"Noche urbana",    ev:6,  sunX:50, sunY:20, sunColor:"#fff",   skyTop:"#0d0d1a", skyBot:"#1a1a2e" },
-  { id:"interior",label:"Interior",        ev:8,  sunX:15, sunY:15, sunColor:"#ffe082", skyTop:"#37474f", skyBot:"#546e7a" },
+  { id:"sol",       label:"Sol pleno",       ev:15, sunX:85, sunY:18, sunColor:"#ffe87a", skyTop:"#5ab0f0", skyBot:"#a8d8f8" },
+  { id:"solmedio",  label:"Sol medio",       ev:13, sunX:80, sunY:28, sunColor:"#ffdd6e", skyTop:"#6cb8e8", skyBot:"#b8dcf2" },
+  { id:"nublado",   label:"Nublado",         ev:12, sunX:50, sunY:10, sunColor:"#ddd",   skyTop:"#b0bec5", skyBot:"#cfd8dc" },
+  { id:"dorada",    label:"Hora dorada",     ev:11, sunX:88, sunY:42, sunColor:"#ffb347", skyTop:"#ff7043", skyBot:"#ffcc80" },
+  { id:"azul",      label:"Hora azul",       ev:8,  sunX:10, sunY:55, sunColor:"#90caf9", skyTop:"#1a237e", skyBot:"#3949ab" },
+  { id:"noche",     label:"Noche urbana",    ev:6,  sunX:50, sunY:20, sunColor:"#fff",   skyTop:"#0d0d1a", skyBot:"#1a1a2e" },
+  { id:"interior",  label:"Interior",        ev:8,  sunX:15, sunY:15, sunColor:"#ffe082", skyTop:"#37474f", skyBot:"#546e7a" },
 ];
 
 function evFromSettings(ap, sh, iso) {
@@ -132,16 +145,17 @@ function evFromSettings(ap, sh, iso) {
 }
 
 // Brightness multiplier for the scene overlay.
-// f/16 (high N) → high achieved EV → achieved > target → diff positive → image darker.
-// f/1.4 (low N) → low achieved EV → achieved < target → diff negative → image brighter.
-// Formula: brightness = 2^(targetEV - achievedEV)
-//   diff > 0 → 2^positive → >1 → overexposed (bright)
-//   diff < 0 → 2^negative → <1 → underexposed (dark)
-// But wait: f/16 raises N², raises achievedEV, so achieved > target → diff = target-achieved < 0 → dark. Correct!
+// achieved = EV de los ajustes actuales (apertura/velocidad/ISO).
+// targetEV = EV que requiere la luz/escena seleccionada.
+// diff = targetEV - achieved
+//   diff > 0 (la escena necesita MÁS EV del que dan los ajustes, p.ej. ajustes
+//             pensados para poca luz —ap. abierta/ISO alto— usados con sol fuerte)
+//             → demasiada luz entra en relación a lo que los ajustes pueden controlar → SOBREexpuesto
+//   diff < 0 (la escena necesita MENOS EV del que dan los ajustes, p.ej. ajustes
+//             pensados para mucha luz —ap. cerrada/ISO bajo— usados de noche)
+//             → muy poca luz entra en relación a lo que los ajustes esperaban → SUBexpuesto
 function exposureBrightness(targetEV, ap, sh, iso) {
   const achieved = evFromSettings(ap, sh, iso);
-  // diff positive = overexposed (image brighter than target)
-  // diff negative = underexposed (image darker than target)
   const diff = targetEV - achieved;
   return Math.max(0, Math.min(2.5, Math.pow(2, diff) * 0.9));
 }
@@ -468,7 +482,7 @@ function Simulador() {
   const [isoIdx,  setIso]     = useState(2);  // ISO 200
   const [focalIdx,setFocal]   = useState(3);  // 50mm
   const [lightId, setLight]   = useState("sol");
-  const [tab,     setTab]     = useState("exposicion"); // "exposicion" | "focal" | "luz"
+  // (Estado "tab" eliminado: ya no hay pestañas, todo el contenido es una sola pantalla)
 
   const ap    = APERTURES[apIdx];
   const sh    = SHUTTERS[shIdx];
@@ -478,9 +492,10 @@ function Simulador() {
 
   const ev       = evFromSettings(ap, sh, iso);
   const targetEV = light.ev;
-  // evDiff > 0 = overexposed (too much light), evDiff < 0 = underexposed
-  // achieved EV > targetEV means settings let in too much light → overexposed
-  const evDiff   = targetEV - ev;  // positive = underexposed, negative = overexposed
+  // evDiff = targetEV - ev
+  // evDiff > 0 → la escena necesita más EV del que dan los ajustes → sobreexpuesto
+  // evDiff < 0 → la escena necesita menos EV del que dan los ajustes → subexpuesto
+  const evDiff   = targetEV - ev;
   const blur     = dofBlur(ap, focal);
   const motion   = motionBlur(sh);
   const grain    = grainAmount(iso);
@@ -523,8 +538,8 @@ function Simulador() {
               fontSize:13, fontWeight:400,
               color: Math.abs(evDiff) < 0.5 ? "#4a7c59" : Math.abs(evDiff) < 1.5 ? C.goldDeep : "#8c3a2e",
             }}>
-              {evDiff < -0.3 ? `+${Math.abs(evDiff).toFixed(1)} EV sobreexpuesto` :
-               evDiff > 0.3 ? `${evDiff.toFixed(1)} EV subexpuesto` : "Exposición correcta ✦"}
+              {evDiff > 0.3 ? `+${Math.abs(evDiff).toFixed(1)} EV sobreexpuesto` :
+               evDiff < -0.3 ? `${Math.abs(evDiff).toFixed(1)} EV subexpuesto` : "Exposición correcta ✦"}
             </span>
           </div>
           {/* Bar */}
@@ -555,175 +570,145 @@ function Simulador() {
           <div style={{ height:14 }}/>
         </div>
 
-        {/* ── Tabs ── */}
-        <div style={{
-          display:"flex", gap:4, background:C.surface,
-          borderRadius:10, padding:5,
-        }}>
-          {[
-            { id:"exposicion", label:"Triángulo", icon:"◈" },
-            { id:"focal",      label:"Focal",     icon:"⊙" },
-            { id:"luz",        label:"Luz",        icon:"☀" },
-          ].map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{
-              flex:1, padding:"9px 8px", borderRadius:7, border:"none",
-              background: tab===t.id ? C.gold : "transparent",
-              color: tab===t.id ? "#fff" : C.muted,
-              cursor:"pointer", fontFamily:"inherit", fontWeight:300,
-              fontSize:13, display:"flex", alignItems:"center",
-              justifyContent:"center", gap:6, transition:"all 0.15s",
-            }}>
-              <span>{t.icon}</span>{t.label}
-            </button>
-          ))}
+        {/* (Selector de pestañas eliminado: ahora todo el contenido es una sola pantalla continua) */}
+
+        {/* ── SECCIÓN: Situación de luz ── */}
+        <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
+          display:"flex", flexDirection:"column", gap:16 }}>
+
+          <p style={{ fontSize:11, letterSpacing:"0.14em", textTransform:"uppercase",
+            color:C.gold, margin:0, fontWeight:500 }}>☀ Situación de luz</p>
+
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
+            {LIGHTS.map(l => (
+              <button key={l.id} onClick={() => setLight(l.id)} style={{
+                padding:"10px 8px", borderRadius:9,
+                border:`1.5px solid ${lightId===l.id ? C.gold : C.goldDim}`,
+                background: lightId===l.id ? `${C.gold}18` : C.bg,
+                color: lightId===l.id ? C.goldDeep : C.muted,
+                cursor:"pointer", fontFamily:"inherit", fontWeight:300,
+                fontSize:12, display:"flex", flexDirection:"column",
+                alignItems:"center", gap:4, transition:"all 0.15s",
+              }}>
+                <span style={{ fontSize:20 }}>
+                  {l.id==="sol"?"☀":l.id==="solmedio"?"🌤":l.id==="nublado"?"☁":l.id==="dorada"?"🌅":
+                   l.id==="azul"?"🌆":l.id==="noche"?"🌃":"💡"}
+                </span>
+                <span style={{ fontSize:10, textAlign:"center", lineHeight:1.3 }}>{l.label}</span>
+                <span style={{ fontSize:9, color:C.goldDim }}>EV {l.ev}</span>
+              </button>
+            ))}
+          </div>
+
+          <div style={{ background:C.bg, borderRadius:9, padding:"13px 14px",
+            borderLeft:`3px solid ${C.gold}` }}>
+            <p style={{ fontSize:10, color:C.muted, textTransform:"uppercase",
+              letterSpacing:"0.1em", margin:"0 0 6px" }}>
+              {light.label} — EV {light.ev}
+            </p>
+            <p style={{ fontSize:13, color:C.text, margin:0, lineHeight:1.65 }}>
+              {lightId==="sol" && "Luz dura, sombras marcadas. Cuidado con las altas luces quemadas. El medidor tiende a subexponer con cielo azul."}
+              {lightId==="solmedio" && "Sol directo pero sin ser el de mediodía. Sombras presentes aunque algo menos marcadas que en sol pleno."}
+              {lightId==="nublado" && "Luz difusa y envolvente, sin sombras duras. Ideal para retratos. El contraste baja, los colores se suavizan."}
+              {lightId==="dorada" && "La hora dorada. Luz cálida y lateral. Las texturas se realzan. Trabaja rápido: cambia en minutos."}
+              {lightId==="azul" && "Después del atardecer, antes de la noche. Tonos fríos y azules. El cielo se equilibra con las luces artificiales."}
+              {lightId==="noche" && "EV muy bajo. ISO alto inevitable. Las luces artificiales crean manchas de color. Abraza el grano."}
+              {lightId==="interior" && "Contraste fuerte entre ventanas y sombras. El balance de blancos es crítico. Las mezclas de luz complican la exposición."}
+            </p>
+          </div>
+
+          {/* ISO suggestion */}
+          <div style={{ fontSize:12, color:C.muted, background:C.bg,
+            borderRadius:8, padding:"10px 13px" }}>
+            ISO de partida sugerido para esta luz:{" "}
+            <strong style={{ color:C.text }}>
+              {light.ev >= 14 ? "100–200"
+              : light.ev >= 11 ? "200–400"
+              : light.ev >= 8  ? "800–1600"
+              : "1600–6400"}
+            </strong>
+          </div>
         </div>
 
-        {/* ── Tab: Triángulo de exposición ── */}
-        {tab === "exposicion" && (
-          <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
-            display:"flex", flexDirection:"column", gap:20 }}>
+        {/* ── SECCIÓN: Triángulo de exposición ── */}
+        <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
+          display:"flex", flexDirection:"column", gap:20 }}>
 
-            <ParamSlider label="Apertura"  value={apIdx}  max={APERTURES.length-1}
-              labels={apLabels}  onChange={setAp}/>
-            <ParamSlider label="Velocidad" value={shIdx}  max={SHUTTERS.length-1}
-              labels={shLabels}  onChange={setSh}/>
-            <ParamSlider label="ISO"       value={isoIdx} max={ISOS.length-1}
-              labels={isoLabels} onChange={setIso}/>
+          <p style={{ fontSize:11, letterSpacing:"0.14em", textTransform:"uppercase",
+            color:C.gold, margin:0, fontWeight:500 }}>◈ Triángulo de exposición</p>
 
-            {/* Effect cards */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginTop:4 }}>
-              <EffectCard icon="◉" title="Apertura" active={blur>0.1} color={C.gold}>
-                {ap <= 1.8
-                  ? `f/${ap} — zona nítida muy fina. El fondo se separa con fuerza.`
-                  : ap >= 8
-                  ? `f/${ap} — todo en foco. Ideal para paisaje y calle.`
-                  : `f/${ap} — equilibrio entre bokeh y profundidad.`}
-              </EffectCard>
-              <EffectCard icon="⚡" title="Velocidad" active={motion>0.05} color="#90caf9">
-                {sh <= 1/500
-                  ? `${fmtShutter(sh)} — el movimiento queda congelado.`
-                  : sh >= 1/30
-                  ? `${fmtShutter(sh)} — rastros visibles. Necesitas trípode.`
-                  : `${fmtShutter(sh)} — zona de riesgo según la focal y el sujeto.`}
-              </EffectCard>
-              <EffectCard icon="◫" title="ISO" active={grain>0.2} color="#ce93d8">
-                {iso <= 400
-                  ? `ISO ${iso} — imagen limpia, sin grano visible.`
-                  : iso >= 6400
-                  ? `ISO ${iso} — grano notable. Valorar si suma o resta.`
-                  : `ISO ${iso} — grano contenido con buena exposición.`}
-              </EffectCard>
-            </div>
+          <ParamSlider label="Apertura"  value={apIdx}  max={APERTURES.length-1}
+            labels={apLabels}  onChange={setAp}/>
+          <ParamSlider label="Velocidad" value={shIdx}  max={SHUTTERS.length-1}
+            labels={shLabels}  onChange={setSh}/>
+          <ParamSlider label="ISO"       value={isoIdx} max={ISOS.length-1}
+            labels={isoLabels} onChange={setIso}/>
+
+          {/* Effect cards */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginTop:4 }}>
+            <EffectCard icon="◉" title="Apertura" active={blur>0.1} color={C.gold}>
+              {ap <= 1.8
+                ? `f/${ap} — zona nítida muy fina. El fondo se separa con fuerza.`
+                : ap >= 8
+                ? `f/${ap} — todo en foco. Ideal para paisaje y calle.`
+                : `f/${ap} — equilibrio entre bokeh y profundidad.`}
+            </EffectCard>
+            <EffectCard icon="⚡" title="Velocidad" active={motion>0.05} color="#90caf9">
+              {sh <= 1/500
+                ? `${fmtShutter(sh)} — el movimiento queda congelado.`
+                : sh >= 1/30
+                ? `${fmtShutter(sh)} — rastros visibles. Necesitas trípode.`
+                : `${fmtShutter(sh)} — zona de riesgo según la focal y el sujeto.`}
+            </EffectCard>
+            <EffectCard icon="◫" title="ISO" active={grain>0.2} color="#ce93d8">
+              {iso <= 400
+                ? `ISO ${iso} — imagen limpia, sin grano visible.`
+                : iso >= 6400
+                ? `ISO ${iso} — grano notable. Valorar si suma o resta.`
+                : `ISO ${iso} — grano contenido con buena exposición.`}
+            </EffectCard>
           </div>
-        )}
+        </div>
 
-        {/* ── Tab: Focal ── */}
-        {tab === "focal" && (
-          <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
-            display:"flex", flexDirection:"column", gap:18 }}>
+        {/* ── SECCIÓN: Focal ── */}
+        <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
+          display:"flex", flexDirection:"column", gap:18 }}>
 
-            <ParamSlider label="Focal" value={focalIdx} max={FOCALS.length-1}
-              labels={FOCAL_LABELS} onChange={setFocal}/>
+          <p style={{ fontSize:11, letterSpacing:"0.14em", textTransform:"uppercase",
+            color:C.gold, margin:0, fontWeight:500 }}>⊙ Focal</p>
 
-            {/* Focal comparison cards */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-              {[
-                { range:[0,1],  icon:"🌐", title:"Gran angular (14–24mm)",
-                  text:"Campo visual amplio, sujeto pequeño en la escena, fondos alejados. Distorsión perspectiva en bordes." },
-                { range:[2,3],  icon:"👁", title:"Normal (35–50mm)",
-                  text:"Perspectiva próxima a la visión humana. Versátil para calle, eventos y retratos contextuales." },
-                { range:[4,4],  icon:"🎭", title:"Retrato (85mm)",
-                  text:"Compresión suave, separación del fondo natural, sin distorsión facial. El focal clásico del retrato." },
-                { range:[5,6],  icon:"🔭", title:"Tele (135–200mm)",
-                  text:"Gran compresión perspectiva, fondo muy cercano visualmente, bokeh intenso incluso cerrado." },
-              ].map((c,i) => {
-                const active = focalIdx >= c.range[0] && focalIdx <= c.range[1];
-                return (
-                  <div key={i} style={{
-                    background: active ? `${C.gold}15` : C.bg,
-                    border:`1.5px solid ${active ? C.gold : C.goldDim}`,
-                    borderRadius:10, padding:"12px 13px", transition:"all 0.25s",
-                  }}>
-                    <div style={{ fontSize:10, textTransform:"uppercase", letterSpacing:"0.1em",
-                      color: active ? C.goldDeep : C.muted, marginBottom:5 }}>
-                      {c.icon} {c.title}
-                    </div>
-                    <p style={{ fontSize:12, color:C.muted, margin:0, lineHeight:1.55 }}>{c.text}</p>
-                  </div>
-                );
-              })}
-            </div>
+          <ParamSlider label="Focal" value={focalIdx} max={FOCALS.length-1}
+            labels={FOCAL_LABELS} onChange={setFocal}/>
 
-            {/* Also let aperture be adjusted here for context */}
-            <div style={{ borderTop:`1px solid ${C.goldDim}`, paddingTop:16 }}>
-              <p style={{ fontSize:10, color:C.muted, textTransform:"uppercase",
-                letterSpacing:"0.1em", margin:"0 0 12px" }}>
-                Apertura (afecta al bokeh con esta focal)
-              </p>
-              <ParamSlider label="Apertura" value={apIdx} max={APERTURES.length-1}
-                labels={apLabels} onChange={setAp}/>
-            </div>
-          </div>
-        )}
-
-        {/* ── Tab: Luz ── */}
-        {tab === "luz" && (
-          <div style={{ background:C.surface, borderRadius:12, padding:"20px 18px",
-            display:"flex", flexDirection:"column", gap:16 }}>
-
-            <p style={{ fontSize:10, letterSpacing:"0.12em", textTransform:"uppercase",
-              color:C.muted, margin:0 }}>Situación de luz</p>
-
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
-              {LIGHTS.map(l => (
-                <button key={l.id} onClick={() => setLight(l.id)} style={{
-                  padding:"10px 8px", borderRadius:9,
-                  border:`1.5px solid ${lightId===l.id ? C.gold : C.goldDim}`,
-                  background: lightId===l.id ? `${C.gold}18` : C.bg,
-                  color: lightId===l.id ? C.goldDeep : C.muted,
-                  cursor:"pointer", fontFamily:"inherit", fontWeight:300,
-                  fontSize:12, display:"flex", flexDirection:"column",
-                  alignItems:"center", gap:4, transition:"all 0.15s",
+          {/* Focal comparison cards */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+            {[
+              { range:[0,1],  icon:"🌐", title:"Gran angular (14–24mm)",
+                text:"Campo visual amplio, sujeto pequeño en la escena, fondos alejados. Distorsión perspectiva en bordes." },
+              { range:[2,3],  icon:"👁", title:"Normal (35–50mm)",
+                text:"Perspectiva próxima a la visión humana. Versátil para calle, eventos y retratos contextuales." },
+              { range:[4,4],  icon:"🎭", title:"Retrato (85mm)",
+                text:"Compresión suave, separación del fondo natural, sin distorsión facial. El focal clásico del retrato." },
+              { range:[5,6],  icon:"🔭", title:"Tele (135–200mm)",
+                text:"Gran compresión perspectiva, fondo muy cercano visualmente, bokeh intenso incluso cerrado." },
+            ].map((c,i) => {
+              const active = focalIdx >= c.range[0] && focalIdx <= c.range[1];
+              return (
+                <div key={i} style={{
+                  background: active ? `${C.gold}15` : C.bg,
+                  border:`1.5px solid ${active ? C.gold : C.goldDim}`,
+                  borderRadius:10, padding:"12px 13px", transition:"all 0.25s",
                 }}>
-                  <span style={{ fontSize:20 }}>
-                    {l.id==="sol"?"☀":l.id==="nublado"?"☁":l.id==="dorada"?"🌅":
-                     l.id==="azul"?"🌆":l.id==="noche"?"🌃":"💡"}
-                  </span>
-                  <span style={{ fontSize:10, textAlign:"center", lineHeight:1.3 }}>{l.label}</span>
-                  <span style={{ fontSize:9, color:C.goldDim }}>EV {l.ev}</span>
-                </button>
-              ))}
-            </div>
-
-            <div style={{ background:C.bg, borderRadius:9, padding:"13px 14px",
-              borderLeft:`3px solid ${C.gold}` }}>
-              <p style={{ fontSize:10, color:C.muted, textTransform:"uppercase",
-                letterSpacing:"0.1em", margin:"0 0 6px" }}>
-                {light.label} — EV {light.ev}
-              </p>
-              <p style={{ fontSize:13, color:C.text, margin:0, lineHeight:1.65 }}>
-                {lightId==="sol" && "Luz dura, sombras marcadas. Cuidado con las altas luces quemadas. El medidor tiende a subexponer con cielo azul."}
-                {lightId==="nublado" && "Luz difusa y envolvente, sin sombras duras. Ideal para retratos. El contraste baja, los colores se suavizan."}
-                {lightId==="dorada" && "La hora dorada. Luz cálida y lateral. Las texturas se realzan. Trabaja rápido: cambia en minutos."}
-                {lightId==="azul" && "Después del atardecer, antes de la noche. Tonos fríos y azules. El cielo se equilibra con las luces artificiales."}
-                {lightId==="noche" && "EV muy bajo. ISO alto inevitable. Las luces artificiales crean manchas de color. Abraza el grano."}
-                {lightId==="interior" && "Contraste fuerte entre ventanas y sombras. El balance de blancos es crítico. Las mezclas de luz complican la exposición."}
-              </p>
-            </div>
-
-            {/* ISO suggestion */}
-            <div style={{ fontSize:12, color:C.muted, background:C.bg,
-              borderRadius:8, padding:"10px 13px" }}>
-              ISO de partida sugerido para esta luz:{" "}
-              <strong style={{ color:C.text }}>
-                {light.ev >= 14 ? "100–200"
-                : light.ev >= 11 ? "200–400"
-                : light.ev >= 8  ? "800–1600"
-                : "1600–6400"}
-              </strong>
-            </div>
+                  <div style={{ fontSize:10, textTransform:"uppercase", letterSpacing:"0.1em",
+                    color: active ? C.goldDeep : C.muted, marginBottom:5 }}>
+                    {c.icon} {c.title}
+                  </div>
+                  <p style={{ fontSize:12, color:C.muted, margin:0, lineHeight:1.55 }}>{c.text}</p>
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
 
         <p style={{ textAlign:"center", fontSize:10, color:C.goldDim, letterSpacing:"0.16em", marginTop:4 }}>
           MIRAR DESPACIO +

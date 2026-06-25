@@ -64,9 +64,9 @@
   </div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
 
   <script>
     function showApp() {
@@ -78,17 +78,29 @@
     var isPreview = !window.location.hostname.includes('ottokols');
     if (isPreview) { showApp(); }
 
-    netlifyIdentity.on('init', function(user) {
-      if (!user && !isPreview) {
-        window.location.replace('/salidas.html#acceso');
-      } else {
-        showApp();
+    // Blindaje: si el script de Netlify Identity no llega a cargar, antes esto
+    // lanzaba un ReferenceError que detenía todos los scripts siguientes —
+    // incluido el que monta React — dejando la página en blanco sin aviso.
+    try {
+      if (typeof netlifyIdentity === "undefined") {
+        throw new Error("netlifyIdentity no disponible");
       }
-    });
-    netlifyIdentity.init();
+      netlifyIdentity.on('init', function(user) {
+        if (!user && !isPreview) {
+          window.location.replace('/salidas.html#acceso');
+        } else {
+          showApp();
+        }
+      });
+      netlifyIdentity.init();
+    } catch (e) {
+      console.warn('Netlify Identity no disponible, mostrando contenido sin verificación de sesión en cliente:', e);
+      showApp();
+    }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      netlifyIdentity.logout();
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    logoutBtnEl && logoutBtnEl.addEventListener('click', () => {
+      if (typeof netlifyIdentity !== "undefined") netlifyIdentity.logout();
       window.location.replace('/recursos.html#acceso');
     });
   </script>
@@ -283,10 +295,15 @@ function computeRecipe(camera, lens, light, subject, dofIntent) {
   const ibisBenefit= camera.ibis ? 3 : 0;
 
   const movementMin = {
-    retrato:     1 / (effFocal / Math.pow(2, ibisBenefit)),
+    // Retrato: aunque la persona esté "quieta", respira, parpadea y se mueve
+    // sutilmente — el IBIS no compensa eso (solo el temblor de la cámara).
+    // Usamos un piso razonable (1/60) y permitimos que la regla de la mano
+    // alzada exija más en focales largas, pero sin el beneficio del IBIS.
+    retrato:     Math.min(1/60, 1/effFocal),
     retrato_mov: 1/250,
     calle:       1/250,
     deporte:     1/1000,
+    // Paisaje y similares: sujeto verdaderamente estático, aquí sí beneficia el IBIS.
     paisaje:     1 / (effFocal / Math.pow(2, ibisBenefit)),
     nocturno:    null,
     macro:       1 / (effFocal * 2),
@@ -305,6 +322,9 @@ function computeRecipe(camera, lens, light, subject, dofIntent) {
   const aperture = AP_STOPS[apIdx];
 
   // ISO / shutter solve
+  // No nos conformamos con el primer ISO que tenga buen EV: para sujetos con
+  // movimiento (retrato, calle, deporte...) preferimos subir ISO si eso da un
+  // margen de seguridad real de velocidad, no solo "pasar por encima" del límite.
   let best = null;
   for (let i = 0; i < ISO_STOPS.length; i++) {
     const iso = ISO_STOPS[i];
@@ -320,10 +340,15 @@ function computeRecipe(camera, lens, light, subject, dofIntent) {
     const shutter = SH_STOPS[shIdx];
     if (movementMin !== null && shutter > movementMin * 1.15) continue; // skip if too slow (shutter value too large in seconds)
     const evErr = Math.abs(evAt(aperture, shutter, iso) - targetEV);
-    if (!best || evErr < best.evError) best = { aperture, shutter, iso, evError:evErr };
-    if (evErr < 0.6) break;
+    // Margen de seguridad real: cuánto más rápida es esta velocidad que el límite
+    // mínimo necesario. Con poco margen (shutter cerca de movementMin) seguimos
+    // probando ISOs más altos en busca de más seguridad, aunque el EV ya sea bueno.
+    const safetyMargin = movementMin !== null ? movementMin / shutter : Infinity; // >1 = margen cómodo
+    if (!best || evErr < best.evError - 0.05) best = { aperture, shutter, iso, evError:evErr, safetyMargin };
+    if (evErr < 0.6 && safetyMargin >= 1.8) break; // EV correcto Y velocidad con margen real de seguridad
   }
   if (!best) best = { aperture, shutter:1/125, iso:400, evError:99 };
+
 
   // Alternatives
   function nearestSh(ap, iso) {
@@ -352,32 +377,10 @@ function computeRecipe(camera, lens, light, subject, dofIntent) {
   return { main:best, alts, wideIdx, apIdx, effFocal };
 }
 
-// ─── AI explanation ───────────────────────────────────────────────────────────
-async function fetchAI(camera, lens, light, subject, dofIntent, recipe) {
-  const prompt = `Eres un fotógrafo experto y pedagogo conciso. El usuario tiene:
-- Cámara: ${camera.label} (sensor ${camera.sensor}, IBIS: ${camera.ibis ? "sí" : "no"})
-- Objetivo: ${lens.label}
-- Luz: ${light.label}
-- Escena: ${subject.label}
-- Profundidad deseada: ${dofIntent.label}
-- Receta calculada: ${fmtAp(recipe.main.aperture)} · ${fmtShutter(recipe.main.shutter)} · ISO ${recipe.main.iso}
-
-Responde SOLO con JSON válido sin markdown ni texto extra:
-{"porqué":"2 frases máximo explicando la lógica de estos ajustes específicos","trampa":"1 frase: el error más común con esta combinación exacta","consejo":"1 frase: consejo práctico de campo","modo":"M, A, S o P — 1 frase corta del porqué"}`;
-
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      model:"claude-sonnet-4-6", max_tokens:400,
-      messages:[{ role:"user", content:prompt }],
-    }),
-  });
-  if (!resp.ok) throw new Error("API error");
-  const data = await resp.json();
-  const raw  = data.content?.find(b => b.type === "text")?.text || "{}";
-  return JSON.parse(raw.replace(/```json|```/g,"").trim());
-}
+// Nota: la explicación con IA (vía API de Anthropic) se quitó por ahora.
+// Cada llamada a la API tiene un coste real aparte de cualquier suscripción
+// de claude.ai, y se reactivará si/cuando el modelo de pago de Mirar Despacio+
+// esté en marcha. La receta numérica (computeRecipe) no depende de esto.
 
 // ─── Visual Scene ─────────────────────────────────────────────────────────────
 function RecipeScene({ recipe, light, subject, dofIntent }) {
@@ -568,10 +571,7 @@ function RecetaFotografica() {
   const [subjectId, setSubject] = useState("retrato");
   const [dofId,     setDof]     = useState("bokeh_suave");
   const [result,    setResult]  = useState(null);
-  const [aiData,    setAiData]  = useState(null);
   const [loading,   setLoading] = useState(false);
-  const [aiLoading, setAiLoad]  = useState(false);
-  const [aiError,   setAiError] = useState(false);
 
   const camera  = CAMERAS.find(c => c.id === cameraId);
   const lens    = LENSES.find(l => l.id === lensId);
@@ -579,19 +579,11 @@ function RecetaFotografica() {
   const subject = SUBJECTS.find(s => s.id === subjectId);
   const dof     = DOF_INTENTS.find(d => d.id === dofId);
 
-  const handleGenerate = useCallback(async () => {
-    setLoading(true); setAiData(null); setAiError(false); setResult(null);
+  const handleGenerate = useCallback(() => {
+    setLoading(true);
     const recipe = computeRecipe(camera, lens, light, subject, dof);
     setResult(recipe);
     setLoading(false);
-    setAiLoad(true);
-    try {
-      const ai = await fetchAI(camera, lens, light, subject, dof, recipe);
-      setAiData(ai);
-    } catch {
-      setAiError(true);
-    }
-    setAiLoad(false);
   }, [camera, lens, light, subject, dof]);
 
   const crop = { FF:1, APSC:1.5, MFT:2, MOBILE:6 }[camera.sensor] || 1;
@@ -680,74 +672,18 @@ function RecetaFotografica() {
                   📐 Velocidad lenta ({fmtShutter(result.main.shutter)}) — busca un punto de apoyo o usa trípode para evitar trepidación.
                 </p>
               )}
+              {(subject.id === "retrato" || subject.id === "retrato_mov") && light.ev <= 8 && (
+                <p style={{ fontSize:11, color:"#b07a2a", margin:"8px 0 0",
+                  padding:"7px 10px", background:"rgba(176,122,42,0.1)",
+                  borderRadius:6, borderLeft:"3px solid #b07a2a" }}>
+                  ⚡ Luz muy baja para retrato — un flash de mano (aunque sea rebotado o de relleno) te libera de subir tanto el ISO o bajar tanto la velocidad.
+                </p>
+              )}
               {result.main.evError > 1.2 && (
                 <p style={{ fontSize:11, color:C.goldDeep, margin:"10px 0 0",
                   padding:"7px 10px", background:`${C.gold}15`, borderRadius:6 }}>
                   ⚠ Esta combinación se aleja del EV ideal. Compensa ±{result.main.evError.toFixed(1)} EV.
                 </p>
-              )}
-            </div>
-
-            {/* AI explanation */}
-            <div style={{ background:C.surface, borderRadius:12, padding:"18px 16px" }}>
-              <p style={{ fontSize:10, letterSpacing:"0.13em", textTransform:"uppercase",
-                color:C.muted, margin:"0 0 12px" }}>Por qué esta receta</p>
-
-              {aiLoading && (
-                <div style={{ display:"flex", alignItems:"center", gap:10,
-                  color:C.muted, fontSize:13, padding:"8px 0" }}>
-                  <span style={{ display:"inline-block", width:14, height:14,
-                    border:`2px solid ${C.goldDim}`, borderTopColor:C.gold,
-                    borderRadius:"50%", animation:"spin 0.8s linear infinite" }}/>
-                  Analizando combinación…
-                </div>
-              )}
-
-              {aiError && (
-                <p style={{ fontSize:13, color:C.muted, margin:0 }}>
-                  No se pudo cargar la explicación. Los parámetros calculados son correctos.
-                </p>
-              )}
-
-              {aiData && (
-                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-                  {/* Main explanation */}
-                  <p style={{ fontSize:13, color:C.text, margin:0, lineHeight:1.7 }}>
-                    {aiData["porqué"]}
-                  </p>
-
-                  {/* Error + tip — stacked on mobile */}
-                  <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-                    {[
-                      { icon:"⚠", label:"Error típico",    key:"trampa", color:C.bad },
-                      { icon:"◈", label:"Consejo de campo",key:"consejo",color:C.goldDeep },
-                    ].map(d => (
-                      <div key={d.key} style={{ background:C.bg, borderRadius:8,
-                        padding:"10px 12px", borderLeft:`3px solid ${d.color}` }}>
-                        <p style={{ fontSize:10, color:d.color, textTransform:"uppercase",
-                          letterSpacing:"0.1em", margin:"0 0 4px" }}>{d.icon} {d.label}</p>
-                        <p style={{ fontSize:12, color:C.muted, margin:0, lineHeight:1.55 }}>
-                          {aiData[d.key]}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Mode recommendation */}
-                  {aiData["modo"] && (
-                    <div style={{ display:"flex", alignItems:"center", gap:10,
-                      background:C.bg, borderRadius:8, padding:"8px 12px",
-                      alignSelf:"flex-start" }}>
-                      <span style={{ fontFamily:"monospace", fontSize:20,
-                        fontWeight:700, color:C.gold, lineHeight:1 }}>
-                        {aiData["modo"].charAt(0)}
-                      </span>
-                      <span style={{ fontSize:12, color:C.muted }}>
-                        {aiData["modo"].slice(1).trim()}
-                      </span>
-                    </div>
-                  )}
-                </div>
               )}
             </div>
 
@@ -767,8 +703,6 @@ function RecetaFotografica() {
         <p style={{ textAlign:"center", fontSize:10, color:C.goldDim,
           letterSpacing:"0.16em", marginTop:4 }}>MIRAR DESPACIO +</p>
       </div>
-
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

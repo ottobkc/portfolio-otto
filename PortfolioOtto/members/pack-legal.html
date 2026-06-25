@@ -283,12 +283,23 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
-    netlifyIdentity.on('init', function(user) {
-      if (!user && !window.location.hostname.includes('localhost')) {
-        window.location.replace('/salidas.html#acceso');
+    // Blindaje: si Identity no llega a cargar, no lanzamos ReferenceError.
+    // Aquí no hay app-root que mostrar (es contenido estático visible desde
+    // el principio), pero el blindaje evita que un fallo de este script
+    // ensucie la consola o bloquee scripts posteriores si se añaden en el futuro.
+    try {
+      if (typeof netlifyIdentity === "undefined") {
+        throw new Error("netlifyIdentity no disponible");
       }
-    });
-    netlifyIdentity.init();
+      netlifyIdentity.on('init', function(user) {
+        if (!user && !window.location.hostname.includes('localhost')) {
+          window.location.replace('/salidas.html#acceso');
+        }
+      });
+      netlifyIdentity.init();
+    } catch (e) {
+      console.warn('Netlify Identity no disponible:', e);
+    }
   </script>
 
 </body>

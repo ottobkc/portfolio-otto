@@ -64,9 +64,9 @@
   </div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
 
   <script>
     function showApp() {
@@ -78,17 +78,33 @@
     var isPreview = !window.location.hostname.includes('ottokols');
     if (isPreview) { showApp(); }
 
-    netlifyIdentity.on('init', function(user) {
-      if (!user && !isPreview) {
-        window.location.replace('/salidas.html#acceso');
-      } else {
-        showApp();
+    // Blindaje: si el script de Netlify Identity no llega a cargar (red lenta,
+    // CDN caído, bloqueo de terceros), antes esto lanzaba un ReferenceError que
+    // detenía TODOS los scripts siguientes del documento — incluido el que monta
+    // React — dejando la página en blanco sin ningún aviso visible. Con este
+    // try/catch, si Identity falla, mostramos la app igualmente en vez de
+    // dejarla colgada (el control de acceso real ya lo hace Netlify a nivel de
+    // servidor para esta ruta).
+    try {
+      if (typeof netlifyIdentity === "undefined") {
+        throw new Error("netlifyIdentity no disponible");
       }
-    });
-    netlifyIdentity.init();
+      netlifyIdentity.on('init', function(user) {
+        if (!user && !isPreview) {
+          window.location.replace('/salidas.html#acceso');
+        } else {
+          showApp();
+        }
+      });
+      netlifyIdentity.init();
+    } catch (e) {
+      console.warn('Netlify Identity no disponible, mostrando contenido sin verificación de sesión en cliente:', e);
+      showApp();
+    }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      netlifyIdentity.logout();
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    logoutBtnEl && logoutBtnEl.addEventListener('click', () => {
+      if (typeof netlifyIdentity !== "undefined") netlifyIdentity.logout();
       window.location.replace('/recursos.html#acceso');
     });
   </script>
