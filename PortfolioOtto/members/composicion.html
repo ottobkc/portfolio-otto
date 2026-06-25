@@ -109,7 +109,7 @@
     });
   </script>
 
-  <script type="text/babel">
+  <script type="text/plain" id="composicion-jsx-source">
     const { useState, useRef, useCallback, useEffect } = React;
 
 
@@ -615,6 +615,20 @@ function ComposicionGame() {
 
     const root = ReactDOM.createRoot(document.getElementById('react-mount'));
     root.render(React.createElement(ComposicionGame));
+  </script>
+  <script>
+    // Se transforma manualmente en vez de usar el modo automático de
+    // <script type="text/babel">, porque las versiones recientes de
+    // @babel/standalone usan por defecto el "automatic JSX runtime" (que
+    // genera un `import` desde "react/jsx-runtime"). Un script normal sin
+    // type="module" no puede ejecutar imports, y eso rompía toda la página
+    // dejándola en blanco sin más explicación que un SyntaxError en consola.
+    // Forzamos aquí el runtime "classic" (React.createElement, sin imports).
+    const jsxSource = document.getElementById('composicion-jsx-source').textContent;
+    const transformed = Babel.transform(jsxSource, {
+      presets: [['react', { runtime: 'classic' }]],
+    }).code;
+    (0, eval)(transformed);
   </script>
 </body>
 </html>
