@@ -105,7 +105,7 @@
     });
   </script>
 
-  <script type="text/babel" data-presets="react,env">
+  <script type="text/plain" id="dof-jsx-source">
     const { useState, useMemo } = React;
 
 
@@ -742,6 +742,16 @@ function DoFCalculator() {
 
     const root = ReactDOM.createRoot(document.getElementById('react-mount'));
     root.render(React.createElement(DoFCalculator));
+  </script>
+  <script>
+    // Ver nota en composicion.html: @babel/standalone reciente usa por defecto
+    // el "automatic JSX runtime" (genera un `import`), que rompe en un script
+    // normal sin type="module". Forzamos aquí runtime "classic" a mano.
+    const jsxSource = document.getElementById('dof-jsx-source').textContent;
+    const transformed = Babel.transform(jsxSource, {
+      presets: [['react', { runtime: 'classic' }], 'env'],
+    }).code;
+    (0, eval)(transformed);
   </script>
 </body>
 </html>
