@@ -13,6 +13,21 @@
     X-Robots-Tag = "noindex, nofollow"
 
 # -----------------------------------------------
+# REDIRECTS — mirardespacio.es -> salidas.html
+# -----------------------------------------------
+[[redirects]]
+  from   = "https://mirardespacio.es/*"
+  to     = "https://ottokols.es/salidas.html?utm_source=mirardespacio&utm_medium=redirect&utm_campaign=dominio_directo"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "https://www.mirardespacio.es/*"
+  to     = "https://ottokols.es/salidas.html?utm_source=mirardespacio&utm_medium=redirect&utm_campaign=dominio_directo"
+  status = 301
+  force  = true
+
+# -----------------------------------------------
 # REDIRECTS GENERALES
 # -----------------------------------------------
 [[redirects]]
