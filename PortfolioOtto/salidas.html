@@ -466,6 +466,44 @@
       .salidas-gallery-item img { min-height: 220px; }
     }
 
+    /* ---- ÚLTIMA SALIDA: carrusel horizontal ---- */
+    .ultima-salida-carrusel {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ultima-salida-carrusel::-webkit-scrollbar { height: 6px; }
+    .ultima-salida-carrusel::-webkit-scrollbar-thumb {
+      background: var(--border); border-radius: 3px;
+    }
+    .ultima-salida-item {
+      flex: 0 0 auto;
+      width: 130px;
+      height: 130px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--bg3);
+      scroll-snap-align: start;
+    }
+    .ultima-salida-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease, filter 0.3s;
+      filter: grayscale(8%);
+    }
+    .ultima-salida-item:hover img {
+      transform: scale(1.05);
+      filter: grayscale(0%);
+    }
+    @media (max-width: 700px) {
+      .ultima-salida-item { width: 96px; height: 96px; }
+    }
+
     /* ---- MODELO ---- */
     .modelo-section { background: var(--bg); }
     .modelo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; }
@@ -959,6 +997,21 @@
 
   <hr class="divider" />
 
+  <!-- ÚLTIMA SALIDA -->
+  <div class="section ultima-salida-section" id="ultimaSalidaSection" style="display:none;">
+    <div class="container">
+      <p class="section-label">La última vez que salimos</p>
+      <h2 class="section-title" style="font-size:clamp(1.4rem,3vw,2rem);margin-bottom:1.2rem;">
+        <em id="ultimaSalidaZona">Última salida</em>
+      </h2>
+      <div class="ultima-salida-carrusel" id="ultimaSalidaCarrusel">
+        <!-- Fotos cargadas desde salidas-data.json -> ultimaSalida -->
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" id="dividerUltimaSalida" style="display:none;" />
+
   <!-- QUÉ SON -->
   <div class="section">
     <div class="container">
@@ -1363,6 +1416,32 @@
           // Reasignar eventos del lightbox a los nuevos items
           initGalleryLightbox();
         }
+
+        // — ÚLTIMA SALIDA —
+        const ultimaSection   = document.getElementById('ultimaSalidaSection');
+        const ultimaCarrusel  = document.getElementById('ultimaSalidaCarrusel');
+        const ultimaDivider   = document.getElementById('dividerUltimaSalida');
+        const ultimaZonaTitle = document.getElementById('ultimaSalidaZona');
+        if (ultimaSection && ultimaCarrusel && data.ultimaSalida && data.ultimaSalida.fotos && data.ultimaSalida.fotos.length > 0) {
+          ultimaCarrusel.innerHTML = '';
+          data.ultimaSalida.fotos.forEach(foto => {
+            const item = document.createElement('div');
+            item.className = 'ultima-salida-item';
+            item.dataset.src = foto.src;
+            const img = document.createElement('img');
+            img.src = foto.src;
+            img.alt = foto.alt || 'Foto de la última salida';
+            img.loading = 'lazy';
+            item.appendChild(img);
+            ultimaCarrusel.appendChild(item);
+          });
+          if (data.ultimaSalida.zona) {
+            ultimaZonaTitle.textContent = data.ultimaSalida.zona;
+          }
+          ultimaSection.style.display = '';
+          ultimaDivider.style.display = '';
+          initUltimaSalidaLightbox();
+        }
       })
       .catch(() => {
         // Fallback silencioso: el texto de fecha queda como estaba
@@ -1372,6 +1451,20 @@
 
     function initGalleryLightbox() {
       const items = document.querySelectorAll('.salidas-gallery-item');
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lightboxImg');
+      if (!lb || !lbImg) return;
+      items.forEach(item => {
+        item.addEventListener('click', () => {
+          lbImg.src = item.dataset.src || item.querySelector('img').src;
+          lb.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        });
+      });
+    }
+
+    function initUltimaSalidaLightbox() {
+      const items = document.querySelectorAll('.ultima-salida-item');
       const lb = document.getElementById('lightbox');
       const lbImg = document.getElementById('lightboxImg');
       if (!lb || !lbImg) return;

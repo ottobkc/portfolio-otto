@@ -32,5 +32,18 @@
       "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle6_vusvf0.jpg",
       "alt": "Fotografía de calle Madrid"
     }
-  ]
+  ],
+
+  "ultimaSalida": {
+    "zona": "Barrio de las Letras",
+    "fotos": [
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida1.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida2.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida3.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida4.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida5.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida6.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida7.jpg", "alt": "Foto de la salida en Barrio de las Letras" }
+    ]
+  }
 }
