@@ -1269,26 +1269,45 @@
       }
     });
 
-    // ---- LIGHTBOX GALERÍA SALIDAS ----
-    const galItems = document.querySelectorAll('.salidas-gallery-item');
+    // ---- LIGHTBOX (galería de salidas + carrusel última salida) ----
     const lb2 = document.getElementById('lightbox');
     const lb2Img = document.getElementById('lightboxImg');
     const lb2Cap = document.getElementById('lightboxCaption');
     let cur2 = 0;
-    const imgs2 = Array.from(galItems).map(i => ({ src: i.dataset.src }));
+    let imgs2 = [];
 
     function openLb2(i) {
       cur2 = i;
       lb2Img.src = imgs2[i].src;
-      lb2Cap.textContent = '';
+      lb2Cap.textContent = imgs2[i].alt || '';
       lb2.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
     function closeLb2() { lb2.classList.remove('active'); document.body.style.overflow = ''; }
-    function prev2() { cur2 = (cur2 - 1 + imgs2.length) % imgs2.length; lb2Img.src = imgs2[cur2].src; }
-    function next2() { cur2 = (cur2 + 1) % imgs2.length; lb2Img.src = imgs2[cur2].src; }
+    function prev2() { cur2 = (cur2 - 1 + imgs2.length) % imgs2.length; lb2Img.src = imgs2[cur2].src; lb2Cap.textContent = imgs2[cur2].alt || ''; }
+    function next2() { cur2 = (cur2 + 1) % imgs2.length; lb2Img.src = imgs2[cur2].src; lb2Cap.textContent = imgs2[cur2].alt || ''; }
 
-    galItems.forEach((it, i) => it.addEventListener('click', () => openLb2(i)));
+    // Recalcula la lista de imágenes y vuelve a enganchar los clicks.
+    // Se llama al cargar la página y cada vez que el JSON rellena galerías nuevas,
+    // así el lightbox siempre conoce TODAS las imágenes actuales de ambas tiras,
+    // no solo las que existían en el momento en que se cargó el script.
+    function refreshLightboxItems() {
+      const galItems    = Array.from(document.querySelectorAll('.salidas-gallery-item'));
+      const ultimaItems = Array.from(document.querySelectorAll('.ultima-salida-item'));
+      const allItems = [...galItems, ...ultimaItems];
+
+      imgs2 = allItems.map(it => ({
+        src: it.dataset.src || it.querySelector('img')?.src,
+        alt: it.querySelector('img')?.alt || '',
+      }));
+
+      allItems.forEach((it, i) => {
+        it.onclick = () => openLb2(i);
+      });
+    }
+
+    refreshLightboxItems();
+
     document.getElementById('lightboxClose').addEventListener('click', closeLb2);
     document.getElementById('lightboxPrev').addEventListener('click', e => { e.stopPropagation(); prev2(); });
     document.getElementById('lightboxNext').addEventListener('click', e => { e.stopPropagation(); next2(); });
@@ -1414,7 +1433,7 @@
             gallery.appendChild(item);
           });
           // Reasignar eventos del lightbox a los nuevos items
-          initGalleryLightbox();
+          refreshLightboxItems();
         }
 
         // — ÚLTIMA SALIDA —
@@ -1440,7 +1459,7 @@
           }
           ultimaSection.style.display = '';
           ultimaDivider.style.display = '';
-          initUltimaSalidaLightbox();
+          refreshLightboxItems();
         }
       })
       .catch(() => {
@@ -1449,33 +1468,6 @@
         if (fechaEl) fechaEl.textContent = 'Todavía no hay fecha fija. Rellena el formulario y te avisamos en cuanto confirmemos zona, día y hora. Sin compromiso.';
       });
 
-    function initGalleryLightbox() {
-      const items = document.querySelectorAll('.salidas-gallery-item');
-      const lb = document.getElementById('lightbox');
-      const lbImg = document.getElementById('lightboxImg');
-      if (!lb || !lbImg) return;
-      items.forEach(item => {
-        item.addEventListener('click', () => {
-          lbImg.src = item.dataset.src || item.querySelector('img').src;
-          lb.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-        });
-      });
-    }
-
-    function initUltimaSalidaLightbox() {
-      const items = document.querySelectorAll('.ultima-salida-item');
-      const lb = document.getElementById('lightbox');
-      const lbImg = document.getElementById('lightboxImg');
-      if (!lb || !lbImg) return;
-      items.forEach(item => {
-        item.addEventListener('click', () => {
-          lbImg.src = item.dataset.src || item.querySelector('img').src;
-          lb.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-        });
-      });
-    }
   </script>
 </body>
 </html>
