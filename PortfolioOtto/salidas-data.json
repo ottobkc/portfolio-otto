@@ -37,13 +37,13 @@
   "ultimaSalida": {
     "zona": "Barrio de las Letras",
     "fotos": [
-      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida1.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
-      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida2.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
-      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida3.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
-      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida4.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
-      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida5.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
-      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida6.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
-      { "src": "https://res.cloudinary.com/dybxateci/image/upload/salida7.jpg", "alt": "Foto de la salida en Barrio de las Letras" }
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida1_pg2n03.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida2_ocrfcg.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida3_chxjef.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743937/salida4_kgfrxo.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida5_q2b6og.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743934/salida6_x9axmi.jpg", "alt": "Foto de la salida en Barrio de las Letras" },
+      { "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743913/salida7_iqxnwb.jpg", "alt": "Foto de la salida en Barrio de las Letras" }
     ]
   }
 }
