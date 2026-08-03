@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Mirar Despacio — CRM</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1814">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MD CRM">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<style>
+  :root {
+    --ink: #1a1814;
+    --panel: #23201b;
+    --cream: #f5f3ef;
+    --gold: #c8a97a;
+    --dim: #a8a49c;
+    --danger: #b5654f;
+    --ok: #7a9e7e;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+  }
+  body { padding: 20px 14px 60px; padding-top: calc(20px + env(safe-area-inset-top)); }
+
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0 0 2px;
+  }
+  .subtitle { color: var(--dim); font-size: 13px; margin-bottom: 18px; }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 10px 14px;
+    color: var(--dim);
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .card {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .card-title { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin-bottom: 10px; }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+    color: var(--cream);
+    font-size: 16px;
+    font-family: inherit;
+  }
+  button {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--cream); }
+  button.danger { background: transparent; border: 1px solid rgba(181,101,79,0.4); color: var(--danger); }
+  button.small { padding: 6px 10px; font-size: 12px; }
+
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; }
+
+  .event-item {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .event-name { font-weight: 500; }
+  .event-meta { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .event-count { color: var(--gold); font-size: 13px; }
+
+  .person-row {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .person-row.confirmado { border-left: 3px solid var(--ok); }
+  .person-row.pendiente { border-left: 3px solid var(--gold); }
+  .person-row.espera { border-left: 3px solid var(--danger); }
+  .person-main { flex: 1; min-width: 0; }
+  .person-name { font-size: 14px; font-weight: 500; }
+  .person-meta { font-size: 11px; color: var(--dim); }
+  .badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: rgba(200,169,122,0.15);
+    color: var(--gold);
+    display: inline-block;
+    margin-right: 4px;
+  }
+  .attend-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+  .attend-check.checked { background: var(--ok); border-color: var(--ok); color: var(--ink); }
+
+  .empty { color: var(--dim); font-style: italic; padding: 10px 0; font-size: 13px; }
+  .back-link { color: var(--gold); font-size: 13px; margin-bottom: 12px; cursor: pointer; display: inline-block; }
+
+  .stat-grid { display: flex; gap: 10px; margin-bottom: 14px; }
+  .stat-box { flex: 1; background: var(--panel); border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-num { font-size: 22px; color: var(--gold); font-weight: 600; }
+  .stat-label { font-size: 11px; color: var(--dim); margin-top: 2px; }
+
+  .status-select { width: auto; padding: 6px 8px; font-size: 12px; margin-bottom: 0; }
+
+  .trial-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .trial-badge {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    display: inline-block;
+    font-weight: 600;
+  }
+  .trial-badge.active { background: rgba(122,158,126,0.18); color: var(--ok); }
+  .trial-badge.soon { background: rgba(200,169,122,0.2); color: var(--gold); }
+  .trial-badge.expired { background: rgba(181,101,79,0.18); color: var(--danger); }
+  .trial-btn {
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--dim);
+    cursor: pointer;
+  }
+
+  textarea.export-box { min-height: 90px; font-size: 13px; }
+  .copy-hint { font-size: 12px; color: var(--dim); margin-top: 4px; }
+
+  /* Login screen */
+  #loginScreen {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  #loginScreen img { width: 140px; margin-bottom: 24px; }
+  #loginScreen .card { width: 100%; max-width: 340px; }
+  #loginError { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 16px; }
+  #syncStatus {
+    position: fixed;
+    top: calc(8px + env(safe-area-inset-top));
+    right: 14px;
+    font-size: 11px;
+    color: var(--dim);
+    z-index: 50;
+  }
+</style>
+</head>
+<body>
+
+<div id="syncStatus"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="card">
+    <h1 style="text-align:center;">Mirar Despacio</h1>
+    <div class="subtitle" style="text-align:center;">CRM privado</div>
+    <input type="email" id="loginEmail" placeholder="Email" autocomplete="username">
+    <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
+    <button style="width:100%;" onclick="doLogin()">Entrar</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until logged in) -->
+<div id="app" style="display:none;">
+
+  <h1>Mirar Despacio</h1>
+  <div class="subtitle">Control de salidas y personas</div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="salidas">Salidas</div>
+    <div class="tab" data-tab="personas">Personas</div>
+    <div class="tab" data-tab="exportar">Exportar</div>
+  </div>
+
+  <!-- SALIDAS LIST VIEW -->
+  <div class="view active" id="view-salidas">
+    <div class="card">
+      <div class="card-title">Nueva salida</div>
+      <input type="text" id="newEventName" placeholder="Nombre (ej. Malasaña)">
+      <div class="row">
+        <input type="date" id="newEventDate">
+        <input type="text" id="newEventLocation" placeholder="Punto de encuentro">
+      </div>
+      <button onclick="createEvent()">Crear salida</button>
+    </div>
+    <div id="eventsList"></div>
+  </div>
+
+  <!-- EVENT DETAIL VIEW -->
+  <div class="view" id="view-event-detail">
+    <span class="back-link" onclick="showTab('salidas')">← Volver a salidas</span>
+    <div class="card">
+      <div class="card-title" id="eventDetailTitle">Salida</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="statConfirmados">0</div><div class="stat-label">confirmados</div></div>
+        <div class="stat-box"><div class="stat-num" id="statPendientes">0</div><div class="stat-label">pendientes</div></div>
+        <div class="stat-box"><div class="stat-num" id="statEspera">0</div><div class="stat-label">lista espera</div></div>
+        <div class="stat-box"><div class="stat-num" id="statAsistieron">0</div><div class="stat-label">asistieron</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Añadir persona a esta salida</div>
+      <input type="text" id="rosterName" placeholder="Nombre">
+      <input type="text" id="rosterEmail" placeholder="Email (opcional)">
+      <select id="rosterStatus">
+        <option value="pendiente">Pendiente</option>
+        <option value="confirmado">Confirmado</option>
+        <option value="espera">Lista de espera</option>
+      </select>
+      <button onclick="addToRoster()">Añadir</button>
+    </div>
+    <div class="card-title">Lista (toca el check para pasar lista el día del evento)</div>
+    <div id="rosterList"></div>
+  </div>
+
+  <!-- PERSONAS VIEW -->
+  <div class="view" id="view-personas">
+    <div class="card">
+      <input type="text" id="searchPeople" placeholder="Buscar por nombre o email..." oninput="renderPeople()">
+    </div>
+    <div id="peopleList"></div>
+  </div>
+
+  <!-- EXPORTAR VIEW -->
+  <div class="view" id="view-exportar">
+    <div class="card">
+      <div class="card-title">Filtrar por salida (opcional)</div>
+      <select id="exportEventFilter" onchange="updateExport()">
+        <option value="">Todas las personas (histórico completo)</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="card-title">Emails para copiar y pegar (BCC)</div>
+      <textarea class="export-box" id="exportEmails" readonly></textarea>
+      <button onclick="copyExport()">Copiar al portapapeles</button>
+      <div class="copy-hint" id="copyHint"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Descargar CSV completo</div>
+      <button class="secondary" onclick="downloadCSV()">Descargar CSV (personas + asistencia)</button>
+    </div>
+    <div class="card">
+      <button class="danger" style="width:100%;" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDfRTs1pF5-iV2dlNFY-dlFv4A-HcxZeTk",
+  authDomain: "mirardespaciocrm.firebaseapp.com",
+  projectId: "mirardespaciocrm",
+  storageBucket: "mirardespaciocrm.firebasestorage.app",
+  messagingSenderId: "328402994544",
+  appId: "1:328402994544:web:abab2ce9d54d286eb7fbb5"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.doLogin = function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = '';
+  signInWithEmailAndPassword(auth, email, password)
+    .catch(err => {
+      errEl.textContent = 'Email o contraseña incorrectos.';
+    });
+};
+
+window.doLogout = function() {
+  signOut(auth);
+};
+
+let events = [];
+let people = [];
+let signups = [];
+let currentEventId = null;
+let unsubEvents = null, unsubPeople = null, unsubSignups = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    attachListeners();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    if (unsubEvents) unsubEvents();
+    if (unsubPeople) unsubPeople();
+    if (unsubSignups) unsubSignups();
+  }
+});
+
+function setSyncStatus(text) {
+  document.getElementById('syncStatus').textContent = text;
+  if (text) setTimeout(() => { document.getElementById('syncStatus').textContent = ''; }, 1500);
+}
+
+function attachListeners() {
+  unsubEvents = onSnapshot(collection(db, 'events'), (snap) => {
+    events = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderEvents();
+    populateExportFilter();
+    if (currentEventId) renderRoster();
+  });
+  unsubPeople = onSnapshot(collection(db, 'people'), (snap) => {
+    people = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderPeople();
+    if (currentEventId) renderRoster();
+  });
+  unsubSignups = onSnapshot(collection(db, 'signups'), (snap) => {
+    signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderEvents();
+    renderPeople();
+    if (currentEventId) renderRoster();
+  });
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// ---------- TABS ----------
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => showTab(t.dataset.tab));
+});
+window.showTab = function(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'personas') renderPeople();
+  if (name === 'exportar') updateExport();
+};
+
+// ---------- EVENTS ----------
+window.createEvent = async function() {
+  const name = document.getElementById('newEventName').value.trim();
+  const date = document.getElementById('newEventDate').value;
+  const location = document.getElementById('newEventLocation').value.trim();
+  if (!name) return;
+  setSyncStatus('Guardando…');
+  await setDoc(doc(db, 'events', uid()), { name, date, location });
+  document.getElementById('newEventName').value = '';
+  document.getElementById('newEventDate').value = '';
+  document.getElementById('newEventLocation').value = '';
+  setSyncStatus('Guardado ✓');
+};
+
+function renderEvents() {
+  const el = document.getElementById('eventsList');
+  if (!el) return;
+  el.innerHTML = '';
+  if (events.length === 0) {
+    el.innerHTML = '<div class="empty">No hay salidas creadas todavía</div>';
+    return;
+  }
+  const sorted = [...events].sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  sorted.forEach(ev => {
+    const count = signups.filter(s => s.eventId === ev.id && s.status !== 'espera').length;
+    const div = document.createElement('div');
+    div.className = 'event-item';
+    div.onclick = () => openEvent(ev.id);
+    div.innerHTML = `
+      <div>
+        <div class="event-name">${escapeHtml(ev.name)}</div>
+        <div class="event-meta">${ev.date || 'sin fecha'} ${ev.location ? '· ' + escapeHtml(ev.location) : ''}</div>
+      </div>
+      <div class="event-count">${count} apuntados</div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+window.openEvent = function(id) {
+  currentEventId = id;
+  showTab('event-detail');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const ev = events.find(e => e.id === id);
+  document.getElementById('eventDetailTitle').textContent = `${ev.name} — ${ev.date || 'sin fecha'}`;
+  renderRoster();
+};
+
+async function findOrCreatePerson(name, email) {
+  let p = people.find(p => (email && p.email && p.email.toLowerCase() === email.toLowerCase()) || (!email && p.name.toLowerCase() === name.toLowerCase()));
+  if (!p) {
+    const id = uid();
+    p = { id, name, email: email || '' };
+    await setDoc(doc(db, 'people', id), { name, email: email || '' });
+  } else if (email && !p.email) {
+    await setDoc(doc(db, 'people', p.id), { ...p, email }, { merge: true });
+    p.email = email;
+  }
+  return p;
+}
+
+window.addToRoster = async function() {
+  const name = document.getElementById('rosterName').value.trim();
+  const email = document.getElementById('rosterEmail').value.trim();
+  const status = document.getElementById('rosterStatus').value;
+  if (!name) return;
+  setSyncStatus('Guardando…');
+  const person = await findOrCreatePerson(name, email);
+  const existing = signups.find(s => s.eventId === currentEventId && s.personId === person.id);
+  if (existing) {
+    await setDoc(doc(db, 'signups', existing.id), { personId: person.id, eventId: currentEventId, status, attended: existing.attended || false });
+  } else {
+    const id = uid();
+    await setDoc(doc(db, 'signups', id), { personId: person.id, eventId: currentEventId, status, attended: false });
+  }
+  document.getElementById('rosterName').value = '';
+  document.getElementById('rosterEmail').value = '';
+  setSyncStatus('Guardado ✓');
+};
+
+function renderRoster() {
+  const list = signups.filter(s => s.eventId === currentEventId);
+  const el = document.getElementById('rosterList');
+  if (!el) return;
+  el.innerHTML = '';
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty">Nadie apuntado todavía</div>';
+  } else {
+    list.forEach(s => {
+      const person = people.find(p => p.id === s.personId);
+      if (!person) return;
+      const timesAttended = signups.filter(x => x.personId === person.id && x.attended).length;
+      const div = document.createElement('div');
+      div.className = 'person-row ' + s.status;
+      div.innerHTML = `
+        <div class="attend-check ${s.attended ? 'checked' : ''}" onclick="toggleAttended('${s.id}')">${s.attended ? '✓' : ''}</div>
+        <div class="person-main">
+          <div class="person-name">${escapeHtml(person.name)} ${timesAttended > 1 ? `<span class="badge">repite ×${timesAttended}</span>` : ''}</div>
+          <div class="person-meta">${escapeHtml(person.email || '')}</div>
+        </div>
+        <select class="status-select" onchange="changeStatus('${s.id}', this.value)">
+          <option value="pendiente" ${s.status==='pendiente'?'selected':''}>Pendiente</option>
+          <option value="confirmado" ${s.status==='confirmado'?'selected':''}>Confirmado</option>
+          <option value="espera" ${s.status==='espera'?'selected':''}>Espera</option>
+        </select>
+        <button class="small danger" onclick="removeSignup('${s.id}')">✕</button>
+      `;
+      el.appendChild(div);
+    });
+  }
+  document.getElementById('statConfirmados').textContent = list.filter(s => s.status === 'confirmado').length;
+  document.getElementById('statPendientes').textContent = list.filter(s => s.status === 'pendiente').length;
+  document.getElementById('statEspera').textContent = list.filter(s => s.status === 'espera').length;
+  document.getElementById('statAsistieron').textContent = list.filter(s => s.attended).length;
+}
+
+window.toggleAttended = async function(signupId) {
+  const s = signups.find(s => s.id === signupId);
+  if (!s) return;
+  setSyncStatus('Guardando…');
+  await setDoc(doc(db, 'signups', signupId), { ...s, attended: !s.attended });
+  setSyncStatus('Guardado ✓');
+};
+
+window.changeStatus = async function(signupId, status) {
+  const s = signups.find(s => s.id === signupId);
+  if (!s) return;
+  setSyncStatus('Guardando…');
+  await setDoc(doc(db, 'signups', signupId), { ...s, status });
+  setSyncStatus('Guardado ✓');
+};
+
+window.removeSignup = async function(signupId) {
+  setSyncStatus('Borrando…');
+  await deleteDoc(doc(db, 'signups', signupId));
+  setSyncStatus('Borrado ✓');
+};
+
+// ---------- PEOPLE VIEW ----------
+function renderPeople() {
+  const search = (document.getElementById('searchPeople')?.value || '').toLowerCase();
+  const el = document.getElementById('peopleList');
+  if (!el) return;
+  el.innerHTML = '';
+  let filtered = people.filter(p =>
+    p.name.toLowerCase().includes(search) || (p.email||'').toLowerCase().includes(search)
+  );
+  filtered.sort((a,b) => {
+    const countA = signups.filter(s => s.personId === a.id).length;
+    const countB = signups.filter(s => s.personId === b.id).length;
+    return countB - countA;
+  });
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty">Sin resultados</div>';
+    return;
+  }
+  filtered.forEach(p => {
+    const psignups = signups.filter(s => s.personId === p.id);
+    const attended = psignups.filter(s => s.attended).length;
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.style.flexDirection = 'column';
+    div.style.alignItems = 'stretch';
+    div.innerHTML = `
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="person-main">
+          <div class="person-name">${escapeHtml(p.name)} ${attended > 1 ? `<span class="badge">${attended} salidas</span>` : ''}</div>
+          <div class="person-meta">${escapeHtml(p.email || 'sin email')} · apuntado a ${psignups.length} salida(s)</div>
+        </div>
+        <button class="small danger" onclick="deletePerson('${p.id}')">✕</button>
+      </div>
+      <div class="trial-row">${trialControlHtml(p)}</div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+const TRIAL_DAYS = 30;
+
+function trialControlHtml(p) {
+  if (!p.trialStart) {
+    return `<button class="trial-btn" onclick="grantTrial('${p.id}')">+ Dar acceso zona miembros (1 mes)</button>`;
+  }
+  const start = new Date(p.trialStart);
+  const end = new Date(start.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const daysLeft = Math.ceil((end - now) / (24 * 60 * 60 * 1000));
+
+  let badgeClass, badgeText;
+  if (daysLeft < 0) {
+    badgeClass = 'expired';
+    badgeText = 'Caducado';
+  } else if (daysLeft <= 5) {
+    badgeClass = 'soon';
+    badgeText = `Quedan ${daysLeft} día(s)`;
+  } else {
+    badgeClass = 'active';
+    badgeText = `Activo · ${daysLeft} días`;
+  }
+
+  return `
+    <span class="trial-badge ${badgeClass}">${badgeText}</span>
+    <span class="person-meta">hasta ${end.toLocaleDateString('es-ES')}</span>
+    <button class="trial-btn" onclick="revokeTrial('${p.id}')">Quitar acceso</button>
+  `;
+}
+
+window.grantTrial = async function(personId) {
+  const p = people.find(p => p.id === personId);
+  if (!p) return;
+  setSyncStatus('Guardando…');
+  await setDoc(doc(db, 'people', personId), { ...p, trialStart: new Date().toISOString() });
+  setSyncStatus('Guardado ✓');
+};
+
+window.revokeTrial = async function(personId) {
+  const p = people.find(p => p.id === personId);
+  if (!p) return;
+  const { trialStart, ...rest } = p;
+  setSyncStatus('Guardando…');
+  await setDoc(doc(db, 'people', personId), rest);
+  setSyncStatus('Guardado ✓');
+};
+
+window.deletePerson = async function(id) {
+  setSyncStatus('Borrando…');
+  await deleteDoc(doc(db, 'people', id));
+  const related = signups.filter(s => s.personId === id);
+  for (const s of related) {
+    await deleteDoc(doc(db, 'signups', s.id));
+  }
+  setSyncStatus('Borrado ✓');
+};
+
+// ---------- EXPORT ----------
+function populateExportFilter() {
+  const sel = document.getElementById('exportEventFilter');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Todas las personas (histórico completo)</option>';
+  events.forEach(ev => {
+    const opt = document.createElement('option');
+    opt.value = ev.id;
+    opt.textContent = ev.name + (ev.date ? ' — ' + ev.date : '');
+    sel.appendChild(opt);
+  });
+  sel.value = current;
+}
+
+window.updateExport = function() {
+  const eventId = document.getElementById('exportEventFilter').value;
+  let emails;
+  if (eventId) {
+    const personIds = signups.filter(s => s.eventId === eventId).map(s => s.personId);
+    emails = people.filter(p => personIds.includes(p.id) && p.email).map(p => p.email);
+  } else {
+    emails = people.filter(p => p.email).map(p => p.email);
+  }
+  document.getElementById('exportEmails').value = emails.join(', ');
+};
+
+window.copyExport = function() {
+  const box = document.getElementById('exportEmails');
+  box.select();
+  document.execCommand('copy');
+  document.getElementById('copyHint').textContent = 'Copiado ✓';
+  setTimeout(() => document.getElementById('copyHint').textContent = '', 2000);
+};
+
+window.downloadCSV = function() {
+  let rows = [['Nombre','Email','Salida','Fecha','Estado','Asistio','AccesoMiembros_Inicio','AccesoMiembros_Fin']];
+  signups.forEach(s => {
+    const p = people.find(p => p.id === s.personId);
+    const ev = events.find(e => e.id === s.eventId);
+    if (!p || !ev) return;
+    let trialStartStr = '', trialEndStr = '';
+    if (p.trialStart) {
+      const start = new Date(p.trialStart);
+      const end = new Date(start.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+      trialStartStr = start.toLocaleDateString('es-ES');
+      trialEndStr = end.toLocaleDateString('es-ES');
+    }
+    rows.push([p.name, p.email || '', ev.name, ev.date || '', s.status, s.attended ? 'si' : 'no', trialStartStr, trialEndStr]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mirar-despacio-personas.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+window.trialControlHtml = trialControlHtml;
+</script>
+
+</body>
+</html>
