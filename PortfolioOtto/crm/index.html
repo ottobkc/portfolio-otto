@@ -261,7 +261,7 @@
         <input type="date" id="newEventDate">
         <input type="text" id="newEventLocation" placeholder="Punto de encuentro">
       </div>
-      <button onclick="createEvent()">Crear salida</button>
+      <button onclick="createSalida()">Crear salida</button>
     </div>
     <div id="eventsList"></div>
   </div>
@@ -431,7 +431,7 @@ window.showTab = function(name) {
 };
 
 // ---------- EVENTS ----------
-window.createEvent = async function() {
+window.createSalida = async function() {
   const name = document.getElementById('newEventName').value.trim();
   const date = document.getElementById('newEventDate').value;
   const location = document.getElementById('newEventLocation').value.trim();
