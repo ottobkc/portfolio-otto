@@ -561,19 +561,7 @@
     .modelo-features li:last-child { border: none; }
     .modelo-features li::before { content: '—'; color: var(--border); flex-shrink: 0; }
 
-    /* ---- ACCESO SUSCRIPTORES ---- */
-    .members-section { background: var(--bg2); }
-    .members-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5rem;
-      align-items: center;
-    }
-    .members-text p { color: var(--ink-faint); font-size: 0.95rem; line-height: 1.8; margin-bottom: 0.75rem; }
-    .members-text strong { color: var(--ink); font-weight: 500; }
-
+    /* ---- Caja de formulario reutilizable (usada en el mapa de pegatinas) ---- */
     .members-box {
       border: 1px solid var(--border);
       padding: 2.5rem;
@@ -587,47 +575,6 @@
       color: var(--ink);
     }
     .members-box > div > p { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.75rem; line-height: 1.6; }
-
-    .members-logged { display: none; }
-    .members-logged p { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
-    .members-logged strong { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text; }
-
-    .members-links { display: flex; flex-direction: column; gap: 1px; margin-bottom: 1.5rem; }
-    .members-link {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.85rem 1rem;
-      border: 1px solid var(--border);
-      background: var(--bg2);
-      color: var(--ink);
-      font-size: 0.85rem;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .members-link:hover { border-color: var(--accent2); background: #eef2ee; }
-    .members-link-icon { font-size: 0.75rem; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text; flex-shrink: 0; width: 20px; }
-    .members-link-name { font-size: 0.85rem; display: block; }
-    .members-link-desc { font-size: 0.72rem; color: var(--muted); display: block; }
-
-    .btn-logout {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 0.72rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      font-family: var(--font-sans);
-      padding: 0;
-      transition: color 0.2s;
-    }
-    .btn-logout:hover { color: var(--ink); }
 
     /* ---- FORMULARIO ---- */
     .form-section { background: var(--bg); }
@@ -777,7 +724,6 @@
       .que-grid { grid-template-columns: 1fr; gap: 3rem; }
       .misiones-grid { grid-template-columns: repeat(2, 1fr); }
       .modelo-grid { grid-template-columns: 1fr; }
-      .members-inner { grid-template-columns: 1fr; gap: 2.5rem; }
       .form-layout { grid-template-columns: 1fr; gap: 3rem; }
     }
     @media (max-width: 600px) {
@@ -791,41 +737,9 @@
       .modelo-card { padding: 1.75rem 1.5rem; }
     }
 
-    /* ---- MINI LOGIN BAR ---- */
-    .mini-login-bar {
-      background: var(--bg2);
-      border-bottom: 1px solid var(--border);
-      padding: 0.45rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 1rem;
-    }
-    .mini-login-bar p { font-size: 0.72rem; color: var(--muted); }
-    #miniLoginTrigger {
-      color: var(--md-orange);
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    .mini-login-logged { display: none; align-items: center; gap: 0.75rem; }
-    .mini-login-logged span { font-size: 0.72rem; color: var(--muted); }
-    .mini-login-logged strong { color: var(--md-orange); font-weight: 500; }
-    .mini-btn-recursos {
-      font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--md-orange); border: 1px solid var(--md-orange);
-      padding: 0.28rem 0.7rem; transition: background 0.2s, color 0.2s;
-      font-family: var(--font-sans); background: transparent; text-decoration: none; display: inline-block;
-    }
-    .mini-btn-recursos:hover { background: var(--md-orange); color: #fff; }
-    .mini-btn-logout {
-      background: none; border: none; font-size: 0.68rem; color: var(--muted);
-      letter-spacing: 0.08em; text-transform: uppercase;
-      cursor: pointer; font-family: var(--font-sans); padding: 0;
-    }
-    .mini-btn-logout:hover { color: var(--ink); }
-    @media (max-width: 600px) { .mini-login-bar { padding: 0.4rem 1.25rem; } }
-
   </style>
+  <!-- Leaflet (mapa de pegatinas) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <!-- Umami Analytics -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
 </head>
@@ -865,18 +779,6 @@
       <li><a href="/#contacto">Contacto</a></li>
       <li><a href="#" id="navLoginTriggerMobile">Acceso suscriptores</a></li>
     </ul>
-  </div>
-
-  <!-- MINI LOGIN BAR -->
-  <div class="mini-login-bar">
-    <div id="miniLoginOff">
-      <p>Suscriptores de <strong style="color:var(--md-orange);font-weight:500;">Mirar Despacio+</strong>: <span id="miniLoginTrigger">Inicia sesión</span></p>
-    </div>
-    <div class="mini-login-logged" id="miniLoginOn">
-      <span>Hola, <strong id="miniMemberName"></strong></span>
-      <a href="/recursos.html" class="mini-btn-recursos">Ver recursos</a>
-      <button class="mini-btn-logout" id="miniLogout">Salir</button>
-    </div>
   </div>
 
   <div class="page-hero">
@@ -1137,38 +1039,30 @@
 
   <hr class="divider" />
 
-  <!-- ACCESO SUSCRIPTORES -->
-  <div class="section members-section" id="acceso">
-    <div class="members-inner">
-      <div class="members-text">
-        <p class="section-label">Mirar Despacio +</p>
-        <h2 class="section-title" style="font-size:clamp(1.6rem,3.5vw,2.4rem);">Área de <em>suscriptores.</em></h2>
-        <p>Si eres suscriptor de <strong>Mirar Despacio+</strong>, aquí tienes acceso a los recursos exclusivos: tarjetas de misión descargables, episodios privados del podcast y materiales de las salidas.</p>
-        <p>¿Aún no eres suscriptor? Las primeras salidas son libres — apúntate en el formulario de esta página y cuando lancemos la membresía estarás entre los primeros en saberlo.</p>
-      </div>
-      <div class="members-box">
-        <div id="membersLogin">
-          <h3>Acceso exclusivo</h3>
-          <p>Inicia sesión con tu cuenta de suscriptor.</p>
-          <div data-netlify-identity-button></div>
-        </div>
-        <div class="members-logged" id="membersLogged">
-          <p>Bienvenido, <strong id="memberName"></strong></p>
-          <div class="members-links">
-            <a href="/recursos.html" class="members-link">
-              <span class="members-link-icon">→</span>
-              <span>
-                <span class="members-link-name">Ver todos los recursos</span>
-                <span class="members-link-desc">Tarjetas, episodios y materiales</span>
-              </span>
-            </a>
-          </div>
-          <button class="btn-logout" id="membersLogout">Cerrar sesión</button>
-        </div>
-      </div>
+  <!-- MAPA DE PEGATINAS -->
+  <div class="section" id="mapa-pegatinas">
+    <p class="section-label">Deja tu huella</p>
+    <h2 class="section-title">Mapa de <em>pegatinas.</em></h2>
+    <p style="max-width:640px;margin-bottom:1.5rem;">¿Has pegado o visto una pegatina de Mirar Despacio por algún sitio? Márcalo en el mapa. Si te vas de viaje y pegas una fuera de Madrid, mejor todavía.</p>
+
+    <div id="stickerMap" style="height:420px;border-radius:12px;overflow:hidden;margin-bottom:1.25rem;"></div>
+
+    <div class="members-box" style="max-width:480px;">
+      <h3 style="margin-top:0;">Añade tu pegatina</h3>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Haz clic en el mapa donde la pusiste, rellena lo que quieras y envía.</p>
+      <form id="stickerForm">
+        <input type="hidden" id="stickerLat">
+        <input type="hidden" id="stickerLng">
+        <p id="stickerCoordsHint" style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">Aún no has marcado un punto en el mapa ↑</p>
+        <input type="text" id="stickerName" placeholder="Tu nombre o @ de Instagram (opcional)" style="width:100%;margin-bottom:0.6rem;">
+        <input type="url" id="stickerPhoto" placeholder="Enlace a una foto (opcional)" style="width:100%;margin-bottom:0.6rem;">
+        <button type="submit" class="btn btn-green" style="width:100%;text-align:center;">Marcar en el mapa</button>
+        <p id="stickerMsg" style="font-size:0.8rem;margin-top:0.6rem;"></p>
+      </form>
     </div>
   </div>
-  <script>document.addEventListener('DOMContentLoaded', () => initMembersBox());</script>
+
+  <hr class="divider" />
 
   <footer>
     <div class="footer-inner">
@@ -1183,63 +1077,31 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
-    // Nota: el bloque "Acceso suscriptores" se renderiza más abajo en el HTML
-    // (se movió al final de la página), así que sus referencias se inicializan
-    // de forma diferida con initMembersBox(), llamada justo después de su HTML.
-    let loginBox, loggedBox, memberName, logoutBtn;
-    function initMembersBox() {
-      loginBox   = document.getElementById('membersLogin');
-      loggedBox  = document.getElementById('membersLogged');
-      memberName = document.getElementById('memberName');
-      logoutBtn  = document.getElementById('membersLogout');
-      logoutBtn && logoutBtn.addEventListener('click', () => netlifyIdentity.logout());
-      // Si Identity ya estaba inicializado y el usuario ya estaba logueado
-      // antes de que este bloque existiera, refleja el estado actual ahora.
-      if (window.netlifyIdentity && netlifyIdentity.currentUser()) {
-        showLogged(netlifyIdentity.currentUser());
-      }
-    }
-
-    function showLogged(user) {
-      if (!loginBox) return;
-      loginBox.style.display  = 'none';
-      loggedBox.style.display = 'block';
-      memberName.textContent  = user.user_metadata?.full_name || user.email;
-    }
-    function showLogin() {
-      if (!loginBox) return;
-      loginBox.style.display  = 'block';
-      loggedBox.style.display = 'none';
-    }
-
-    // Mini login bar
-    const miniLoginOff   = document.getElementById('miniLoginOff');
-    const miniLoginOn    = document.getElementById('miniLoginOn');
-    const miniMemberName = document.getElementById('miniMemberName');
-    const miniLogoutBtn  = document.getElementById('miniLogout');
-    const miniTrigger    = document.getElementById('miniLoginTrigger');
-    function miniShowLogged(u) {
-      miniLoginOff.style.display = 'none';
-      miniLoginOn.style.display  = 'flex';
-      miniMemberName.textContent = u.user_metadata?.full_name || u.email;
-    }
-    function miniShowLogin() {
-      miniLoginOff.style.display = 'block';
-      miniLoginOn.style.display  = 'none';
-    }
-    miniTrigger   && miniTrigger.addEventListener('click',   () => netlifyIdentity.open());
-    miniLogoutBtn && miniLogoutBtn.addEventListener('click', () => netlifyIdentity.logout());
-
-    // Acceso suscriptores desde el nav superior
+    // Acceso suscriptores desde el nav superior — login y redirección directa a recursos
     const navLoginTrigger       = document.getElementById('navLoginTrigger');
     const navLoginTriggerMobile = document.getElementById('navLoginTriggerMobile');
-    navLoginTrigger       && navLoginTrigger.addEventListener('click', e => { e.preventDefault(); netlifyIdentity.open(); });
-    navLoginTriggerMobile && navLoginTriggerMobile.addEventListener('click', e => { e.preventDefault(); netlifyIdentity.open(); });
+    let redirectAfterLogin = false;
+
+    function handleNavLoginClick(e) {
+      e.preventDefault();
+      if (window.netlifyIdentity && netlifyIdentity.currentUser()) {
+        window.location.href = '/recursos.html';
+      } else {
+        redirectAfterLogin = true;
+        netlifyIdentity.open();
+      }
+    }
+    navLoginTrigger       && navLoginTrigger.addEventListener('click', handleNavLoginClick);
+    navLoginTriggerMobile && navLoginTriggerMobile.addEventListener('click', handleNavLoginClick);
 
     if (window.netlifyIdentity) {
-      netlifyIdentity.on('init',   user => { if (user) { showLogged(user); miniShowLogged(user); } else { showLogin(); miniShowLogin(); } });
-      netlifyIdentity.on('login',  user => { showLogged(user); miniShowLogged(user); netlifyIdentity.close(); });
-      netlifyIdentity.on('logout', ()   => { showLogin(); miniShowLogin(); });
+      netlifyIdentity.on('login',  user => {
+        netlifyIdentity.close();
+        if (redirectAfterLogin) {
+          redirectAfterLogin = false;
+          window.location.href = '/recursos.html';
+        }
+      });
       netlifyIdentity.init();
     }
 
@@ -1468,6 +1330,102 @@
         if (fechaEl) fechaEl.textContent = 'Todavía no hay fecha fija. Rellena el formulario y te avisamos en cuanto confirmemos zona, día y hora. Sin compromiso.';
       });
 
+  </script>
+
+  <!-- Leaflet + Mapa de pegatinas -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfRTs1pF5-iV2dlNFY-dlFv4A-HcxZeTk",
+      authDomain: "mirardespaciocrm.firebaseapp.com",
+      projectId: "mirardespaciocrm",
+      storageBucket: "mirardespaciocrm.firebasestorage.app",
+      messagingSenderId: "328402994544",
+      appId: "1:328402994544:web:abab2ce9d54d286eb7fbb5"
+    };
+    const fbApp = initializeApp(firebaseConfig, "pegatinas");
+    const db = getFirestore(fbApp);
+
+    const map = L.map('stickerMap', { scrollWheelZoom: false }).setView([40.4168, -3.7038], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 18
+    }).addTo(map);
+
+    let markerLayer = L.layerGroup().addTo(map);
+    let pendingMarker = null;
+
+    onSnapshot(collection(db, 'pegatinas'), (snap) => {
+      markerLayer.clearLayers();
+      snap.docs.forEach(d => {
+        const p = d.data();
+        if (typeof p.lat !== 'number' || typeof p.lng !== 'number') return;
+        const popupHtml = `
+          <div style="font-family:var(--font-sans,sans-serif);max-width:200px;">
+            ${p.photo ? `<img src="${escapeAttr(p.photo)}" style="width:100%;border-radius:6px;margin-bottom:6px;" onerror="this.style.display='none'">` : ''}
+            ${p.name ? `<strong>${escapeHtml(p.name)}</strong><br>` : ''}
+            <span style="font-size:0.8rem;color:#8a8477;">Pegatina de Mirar Despacio</span>
+          </div>
+        `;
+        L.marker([p.lat, p.lng]).bindPopup(popupHtml).addTo(markerLayer);
+      });
+    });
+
+    map.on('click', (e) => {
+      if (pendingMarker) map.removeLayer(pendingMarker);
+      pendingMarker = L.marker(e.latlng, { opacity: 0.6 }).addTo(map);
+      document.getElementById('stickerLat').value = e.latlng.lat;
+      document.getElementById('stickerLng').value = e.latlng.lng;
+      document.getElementById('stickerCoordsHint').textContent = `Punto marcado: ${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
+    });
+
+    const stickerForm = document.getElementById('stickerForm');
+    stickerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const lat = parseFloat(document.getElementById('stickerLat').value);
+      const lng = parseFloat(document.getElementById('stickerLng').value);
+      const msgEl = document.getElementById('stickerMsg');
+      if (isNaN(lat) || isNaN(lng)) {
+        msgEl.textContent = 'Primero haz clic en el mapa para marcar dónde está.';
+        msgEl.style.color = '#b5654f';
+        return;
+      }
+      const name = document.getElementById('stickerName').value.trim();
+      const photo = document.getElementById('stickerPhoto').value.trim();
+      const btn = stickerForm.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+      try {
+        await addDoc(collection(db, 'pegatinas'), {
+          lat, lng, name: name || null, photo: photo || null, createdAt: serverTimestamp()
+        });
+        msgEl.textContent = '¡Gracias! Ya está en el mapa.';
+        msgEl.style.color = '#7a9e7e';
+        stickerForm.reset();
+        document.getElementById('stickerCoordsHint').textContent = 'Aún no has marcado un punto en el mapa ↑';
+        if (pendingMarker) { map.removeLayer(pendingMarker); pendingMarker = null; }
+      } catch (err) {
+        msgEl.textContent = 'No se pudo guardar, inténtalo de nuevo.';
+        msgEl.style.color = '#b5654f';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Marcar en el mapa';
+      }
+    });
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+    function escapeAttr(str) {
+      return str.replace(/"/g, '&quot;');
+    }
   </script>
 </body>
 </html>
