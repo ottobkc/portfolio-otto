@@ -180,6 +180,25 @@
     cursor: pointer;
   }
 
+  .consent-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--dim);
+    cursor: pointer;
+  }
+  .consent-toggle input { width: auto; margin: 0; }
+
+  .sub-panel {
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+  }
+  .sub-panel input[type="date"] { font-size: 12px; padding: 6px 8px; }
+  .sub-panel-row { display: flex; gap: 6px; align-items: center; }
+
   textarea.export-box { min-height: 90px; font-size: 13px; }
   .copy-hint { font-size: 12px; color: var(--dim); margin-top: 4px; }
 
@@ -277,6 +296,12 @@
   <!-- PERSONAS VIEW -->
   <div class="view" id="view-personas">
     <div class="card">
+      <div class="card-title">Nueva persona</div>
+      <input type="text" id="newPersonName" placeholder="Nombre">
+      <input type="text" id="newPersonEmail" placeholder="Email (opcional)">
+      <button onclick="createPersonDirect()">Añadir persona</button>
+    </div>
+    <div class="card">
       <input type="text" id="searchPeople" placeholder="Buscar por nombre o email..." oninput="renderPeople()">
     </div>
     <div id="peopleList"></div>
@@ -364,9 +389,11 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-function setSyncStatus(text) {
-  document.getElementById('syncStatus').textContent = text;
-  if (text) setTimeout(() => { document.getElementById('syncStatus').textContent = ''; }, 1500);
+function setSyncStatus(text, isError) {
+  const el = document.getElementById('syncStatus');
+  el.textContent = text;
+  el.style.color = isError ? '#b5654f' : '';
+  if (text && !isError) setTimeout(() => { el.textContent = ''; }, 1500);
 }
 
 function attachListeners() {
@@ -410,11 +437,16 @@ window.createEvent = async function() {
   const location = document.getElementById('newEventLocation').value.trim();
   if (!name) return;
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'events', uid()), { name, date, location });
-  document.getElementById('newEventName').value = '';
-  document.getElementById('newEventDate').value = '';
-  document.getElementById('newEventLocation').value = '';
-  setSyncStatus('Guardado ✓');
+  try {
+    await setDoc(doc(db, 'events', uid()), { name, date, location });
+    document.getElementById('newEventName').value = '';
+    document.getElementById('newEventDate').value = '';
+    document.getElementById('newEventLocation').value = '';
+    setSyncStatus('Guardado ✓');
+  } catch (err) {
+    console.error('Error creando salida:', err);
+    setSyncStatus('Error: ' + err.message, true);
+  }
 };
 
 function renderEvents() {
@@ -470,17 +502,22 @@ window.addToRoster = async function() {
   const status = document.getElementById('rosterStatus').value;
   if (!name) return;
   setSyncStatus('Guardando…');
-  const person = await findOrCreatePerson(name, email);
-  const existing = signups.find(s => s.eventId === currentEventId && s.personId === person.id);
-  if (existing) {
-    await setDoc(doc(db, 'signups', existing.id), { personId: person.id, eventId: currentEventId, status, attended: existing.attended || false });
-  } else {
-    const id = uid();
-    await setDoc(doc(db, 'signups', id), { personId: person.id, eventId: currentEventId, status, attended: false });
+  try {
+    const person = await findOrCreatePerson(name, email);
+    const existing = signups.find(s => s.eventId === currentEventId && s.personId === person.id);
+    if (existing) {
+      await setDoc(doc(db, 'signups', existing.id), { personId: person.id, eventId: currentEventId, status, attended: existing.attended || false });
+    } else {
+      const id = uid();
+      await setDoc(doc(db, 'signups', id), { personId: person.id, eventId: currentEventId, status, attended: false });
+    }
+    document.getElementById('rosterName').value = '';
+    document.getElementById('rosterEmail').value = '';
+    setSyncStatus('Guardado ✓');
+  } catch (err) {
+    console.error('Error añadiendo a la lista:', err);
+    setSyncStatus('Error: ' + err.message, true);
   }
-  document.getElementById('rosterName').value = '';
-  document.getElementById('rosterEmail').value = '';
-  setSyncStatus('Guardado ✓');
 };
 
 function renderRoster() {
@@ -541,6 +578,22 @@ window.removeSignup = async function(signupId) {
   setSyncStatus('Borrado ✓');
 };
 
+window.createPersonDirect = async function() {
+  const name = document.getElementById('newPersonName').value.trim();
+  const email = document.getElementById('newPersonEmail').value.trim();
+  if (!name) return;
+  setSyncStatus('Guardando…');
+  try {
+    await findOrCreatePerson(name, email);
+    document.getElementById('newPersonName').value = '';
+    document.getElementById('newPersonEmail').value = '';
+    setSyncStatus('Guardado ✓');
+  } catch (err) {
+    console.error('Error creando persona:', err);
+    setSyncStatus('Error: ' + err.message, true);
+  }
+};
+
 // ---------- PEOPLE VIEW ----------
 function renderPeople() {
   const search = (document.getElementById('searchPeople')?.value || '').toLowerCase();
@@ -575,6 +628,11 @@ function renderPeople() {
         <button class="small danger" onclick="deletePerson('${p.id}')">✕</button>
       </div>
       <div class="trial-row">${trialControlHtml(p)}</div>
+      <label class="consent-toggle">
+        <input type="checkbox" ${p.consentImagen ? 'checked' : ''} onchange="toggleConsent('${p.id}', this.checked)">
+        Consentimiento de uso de imagen
+      </label>
+      <div class="sub-panel">${subControlHtml(p)}</div>
     `;
     el.appendChild(div);
   });
@@ -609,6 +667,86 @@ function trialControlHtml(p) {
     <button class="trial-btn" onclick="revokeTrial('${p.id}')">Quitar acceso</button>
   `;
 }
+
+// ---------- CONSENTIMIENTO DE IMAGEN ----------
+window.toggleConsent = async function(personId, value) {
+  const p = people.find(p => p.id === personId);
+  if (!p) return;
+  setSyncStatus('Guardando…');
+  try {
+    await setDoc(doc(db, 'people', personId), { ...p, consentImagen: value });
+    setSyncStatus('Guardado ✓');
+  } catch (err) {
+    console.error('Error guardando consentimiento:', err);
+    setSyncStatus('Error: ' + err.message, true);
+  }
+};
+
+// ---------- SUSCRIPCIÓN MIRAR DESPACIO+ ----------
+function subControlHtml(p) {
+  const sub = p.subscription || {};
+  if (!sub.active) {
+    return `
+      <div class="person-meta" style="margin-bottom:6px;">Mirar Despacio+: <strong style="color:var(--dim);">Inactivo</strong></div>
+      <div class="sub-panel-row">
+        <input type="date" id="subSince_${p.id}" style="flex:1;">
+        <button class="trial-btn" onclick="activateSub('${p.id}')">Activar suscripción</button>
+      </div>
+    `;
+  }
+  const until = sub.until ? new Date(sub.until) : null;
+  const now = new Date();
+  let statusText = 'Activo';
+  let statusColor = 'var(--ok)';
+  if (until) {
+    const daysLeft = Math.ceil((until - now) / (24*60*60*1000));
+    if (daysLeft < 0) { statusText = 'Caducado'; statusColor = 'var(--danger)'; }
+    else if (daysLeft <= 7) { statusText = `Termina en ${daysLeft} día(s)`; statusColor = 'var(--gold)'; }
+  }
+  return `
+    <div class="person-meta" style="margin-bottom:6px;">
+      Mirar Despacio+: <strong style="color:${statusColor};">${statusText}</strong>
+      ${sub.since ? ` · desde ${new Date(sub.since).toLocaleDateString('es-ES')}` : ''}
+      ${until ? ` · hasta ${until.toLocaleDateString('es-ES')}` : ''}
+    </div>
+    <div class="sub-panel-row">
+      <button class="trial-btn" onclick="deactivateSub('${p.id}')">Desactivar</button>
+    </div>
+  `;
+}
+
+window.activateSub = async function(personId) {
+  const p = people.find(p => p.id === personId);
+  if (!p) return;
+  const sinceInput = document.getElementById(`subSince_${personId}`);
+  const since = sinceInput?.value || new Date().toISOString().slice(0,10);
+  const untilDate = new Date(since);
+  untilDate.setMonth(untilDate.getMonth() + 1);
+  setSyncStatus('Guardando…');
+  try {
+    await setDoc(doc(db, 'people', personId), {
+      ...p,
+      subscription: { active: true, since, until: untilDate.toISOString().slice(0,10) }
+    });
+    setSyncStatus('Guardado ✓');
+  } catch (err) {
+    console.error('Error activando suscripción:', err);
+    setSyncStatus('Error: ' + err.message, true);
+  }
+};
+
+window.deactivateSub = async function(personId) {
+  const p = people.find(p => p.id === personId);
+  if (!p) return;
+  setSyncStatus('Guardando…');
+  try {
+    await setDoc(doc(db, 'people', personId), { ...p, subscription: { active: false } });
+    setSyncStatus('Guardado ✓');
+  } catch (err) {
+    console.error('Error desactivando suscripción:', err);
+    setSyncStatus('Error: ' + err.message, true);
+  }
+};
 
 window.grantTrial = async function(personId) {
   const p = people.find(p => p.id === personId);
@@ -673,7 +811,7 @@ window.copyExport = function() {
 };
 
 window.downloadCSV = function() {
-  let rows = [['Nombre','Email','Salida','Fecha','Estado','Asistio','AccesoMiembros_Inicio','AccesoMiembros_Fin']];
+  let rows = [['Nombre','Email','Salida','Fecha','Estado','Asistio','AccesoMiembros_Inicio','AccesoMiembros_Fin','ConsentimientoImagen','MD_Plus_Activo','MD_Plus_Desde','MD_Plus_Hasta']];
   signups.forEach(s => {
     const p = people.find(p => p.id === s.personId);
     const ev = events.find(e => e.id === s.eventId);
@@ -685,7 +823,15 @@ window.downloadCSV = function() {
       trialStartStr = start.toLocaleDateString('es-ES');
       trialEndStr = end.toLocaleDateString('es-ES');
     }
-    rows.push([p.name, p.email || '', ev.name, ev.date || '', s.status, s.attended ? 'si' : 'no', trialStartStr, trialEndStr]);
+    const sub = p.subscription || {};
+    rows.push([
+      p.name, p.email || '', ev.name, ev.date || '', s.status, s.attended ? 'si' : 'no',
+      trialStartStr, trialEndStr,
+      p.consentImagen ? 'si' : 'no',
+      sub.active ? 'si' : 'no',
+      sub.since || '',
+      sub.until || ''
+    ]);
   });
   const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
