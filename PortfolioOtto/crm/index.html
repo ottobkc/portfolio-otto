@@ -250,6 +250,7 @@
     <div class="tab active" data-tab="salidas">Salidas</div>
     <div class="tab" data-tab="personas">Personas</div>
     <div class="tab" data-tab="accesos">Accesos</div>
+    <div class="tab" data-tab="pegatinas">Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></div>
     <div class="tab" data-tab="exportar">Exportar</div>
   </div>
 
@@ -324,6 +325,17 @@
     <div id="accesosList"></div>
   </div>
 
+  <!-- PEGATINAS VIEW (mapa de mirardespacio.es/salidas) -->
+  <div class="view" id="view-pegatinas">
+    <div class="card">
+      <div class="card-title">Fotos pendientes de revisar</div>
+      <div class="person-meta">Las fotos que sube la gente no se ven en el mapa hasta que las apruebas. El punto sí aparece al momento.</div>
+    </div>
+    <div id="pegatinasPendientes"></div>
+    <div class="card-title" style="margin-top:18px;">Todas las pegatinas</div>
+    <div id="pegatinasTodas"></div>
+  </div>
+
   <!-- EXPORTAR VIEW -->
   <div class="view" id="view-exportar">
     <div class="card">
@@ -356,7 +368,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc,
-  query, orderBy, limit, where
+  query, orderBy, limit, where, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -393,6 +405,7 @@ let signups = [];
 let currentEventId = null;
 let unsubEvents = null, unsubPeople = null, unsubSignups = null;
 let miembrosAct = [], accesos = [], unsubMiembros = null, unsubAccesos = null, miembroAbierto = null;
+let pegatinas = [], unsubPegatinas = null;
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -407,6 +420,7 @@ onAuthStateChanged(auth, (user) => {
     if (unsubSignups) unsubSignups();
     if (unsubMiembros) unsubMiembros();
     if (unsubAccesos) unsubAccesos();
+    if (unsubPegatinas) unsubPegatinas();
   }
 });
 
@@ -437,6 +451,10 @@ function attachListeners() {
     accesos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderAccesos();
   }, () => {});
+  unsubPegatinas = onSnapshot(collection(db, 'pegatinas'), (snap) => {
+    pegatinas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderPegatinas();
+  }, () => {});
   unsubSignups = onSnapshot(collection(db, 'signups'), (snap) => {
     signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderEvents();
@@ -458,7 +476,52 @@ window.showTab = function(name) {
   if (name === 'personas') renderPeople();
   if (name === 'exportar') updateExport();
   if (name === 'accesos') renderAccesos();
+  if (name === 'pegatinas') renderPegatinas();
 };
+
+// ---------- PEGATINAS ----------
+window.aprobarFoto = async function(id, valor) {
+  setSyncStatus('Guardando…');
+  try { await updateDoc(doc(db, 'pegatinas', id), { fotoAprobada: valor }); setSyncStatus('Guardado'); }
+  catch (e) { setSyncStatus('Error al guardar', true); }
+};
+window.borrarPegatina = async function(id) {
+  if (!confirm('¿Borrar esta pegatina del mapa?')) return;
+  setSyncStatus('Borrando…');
+  try { await deleteDoc(doc(db, 'pegatinas', id)); setSyncStatus('Borrada'); }
+  catch (e) { setSyncStatus('Error al borrar', true); }
+};
+function filaPegatina(p) {
+  const d = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate() : null;
+  const cuando = d ? d.toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'sin fecha';
+  const mapa = `https://www.openstreetmap.org/?mlat=${p.lat}&mlon=${p.lng}#map=17/${p.lat}/${p.lng}`;
+  const foto = p.photo && /^https:\/\//.test(p.photo)
+    ? `<a href="${escapeHtml(p.photo)}" target="_blank" rel="noopener"><img src="${escapeHtml(p.photo.replace('/upload/', '/upload/c_fill,w_160,h_160,q_auto,f_auto/'))}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;"></a>` : '';
+  const estado = !p.photo ? 'sin foto' : (p.fotoAprobada === false ? '<span class="badge" style="background:#b5654f;">foto pendiente</span>' : '<span class="badge">foto visible</span>');
+  const botones = !p.photo ? '' : (p.fotoAprobada === false
+    ? `<button class="small" onclick="aprobarFoto('${p.id}', true)">Aprobar foto</button>`
+    : `<button class="small secondary" onclick="aprobarFoto('${p.id}', false)">Ocultar foto</button>`);
+  return `<div class="person-row" style="gap:12px;align-items:center;">
+    ${foto}
+    <div class="person-main">
+      <div class="person-name">${escapeHtml(p.name || 'Anónimo')} ${estado}</div>
+      <div class="person-meta">${cuando} · <a href="${mapa}" target="_blank" rel="noopener" style="color:inherit">ver en el mapa</a></div>
+    </div>
+    ${botones}
+    <button class="small danger" onclick="borrarPegatina('${p.id}')">✕</button>
+  </div>`;
+}
+function renderPegatinas() {
+  const orden = [...pegatinas].sort((a, b) => ((b.createdAt && b.createdAt.seconds) || 0) - ((a.createdAt && a.createdAt.seconds) || 0));
+  const pend = orden.filter(p => p.photo && p.fotoAprobada === false);
+  const badge = document.getElementById('pegPendientes');
+  if (badge) { badge.textContent = pend.length; badge.style.display = pend.length ? 'inline-block' : 'none'; }
+  const elP = document.getElementById('pegatinasPendientes');
+  const elT = document.getElementById('pegatinasTodas');
+  if (!elP) return;
+  elP.innerHTML = pend.length ? pend.map(filaPegatina).join('') : '<div class="empty">No hay fotos pendientes.</div>';
+  elT.innerHTML = orden.length ? orden.map(filaPegatina).join('') : '<div class="empty">Todavía no hay pegatinas.</div>';
+}
 
 // ---------- ACCESOS (Mirar Despacio+) ----------
 const TIPO_TXT = { login: 'Inicia sesión', pagina: 'Abre', salida: 'Sale de', logout: 'Cierra sesión' };

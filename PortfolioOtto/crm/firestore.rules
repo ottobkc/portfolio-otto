@@ -12,9 +12,16 @@ service cloud.firestore {
     // Mapa de pegatinas de salidas.html: cualquiera puede verlo y añadir una.
     match /pegatinas/{id} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['lat', 'lng', 'name', 'photo', 'createdAt'])
+      // Cualquiera puede añadir un punto. Si trae foto, entra sin aprobar (fotoAprobada: false)
+      // y solo el admin puede aprobarla, editarla o borrarla (regla general de abajo).
+      allow create: if request.resource.data.keys().hasOnly(['lat', 'lng', 'name', 'photo', 'fotoAprobada', 'createdAt'])
                     && request.resource.data.lat is number
-                    && request.resource.data.lng is number;
+                    && request.resource.data.lng is number
+                    && (!('fotoAprobada' in request.resource.data) || request.resource.data.fotoAprobada == false)
+                    && (!('photo' in request.resource.data) || request.resource.data.photo == null
+                        || (request.resource.data.photo is string
+                            && request.resource.data.photo.size() < 400
+                            && request.resource.data.fotoAprobada == false));
     }
 
     // Registro de accesos: lo escriben las funciones de Netlify (con credenciales de servidor,

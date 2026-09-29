@@ -272,15 +272,18 @@ def construir(g):
       <div class="envoltura">
         <p class="antetitulo">Mapa de pegatinas</p>
         <h2>¿Has visto una <em>pegatina?</em></h2>
-        <p>Si te has cruzado con una pegatina de Mirar Despacio, márcala en el mapa. Toca el sitio y envíalo.</p>
+        <p>Si te has cruzado con una pegatina de Mirar Despacio, márcala en el mapa y, si quieres, súbele una foto.</p>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
         <div id="stickerMap" style="height:420px;border-radius:6px;overflow:hidden;margin:20px 0;"></div>
         <form id="stickerForm" class="formulario" style="max-width:520px;">
-          <p id="stickerCoordsHint" class="aviso" style="margin:0">Aún no has marcado ningún punto en el mapa.</p>
+          <div class="botones" style="margin-top:0"><button type="button" class="boton claro" id="stickerGeo">📍 Usar mi ubicación</button></div>
+          <p id="stickerCoordsHint" class="aviso" style="margin:0">O toca en el mapa el sitio donde la has visto.</p>
           <input type="hidden" id="stickerLat"><input type="hidden" id="stickerLng">
           <div><label for="stickerName">Tu nombre o @ (opcional)</label><input type="text" id="stickerName" maxlength="60"></div>
-          <div><label for="stickerPhoto">Enlace a una foto (opcional)</label><input type="url" id="stickerPhoto" placeholder="https://"></div>
-          <div><button class="boton claro" type="submit">Marcar en el mapa</button></div>
+          <div><label for="stickerFoto">Foto de la pegatina (opcional)</label><input type="file" id="stickerFoto" accept="image/*">
+            <p class="aviso" style="margin:6px 0 0">La foto aparecerá en el mapa cuando la revise.</p>
+            <img id="stickerPreview" alt="" style="display:none;max-width:160px;margin-top:10px;border-radius:4px;"></div>
+          <div><button class="boton" type="submit">Marcar en el mapa</button></div>
           <p id="stickerMsg" class="aviso" style="margin:0"></p>
         </form>
       </div>
