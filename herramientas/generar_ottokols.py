@@ -14,6 +14,8 @@ CLD = 'https://res.cloudinary.com/dybxateci/image/upload/'
 ENCARGOS = ['coches_1_aqa37r', 'coches_2_touevk', 'coches_3_qrnpt4']
 # Fotos de sesiones de retrato personal.
 SESIONES = ['sesiones_1_eaw0ai', 'sesiones_2_l9favx', 'sesiones_3_pg8z5z']
+# Fotos extra de mascotas (además de /fotos/walliot.jpg).
+MASCOTAS = ['mascotas_l48usq']
 
 def enc(pid, w=1200):
     return f'{CLD}f_auto,q_auto,w_{w}/{pid}.jpg'
@@ -216,7 +218,7 @@ escribir('/', pagina('/', 'Otto Kols · Fotógrafo de retrato en Madrid',
 # ================================================================ ACTORES
 FAQ_ACT = [
     ("¿Qué me llevo a la sesión?", "Ropa lisa y sin logos en tonos que te favorezcan, y un cambio por cada look de la sesión que reserves. Si tienes dudas, me mandas fotos de lo que tienes y lo vemos antes."),
-    ("¿Incluye maquillaje?", "De momento no. Estoy preparando la opción de contar con maquillaje profesional en la sesión; si lo necesitas, pregúntame."),
+    ("¿Hay maquillaje?", "Sí, puedes añadir maquillaje profesional a cualquier sesión. El precio se adapta a la sesión y al número de looks: pregúntame al reservar."),
     ("¿Cuándo tengo las fotos?", "Te paso una galería con todas las fotos buenas, eliges tus favoritas y te las entrego editadas."),
     ("¿Sirven para casting y videobook?", "Sí, es para lo que están pensadas: naturales, que se parezcan a ti el día que entras por la puerta."),
 ]
@@ -235,8 +237,8 @@ cuerpo = f'''
     <section class="bloque" id="sesiones" style="border-top:0">
       <div class="env">
         <h2>Sesiones</h2>
-        <p class="sub">Todas las sesiones incluyen la selección de fotos y la edición de las elegidas.</p>
-        {precios([("Natural", "80 €", "1 h · 1 look · 8 fotos editadas · exterior"), ("Estudio", "150 €", "1 h 30 · 2 looks · 15 fotos editadas"), ("Completo", "220 €", "2 h · 3 looks · 20 fotos editadas")])}
+        <p class="sub">Todas las sesiones incluyen la selección de fotos y la edición de las elegidas. Si quieres, añadimos maquillaje profesional.</p>
+        {precios([("Natural", "80 €", "1 h · 1 look · 8 fotos editadas · exterior"), ("Estudio", "150 €", "1 h 30 · 2 looks · 15 fotos editadas"), ("Completo", "220 €", "2 h · 3 looks · 20 fotos editadas"), ("Maquillaje profesional", "a consultar", "opcional · se adapta a la sesión y a los looks")])}
         <div style="margin-top:28px">{cta('actores')}</div>
       </div>
     </section>
@@ -329,6 +331,12 @@ cuerpo = f'''
       <div class="env">
         <h2>Precio</h2>
         {precios([("Retrato con tu perro", "70–80 €", "precio orientativo · también con sus humanos")])}
+      </div>
+    </section>
+    <section class="bloque">
+      <div class="env galeria dos">
+        {img('/fotos/walliot.jpg', 'Retrato de un carlino', 1400, 934)}
+        {''.join(img(enc(p, 1000), 'Sesión de retrato de mascota', 1000, 667) for p in MASCOTAS)}
       </div>
     </section>
     <section class="bloque">
