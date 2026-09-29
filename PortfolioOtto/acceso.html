@@ -24,6 +24,7 @@
     button { background:var(--tinta); color:var(--crema); }
     a.boton { background:transparent; color:var(--tinta); }
     #estado { font-size:.9rem; min-height:1.5em; }
+    [hidden] { display:none !important; }
     footer { margin-top:32px; font-size:.85rem; color:var(--gris); }
     footer a { color:inherit; }
   </style>
@@ -36,6 +37,7 @@
     <h1>Mirar Despacio<em>+</em></h1>
     <p id="estado">Entra con el email con el que te invité.</p>
     <button id="entrar">Entrar</button>
+    <button id="salir" hidden style="background:transparent;color:var(--tinta);">Cerrar sesión</button>
     <a class="boton" href="https://mirardespacio.es/mirar-despacio-plus/">¿Aún no eres miembro?</a>
     <footer><a href="https://mirardespacio.es/">mirardespacio.es</a> · <a href="/">ottokols.es</a></footer>
   </main>
@@ -48,21 +50,65 @@
     (function () {
       var estado = document.getElementById('estado');
       var boton = document.getElementById('entrar');
+      var salir = document.getElementById('salir');
       if (typeof netlifyIdentity === 'undefined') {
         estado.textContent = 'No se ha podido cargar el acceso. Recarga la página.';
         boton.disabled = true;
         return;
       }
-      var ir = function () { location.replace('/recursos.html'); };
+      var hayToken = /_token=/.test(location.hash);
+
+      // Lee los roles del pase (JWT) recién renovado
+      function roles(token) {
+        try {
+          var p = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+          return (p.app_metadata && p.app_metadata.roles) || [];
+        } catch (e) { return []; }
+      }
+      function intentos(n) {
+        try {
+          if (n === undefined) return parseInt(sessionStorage.getItem('md_intentos') || '0', 10);
+          sessionStorage.setItem('md_intentos', String(n));
+        } catch (e) { return 0; }
+      }
+
+      function conSesion(user) {
+        boton.hidden = true;
+        salir.hidden = false;
+        estado.textContent = 'Comprobando tu acceso…';
+        // Renovar el pase: así incluye el rol aunque se asignara después del último login
+        user.jwt(true).then(function (token) {
+          var r = roles(token);
+          if (r.indexOf('member') === -1 && r.indexOf('admin') === -1) {
+            estado.textContent = 'Has entrado como ' + user.email + ', pero tu cuenta todavía no tiene acceso de miembro. Escríbeme y lo activo.';
+            return;
+          }
+          if (intentos() >= 2) {
+            intentos(0);
+            estado.textContent = 'No se ha podido abrir la zona de miembros. Cierra sesión y vuelve a entrar; si sigue pasando, escríbeme.';
+            return;
+          }
+          intentos(intentos() + 1);
+          estado.textContent = 'Entrando…';
+          location.replace('/recursos.html');
+        }).catch(function () {
+          estado.textContent = 'Tu sesión ha caducado. Cierra sesión y vuelve a entrar.';
+        });
+      }
+
       netlifyIdentity.on('init', function (user) {
-        // Con un token en la URL dejamos que el widget muestre su formulario.
-        if (user && !/_token=/.test(location.hash)) {
-          estado.textContent = 'Ya tienes sesión abierta, entrando…';
-          ir();
-        }
+        // Con un token en la URL (invitación, recuperar contraseña) dejamos que el widget muestre su formulario
+        if (user && !hayToken) conSesion(user);
       });
-      netlifyIdentity.on('login', function () { netlifyIdentity.close(); ir(); });
+      netlifyIdentity.on('login', function (user) { netlifyIdentity.close(); intentos(0); conSesion(user); });
+      netlifyIdentity.on('logout', function () {
+        intentos(0);
+        boton.hidden = false;
+        salir.hidden = true;
+        estado.textContent = 'Has cerrado sesión. Entra con el email con el que te invité.';
+      });
       boton.addEventListener('click', function () { netlifyIdentity.open('login'); });
+      salir.addEventListener('click', function () { netlifyIdentity.logout(); });
       netlifyIdentity.init();
     })();
   </script>

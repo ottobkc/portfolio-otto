@@ -11,6 +11,8 @@
   var llamarInit = !(script && script.dataset.init === 'no');
   var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   var ENDPOINT = '/.netlify/functions/track';
+  // Si hemos llegado a una página de miembros, el acceso ha ido bien: reinicia el contador anti-bucle de /acceso.html
+  try { sessionStorage.removeItem('md_intentos'); } catch (e) {}
   var token = null;
 
   function enviar(tipo) {
