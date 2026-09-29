@@ -12,8 +12,8 @@
   --naranja: #e8821a;
   --rosa: #e8347a;
   --degradado: linear-gradient(100deg, var(--naranja), var(--rosa));
-  --f-titulo: "Fraunces", Georgia, serif;
-  --f-texto: "Inter", system-ui, -apple-system, sans-serif;
+  --f-titulo: Georgia, "Times New Roman", serif;
+  --f-texto: "Jost", system-ui, -apple-system, sans-serif;
   --f-mano: "Caveat", "Bradley Hand", cursive;
   --ancho: 1120px;
   --gutter: clamp(16px, 4vw, 40px);
@@ -27,8 +27,9 @@ body {
   color: var(--tinta);
   font-family: var(--f-texto);
   font-size: 17px;
-  line-height: 1.65;
-  font-weight: 400;
+  line-height: 1.7;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; height: auto; display: block; }
 .rejilla-2 > *, .rejilla-3 > *, .portada .rejilla > *, .galeria > * { min-width: 0; }
@@ -77,8 +78,8 @@ body::before {
 
 /* ---------- Tipografía ---------- */
 h1, h2, h3 { font-family: var(--f-titulo); font-weight: 400; letter-spacing: -.02em; line-height: 1.08; margin: 0 0 .5em; }
-h1 { font-size: clamp(2.6rem, 7vw, 5.2rem); font-variation-settings: "opsz" 144; }
-h2 { font-size: clamp(1.9rem, 4.4vw, 3rem); font-variation-settings: "opsz" 96; }
+h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); line-height: 1.1; }
+h2 { font-size: clamp(1.9rem, 4.4vw, 3rem); line-height: 1.12; }
 h3 { font-size: 1.35rem; letter-spacing: -.01em; }
 h1 em, h2 em {
   font-style: italic;
@@ -89,8 +90,10 @@ h1 em, h2 em {
 }
 p { margin: 0 0 1.1em; }
 .antetitulo {
-  font-family: var(--f-texto); font-size: .78rem; font-weight: 600;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--gris); margin-bottom: 14px;
+  font-family: var(--f-texto); font-size: .72rem; font-weight: 400;
+  letter-spacing: .2em; text-transform: uppercase; margin-bottom: 14px;
+  background: var(--degradado); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: var(--naranja); display: inline-block;
 }
 .nota {
   font-family: var(--f-mano); font-size: 1.55rem; line-height: 1.2; color: var(--rosa);
@@ -103,14 +106,14 @@ p { margin: 0 0 1.1em; }
 .seccion { padding: clamp(64px, 10vw, 120px) 0; }
 .seccion + .seccion { border-top: 1px solid var(--linea); }
 .seccion.oscura { background: var(--tinta); color: var(--crema); border-top: 0; }
-.seccion.oscura .antetitulo, .seccion.oscura .entradilla { color: #b8b1a4; }
+.seccion.oscura .entradilla { color: #b8b1a4; }
 .seccion.papel { background: var(--papel); }
 
 /* ---------- Portada ---------- */
 .portada { padding: clamp(48px, 9vw, 110px) 0 clamp(48px, 8vw, 90px); }
-.portada .rejilla { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(28px, 5vw, 64px); align-items: end; }
+.portada .rejilla { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
 .portada figure { margin: 0; position: relative; }
-.portada figure img { aspect-ratio: 4/5; object-fit: cover; width: 100%; filter: grayscale(.15) contrast(1.02); }
+.portada figure img { aspect-ratio: 1/1; object-fit: cover; width: 100%; filter: grayscale(.15) contrast(1.02); }
 .portada figcaption { font-family: var(--f-mano); font-size: 1.3rem; color: var(--gris); margin-top: 8px; }
 @media (max-width: 820px) { .portada .rejilla { grid-template-columns: 1fr; } }
 

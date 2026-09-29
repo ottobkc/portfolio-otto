@@ -27,10 +27,10 @@ EPISODIOS_T1 = [
 
 # Plataformas del podcast: pon aquí el enlace de cada una. Las vacías no se muestran.
 PLATAFORMAS = [
-    ("Podimo", ""),
     ("Spotify", "https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB"),
-    ("YouTube", ""),
-    ("Apple Podcasts", ""),
+    ("Podimo", "https://podimo.com/s/mirar-despacio"),
+    ("Apple Podcasts", "https://podcasts.apple.com/us/podcast/mirar-despacio/id1882729734?l=es-MX"),
+    ("YouTube", "https://www.youtube.com/@mirardespaciopodcast"),
 ]
 # Enlace de pago de Mirar Despacio+ (Ko-fi). Vacío = el botón abre un email de "me interesa".
 PLUS_URL = ""
@@ -149,7 +149,6 @@ def construir(g):
         <p class="antetitulo">Podcast</p>
         <h1>El podcast de <em>Mirar Despacio.</em></h1>
         <p class="entradilla">Un podcast en español sobre fotografía callejera, atención y esas cosas pequeñas que se nos escapan cuando vamos con prisa. Episodios cortos, para escuchar paseando o en el metro. No hace falta saber de fotografía.</p>
-        <p class="aviso" style="margin-bottom:0">Escúchalo donde prefieras. Si usas Podimo, escúchalo ahí: es la plataforma que paga al podcast por cada escucha.</p>
         <div class="botones">{plataformas}</div>
         <iframe title="Mirar Despacio en Spotify" style="border-radius:12px;border:0;width:100%;margin-top:36px;" src="https://open.spotify.com/embed/show/6G7RStaXJqr4S39eUei6BB?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
       </div>
@@ -198,7 +197,7 @@ def construir(g):
         <p class="entradilla">Una mañana recorriendo un barrio de Madrid en grupo, con la cámara, sin prisa y sin clases. Al final nos sentamos a ver las fotos juntos.</p>
         <p style="font-size:1.1rem;"><strong>Próxima salida:</strong> <span data-proxima>cargando…</span></p>
         <div class="botones"><a class="boton color" href="#apuntarse">Apuntarme</a><a class="boton claro" href="#como-funciona">Cómo funciona</a></div>
-        <div class="carrusel" data-visor data-galeria-ultima style="margin-top:40px;"></div>
+        <div class="carrusel" data-visor data-galeria-salidas style="margin-top:40px;"></div>
       </div>
     </section>
 
@@ -266,14 +265,6 @@ def construir(g):
           <div class="tarjeta mision amarilla"><span class="nivel">Medio</span><h3>Espera, no busques</h3><p>Quédate al menos cinco minutos en un encuadre. Fotografía lo que pase dentro.</p></div>
           <div class="tarjeta mision roja"><span class="nivel">Difícil</span><h3>Una historia en tres fotos</h3><p>Una secuencia de exactamente tres imágenes que se entienda en orden.</p></div>
         </div>
-      </div>
-    </section>
-
-    <section class="seccion oscura" id="fotos">
-      <div class="envoltura">
-        <p class="antetitulo">Salidas anteriores</p>
-        <h2>Fotos de las <em>salidas.</em></h2>
-        <div data-galerias-salidas></div>
       </div>
     </section>
 
