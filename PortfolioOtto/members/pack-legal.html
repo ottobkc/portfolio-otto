@@ -294,7 +294,7 @@
       }
       netlifyIdentity.on('init', function(user) {
         if (!user && !window.location.hostname.includes('localhost')) {
-          window.location.replace('/salidas.html#acceso');
+          window.location.replace('/acceso.html');
         }
       });
       netlifyIdentity.init();

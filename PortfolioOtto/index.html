@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+    // Enlaces de los emails de acceso (invitación, recuperar contraseña…) llegan a la portada:
+    // los mandamos a la página de acceso, que es la que sabe mostrar el formulario.
+    if (/(recovery|invite|confirmation|email_change)_token=/.test(location.hash)) {
+      location.replace('/acceso.html' + location.hash);
+    }
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -754,7 +761,8 @@
           <a href="#podcast" class="nav-dropdown-trigger">Mirar Despacio ▾</a>
           <ul class="nav-dropdown-menu">
             <li><a href="#podcast">Podcast</a></li>
-            <li><a href="salidas.html">Salidas fotográficas</a></li>
+            <li><a href="https://mirardespacio.es/salidas/">Salidas fotográficas</a></li>
+            <li><a href="https://mirardespacio.es/tutorias/">Tutorías</a></li>
           </ul>
         </li>
         <li><a href="#servicios">Servicios</a></li>
@@ -772,7 +780,8 @@
       <li class="nav-drawer-group">
         <span class="nav-drawer-label">Mirar Despacio</span>
         <a href="#podcast" class="drawer-close nav-drawer-sub">Podcast</a>
-        <a href="salidas.html" class="nav-drawer-sub">Salidas fotográficas</a>
+        <a href="https://mirardespacio.es/salidas/" class="nav-drawer-sub">Salidas fotográficas</a>
+        <a href="https://mirardespacio.es/tutorias/" class="nav-drawer-sub">Tutorías</a>
       </li>
       <li><a href="#servicios" class="drawer-close">Servicios</a></li>
       <li><a href="#contacto" class="drawer-close">Contacto</a></li>
@@ -868,7 +877,7 @@
       </div>
       <div class="podcast-links">
         <a href="https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB" class="btn" target="_blank" rel="noopener">Abrir en Spotify</a>
-        <a href="salidas.html" class="btn btn-solid">Ver salidas fotográficas</a>
+        <a href="https://mirardespacio.es/salidas/" class="btn btn-solid">Ver salidas fotográficas</a>
       </div>
     </div>
   </section>
@@ -1014,7 +1023,7 @@
       <div class="footer-meta">
         <span>© 2026 · Madrid</span>
         <a href="https://instagram.com/ob.kc" target="_blank" rel="noopener">@ob.kc</a>
-        <a href="salidas.html">Salidas fotográficas</a>
+        <a href="https://mirardespacio.es/salidas/">Salidas fotográficas</a>
       </div>
     </div>
   </footer>

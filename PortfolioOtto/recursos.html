@@ -317,7 +317,7 @@
   <nav>
     <span class="nav-logo">Mirar Despacio +</span>
     <div class="nav-right">
-      <a href="/salidas.html" class="nav-back">← Salidas</a>
+      <a href="https://mirardespacio.es/" class="nav-back">← Mirar Despacio</a>
       <button class="btn-logout-nav" id="logoutBtn">Cerrar sesión</button>
     </div>
   </nav>
@@ -595,7 +595,7 @@
 
     netlifyIdentity.on('init', function(user) {
       if (!user && !isPreview) {
-        window.location.replace('/salidas.html#acceso');
+        window.location.replace('/acceso.html');
       } else if (user) {
         document.getElementById('welcomeUser').textContent =
           user.user_metadata?.full_name || user.email;
@@ -605,7 +605,7 @@
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
       netlifyIdentity.logout();
-      window.location.replace('/salidas.html#acceso');
+      window.location.replace('/acceso.html');
     });
   </script>
 </body>

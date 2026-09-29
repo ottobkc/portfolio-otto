@@ -3,6 +3,8 @@
 # -----------------------------------------------
 [build]
   publish = "PortfolioOtto"
+  # Solo construye si cambia algo de ottokols.es (los cambios de MirarDespacio/ no gastan build aquí)
+  ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- PortfolioOtto netlify netlify.toml package.json package-lock.json"
 
 [functions]
   directory = "netlify/functions"
@@ -42,7 +44,7 @@
 
 [[redirects]]
   from   = "/members/*"
-  to     = "/salidas.html#acceso"
+  to     = "/acceso.html"
   status = 302
   force  = true
 
@@ -55,7 +57,7 @@
 
 [[redirects]]
   from   = "/recursos.html"
-  to     = "/salidas.html#acceso"
+  to     = "/acceso.html"
   status = 302
   force  = true
 
@@ -78,7 +80,9 @@
   status = 301
 
 # -----------------------------------------------
-# REDIRECTS — mirardespacio.es -> salidas.html
+# REDIRECTS — mirardespacio.es (antiguo)
+# Dejan de aplicarse en cuanto mirardespacio.es se quite de este sitio
+# y se añada al nuevo sitio de Netlify. Se pueden borrar después.
 # -----------------------------------------------
 [[redirects]]
   from   = "https://mirardespacio.es/*"
@@ -89,6 +93,19 @@
 [[redirects]]
   from   = "https://www.mirardespacio.es/*"
   to     = "https://ottokols.es/salidas.html?utm_source=mirardespacio&utm_medium=redirect&utm_campaign=dominio_directo"
+  status = 301
+  force  = true
+
+# Las salidas ahora viven en mirardespacio.es
+[[redirects]]
+  from   = "/salidas.html"
+  to     = "https://mirardespacio.es/salidas/"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/salidas-data.json"
+  to     = "https://mirardespacio.es/salidas-data.json"
   status = 301
   force  = true
 

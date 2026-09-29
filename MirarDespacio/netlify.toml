@@ -1,0 +1,30 @@
+# -----------------------------------------------
+# NETLIFY · mirardespacio.es (sitio independiente)
+# Base directory en Netlify: MirarDespacio
+# -----------------------------------------------
+[build]
+  publish = "."
+  # Solo construye si ha cambiado algo dentro de MirarDespacio/ (ahorra créditos)
+  ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ."
+
+[[redirects]]
+  from   = "https://www.mirardespacio.es/*"
+  to     = "https://mirardespacio.es/:splat"
+  status = 301
+  force  = true
+
+# Direcciones que puede tener la gente guardadas
+[[redirects]]
+  from   = "/salidas.html"
+  to     = "/salidas/"
+  status = 301
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/salidas-data.json"
+  [headers.values]
+    Cache-Control = "public, max-age=300"

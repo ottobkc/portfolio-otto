@@ -2,7 +2,7 @@
  * Incluir en todas las páginas de miembros, después del widget de Netlify Identity:
  *   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
  *   <script src="/js/acceso.js"></script>
- * - Si no hay sesión, manda a /salidas.html#acceso (la protección real está en netlify.toml).
+ * - Si no hay sesión, manda a /acceso.html (la protección real está en netlify.toml).
  * - Registra la página vista, cuando se sale de la página y cuando se cierra sesión.
  */
 (function () {
@@ -26,13 +26,13 @@
   }
 
   if (typeof netlifyIdentity === 'undefined') {
-    if (!local) location.replace('/salidas.html#acceso');
+    if (!local) location.replace('/acceso.html');
     return;
   }
 
   netlifyIdentity.on('init', function (user) {
     if (!user) {
-      if (llamarInit && !local) location.replace('/salidas.html#acceso');
+      if (llamarInit && !local) location.replace('/acceso.html');
       return;
     }
     // Token fresco (se renueva solo si ha caducado) y registro de la visita.
