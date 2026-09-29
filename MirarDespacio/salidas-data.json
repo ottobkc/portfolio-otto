@@ -1,0 +1,84 @@
+{
+  "_ayuda": {
+    "proximas": "Próxima salida. fecha = texto que se ve; fechaISO = 2026-10-11T10:00:00+02:00 (para Google). Se actualiza sola en todas las páginas.",
+    "salidas": "Galerías de salidas anteriores, de la más reciente a la más antigua. Para añadir fotos: súbelas a Cloudinary y ponles la ETIQUETA (tag) de la salida, p. ej. salida-4 (el nombre del archivo no vale, tiene que ser la etiqueta). 'fotos' es la lista de respaldo por si Cloudinary no permite listar."
+  },
+  "proximas": [
+    {
+      "fecha": "11 de Octubre",
+      "zona": "Huertas",
+      "hora": "10:00",
+      "activa": true,
+      "fechaISO": "2026-10-11T10:00:00+02:00"
+    }
+  ],
+  "salidas": [
+    {
+      "titulo": "Tribunal y Chueca",
+      "fecha": "Septiembre 2026",
+      "tag": "salida-3",
+      "fotos": [
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700522/salida-3_1_ubvsvl.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700523/salida-3_2_hmbhgq.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700523/salida-3_3_ofdzxx.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700523/salida-3_4_tltonl.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700524/salida-3_5_bqv2z8.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700525/salida-3_6_quorob.jpg"
+      ]
+    },
+    {
+      "titulo": "Malasaña",
+      "fecha": "Agosto 2026",
+      "tag": "salida-2",
+      "fotos": [
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8245_mcpqek.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8218_zm0gde.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8225_xel6j5.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8230_wocygk.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8221_xrmj5j.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693103/IMG_8228_jwcbp1.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693565/copy_of_img_8238_uij5ju.jpg"
+      ]
+    },
+    {
+      "titulo": "Barrio de las Letras",
+      "fecha": "Junio 2026",
+      "tag": "salida-1",
+      "fotos": [
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida1_pg2n03.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida3_chxjef.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida5_q2b6og.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743913/salida7_iqxnwb.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida2_ocrfcg.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743937/salida4_kgfrxo.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743934/salida6_x9axmi.jpg"
+      ]
+    }
+  ],
+  "galeria": [
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle1_rgx5tu.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle2_w49gyn.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle3_kbjxhj.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle4_gy0zb7.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle5_tkupf1.jpg",
+      "alt": "Fotografía de calle Madrid"
+    },
+    {
+      "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle6_vusvf0.jpg",
+      "alt": "Fotografía de calle Madrid"
+    }
+  ]
+}
