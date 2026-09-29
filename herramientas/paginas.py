@@ -25,6 +25,21 @@ EPISODIOS_T1 = [
 ]
 
 
+# Plataformas del podcast: pon aquí el enlace de cada una. Las vacías no se muestran.
+PLATAFORMAS = [
+    ("Podimo", ""),
+    ("Spotify", "https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB"),
+    ("YouTube", ""),
+    ("Apple Podcasts", ""),
+]
+# Enlace de pago de Mirar Despacio+ (Ko-fi). Vacío = el botón abre un email de "me interesa".
+PLUS_URL = ""
+# Fotos del zine (URLs de Cloudinary). Vacío = no se muestra ninguna.
+ZINE_FOTOS = []
+# Enlace de cada episodio (número: url). Los que falten se muestran sin enlace.
+EPISODIO_URL = {}
+
+
 def construir(g):
     pagina, escribir, cld, datos = g['pagina'], g['escribir'], g['cld'], g['datos']
     DOM, SPOTIFY, INSTAGRAM, EMAIL = g['DOM'], g['SPOTIFY'], g['INSTAGRAM'], g['EMAIL']
@@ -47,8 +62,17 @@ def construir(g):
         </div>
         <figure class="revelar">
           <img src="{PORTADA}" alt="Fotografía de calle en Madrid" width="880" height="1100" fetchpriority="high">
-          <figcaption>Madrid, un domingo por la mañana.</figcaption>
         </figure>
+      </div>
+    </section>
+
+    <section class="seccion papel">
+      <div class="envoltura estrecho" style="text-align:center;">
+        <span class="nota">¿por dónde empiezo?</span>
+        <h2 class="revelar" style="margin-top:10px;">Ven a una <em>salida.</em></h2>
+        <p class="entradilla revelar" style="margin-left:auto;margin-right:auto;">Es la forma más fácil de entender de qué va esto. Una mañana en grupo por un barrio de Madrid, con cualquier cámara, y al final cada uno pone lo que considere.</p>
+        <p class="revelar"><strong data-proxima>Cargando próxima fecha…</strong></p>
+        <div class="botones" style="justify-content:center;"><a class="boton color" href="/salidas/#apuntarse">Quiero apuntarme</a></div>
       </div>
     </section>
 
@@ -59,9 +83,9 @@ def construir(g):
         <p class="entradilla revelar">Mirar Despacio empezó como un podcast sobre fotografía callejera y lo que pasa cuando vas por la ciudad con un poco más de calma. Luego llegaron las salidas, el zine y la comunidad. La idea de fondo no ha cambiado: hacer menos fotos y mirar mejor.</p>
         <div class="rejilla-2" style="margin-top:40px;">
           <a class="tarjeta revelar" href="/podcast/"><span class="num">01</span><h3>El podcast</h3><p>Episodios cortos sobre fotografía de calle, miedo a mirar, publicar, el estilo propio. Para escuchar paseando.</p><span class="mas">20 episodios en la primera temporada →</span></a>
-          <a class="tarjeta revelar" href="/salidas/"><span class="num">02</span><h3>Salidas fotográficas</h3><p>Mañanas de fotografía en grupo por barrios de Madrid, con tarjetas de misión y visionado al final. Formato free tour.</p><span class="mas" data-proxima>Ver próxima salida →</span></a>
+          <a class="tarjeta revelar" href="/salidas/"><span class="num">02</span><h3>Salidas fotográficas</h3><p>Mañanas de fotografía en grupo por barrios de Madrid, con tarjetas de misión y visionado al final. Contribución libre.</p><span class="mas" data-proxima>Ver próxima salida →</span></a>
           <a class="tarjeta revelar" href="/tutorias/"><span class="num">03</span><h3>Tutorías</h3><p>Una sesión a solas conmigo, presencial en Madrid u online, sobre tu cámara, tu luz y tus fotos.</p><span class="mas">Online desde 30 € →</span></a>
-          <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: retos y guías cada mes, prioridad en las salidas, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
+          <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
       </div>
     </section>
@@ -86,16 +110,6 @@ def construir(g):
           {''.join(f'<button data-foto="{cld(f["src"], "f_auto,q_auto,w_1600")}"><img src="{cld(f["src"], "f_auto,q_auto,w_600")}" alt="{f.get("alt","Fotografía de calle en Madrid")}" loading="lazy" width="600" height="800"></button>' for f in datos['galeria'])}
         </div>
       </div>
-    </section>
-
-    <section class="seccion papel">
-      <div class="envoltura estrecho" style="text-align:center;">
-        <span class="nota">¿por dónde empiezo?</span>
-        <h2 class="revelar" style="margin-top:10px;">Ven a una salida.</h2>
-        <p class="entradilla revelar" style="margin-left:auto;margin-right:auto;">Es la forma más fácil de entender de qué va esto. Son unas dos horas, con cualquier cámara, y al final cada uno pone lo que considere.</p>
-        <p class="revelar"><strong data-proxima>Cargando próxima fecha…</strong></p>
-        <div class="botones" style="justify-content:center;"><a class="boton color" href="/salidas/#apuntarse">Quiero apuntarme</a></div>
-      </div>
     </section>'''
     escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid: podcast, salidas y tutorías',
         'Mirar Despacio es un proyecto de fotografía callejera en Madrid: podcast, salidas fotográficas en grupo, tutorías y una comunidad para aprender a mirar antes de disparar.',
@@ -104,18 +118,18 @@ def construir(g):
 
     # ------------------------------------------------------------ PODCAST
     lista = '\n'.join(
-        f'''          <li class="episodio"><span class="n">{n}</span><div><h3>{t}</h3>{f"<p>{d}</p>" if d else ""}</div></li>'''
+        f'''          <li class="episodio"><span class="n">{n}</span><div><h3>{f'<a href="{EPISODIO_URL[n]}">{t}</a>' if EPISODIO_URL.get(n) else t}</h3>{f"<p>{d}</p>" if d else ""}</div></li>'''
         for n, t, d in EPISODIOS_T1)
+    plataformas = ''.join(f'<a class="boton{" color" if i == 0 else " claro"}" href="{u}" data-umami-event="podcast-{nombre.lower().split()[0]}">{nombre}</a>'
+                          for i, (nombre, u) in enumerate([x for x in PLATAFORMAS if x[1]]))
     cuerpo = f'''
     <section class="portada">
       <div class="envoltura estrecho">
         <p class="antetitulo">Podcast</p>
         <h1>El podcast de <em>Mirar Despacio.</em></h1>
         <p class="entradilla">Un podcast en español sobre fotografía callejera, atención y esas cosas pequeñas que se nos escapan cuando vamos con prisa. Episodios cortos, para escuchar paseando o en el metro. No hace falta saber de fotografía.</p>
-        <div class="botones">
-          <a class="boton color" href="{SPOTIFY}" data-umami-event="podcast-spotify">Escuchar en Spotify</a>
-          <a class="boton claro" href="{INSTAGRAM}">Sígueme en Instagram</a>
-        </div>
+        <p class="aviso" style="margin-bottom:0">Escúchalo donde prefieras. Si usas Podimo, escúchalo ahí: es la plataforma que paga al podcast por cada escucha.</p>
+        <div class="botones">{plataformas}</div>
         <iframe title="Mirar Despacio en Spotify" style="border-radius:12px;border:0;width:100%;margin-top:36px;" src="https://open.spotify.com/embed/show/6G7RStaXJqr4S39eUei6BB?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
       </div>
     </section>
@@ -125,7 +139,7 @@ def construir(g):
         <p class="antetitulo">Temporada 2 · en marcha</p>
         <h2>Técnica, análisis <em>y conversaciones.</em></h2>
         <p>La segunda temporada son 15 episodios, uno cada dos semanas, que rotan entre tres formatos: un episodio técnico, uno de análisis de la obra de un fotógrafo y una conversación con alguien que mira el mundo desde otro sitio. El formato lo decidisteis vosotros en una encuesta que acabó en empate perfecto a tres bandas.</p>
-        <p>El primer bloque va de fotografía analógica: la disciplina de tener solo 36 fotos, un autor japonés y una charla con La Peliculera.</p>
+        <p>El primer bloque va de fotografía analógica: la disciplina de tener solo 36 fotos, el análisis de un autor japonés y una entrevista que seguro que os parece muy interesante.</p>
       </div>
     </section>
 
@@ -145,9 +159,9 @@ def construir(g):
         "url": DOM + "/podcast/", "inLanguage": "es",
         "description": "Podcast en español sobre fotografía callejera, atención y mirar la ciudad con calma.",
         "webFeed": SPOTIFY, "author": {"@type": "Person", "name": "Otto Kols"},
-        "publisher": {"@id": DOM + "/#org"}, "sameAs": [SPOTIFY],
-        "hasPart": [{"@type": "PodcastEpisode", "episodeNumber": n, "name": t,
-                     "partOfSeason": {"@type": "PodcastSeason", "seasonNumber": 1}} for n, t, _ in EPISODIOS_T1],
+        "publisher": {"@id": DOM + "/#org"}, "sameAs": [u for _, u in PLATAFORMAS if u],
+        "hasPart": [dict({"@type": "PodcastEpisode", "episodeNumber": n, "name": t,
+                     "partOfSeason": {"@type": "PodcastSeason", "seasonNumber": 1}}, **({"url": EPISODIO_URL[n]} if EPISODIO_URL.get(n) else {})) for n, t, _ in EPISODIOS_T1],
     }
     podcast_schema.pop("webFeed")  # sin RSS público conocido todavía
     escribir('/podcast/', pagina('/podcast/', 'Podcast de fotografía callejera · Mirar Despacio',
@@ -155,89 +169,90 @@ def construir(g):
         cuerpo, schema=[podcast_schema]))
 
     # ------------------------------------------------------------ SALIDAS
-    carrusel = ''.join(
-        f'<button data-foto="{cld(f["src"], "f_auto,q_auto,w_1600")}"><img src="{cld(f["src"], "f_auto,q_auto,w_600")}" alt="{f.get("alt","")}" loading="lazy" width="600" height="750"></button>'
-        for f in salida_fotos)
     cuerpo = f'''
     <section class="portada">
-      <div class="envoltura rejilla">
-        <div>
-          <p class="antetitulo">Salidas fotográficas · Madrid</p>
-          <h1>Salidas fotográficas <em>en Madrid.</em></h1>
-          <p class="entradilla">Una mañana recorriendo un barrio de Madrid en grupo, con la cámara, sin prisa y sin clases. Al final nos sentamos a ver las fotos juntos.</p>
-          <p style="font-size:1.1rem;"><strong>Próxima salida:</strong> <span data-proxima>cargando…</span></p>
-          <div class="botones"><a class="boton color" href="#apuntarse">Apuntarme</a><a class="boton claro" href="#como-funciona">Cómo funciona</a></div>
-        </div>
-        <figure>
-          <img src="{cld(salida_fotos[1]['src'] if len(salida_fotos) > 1 else datos['galeria'][1]['src'], 'f_auto,q_auto,w_1100')}" alt="Grupo haciendo fotos durante una salida de Mirar Despacio" width="880" height="1100" fetchpriority="high">
-          <figcaption>Una de las salidas por Malasaña.</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="seccion papel">
-      <div class="envoltura estrecho">
-        <span class="nota">para quién es</span>
-        <p class="cita" style="margin-top:12px;">No es un taller para aprender fotografía. Es un reto para gente que ya sabe disparar pero ha perdido la mirada.</p>
-        <p style="margin-top:24px;">Y si estás empezando, también cabes: no hay nivel mínimo ni cámara mínima. El móvil vale.</p>
-        <div class="rejilla-2" style="margin-top:28px;">
-          <div><h3>Encontrarás</h3><ul class="lista"><li>Hacer fotos en grupo, cada uno a su ritmo</li><li>Tarjetas de misión que te sacan de tus costumbres</li><li>Gente con la que compartir lo que has visto</li><li>Perder el miedo a la calle y a la cámara</li></ul></div>
-          <div><h3>No encontrarás</h3><ul class="lista no"><li>Un curso ni un profesor delante</li><li>Un precio cerrado</li><li>Prisa</li></ul></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="seccion" id="como-funciona">
       <div class="envoltura">
-        <p class="antetitulo">Cómo funciona</p>
-        <h2>Cuatro pasos, <em>unas dos horas.</em></h2>
-        <div class="rejilla-2" style="margin-top:32px;">
-          <div class="tarjeta"><span class="num">01</span><h3>Quedada y paseo</h3><p>Nos vemos en un punto del barrio y caminamos sin prisa y sin guion durante unas dos horas.</p></div>
-          <div class="tarjeta"><span class="num">02</span><h3>Tarjetas de misión</h3><p>Al empezar, cada persona recibe una tarjeta con una propuesta: un concepto, una restricción, una forma de mirar. Puedes seguirla, ignorarla o usarla de excusa. Nadie sabe la misión de los demás.</p></div>
-          <div class="tarjeta"><span class="num">03</span><h3>Visionado</h3><p>Al terminar nos sentamos en una terraza a ver las fotos. Cada uno enseña las suyas y revela su misión. Aquí es donde pasa lo interesante: el mismo barrio, la misma luz, y miradas muy distintas.</p></div>
-          <div class="tarjeta"><span class="num">04</span><h3>Contribución libre</h3><p>No hay precio. Si la mañana te ha aportado algo, pones lo que consideres. Es lo que hace que esto siga.</p></div>
-        </div>
-        <div class="rejilla-3" style="margin-top:32px;">
-          <div class="tarjeta"><span class="antetitulo" style="margin:0">Misión · iniciación</span><h3>La sombra, no el objeto</h3><p>Fotografía sombras sin que aparezca lo que las proyecta.</p></div>
-          <div class="tarjeta"><span class="antetitulo" style="margin:0">Misión · medio</span><h3>Espera, no busques</h3><p>Quédate al menos cinco minutos en un encuadre. Fotografía lo que pase dentro.</p></div>
-          <div class="tarjeta"><span class="antetitulo" style="margin:0">Misión · avanzado</span><h3>Una historia en tres fotos</h3><p>Una secuencia de exactamente tres imágenes que se entienda en orden.</p></div>
-        </div>
+        <p class="antetitulo">Salidas fotográficas · Madrid</p>
+        <h1>Salidas fotográficas <em>en Madrid.</em></h1>
+        <p class="entradilla">Una mañana recorriendo un barrio de Madrid en grupo, con la cámara, sin prisa y sin clases. Al final nos sentamos a ver las fotos juntos.</p>
+        <p style="font-size:1.1rem;"><strong>Próxima salida:</strong> <span data-proxima>cargando…</span></p>
+        <div class="botones"><a class="boton color" href="#apuntarse">Apuntarme</a><a class="boton claro" href="#como-funciona">Cómo funciona</a></div>
+        <div class="carrusel" data-visor data-galeria-ultima style="margin-top:40px;"></div>
       </div>
     </section>
 
-    {f"""<section class="seccion oscura">
-      <div class="envoltura">
-        <p class="antetitulo">La última vez que salimos</p>
-        <h2>Fotos de las <em>salidas.</em></h2>
-        <div class="carrusel" data-visor style="margin-top:24px;">{carrusel}</div>
-      </div>
-    </section>""" if carrusel else ""}
-
-    <section class="seccion" id="apuntarse">
+    <section class="seccion papel" id="apuntarse">
       <div class="envoltura rejilla-2" style="gap:48px;">
         <div>
           <p class="antetitulo">Inscripción</p>
           <h2>Apúntate a la <em>próxima salida.</em></h2>
           <p style="font-size:1.1rem;"><strong data-proxima>Cargando fecha…</strong></p>
           <p>Las plazas son limitadas para que el grupo no sea enorme. Van por orden de inscripción y te confirmo por email.</p>
+          <p>Si eres de <a href="/mirar-despacio-plus/">Mirar Despacio+</a>, la salida está incluida y tienes plaza reservada.</p>
           <p class="aviso">Durante las salidas se hacen fotos del grupo. Al apuntarte aceptas que puedan usarse para documentar y dar a conocer Mirar Despacio en la web y en redes, nunca para uso comercial de terceros. Puedes retirar el consentimiento cuando quieras escribiendo a <a href="mailto:{EMAIL}">{EMAIL}</a>.</p>
         </div>
         <div>
           <form class="formulario" action="{FORMSPREE}" method="POST" data-formspree data-ok="okSalida" data-evento="salida-inscripcion">
             <input type="hidden" name="_subject" value="Inscripción salida · mirardespacio.es">
             <input type="hidden" name="origen" value="mirardespacio.es/salidas">
-            <div><label for="nombre">Nombre *</label><input type="text" id="nombre" name="nombre" required autocomplete="name"></div>
+            <div class="rejilla-2" style="gap:16px;">
+              <div><label for="nombre">Nombre *</label><input type="text" id="nombre" name="nombre" required autocomplete="given-name"></div>
+              <div><label for="apellidos">Apellidos *</label><input type="text" id="apellidos" name="apellidos" required autocomplete="family-name"></div>
+            </div>
             <div><label for="email">Email *</label><input type="email" id="email" name="email" required autocomplete="email"></div>
+            <div><label for="telefono">Teléfono</label><input type="tel" id="telefono" name="telefono" autocomplete="tel" inputmode="tel">
+              <p class="aviso" style="margin:6px 0 0">Para añadirte a la comunidad de WhatsApp de Mirar Despacio, donde aviso de las salidas y compartimos fotos.</p></div>
             <div><label for="instagram">Instagram</label><input type="text" id="instagram" name="instagram" placeholder="@tu_usuario"></div>
             <div><label for="camara">¿Con qué haces fotos?</label>
               <select id="camara" name="camara"><option value="">Elige…</option><option>Réflex o mirrorless</option><option>Compacta o analógica</option><option>Móvil</option><option>Lo que tenga a mano</option></select></div>
             <div><label for="mensaje">¿Algo que quieras contarme?</label><textarea id="mensaje" name="mensaje" rows="3"></textarea></div>
-            <label class="check"><input type="checkbox" name="acepta_imagen" value="si" required> Acepto el uso de imagen descrito arriba.</label>
-            <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para gestionar la inscripción y avisarme de las salidas. No se ceden a nadie.</label>
+            <label class="check"><input type="checkbox" name="acepta_imagen" value="si" required> Acepto el uso de imagen descrito a la izquierda.</label>
+            <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para gestionar la inscripción, avisarme de las salidas y, si he dejado mi teléfono, añadirme a la comunidad. No se ceden a nadie.</label>
             <div><button class="boton" type="submit">Quiero apuntarme</button></div>
           </form>
           <div class="ok" id="okSalida"><strong>Apuntado.</strong> Te escribo para confirmarte la plaza y el punto de encuentro.</div>
         </div>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="envoltura estrecho">
+        <span class="nota">para quién es</span>
+        <p class="cita" style="margin-top:12px;">Para cualquiera que tenga ganas de salir a mirar.</p>
+        <p style="margin-top:24px;">Da igual si llevas años disparando o si es la primera vez que sales a hacer fotos, y da igual con qué: réflex, compacta, analógica o el móvil. Las tarjetas de misión se adaptan a cada nivel, y lo importante no es la técnica sino pararse a mirar.</p>
+        <div class="rejilla-2" style="margin-top:28px;">
+          <div><h3>Encontrarás</h3><ul class="lista"><li>Hacer fotos en grupo, cada uno a su ritmo</li><li>Tarjetas de misión que te sacan de tus costumbres</li><li>Gente con la que compartir lo que has visto</li><li>Perder el miedo a la calle y a la cámara</li></ul></div>
+          <div><h3>No encontrarás</h3><ul class="lista no"><li>Un examen ni un nivel mínimo</li><li>Un precio cerrado</li><li>Prisa</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion papel" id="como-funciona">
+      <div class="envoltura">
+        <p class="antetitulo">Cómo funciona</p>
+        <h2>Una mañana, <em>de 10 a 13.</em></h2>
+        <p class="entradilla">Unas tres horas en total. A veces el visionado se alarga con unas cañas.</p>
+        <div class="rejilla-2" style="margin-top:32px;">
+          <div class="tarjeta"><span class="num">01</span><h3>Quedada y paseo</h3><p>Nos vemos en un punto del barrio y caminamos sin prisa y sin guion, parando donde algo nos llame.</p></div>
+          <div class="tarjeta"><span class="num">02</span><h3>Tarjetas de misión</h3><p>Al empezar, cada persona recibe una tarjeta con una propuesta: un concepto, una restricción, una forma de mirar. Puedes seguirla, ignorarla o usarla de excusa. Nadie sabe la misión de los demás.</p></div>
+          <div class="tarjeta"><span class="num">03</span><h3>Visionado</h3><p>Al terminar nos sentamos en una terraza a ver las fotos. Cada uno enseña las suyas y revela su misión. Aquí es donde pasa lo interesante: el mismo barrio, la misma luz, y miradas muy distintas.</p></div>
+          <div class="tarjeta"><span class="num">04</span><h3>Contribución libre</h3><p>No hay precio. Si la mañana te ha aportado algo, pones lo que consideres. Si eres de Mirar Despacio+, ya está incluida.</p></div>
+        </div>
+        <h3 style="margin-top:44px;">Ejemplos de misión</h3>
+        <p class="aviso">Las tarjetas van por colores según la dificultad, igual que las que reparto en papel.</p>
+        <div class="rejilla-3" style="margin-top:16px;">
+          <div class="tarjeta mision verde"><span class="nivel">Fácil</span><h3>La sombra, no el objeto</h3><p>Fotografía sombras sin que aparezca lo que las proyecta.</p></div>
+          <div class="tarjeta mision amarilla"><span class="nivel">Medio</span><h3>Espera, no busques</h3><p>Quédate al menos cinco minutos en un encuadre. Fotografía lo que pase dentro.</p></div>
+          <div class="tarjeta mision roja"><span class="nivel">Difícil</span><h3>Una historia en tres fotos</h3><p>Una secuencia de exactamente tres imágenes que se entienda en orden.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion oscura" id="fotos">
+      <div class="envoltura">
+        <p class="antetitulo">Salidas anteriores</p>
+        <h2>Fotos de las <em>salidas.</em></h2>
+        <div data-galerias-salidas></div>
       </div>
     </section>
 
@@ -268,12 +283,13 @@ def construir(g):
     </section>'''
     mapa_js = '''
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script type="module" src="/assets/pegatinas.js"></script>'''
+  <script type="module" src="/assets/pegatinas.js"></script>
+  <script src="/assets/galerias.js"></script>'''
     faq_schema = {"@type": "FAQPage", "mainEntity": [
         {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ_SALIDAS]}
     escribir('/salidas/', pagina('/salidas/', 'Salidas fotográficas en Madrid · Mirar Despacio',
-        'Salidas de fotografía callejera en grupo por barrios de Madrid: paseo de dos horas, tarjetas de misión y visionado de fotos al final. Formato free tour, cualquier cámara vale.',
-        cuerpo, schema=[faq_schema], og_img=cld(salida_fotos[1]['src'] if len(salida_fotos) > 1 else datos['galeria'][1]['src'], 'f_auto,q_auto,w_1200'),
+        'Salidas de fotografía callejera en grupo por barrios de Madrid, de 10 a 13: paseo, tarjetas de misión y visionado de fotos al final. Contribución libre, cualquier cámara vale.',
+        cuerpo, schema=[faq_schema], og_img=cld(datos['galeria'][1]['src'], 'f_auto,q_auto,w_1200'),
         extra_pie=g['PROXIMA_JS'] + EVENTO_JS + mapa_js))
 
     # ------------------------------------------------------------ TUTORÍAS
@@ -384,10 +400,11 @@ def construir(g):
         <p class="entradilla">La primera temporada del podcast, en papel. Un zine A5 de 36 páginas, grapado, con fotos de calle y las ideas que más resonaron en los 20 episodios.</p>
         <ul class="datos" style="max-width:460px;">
           <li><span>Formato</span><span>A5 · 36 páginas · grapado</span></li>
-          <li><span>Primera tirada</span><span>30 ejemplares · agotada</span></li>
+          <li><span>Disponibilidad</span><span>Quedan ejemplares</span></li>
           <li><span>Precio</span><span>12 € en mano en las salidas</span></li>
         </ul>
-        <p style="margin-top:24px;">La primera tirada se agotó. Si quieres uno de la siguiente, escríbeme o apúntate a una salida: los llevo en mano y te ahorras el envío.</p>
+        <p style="margin-top:24px;">Si vienes a una salida te lo llevo en mano y te ahorras el envío. Si no, escríbeme y vemos cómo hacértelo llegar.</p>
+        {''.join(f'<img src="{cld(u, "f_auto,q_auto,w_1000")}" alt="Páginas del zine de Mirar Despacio" loading="lazy" style="margin-top:20px;width:100%;">' for u in ZINE_FOTOS)}
         <div class="botones"><a class="boton" href="mailto:{EMAIL}?subject=Quiero%20un%20zine">Quiero uno</a><a class="boton claro" href="/salidas/">Próxima salida</a></div>
       </div>
     </section>'''
@@ -402,7 +419,7 @@ def construir(g):
         <h1>Mirar Despacio<em>+</em></h1>
         <p class="entradilla">Para quien quiere seguir mirando entre salida y salida. Una comunidad pequeña, con retos cada mes y alguien que mira tus fotos de verdad.</p>
         <div class="botones">
-          <a class="boton color" href="mailto:{EMAIL}?subject=Quiero%20unirme%20a%20Mirar%20Despacio%2B" data-umami-event="plus-interes">Quiero unirme</a>
+          <a class="boton color" href="{PLUS_URL or 'mailto:' + EMAIL + '?subject=Me%20interesa%20Mirar%20Despacio%2B'}" data-umami-event="plus-interes">{'Unirme' if PLUS_URL else 'Me interesa'}</a>
           <a class="boton claro" href="{ACCESO}">Ya soy miembro · Entrar</a>
         </div>
       </div>
@@ -412,7 +429,7 @@ def construir(g):
       <div class="envoltura">
         <div class="rejilla-3">
           <div class="tarjeta"><span class="num">01</span><h3>Retos y guías cada mes</h3><p>Un PDF mensual con un reto fotográfico y guías prácticas: calle, noche, retrato urbano, luz difícil.</p></div>
-          <div class="tarjeta"><span class="num">02</span><h3>Prioridad en las salidas</h3><p>Plaza asegurada antes de que se anuncie la fecha en público.</p></div>
+          <div class="tarjeta"><span class="num">02</span><h3>Salidas incluidas</h3><p>Plaza reservada en todas las salidas, sin pagar nada en ellas, antes de que se anuncie la fecha en público.</p></div>
           <div class="tarjeta"><span class="num">03</span><h3>Feedback de tus fotos</h3><p>Me mandas tus fotos y te digo lo que veo. Sin halagos de compromiso.</p></div>
           <div class="tarjeta"><span class="num">04</span><h3>Grupo privado</h3><p>Una comunidad de WhatsApp para compartir fotos y quedar. También si no vives en Madrid.</p></div>
           <div class="tarjeta"><span class="num">05</span><h3>Herramientas</h3><p>Calculadora de profundidad de campo, simulador visual, generador de retos y mapas de luz de Madrid.</p></div>
@@ -437,11 +454,11 @@ def construir(g):
 
 
 FAQ_SALIDAS = [
-    ("¿Cuánto cuesta una salida?", "No tiene precio fijo. Funciona como un free tour: al final cada persona contribuye lo que considere, y si ese día no puedes, no pasa nada."),
+    ("¿Cuánto cuesta una salida?", "No tiene precio fijo. Funciona como un free tour: al final cada persona contribuye lo que considere, y si ese día no puedes, no pasa nada. Si eres de Mirar Despacio+, la salida está incluida."),
     ("¿Necesito saber de fotografía o una cámara buena?", "No. Vienen personas con réflex, con compactas, con analógicas y con el móvil. Las tarjetas de misión se adaptan a cada nivel."),
-    ("¿Cuánto dura?", "Unas dos horas de paseo y después el visionado de fotos en una terraza. Las consumiciones las paga cada uno."),
+    ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. A veces se alarga con unas cañas. Las consumiciones las paga cada uno."),
     ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora Barrio de las Letras, Malasaña, Chueca y Huertas. El punto de encuentro lo confirmo por email a quien se apunta."),
-    ("¿Cuántas personas vienen?", "Entre seis y diez. Las plazas son limitadas para que el ritmo sea tranquilo y dé tiempo a ver las fotos de todos."),
+    ("¿Cuántas personas vienen?", "Somos grupos pequeños, de hasta unas diez personas, para que el ritmo sea tranquilo y dé tiempo a ver las fotos de todos."),
 ]
 
 EVENTO_JS = '''

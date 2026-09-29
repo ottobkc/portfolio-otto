@@ -1,4 +1,8 @@
 {
+  "_ayuda": {
+    "proximas": "Próxima salida. fecha = texto que se ve; fechaISO = 2026-10-11T10:00:00+02:00 (para Google). Se actualiza sola en todas las páginas.",
+    "salidas": "Galerías de salidas anteriores, de la más reciente a la más antigua. Para añadir fotos: súbelas a Cloudinary con la etiqueta (tag) indicada y aparecen solas en la web, sin tocar nada más. 'fotos' es la lista de respaldo por si Cloudinary no responde."
+  },
   "proximas": [
     {
       "fecha": "11 de Octubre",
@@ -6,6 +10,42 @@
       "hora": "10:00",
       "activa": true,
       "fechaISO": "2026-10-11T10:00:00+02:00"
+    }
+  ],
+  "salidas": [
+    {
+      "titulo": "Tribunal y Chueca",
+      "fecha": "Septiembre 2026",
+      "tag": "salida-3",
+      "fotos": []
+    },
+    {
+      "titulo": "Malasaña",
+      "fecha": "Agosto 2026",
+      "tag": "salida-2",
+      "fotos": [
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8245_mcpqek.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8218_zm0gde.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8225_xel6j5.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8230_wocygk.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8221_xrmj5j.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693103/IMG_8228_jwcbp1.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1785693565/copy_of_img_8238_uij5ju.jpg"
+      ]
+    },
+    {
+      "titulo": "Barrio de las Letras",
+      "fecha": "Junio 2026",
+      "tag": "salida-1",
+      "fotos": [
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida1_pg2n03.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida3_chxjef.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida5_q2b6og.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743913/salida7_iqxnwb.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida2_ocrfcg.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743937/salida4_kgfrxo.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1782743934/salida6_x9axmi.jpg"
+      ]
     }
   ],
   "galeria": [
@@ -33,67 +73,5 @@
       "src": "https://res.cloudinary.com/dybxateci/image/upload/v1781522503/calle6_vusvf0.jpg",
       "alt": "Fotografía de calle Madrid"
     }
-  ],
-  "ultimaSalida": {
-    "zona": "Y un poco de todas",
-    "fotos": [
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida1_pg2n03.jpg",
-        "alt": "Foto de la salida en Barrio de las Letras"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8245_mcpqek.jpg",
-        "alt": "Foto de la salida en Malasaña"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida3_chxjef.jpg",
-        "alt": "Foto de la salida en Barrio de las Letras"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8218_zm0gde.jpg",
-        "alt": "Foto de la salida en Malasaña"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida5_q2b6og.jpg",
-        "alt": "Foto de la salida en Barrio de las Letras"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8225_xel6j5.jpg",
-        "alt": "Foto de la salida en Malasaña"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743913/salida7_iqxnwb.jpg",
-        "alt": "Foto de la salida en Barrio de las Letras"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8230_wocygk.jpg",
-        "alt": "Foto de la salida en Malasaña"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743936/salida2_ocrfcg.jpg",
-        "alt": "Foto de la salida en Barrio de las Letras"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8221_xrmj5j.jpg",
-        "alt": "Foto de la salida en Malasaña"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743937/salida4_kgfrxo.jpg",
-        "alt": "Foto de la salida en Barrio de las Letras"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1785693103/IMG_8228_jwcbp1.jpg",
-        "alt": "Foto de la salida en Malasaña"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1782743934/salida6_x9axmi.jpg",
-        "alt": "Foto de la salida en Barrio de las Letras"
-      },
-      {
-        "src": "https://res.cloudinary.com/dybxateci/image/upload/v1785693565/copy_of_img_8238_uij5ju.jpg",
-        "alt": "Foto de la salida en Malasaña"
-      }
-    ]
-  },
-  "_ayuda": "fechaISO = fecha y hora en formato 2026-10-11T10:00:00+02:00 (sirve para que Google muestre la salida como evento)"
+  ]
 }
