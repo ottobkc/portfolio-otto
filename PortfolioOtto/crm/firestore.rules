@@ -1,14 +1,12 @@
 rules_version = '2';
 // Reglas de Firestore · proyecto mirardespaciocrm
 // Se pegan a mano en Firebase Console → Firestore → Reglas (no se despliegan con Netlify).
-// ADMIN_EMAIL: el email con el que entras al CRM.
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function esAdmin() {
       return request.auth != null
-        && request.auth.token.email == 'ottobkc@gmail.com'
-        && request.auth.token.email_verified == true;
+        && request.auth.token.email == 'ottobkc@gmail.com';
     }
 
     // Mapa de pegatinas de salidas.html: cualquiera puede verlo y añadir una.
