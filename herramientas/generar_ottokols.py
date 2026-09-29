@@ -12,6 +12,8 @@ FORMSPREE = 'https://formspree.io/f/xrejydle'
 CLD = 'https://res.cloudinary.com/dybxateci/image/upload/'
 # Fotos de encargos (coches). Cambia los nombres aquí para elegir otras.
 ENCARGOS = ['coches_1_aqa37r', 'coches_2_touevk', 'coches_3_qrnpt4']
+# Fotos de sesiones de retrato personal.
+SESIONES = ['sesiones_1_eaw0ai', 'sesiones_2_l9favx', 'sesiones_3_pg8z5z']
 
 def enc(pid, w=1200):
     return f'{CLD}f_auto,q_auto,w_{w}/{pid}.jpg'
@@ -157,8 +159,8 @@ cuerpo = f'''
       <div>
         <div class="tira">
           <div class="cuadros">
-            <figure>{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una actriz con los ojos cerrados', 934, 1400, ' fetchpriority="high"')}<div class="num">24A · actriz</div></figure>
-            <figure class="elegida">{img('/fotos/retrato2vert.jpg', 'Retrato de una mujer con camiseta de rejilla negra', 934, 1400, ' fetchpriority="high"')}<div class="num">25A · retrato</div></figure>
+            <figure>{img('/fotos/retrato2vert.jpg', 'Retrato de una mujer con camiseta de rejilla negra', 934, 1400, ' fetchpriority="high"')}<div class="num">24A · retrato</div></figure>
+            <figure class="elegida">{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una actriz con los ojos cerrados', 934, 1400, ' fetchpriority="high"')}<div class="num">25A · actriz</div></figure>
             <figure>{img('/fotos/boda2horiz.jpg', 'Pareja de novios con un ramo', 1740, 1170)}<div class="num">26A · pareja</div></figure>
             <figure>{img('/fotos/walliot.jpg', 'Carlino tumbado mirando a cámara', 1400, 934)}<div class="num">27A · perro</div></figure>
           </div>
@@ -214,7 +216,7 @@ escribir('/', pagina('/', 'Otto Kols · Fotógrafo de retrato en Madrid',
 # ================================================================ ACTORES
 FAQ_ACT = [
     ("¿Qué me llevo a la sesión?", "Ropa lisa y sin logos en tonos que te favorezcan, y un cambio por cada look de la sesión que reserves. Si tienes dudas, me mandas fotos de lo que tienes y lo vemos antes."),
-    ("¿Incluye maquillaje?", "No, pero puede venir una maquilladora profesional. Es opcional y se le paga directamente a ella."),
+    ("¿Incluye maquillaje?", "De momento no. Estoy preparando la opción de contar con maquillaje profesional en la sesión; si lo necesitas, pregúntame."),
     ("¿Cuándo tengo las fotos?", "Te paso una galería con todas las fotos buenas, eliges tus favoritas y te las entrego editadas."),
     ("¿Sirven para casting y videobook?", "Sí, es para lo que están pensadas: naturales, que se parezcan a ti el día que entras por la puerta."),
 ]
@@ -233,7 +235,7 @@ cuerpo = f'''
     <section class="bloque" id="sesiones" style="border-top:0">
       <div class="env">
         <h2>Sesiones</h2>
-        <p class="sub">El maquillaje es opcional y se paga directamente a la profesional.</p>
+        <p class="sub">Todas las sesiones incluyen la selección de fotos y la edición de las elegidas.</p>
         {precios([("Natural", "80 €", "1 h · 1 look · 8 fotos editadas · exterior"), ("Estudio", "150 €", "1 h 30 · 2 looks · 15 fotos editadas"), ("Completo", "220 €", "2 h · 3 looks · 20 fotos editadas")])}
         <div style="margin-top:28px">{cta('actores')}</div>
       </div>
@@ -274,9 +276,7 @@ cuerpo = f'''
         <h2>Cómo es la sesión</h2>
         {pasos([("antes", "Hablamos", "Para qué quieres las fotos, qué te gustaría transmitir y dónde las hacemos."), ("durante", "Paseamos", "Una sesión tranquila, con luz natural, hablando mientras hacemos fotos."), ("después", "Eliges", "Te paso una galería y te entrego editadas tus favoritas.")])}
         <div class="galeria" style="margin-top:36px">
-          {img('/fotos/retrato3vert.jpg', 'Retrato de una mujer apoyada en una pared naranja', 934, 1400)}
-          {img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro', 934, 1400)}
-          {img('/fotos/retrato2vert.jpg', 'Retrato con luz natural', 934, 1400)}
+          {''.join(img(enc(p, 800), 'Sesión de retrato personal', 800, 1000) for p in SESIONES)}
         </div>
       </div>
     </section>
@@ -304,10 +304,9 @@ cuerpo = f'''
       </div>
     </section>
     <section class="bloque">
-      <div class="env galeria">
+      <div class="env galeria dos">
         {img('/fotos/boda2horiz.jpg', 'Novios con el ramo', 1740, 1170)}
         {img('/fotos/boda1horiz.jpg', 'Pareja caminando junto al mar', 1503, 1000)}
-        {img('/fotos/retrato3vert.jpg', 'Retrato con luz de tarde', 934, 1400)}
       </div>
     </section>
     <section class="bloque"><div class="env"><h2>Otros retratos</h2>{otros('/parejas/')}</div></section>'''

@@ -84,13 +84,12 @@ p { margin: 0 0 1em; }
 .exif .mano { font: 500 1.5rem var(--f-mano); color: var(--lapiz); line-height: 1; }
 
 /* Puertas de retrato */
-.retratos { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 16px; }
+.retratos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .retratos > a { min-width: 0; text-decoration: none; display: flex; flex-direction: column; gap: 8px; }
 .retratos img { aspect-ratio: 3/4; object-fit: cover; width: 100%; transition: filter .3s; }
 .retratos a:hover img { filter: contrast(1.06) brightness(.97); }
 .retratos .etq { font: 12px var(--f-mono); color: var(--gris); display: flex; justify-content: space-between; gap: 8px; }
 .retratos p { margin: 0; color: var(--gris); font-size: .94rem; }
-.retratos .destacado h3 { font-size: 2.1rem; }
 .retratos .destacado .etq span:first-child { color: var(--lapiz); }
 @media (max-width: 900px) { .retratos { grid-template-columns: 1fr 1fr; } }
 
@@ -140,6 +139,8 @@ p { margin: 0 0 1em; }
 .pasos p { margin: 0; color: var(--gris); font-size: .95rem; }
 .galeria { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .galeria img { aspect-ratio: 4/5; object-fit: cover; width: 100%; }
+.galeria.dos { grid-template-columns: 1fr 1fr; }
+.galeria.dos img { aspect-ratio: 3/2; }
 .otros { display: flex; flex-wrap: wrap; gap: 10px; }
 .otros a { font: 13px var(--f-mono); padding: 10px 14px; border: 1px solid var(--linea); text-decoration: none; }
 .otros a:hover { border-color: var(--tinta); }
