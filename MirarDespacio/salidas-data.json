@@ -1,7 +1,7 @@
 {
   "_ayuda": {
     "proximas": "Próxima salida. fecha = texto que se ve; fechaISO = 2026-10-11T10:00:00+02:00 (para Google). Se actualiza sola en todas las páginas.",
-    "salidas": "Galerías de salidas anteriores, de la más reciente a la más antigua. Para añadir fotos: súbelas a Cloudinary con la etiqueta (tag) indicada y aparecen solas en la web, sin tocar nada más. 'fotos' es la lista de respaldo por si Cloudinary no responde."
+    "salidas": "Galerías de salidas anteriores, de la más reciente a la más antigua. Para añadir fotos: súbelas a Cloudinary y ponles la ETIQUETA (tag) de la salida, p. ej. salida-4 (el nombre del archivo no vale, tiene que ser la etiqueta). 'fotos' es la lista de respaldo por si Cloudinary no permite listar."
   },
   "proximas": [
     {
@@ -17,7 +17,14 @@
       "titulo": "Tribunal y Chueca",
       "fecha": "Septiembre 2026",
       "tag": "salida-3",
-      "fotos": []
+      "fotos": [
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700522/salida-3_1_ubvsvl.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700523/salida-3_2_hmbhgq.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700523/salida-3_3_ofdzxx.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700523/salida-3_4_tltonl.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700524/salida-3_5_bqv2z8.jpg",
+        "https://res.cloudinary.com/dybxateci/image/upload/v1790700525/salida-3_6_quorob.jpg"
+      ]
     },
     {
       "titulo": "Malasaña",
