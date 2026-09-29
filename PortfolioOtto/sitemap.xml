@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://ottokols.es/</loc>
-    <lastmod>2026-09-29</lastmod>
-  </url>
+  <url><loc>https://ottokols.es/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://ottokols.es/actores/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://ottokols.es/retrato/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://ottokols.es/parejas/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://ottokols.es/mascotas/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://ottokols.es/encargos/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://ottokols.es/contacto/</loc><lastmod>2026-09-29</lastmod></url>
 </urlset>
