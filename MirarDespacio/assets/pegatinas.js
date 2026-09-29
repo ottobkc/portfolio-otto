@@ -134,18 +134,17 @@ $('stickerForm').addEventListener('submit', async (e) => {
   const name = $('stickerName').value.trim();
   if (!name) { msg.textContent = 'Pon tu nombre o tu @ de Instagram.'; $('stickerName').focus(); return; }
   const btn = e.target.querySelector('button[type=submit]');
+  if (!fotoLista) { msg.textContent = 'Añade una foto de la pegatina.'; return; }
   btn.disabled = true;
   let photo = null;
   try {
-    if (fotoLista) {
-      msg.textContent = 'Subiendo la foto…';
-      try { photo = await subirFoto(fotoLista); }
-      catch { msg.textContent = 'No se ha podido subir la foto; guardo el punto sin ella.'; }
-    }
+    msg.textContent = 'Subiendo la foto…';
+    try { photo = await subirFoto(fotoLista); }
+    catch { msg.textContent = 'No se ha podido subir la foto. Prueba otra vez o con otra foto.'; return; }
     await addDoc(collection(db, 'pegatinas'), {
-      lat, lng, name: name || null, photo, fotoAprobada: false, createdAt: serverTimestamp()
+      lat, lng, name, photo, fotoAprobada: false, createdAt: serverTimestamp()
     });
-    msg.textContent = photo ? 'Gracias, ya está en el mapa. La foto aparecerá cuando la revise.' : 'Gracias, ya está en el mapa.';
+    msg.textContent = 'Gracias, ya está en el mapa. La foto aparecerá cuando la revise.';
     if (window.umami) window.umami.track('pegatina-marcada', { foto: !!photo });
     e.target.reset();
     fotoLista = null;
