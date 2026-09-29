@@ -184,7 +184,7 @@ cuerpo = f'''
         <h2>Retrato</h2>
         <p class="sub">Cuatro formas de la misma sesión: tiempo, luz y alguien delante.</p>
         <div class="retratos">
-          <a class="destacado" href="/actores/">{img('/fotos/retrato1vert.jpg', 'Headshot de actriz en blanco y negro', 934, 1400)}<div class="etq"><span>especialidad</span><span>desde 80 €</span></div><h3>Actores</h3><p>Headshots y book para casting.</p></a>
+          <a class="destacado" href="/actores/">{img('/fotos/retrato1vert.jpg', 'Retrato de actriz en blanco y negro', 934, 1400)}<div class="etq"><span>especialidad</span><span>desde 80 €</span></div><h3>Actores</h3><p>Book y fotos para casting.</p></a>
           <a href="/retrato/">{img('/fotos/retrato3vert.jpg', 'Retrato de una mujer apoyada en una pared naranja', 934, 1400)}<div class="etq"><span>personal</span><span>90–140 €</span></div><h3>Retrato</h3><p>Para ti, tu web o simplemente porque sí.</p></a>
           <a href="/parejas/">{img('/fotos/boda1horiz.jpg', 'Pareja de novios caminando junto al mar', 1503, 1000)}<div class="etq"><span>dos personas</span><span>desde 90 €</span></div><h3>Parejas y bodas íntimas</h3><p>Preboda, aniversario o una boda pequeña.</p></a>
           <a href="/mascotas/">{img('/fotos/walliot.jpg', 'Retrato de un carlino', 1400, 934)}<div class="etq"><span>mascotas</span><span>70–80 €</span></div><h3>Mascotas</h3><p>A su ritmo y en su sitio favorito.</p></a>
@@ -220,7 +220,7 @@ cuerpo = f'''
       </div>
     </section>'''
 escribir('/', pagina('/', 'Otto Kols · Fotógrafo de retrato en Madrid',
-    'Fotógrafo de retrato en Madrid: headshots para actores, retrato personal, parejas y bodas íntimas, retratos de mascotas y encargos para marcas.',
+    'Fotógrafo de retrato en Madrid: sesiones para actores, retrato personal, parejas y bodas íntimas, retratos de mascotas y encargos para marcas.',
     cuerpo, extra_head=TOKEN_REDIRECT))
 
 # ================================================================ ACTORES
@@ -233,10 +233,10 @@ FAQ_ACT = [
 cuerpo = f'''
     <section class="escena">
       <div class="env cabecera">
-        <figure class="foco">{img('/fotos/retrato1vert.jpg', 'Headshot en blanco y negro de una actriz', 934, 1400, ' fetchpriority="high"')}</figure>
+        <figure class="foco">{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una actriz', 934, 1400, ' fetchpriority="high"')}</figure>
         <div>
           <p class="miga"><a href="/#retrato">Retrato</a> / Actores</p>
-          <h1>Headshots para <em>actores</em> en Madrid.</h1>
+          <h1>Sesiones para <em>actores</em> en Madrid.</h1>
           <p class="entradilla">Fotos para casting y videobook que se parecen a ti el día que entras por la puerta. Luz natural en exterior o estudio, sin retoque de plástico.</p>
           <div class="botones"><a class="btn" href="#sesiones">Ver sesiones</a></div>
         </div>
@@ -258,9 +258,9 @@ cuerpo = f'''
     </section>
     <section class="bloque"><div class="env"><h2>Preguntas</h2>{faq(FAQ_ACT)}</div></section>
     <section class="bloque"><div class="env"><h2>Otros retratos</h2>{otros('/actores/')}</div></section>'''
-escribir('/actores/', pagina('/actores/', 'Headshots para actores en Madrid · Otto Kols',
-    'Headshots y book para actores y actrices en Madrid: sesiones de 1 a 2 horas, de 1 a 3 looks, luz natural o estudio. Desde 80 €.',
-    cuerpo, schema=[servicio_schema("Headshots para actores", "/actores/", [("Sesión Natural", "80"), ("Sesión Estudio", "150"), ("Sesión Completa", "220")]), faq_schema(FAQ_ACT)],
+escribir('/actores/', pagina('/actores/', 'Sesiones de fotos para actores en Madrid · Book y casting · Otto Kols',
+    'Sesiones de fotos para actores y actrices en Madrid, para book, casting y videobook: sesiones de 1 a 2 horas, de 1 a 3 looks, luz natural o estudio. Desde 80 €.',
+    cuerpo, schema=[servicio_schema("Sesiones de fotos para actores", "/actores/", [("Sesión Natural", "80"), ("Sesión Estudio", "150"), ("Sesión Completa", "220")]), faq_schema(FAQ_ACT)],
     og_img='/fotos/retrato1vert.jpg'))
 
 # ================================================================ RETRATO
@@ -272,7 +272,7 @@ cuerpo = f'''
         <p class="entradilla">Una sesión para ti: para tu web, tu perfil profesional o porque te apetece tener una foto tuya que te guste de verdad. Sin poses forzadas.</p>
         {cta('retrato')}
       </div>
-      <figure>{img('/fotos/retrato2vert.jpg', 'Retrato de una mujer con camiseta de rejilla negra', 934, 1400, ' fetchpriority="high"')}</figure>
+      <figure>{img('/fotos/retrato3vert.jpg', 'Retrato de cuerpo entero de una mujer apoyada en una pared naranja', 934, 1400, ' fetchpriority="high"')}</figure>
     </section>
     <section class="bloque">
       <div class="env">
@@ -383,7 +383,7 @@ escribir('/encargos/', pagina('/encargos/', 'Fotografía para marcas y negocios 
     cuerpo, schema=[servicio_schema("Fotografía por encargo", "/encargos/", None)], og_img=enc(ENCARGOS[0], 1200)))
 
 # ================================================================ CONTACTO
-TIPOS = [('actores', 'Headshots para actores'), ('retrato', 'Retrato personal'), ('parejas', 'Pareja o preboda'),
+TIPOS = [('actores', 'Sesión para actores'), ('retrato', 'Retrato personal'), ('parejas', 'Pareja o preboda'),
          ('boda', 'Boda íntima'), ('mascotas', 'Mascotas'), ('encargos', 'Encargo para marca o negocio'), ('otro', 'Otra cosa / no lo sé aún')]
 opciones = ''.join(f'<option data-clave="{c}">{t}</option>' for c, t in TIPOS)
 cuerpo = f'''
@@ -412,4 +412,4 @@ cuerpo = f'''
       </div>
     </section>'''
 escribir('/contacto/', pagina('/contacto/', 'Contacto · Otto Kols, fotógrafo de retrato en Madrid',
-    'Escríbeme para reservar una sesión de retrato, headshots, pareja, mascotas o un encargo. Respondo en menos de 48 horas.', cuerpo))
+    'Escríbeme para reservar una sesión de retrato, para actores, de pareja, mascotas o un encargo. Respondo en menos de 48 horas.', cuerpo))

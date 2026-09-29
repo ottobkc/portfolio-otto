@@ -38,26 +38,26 @@ PLUS_URL = ""
 ZINE_FOTOS = []
 # Enlace de cada episodio (número: url). Los que falten se muestran sin enlace.
 EPISODIO_URL = {
-    1: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-1--Qu-es-para-m-la-fotografa-callejera-y-por-qu-nos-da-miedo-mirar-e3fjalo",
-    2: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-2--Por-qu-no-por-muchas-fotos-que-haga-soy-mejor-fotgrafo-y-lo-que-aprend-observando-e3fjb1c",
-    3: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-3--Qu-pasa-si-me-pillan-haciendo-fotos-en-la-calle-legalidad-y-tica-e3fji3t",
-    4: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-4--Cmo-empezar-en-fotografa-callejera-sin-sentirte-perdido-e3fpaq4",
-    5: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-5--Cmo-vencer-la-vergenza-al-hacer-fotos-a-desconocidos-e3g4j7r",
-    6: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-6--La-foto-con-la-que-alguien-te-recordar-e3gdl4b",
-    7: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-7--Ver-no-es-mirar-e3gobat",
-    8: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-8--Hay-fotos-que-te-hacen-parar-e3hq0i0",
-    9: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-9--Lo-que-encontr-esperando-e3i9rt3",
-    10: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-10--Diez-episodios-mirando-despacio-e3i9s1s",
-    11: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-11--Qu-haras-si-te-pidieran-borrar-una-foto-e3jbu7c",
-    12: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-12--Robas-la-foto-o-buscas-el-encuentro-e3jqp2r",
-    13: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-13--Y-si-lo-dejo-todo-e3k2dds",
-    14: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-14--El-archivo-e3kf35g",
-    15: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-15--Publicar-en-el-vaco-del-algoritmo-e3kpbo3",
-    16: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-16--El-segundo-antes-de-publicar-e3l1una",
-    17: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-17--Los-ms-cercanos-y-el-apoyo-que-no-llega-e3lbivt",
-    18: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-18--El-estilo-no-es-el-gnero--es-la-mirada-e3lnbmo",
-    19: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-19--El-proyecto-que-no-termina-de-llegar-e3lsm08",
-    20: "https://podcasters.spotify.com/pod/show/mirardespacio/episodes/Mirar-Despacio-20--Lo-que-ha-sido-este-camino-e3m0vh8",
+    1: "https://open.spotify.com/episode/1uNhbeNInYusHKHv8UpA0m",
+    2: "https://open.spotify.com/episode/2CH64lE0SJuzkxm1XlHL93",
+    3: "https://open.spotify.com/episode/1UVwJrMT36Fkkt5V82HKAc",
+    4: "https://open.spotify.com/episode/3SqYv22SUftMZEjgszvzgU",
+    5: "https://open.spotify.com/episode/6sfCGR69gHTRT1LiVskIs9",
+    6: "https://open.spotify.com/episode/4DHK43bChWQp2P8ffuNckB",
+    7: "https://open.spotify.com/episode/5wPPJfgcNY0tpnj7I72eCa",
+    8: "https://open.spotify.com/episode/15zKtP1OGF2US5f0lNBpit",
+    9: "https://open.spotify.com/episode/0VqheFTo3sppnbsN9b6Uip",
+    10: "https://open.spotify.com/episode/6G2pfpKWoQ9LITtfxhdPMj",
+    11: "https://open.spotify.com/episode/4Dy4knhw0uoMzkIG7CwQlV",
+    12: "https://open.spotify.com/episode/2LKIisPRNpFxsQD6hn2ocL",
+    13: "https://open.spotify.com/episode/0THlIGzRWx8BQtK8vqe8XJ",
+    14: "https://open.spotify.com/episode/2x4yIOTBRijfSxbwbwAP3S",
+    15: "https://open.spotify.com/episode/1QFhZfkddMEEeKkMEKX77g",
+    16: "https://open.spotify.com/episode/6bZwKw8zFhnyERTeXNgsgr",
+    17: "https://open.spotify.com/episode/5g84DOsgXEaOfNzqbwUpsN",
+    18: "https://open.spotify.com/episode/64qQonkRCmIWDb6WnWO3t3",
+    19: "https://open.spotify.com/episode/4GQgEUw5NBYEB2YscmeoGi",
+    20: "https://open.spotify.com/episode/2ylSTymYhY323W6Vn3Rxje",
 }
 
 
@@ -119,7 +119,7 @@ def construir(g):
           <p class="entradilla">Sobre la vergüenza de fotografiar a desconocidos, qué hacer si te piden borrar una foto, publicar en el vacío del algoritmo o encontrar tu estilo sin buscarlo.</p>
           <div class="botones"><a class="boton claro" href="/podcast/">Todos los episodios</a></div>
         </div>
-        <iframe class="revelar" title="Mirar Despacio en Spotify" style="border-radius:12px;border:0;width:100%;" src="https://open.spotify.com/embed/show/6G7RStaXJqr4S39eUei6BB?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        <iframe class="revelar" title="Mirar Despacio #1 en Spotify" style="border-radius:12px;border:0;width:100%;" src="https://open.spotify.com/embed/episode/1uNhbeNInYusHKHv8UpA0m?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
       </div>
     </section>
 
@@ -150,7 +150,7 @@ def construir(g):
         <h1>El podcast de <em>Mirar Despacio.</em></h1>
         <p class="entradilla">Un podcast en español sobre fotografía callejera, atención y esas cosas pequeñas que se nos escapan cuando vamos con prisa. Episodios cortos, para escuchar paseando o en el metro. No hace falta saber de fotografía.</p>
         <div class="botones">{plataformas}</div>
-        <iframe title="Mirar Despacio en Spotify" style="border-radius:12px;border:0;width:100%;margin-top:36px;" src="https://open.spotify.com/embed/show/6G7RStaXJqr4S39eUei6BB?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        <iframe title="Mirar Despacio #1 en Spotify" style="border-radius:12px;border:0;width:100%;margin-top:36px;" src="https://open.spotify.com/embed/episode/1uNhbeNInYusHKHv8UpA0m?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
       </div>
     </section>
 
