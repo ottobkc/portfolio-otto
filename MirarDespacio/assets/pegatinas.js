@@ -60,13 +60,27 @@ map.on('click', (e) => marcar(e.latlng.lat, e.latlng.lng, false));
 
 $('stickerGeo').addEventListener('click', () => {
   const msg = $('stickerCoordsHint');
-  if (!navigator.geolocation) { msg.textContent = 'Tu navegador no deja usar la ubicación. Toca el sitio en el mapa.'; return; }
+  if (!navigator.geolocation || !window.isSecureContext) {
+    msg.textContent = 'Tu navegador no deja usar la ubicación aquí. Toca el sitio en el mapa.';
+    return;
+  }
+  const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const ok = (pos) => marcar(pos.coords.latitude, pos.coords.longitude, true);
+  const fallo = (err) => {
+    if (err && err.code === 1) {
+      msg.textContent = esIOS
+        ? 'El iPhone no deja a Safari usar tu ubicación. Actívalo en Ajustes → Privacidad y seguridad → Localización → Sitios web de Safari → "Al usar la app", recarga la página y vuelve a probar. O toca el sitio en el mapa.'
+        : 'No has dado permiso de ubicación. Actívalo en el candado de la barra de direcciones y vuelve a probar, o toca el sitio en el mapa.';
+    } else {
+      msg.textContent = 'No he podido saber dónde estás (a veces pasa en interiores). Prueba otra vez o toca el sitio en el mapa.';
+    }
+  };
   msg.textContent = 'Buscando tu ubicación…';
-  navigator.geolocation.getCurrentPosition(
-    (pos) => marcar(pos.coords.latitude, pos.coords.longitude, true),
-    () => { msg.textContent = 'No he podido saber dónde estás. Revisa el permiso de ubicación o toca el sitio en el mapa.'; },
-    { enableHighAccuracy: true, timeout: 12000 }
-  );
+  // Primer intento preciso; si tarda o falla por señal, segundo intento más rápido y menos exigente.
+  navigator.geolocation.getCurrentPosition(ok, (err) => {
+    if (err && err.code === 1) return fallo(err);
+    navigator.geolocation.getCurrentPosition(ok, fallo, { enableHighAccuracy: false, timeout: 15000, maximumAge: 120000 });
+  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
 });
 
 // Vista previa y reducción de la foto antes de subirla (máx. 1600 px, JPEG)

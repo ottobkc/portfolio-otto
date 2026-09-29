@@ -123,6 +123,27 @@ def construir(g):
       </div>
     </section>
 
+    <section class="seccion papel" id="mapa-pegatinas">
+      <div class="envoltura">
+        <p class="antetitulo">Mapa de pegatinas</p>
+        <h2>¿Has visto una <em>pegatina?</em></h2>
+        <p>Si te has cruzado con una pegatina de Mirar Despacio, márcala en el mapa y, si quieres, súbele una foto.</p>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+        <div id="stickerMap" style="height:420px;border-radius:6px;overflow:hidden;margin:20px 0;"></div>
+        <form id="stickerForm" class="formulario" style="max-width:520px;">
+          <div class="botones" style="margin-top:0"><button type="button" class="boton claro" id="stickerGeo">📍 Usar mi ubicación</button></div>
+          <p id="stickerCoordsHint" class="aviso" style="margin:0">O toca en el mapa el sitio donde la has visto.</p>
+          <input type="hidden" id="stickerLat"><input type="hidden" id="stickerLng">
+          <div><label for="stickerName">Tu nombre o @ (opcional)</label><input type="text" id="stickerName" maxlength="60"></div>
+          <div><label for="stickerFoto">Foto de la pegatina (opcional)</label><input type="file" id="stickerFoto" accept="image/*">
+            <p class="aviso" style="margin:6px 0 0">La foto aparecerá en el mapa cuando la revise.</p>
+            <img id="stickerPreview" alt="" style="display:none;max-width:160px;margin-top:10px;border-radius:4px;"></div>
+          <div><button class="boton" type="submit">Marcar en el mapa</button></div>
+          <p id="stickerMsg" class="aviso" style="margin:0"></p>
+        </form>
+      </div>
+    </section>
+
     <section class="seccion">
       <div class="envoltura">
         <p class="antetitulo">Desde la calle</p>
@@ -135,7 +156,7 @@ def construir(g):
     escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid: podcast, salidas y tutorías',
         'Mirar Despacio es un proyecto de fotografía callejera en Madrid: podcast, salidas fotográficas en grupo, tutorías y una comunidad para aprender a mirar antes de disparar.',
         cuerpo, schema=[{"@type": "WebSite", "@id": DOM + "/#web", "url": DOM + "/", "name": "Mirar Despacio", "inLanguage": "es-ES", "publisher": {"@id": DOM + "/#org"}}],
-        extra_pie=PROXIMA_JS))
+        extra_pie=PROXIMA_JS + MAPA_JS))
 
     # ------------------------------------------------------------ PODCAST
     lista = '\n'.join(
@@ -268,24 +289,12 @@ def construir(g):
       </div>
     </section>
 
-    <section class="seccion papel" id="mapa-pegatinas">
-      <div class="envoltura">
-        <p class="antetitulo">Mapa de pegatinas</p>
-        <h2>¿Has visto una <em>pegatina?</em></h2>
-        <p>Si te has cruzado con una pegatina de Mirar Despacio, márcala en el mapa y, si quieres, súbele una foto.</p>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-        <div id="stickerMap" style="height:420px;border-radius:6px;overflow:hidden;margin:20px 0;"></div>
-        <form id="stickerForm" class="formulario" style="max-width:520px;">
-          <div class="botones" style="margin-top:0"><button type="button" class="boton claro" id="stickerGeo">📍 Usar mi ubicación</button></div>
-          <p id="stickerCoordsHint" class="aviso" style="margin:0">O toca en el mapa el sitio donde la has visto.</p>
-          <input type="hidden" id="stickerLat"><input type="hidden" id="stickerLng">
-          <div><label for="stickerName">Tu nombre o @ (opcional)</label><input type="text" id="stickerName" maxlength="60"></div>
-          <div><label for="stickerFoto">Foto de la pegatina (opcional)</label><input type="file" id="stickerFoto" accept="image/*">
-            <p class="aviso" style="margin:6px 0 0">La foto aparecerá en el mapa cuando la revise.</p>
-            <img id="stickerPreview" alt="" style="display:none;max-width:160px;margin-top:10px;border-radius:4px;"></div>
-          <div><button class="boton" type="submit">Marcar en el mapa</button></div>
-          <p id="stickerMsg" class="aviso" style="margin:0"></p>
-        </form>
+
+
+    <section class="seccion papel">
+      <div class="envoltura estrecho" style="text-align:center;">
+        <span class="nota">¿has visto una pegatina?</span>
+        <p style="margin-top:10px;">Márcala en el <a href="/#mapa-pegatinas">mapa de pegatinas</a> de la portada.</p>
       </div>
     </section>
 
@@ -296,16 +305,12 @@ def construir(g):
         {''.join(f'<h3 style="margin-top:28px;">{q}</h3><p>{a}</p>' for q, a in FAQ_SALIDAS)}
       </div>
     </section>'''
-    mapa_js = '''
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script type="module" src="/assets/pegatinas.js"></script>
-  <script src="/assets/galerias.js"></script>'''
     faq_schema = {"@type": "FAQPage", "mainEntity": [
         {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ_SALIDAS]}
     escribir('/salidas/', pagina('/salidas/', 'Salidas fotográficas en Madrid · Mirar Despacio',
         'Salidas de fotografía callejera en grupo por barrios de Madrid, de 10 a 13: paseo, tarjetas de misión y visionado de fotos al final. Contribución libre, cualquier cámara vale.',
         cuerpo, schema=[faq_schema], og_img=cld(datos['galeria'][1]['src'], 'f_auto,q_auto,w_1200'),
-        extra_pie=g['PROXIMA_JS'] + EVENTO_JS + mapa_js))
+        extra_pie=g['PROXIMA_JS'] + EVENTO_JS + GALERIA_JS))
 
     # ------------------------------------------------------------ TUTORÍAS
     cuerpo = f'''
@@ -467,6 +472,12 @@ def construir(g):
     </section>'''
     escribir('/404', pagina('/404', 'Página no encontrada · Mirar Despacio', 'Esta página no existe.', cuerpo))
 
+
+MAPA_JS = '''
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="/assets/pegatinas.js"></script>'''
+GALERIA_JS = '''
+  <script src="/assets/galerias.js"></script>'''
 
 FAQ_SALIDAS = [
     ("¿Cuánto cuesta una salida?", "No tiene precio fijo. Funciona como un free tour: al final cada persona contribuye lo que considere, y si ese día no puedes, no pasa nada. Si eres de Mirar Despacio+, la salida está incluida."),
