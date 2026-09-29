@@ -132,6 +132,7 @@ $('stickerForm').addEventListener('submit', async (e) => {
   const msg = $('stickerMsg');
   if (isNaN(lat) || isNaN(lng)) { msg.textContent = 'Primero usa tu ubicación o toca el mapa para marcar dónde está.'; return; }
   const name = $('stickerName').value.trim();
+  if (!name) { msg.textContent = 'Pon tu nombre o tu @ de Instagram.'; $('stickerName').focus(); return; }
   const btn = e.target.querySelector('button[type=submit]');
   btn.disabled = true;
   let photo = null;

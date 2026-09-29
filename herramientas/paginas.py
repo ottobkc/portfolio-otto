@@ -134,7 +134,7 @@ def construir(g):
           <div class="botones" style="margin-top:0"><button type="button" class="boton claro" id="stickerGeo">📍 Usar mi ubicación</button></div>
           <p id="stickerCoordsHint" class="aviso" style="margin:0">O toca en el mapa el sitio donde la has visto.</p>
           <input type="hidden" id="stickerLat"><input type="hidden" id="stickerLng">
-          <div><label for="stickerName">Tu nombre o @ (opcional)</label><input type="text" id="stickerName" maxlength="60"></div>
+          <div><label for="stickerName">Tu nombre o @ de Instagram *</label><input type="text" id="stickerName" maxlength="60" required autocomplete="nickname"></div>
           <div><label for="stickerFoto">Foto de la pegatina (opcional)</label><input type="file" id="stickerFoto" accept="image/*">
             <p class="aviso" style="margin:6px 0 0">La foto aparecerá en el mapa cuando la revise.</p>
             <img id="stickerPreview" alt="" style="display:none;max-width:160px;margin-top:10px;border-radius:4px;"></div>
