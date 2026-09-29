@@ -57,8 +57,14 @@
       <a class="marca" href="/">Otto Kols</a>
       <button class="nav-boton" aria-label="Menú" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
       <ul>
-        <li><a href="/retrato/">Retrato</a></li>
-        <li><a href="/actores/">Actores</a></li>
+        <li class="desplegable"><button type="button" aria-expanded="false">Retrato <span aria-hidden="true">▾</span></button>
+          <ul>
+            <li><a href="/actores/">Actores</a></li>
+            <li><a href="/retrato/">Retrato personal</a></li>
+            <li><a href="/parejas/">Parejas y bodas íntimas</a></li>
+            <li><a href="/mascotas/">Mascotas</a></li>
+          </ul>
+        </li>
         <li><a href="/encargos/">Encargos</a></li>
         <li><a href="/#sobre">Sobre mí</a></li>
         <li><a href="/contacto/" aria-current="page">Contacto</a></li>
@@ -82,7 +88,7 @@
           <input type="hidden" name="_subject" value="Contacto · ottokols.es">
           <div><label for="c-nombre">Nombre *</label><input type="text" id="c-nombre" name="nombre" required autocomplete="name"></div>
           <div><label for="c-email">Email *</label><input type="email" id="c-email" name="email" required autocomplete="email"></div>
-          <div><label for="c-tipo">Qué tienes en mente</label><select id="c-tipo" name="tipo"><option data-clave="actores">Headshots para actores</option><option data-clave="retrato">Retrato personal</option><option data-clave="parejas">Pareja o preboda</option><option data-clave="boda">Boda íntima</option><option data-clave="mascotas">Retrato con tu perro</option><option data-clave="encargos">Encargo para marca o negocio</option><option data-clave="otro">Otra cosa / no lo sé aún</option></select></div>
+          <div><label for="c-tipo">Qué tienes en mente</label><select id="c-tipo" name="tipo"><option data-clave="actores">Headshots para actores</option><option data-clave="retrato">Retrato personal</option><option data-clave="parejas">Pareja o preboda</option><option data-clave="boda">Boda íntima</option><option data-clave="mascotas">Mascotas</option><option data-clave="encargos">Encargo para marca o negocio</option><option data-clave="otro">Otra cosa / no lo sé aún</option></select></div>
           <div><label for="c-fecha">Fecha aproximada</label><input type="text" id="c-fecha" name="fecha" placeholder="Por ejemplo: noviembre, sin fecha aún…"></div>
           <div><label for="c-mensaje">Cuéntame algo</label><textarea id="c-mensaje" name="mensaje" rows="5"></textarea></div>
           <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para responder a este mensaje.</label>
@@ -104,7 +110,7 @@
           <li><a href="/actores/">Actores</a></li>
           <li><a href="/retrato/">Retrato personal</a></li>
           <li><a href="/parejas/">Parejas y bodas íntimas</a></li>
-          <li><a href="/mascotas/">Retrato con tu perro</a></li>
+          <li><a href="/mascotas/">Mascotas</a></li>
           <li><a href="/encargos/">Encargos</a></li>
         </ul>
       </div>

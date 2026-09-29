@@ -20,7 +20,8 @@ MASCOTAS = ['mascotas_l48usq']
 def enc(pid, w=1200):
     return f'{CLD}f_auto,q_auto,w_{w}/{pid}.jpg'
 
-NAV = [('/retrato/', 'Retrato'), ('/actores/', 'Actores'), ('/encargos/', 'Encargos'), ('/#sobre', 'Sobre mí'), ('/contacto/', 'Contacto')]
+NAV = [('/encargos/', 'Encargos'), ('/#sobre', 'Sobre mí'), ('/contacto/', 'Contacto')]
+RETRATOS = [('/actores/', 'Actores'), ('/retrato/', 'Retrato personal'), ('/parejas/', 'Parejas y bodas íntimas'), ('/mascotas/', 'Mascotas')]
 
 NEGOCIO = {
     "@type": "ProfessionalService", "@id": DOM + "/#negocio", "name": "Otto Kols · Fotografía de retrato",
@@ -42,7 +43,14 @@ TOKEN_REDIRECT = '''
 def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrato2vert.jpg', extra_head=''):
     url = DOM + ruta
     act = ' aria-current="page"'
-    nav = '\n'.join(f'        <li><a href="{h}"{act if h == ruta else ""}>{t}</a></li>' for h, t in NAV)
+    sub = '\n'.join(f'            <li><a href="{h}"{act if h == ruta else ""}>{t}</a></li>' for h, t in RETRATOS)
+    en_retrato = ' class="actual"' if ruta in [h for h, _ in RETRATOS] else ''
+    nav = f'''        <li class="desplegable"><button type="button" aria-expanded="false"{en_retrato}>Retrato <span aria-hidden="true">▾</span></button>
+          <ul>
+{sub}
+          </ul>
+        </li>
+''' + '\n'.join(f'        <li><a href="{h}"{act if h == ruta else ""}>{t}</a></li>' for h, t in NAV)
     ld = json.dumps({"@context": "https://schema.org", "@graph": [NEGOCIO] + (schema or [])}, ensure_ascii=False, indent=1)
     return f'''<!doctype html>
 <html lang="es">
@@ -96,7 +104,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
           <li><a href="/actores/">Actores</a></li>
           <li><a href="/retrato/">Retrato personal</a></li>
           <li><a href="/parejas/">Parejas y bodas íntimas</a></li>
-          <li><a href="/mascotas/">Retrato con tu perro</a></li>
+          <li><a href="/mascotas/">Mascotas</a></li>
           <li><a href="/encargos/">Encargos</a></li>
         </ul>
       </div>
@@ -132,7 +140,7 @@ def precios(items):
     return ''.join(f'<div class="precio"><h3>{n}</h3><i></i><b>{p}</b><p>{d}</p></div>' for n, p, d in items)
 
 def otros(actual):
-    todos = [('/actores/', 'Actores'), ('/retrato/', 'Retrato personal'), ('/parejas/', 'Parejas y bodas íntimas'), ('/mascotas/', 'Retrato con tu perro'), ('/encargos/', 'Encargos')]
+    todos = [('/actores/', 'Actores'), ('/retrato/', 'Retrato personal'), ('/parejas/', 'Parejas y bodas íntimas'), ('/mascotas/', 'Mascotas'), ('/encargos/', 'Encargos')]
     return '<div class="otros">' + ''.join(f'<a href="{h}">{t}</a>' for h, t in todos if h != actual) + '</div>'
 
 def faq(items):
@@ -179,7 +187,7 @@ cuerpo = f'''
           <a class="destacado" href="/actores/">{img('/fotos/retrato1vert.jpg', 'Headshot de actriz en blanco y negro', 934, 1400)}<div class="etq"><span>especialidad</span><span>desde 80 €</span></div><h3>Actores</h3><p>Headshots y book para casting.</p></a>
           <a href="/retrato/">{img('/fotos/retrato3vert.jpg', 'Retrato de una mujer apoyada en una pared naranja', 934, 1400)}<div class="etq"><span>personal</span><span>90–140 €</span></div><h3>Retrato</h3><p>Para ti, tu web o simplemente porque sí.</p></a>
           <a href="/parejas/">{img('/fotos/boda1horiz.jpg', 'Pareja de novios caminando junto al mar', 1503, 1000)}<div class="etq"><span>dos personas</span><span>desde 90 €</span></div><h3>Parejas y bodas íntimas</h3><p>Preboda, aniversario o una boda pequeña.</p></a>
-          <a href="/mascotas/">{img('/fotos/walliot.jpg', 'Retrato de un carlino', 1400, 934)}<div class="etq"><span>con tu perro</span><span>70–80 €</span></div><h3>Retrato con tu perro</h3><p>A su ritmo y en su sitio favorito.</p></a>
+          <a href="/mascotas/">{img('/fotos/walliot.jpg', 'Retrato de un carlino', 1400, 934)}<div class="etq"><span>mascotas</span><span>70–80 €</span></div><h3>Mascotas</h3><p>A su ritmo y en su sitio favorito.</p></a>
         </div>
       </div>
     </section>
@@ -212,7 +220,7 @@ cuerpo = f'''
       </div>
     </section>'''
 escribir('/', pagina('/', 'Otto Kols · Fotógrafo de retrato en Madrid',
-    'Fotógrafo de retrato en Madrid: headshots para actores, retrato personal, parejas y bodas íntimas, retratos con tu perro y encargos para marcas.',
+    'Fotógrafo de retrato en Madrid: headshots para actores, retrato personal, parejas y bodas íntimas, retratos de mascotas y encargos para marcas.',
     cuerpo, extra_head=TOKEN_REDIRECT))
 
 # ================================================================ ACTORES
@@ -320,8 +328,8 @@ escribir('/parejas/', pagina('/parejas/', 'Fotógrafo de parejas y bodas íntima
 cuerpo = f'''
     <section class="env cabecera ancha">
       <div>
-        <p class="miga"><a href="/#retrato">Retrato</a> / Con tu perro</p>
-        <h1>Retrato con <em>tu perro.</em></h1>
+        <p class="miga"><a href="/#retrato">Retrato</a> / Mascotas</p>
+        <h1>Fotografía de <em>mascotas.</em></h1>
         <p class="entradilla">Para los que también son familia. Una sesión a su ritmo, en su parque o su sofá favorito, para guardar su carácter tal como es.</p>
         {cta('mascotas')}
       </div>
@@ -330,7 +338,7 @@ cuerpo = f'''
     <section class="bloque">
       <div class="env">
         <h2>Precio</h2>
-        {precios([("Retrato con tu perro", "70–80 €", "precio orientativo · también con sus humanos")])}
+        {precios([("Sesión de mascotas", "70–80 €", "precio orientativo · también con sus humanos")])}
       </div>
     </section>
     <section class="bloque">
@@ -348,7 +356,7 @@ cuerpo = f'''
     <section class="bloque"><div class="env"><h2>Otros retratos</h2>{otros('/mascotas/')}</div></section>'''
 escribir('/mascotas/', pagina('/mascotas/', 'Fotógrafo de mascotas en Madrid · Otto Kols',
     'Sesiones de retrato para perros y mascotas en Madrid, a su ritmo y en su sitio favorito. También con sus humanos. 70–80 €.',
-    cuerpo, schema=[servicio_schema("Retrato de mascotas", "/mascotas/", [("Retrato con tu perro (desde)", "70")])], og_img='/fotos/walliot.jpg'))
+    cuerpo, schema=[servicio_schema("Retrato de mascotas", "/mascotas/", [("Sesión de mascotas (desde)", "70")])], og_img='/fotos/walliot.jpg'))
 
 # ================================================================ ENCARGOS
 cuerpo = f'''
@@ -376,7 +384,7 @@ escribir('/encargos/', pagina('/encargos/', 'Fotografía para marcas y negocios 
 
 # ================================================================ CONTACTO
 TIPOS = [('actores', 'Headshots para actores'), ('retrato', 'Retrato personal'), ('parejas', 'Pareja o preboda'),
-         ('boda', 'Boda íntima'), ('mascotas', 'Retrato con tu perro'), ('encargos', 'Encargo para marca o negocio'), ('otro', 'Otra cosa / no lo sé aún')]
+         ('boda', 'Boda íntima'), ('mascotas', 'Mascotas'), ('encargos', 'Encargo para marca o negocio'), ('otro', 'Otra cosa / no lo sé aún')]
 opciones = ''.join(f'<option data-clave="{c}">{t}</option>' for c, t in TIPOS)
 cuerpo = f'''
     <section class="env bloque contacto" style="border-top:0">

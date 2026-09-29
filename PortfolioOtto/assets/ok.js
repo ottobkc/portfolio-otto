@@ -9,6 +9,19 @@
     });
   }
 
+  // Desplegable de Retrato (clic y teclado; en escritorio también se abre al pasar el ratón)
+  var desp = document.querySelector('.nav .desplegable');
+  if (desp) {
+    var b = desp.querySelector('button');
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var abierto = desp.classList.toggle('abierto');
+      b.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    });
+    document.addEventListener('click', function () { desp.classList.remove('abierto'); b.setAttribute('aria-expanded', 'false'); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { desp.classList.remove('abierto'); b.setAttribute('aria-expanded', 'false'); } });
+  }
+
   // /contacto/?tipo=actores preselecciona el tipo de sesión
   var tipo = new URLSearchParams(location.search).get('tipo');
   var select = document.getElementById('c-tipo');
