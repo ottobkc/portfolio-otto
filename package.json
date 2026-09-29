@@ -1,0 +1,8 @@
+{
+  "name": "portfolio-otto",
+  "private": true,
+  "description": "ottokols.es + mirardespacio.es — funciones de Netlify",
+  "dependencies": {
+    "firebase-admin": "^14.5.0"
+  }
+}

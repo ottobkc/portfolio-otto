@@ -4,6 +4,11 @@
 [build]
   publish = "PortfolioOtto"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["firebase-admin"]
+
 # -----------------------------------------------
 # HEADERS /members/ — sin indexar
 # -----------------------------------------------
@@ -11,6 +16,66 @@
   for = "/members/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/recursos.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/crm/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# -----------------------------------------------
+# ÁREA DE MIEMBROS — protección en el servidor
+# Solo entra quien tiene sesión de Netlify Identity con rol "member".
+# El rol se asigna solo al registrarse (netlify/functions/identity-signup.js);
+# a los miembros que ya existían hay que ponérselo a mano una vez.
+# -----------------------------------------------
+[[redirects]]
+  from       = "/members/*"
+  to         = "/members/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["member", "admin"]}
+
+[[redirects]]
+  from   = "/members/*"
+  to     = "/salidas.html#acceso"
+  status = 302
+  force  = true
+
+[[redirects]]
+  from       = "/recursos.html"
+  to         = "/recursos.html"
+  status     = 200
+  force      = true
+  conditions = {Role = ["member", "admin"]}
+
+[[redirects]]
+  from   = "/recursos.html"
+  to     = "/salidas.html#acceso"
+  status = 302
+  force  = true
+
+# Copias antiguas de las herramientas que estaban abiertas en la raíz
+[[redirects]]
+  from   = "/composicion.html"
+  to     = "/members/composicion.html"
+  status = 301
+[[redirects]]
+  from   = "/dof-calculator.html"
+  to     = "/members/dof-calculator.html"
+  status = 301
+[[redirects]]
+  from   = "/receta-fotografica.html"
+  to     = "/members/receta-fotografica.html"
+  status = 301
+[[redirects]]
+  from   = "/simulador-visual.html"
+  to     = "/members/simulador-visual.html"
+  status = 301
 
 # -----------------------------------------------
 # REDIRECTS — mirardespacio.es -> salidas.html
