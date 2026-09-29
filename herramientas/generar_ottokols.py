@@ -228,7 +228,7 @@ FAQ_ACT = [
     ("¿Qué me llevo a la sesión?", "Ropa lisa y sin logos en tonos que te favorezcan, y un cambio por cada look de la sesión que reserves. Si tienes dudas, me mandas fotos de lo que tienes y lo vemos antes."),
     ("¿Hay maquillaje?", "Sí, puedes añadir maquillaje profesional a cualquier sesión. El precio se adapta a la sesión y al número de looks: pregúntame al reservar."),
     ("¿Cuándo tengo las fotos?", "Te paso una galería con todas las fotos buenas, eliges tus favoritas y te las entrego editadas."),
-    ("¿Sirven para casting y videobook?", "Sí, es para lo que están pensadas: naturales, que se parezcan a ti el día que entras por la puerta."),
+    ("¿Sirven para casting y para el book?", "Sí, es para lo que están pensadas: naturales, que se parezcan a ti el día que entras por la puerta."),
 ]
 cuerpo = f'''
     <section class="escena">
@@ -237,7 +237,7 @@ cuerpo = f'''
         <div>
           <p class="miga"><a href="/#retrato">Retrato</a> / Actores</p>
           <h1>Sesiones para <em>actores</em> en Madrid.</h1>
-          <p class="entradilla">Fotos para casting y videobook que se parecen a ti el día que entras por la puerta. Luz natural en exterior o estudio, sin retoque de plástico.</p>
+          <p class="entradilla">Fotos para tu book y para casting que se parecen a ti el día que entras por la puerta. Luz natural en exterior o estudio, sin retoque de plástico.</p>
           <div class="botones"><a class="btn" href="#sesiones">Ver sesiones</a></div>
         </div>
       </div>
@@ -259,7 +259,7 @@ cuerpo = f'''
     <section class="bloque"><div class="env"><h2>Preguntas</h2>{faq(FAQ_ACT)}</div></section>
     <section class="bloque"><div class="env"><h2>Otros retratos</h2>{otros('/actores/')}</div></section>'''
 escribir('/actores/', pagina('/actores/', 'Sesiones de fotos para actores en Madrid · Book y casting · Otto Kols',
-    'Sesiones de fotos para actores y actrices en Madrid, para book, casting y videobook: sesiones de 1 a 2 horas, de 1 a 3 looks, luz natural o estudio. Desde 80 €.',
+    'Sesiones de fotos para actores y actrices en Madrid, para book y casting: sesiones de 1 a 2 horas, de 1 a 3 looks, luz natural o estudio. Desde 80 €.',
     cuerpo, schema=[servicio_schema("Sesiones de fotos para actores", "/actores/", [("Sesión Natural", "80"), ("Sesión Estudio", "150"), ("Sesión Completa", "220")]), faq_schema(FAQ_ACT)],
     og_img='/fotos/retrato1vert.jpg'))
 
