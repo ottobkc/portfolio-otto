@@ -485,6 +485,30 @@ window.aprobarFoto = async function(id, valor) {
   try { await updateDoc(doc(db, 'pegatinas', id), { fotoAprobada: valor }); setSyncStatus('Guardado'); }
   catch (e) { setSyncStatus('Error al guardar', true); }
 };
+// Subir foto a una pegatina desde el CRM (queda aprobada porque la sube el admin)
+window.subirFotoPegatina = function(id) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async () => {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    setSyncStatus('Subiendo foto…');
+    try {
+      const fd = new FormData();
+      fd.append('file', f);
+      fd.append('upload_preset', 'pegatinas_web');
+      const r = await fetch('https://api.cloudinary.com/v1_1/dybxateci/image/upload', { method: 'POST', body: fd });
+      if (!r.ok) throw new Error('subida');
+      const d = await r.json();
+      await updateDoc(doc(db, 'pegatinas', id), { photo: d.secure_url, fotoAprobada: true });
+      setSyncStatus('Foto añadida');
+    } catch (e) {
+      setSyncStatus('No se pudo subir la foto', true);
+    }
+  };
+  input.click();
+};
 window.borrarPegatina = async function(id) {
   if (!confirm('¿Borrar esta pegatina del mapa?')) return;
   setSyncStatus('Borrando…');
@@ -498,7 +522,7 @@ function filaPegatina(p) {
   const foto = p.photo && /^https:\/\//.test(p.photo)
     ? `<a href="${escapeHtml(p.photo)}" target="_blank" rel="noopener"><img src="${escapeHtml(p.photo.replace('/upload/', '/upload/c_fill,w_160,h_160,q_auto,f_auto/'))}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;"></a>` : '';
   const estado = !p.photo ? 'sin foto' : (p.fotoAprobada === false ? '<span class="badge" style="background:#b5654f;">foto pendiente</span>' : '<span class="badge">foto visible</span>');
-  const botones = !p.photo ? '' : (p.fotoAprobada === false
+  const botones = !p.photo ? `<button class="small" onclick="subirFotoPegatina('${p.id}')">Subir foto</button>` : (p.fotoAprobada === false
     ? `<button class="small" onclick="aprobarFoto('${p.id}', true)">Aprobar foto</button>`
     : `<button class="small secondary" onclick="aprobarFoto('${p.id}', false)">Ocultar foto</button>`);
   return `<div class="person-row" style="gap:12px;align-items:center;">
