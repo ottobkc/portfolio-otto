@@ -170,7 +170,7 @@ cuerpo = f'''
         <div class="tira">
           <div class="cuadros">
             <figure>{img('/fotos/retrato2vert.jpg', 'Retrato de una mujer con camiseta de rejilla negra', 934, 1400, ' fetchpriority="high"')}<div class="num">24A · retrato</div></figure>
-            <figure class="elegida">{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una mujer con los ojos cerrados', 934, 1400, ' fetchpriority="high"')}<div class="num">25A · blanco y negro</div></figure>
+            <figure class="elegida">{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una actriz con los ojos cerrados', 934, 1400, ' fetchpriority="high"')}<div class="num">25A · actriz</div></figure>
             <figure>{img('/fotos/boda2horiz.jpg', 'Pareja de novios con un ramo', 1740, 1170)}<div class="num">26A · pareja</div></figure>
             <figure>{img('/fotos/walliot.jpg', 'Carlino tumbado mirando a cámara', 1400, 934)}<div class="num">27A · perro</div></figure>
           </div>
@@ -184,7 +184,7 @@ cuerpo = f'''
         <h2>Retrato</h2>
         <p class="sub">Cuatro formas de la misma sesión: tiempo, luz y alguien delante.</p>
         <div class="retratos">
-          <a class="destacado" href="/actores/">{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una mujer', 934, 1400)}<div class="etq"><span>casting y book</span><span>desde 80 €</span></div><h3>Actores</h3><p>Book y fotos para casting.</p></a>
+          <a class="destacado" href="/actores/">{img('/fotos/retrato1vert.jpg', 'Retrato de actriz en blanco y negro', 934, 1400)}<div class="etq"><span>casting y book</span><span>desde 80 €</span></div><h3>Actores</h3><p>Book y fotos para casting.</p></a>
           <a href="/retrato/">{img('/fotos/retrato3vert.jpg', 'Retrato de una mujer apoyada en una pared naranja', 934, 1400)}<div class="etq"><span>personal</span><span>90–140 €</span></div><h3>Retrato</h3><p>Para ti, tu web o simplemente porque sí.</p></a>
           <a href="/parejas/">{img('/fotos/boda1horiz.jpg', 'Pareja de novios caminando junto al mar', 1503, 1000)}<div class="etq"><span>dos personas</span><span>desde 90 €</span></div><h3>Parejas y bodas íntimas</h3><p>Preboda, aniversario o una boda pequeña.</p></a>
           <a href="/mascotas/">{img('/fotos/walliot.jpg', 'Retrato de un carlino', 1400, 934)}<div class="etq"><span>mascotas</span><span>70–80 €</span></div><h3>Mascotas</h3><p>A su ritmo y en su sitio favorito.</p></a>
@@ -233,7 +233,7 @@ FAQ_ACT = [
 cuerpo = f'''
     <section class="escena">
       <div class="env cabecera">
-        <figure class="foco">{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una mujer', 934, 1400, ' fetchpriority="high"')}</figure>
+        <figure class="foco">{img('/fotos/retrato1vert.jpg', 'Retrato en blanco y negro de una actriz', 934, 1400, ' fetchpriority="high"')}</figure>
         <div>
           <p class="miga"><a href="/#retrato">Retrato</a> / Actores</p>
           <h1>Sesiones para <em>actores</em> en Madrid.</h1>
