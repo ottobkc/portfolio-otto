@@ -494,16 +494,33 @@ EVENTO_JS = '''
     fetch('/salidas-data.json').then(function (r) { return r.json(); }).then(function (d) {
       var s = (d.proximas || []).filter(function (x) { return x.activa && x.fechaISO; })[0];
       if (!s) return;
+      // Fin: fechaFinISO si existe; si no, 3 horas después del inicio, manteniendo la zona horaria (+02:00)
+      function sumarHoras(iso, h) {
+        var m = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2})?(.*)$/);
+        if (!m) return iso;
+        var dt = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4] + h, +m[5]));
+        var p = function (n) { return String(n).padStart(2, '0'); };
+        return dt.getUTCFullYear() + '-' + p(dt.getUTCMonth() + 1) + '-' + p(dt.getUTCDate()) + 'T' + p(dt.getUTCHours()) + ':' + p(dt.getUTCMinutes()) + ':00' + (m[6] || '');
+      }
+      var zona = s.zona || 'Madrid';
+      var foto = (d.galeria && d.galeria[0] && d.galeria[0].src) || 'https://res.cloudinary.com/dybxateci/image/upload/v1785276700/logoMD_gizjap.png';
       var ev = {
         "@context": "https://schema.org", "@type": "Event",
-        "name": "Salida fotográfica Mirar Despacio · " + (s.zona || "Madrid"),
-        "startDate": s.fechaISO, "eventStatus": "https://schema.org/EventScheduled",
+        "name": "Salida fotográfica Mirar Despacio · " + zona,
+        "startDate": s.fechaISO,
+        "endDate": s.fechaFinISO || sumarHoras(s.fechaISO, 3),
+        "eventStatus": "https://schema.org/EventScheduled",
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-        "location": { "@type": "Place", "name": (s.zona || "Madrid") + ", Madrid",
-          "address": { "@type": "PostalAddress", "addressLocality": "Madrid", "addressCountry": "ES" } },
+        "location": { "@type": "Place", "name": zona + ", Madrid",
+          "address": { "@type": "PostalAddress", "addressLocality": "Madrid", "addressRegion": "Madrid", "addressCountry": "ES" } },
+        "image": [foto.replace('/upload/', '/upload/f_auto,q_auto,w_1200/')],
+        "description": "Salida de fotografía callejera en grupo por " + zona + ": paseo, tarjetas de misión y visionado de fotos. Contribución libre.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock", "url": "https://mirardespacio.es/salidas/#apuntarse",
+          "description": "Contribución libre al final de la salida" },
+        "performer": { "@type": "Person", "name": "Otto Kols", "url": "https://ottokols.es/" },
         "organizer": { "@type": "Organization", "name": "Mirar Despacio", "url": "https://mirardespacio.es/" },
-        "isAccessibleForFree": true, "url": "https://mirardespacio.es/salidas/",
-        "description": "Salida de fotografía callejera en grupo por " + (s.zona || "Madrid") + ": paseo, tarjetas de misión y visionado. Contribución libre."
+        "isAccessibleForFree": true, "url": "https://mirardespacio.es/salidas/"
       };
       var t = document.createElement('script');
       t.type = 'application/ld+json';
