@@ -191,13 +191,17 @@
   </footer>
   <script src="/assets/md.js"></script>
   <script>
+    // Próxima salida. "Por determinar" / "por confirmar" / "por anunciar" en fecha = aún sin fecha.
+    // Una salida con fechaISO ya pasada tampoco se muestra.
     fetch('/salidas-data.json').then(function (r) { return r.json(); }).then(function (d) {
-      var s = (d.proximas || []).filter(function (x) { return x.activa; })[0];
+      var pendiente = function (v) { return !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim()); };
+      var pasada = function (x) { return x.fechaISO && new Date(x.fechaISO).getTime() + 4 * 3600e3 < Date.now(); };
+      var s = (d.proximas || []).filter(function (x) { return x.activa && !pendiente(x.fecha) && !pasada(x); })[0];
       document.querySelectorAll('[data-proxima]').forEach(function (el) {
         if (!s) { el.textContent = 'Próxima fecha por anunciar. Apúntate y te aviso.'; return; }
         var t = s.fecha;
-        if (s.zona && s.zona !== 'Por confirmar') t += ' · ' + s.zona;
-        if (s.hora && s.hora !== 'Por confirmar') t += ' · ' + s.hora + ' h';
+        if (!pendiente(s.zona)) t += ' · ' + s.zona;
+        if (!pendiente(s.hora)) t += ' · ' + s.hora + ' h';
         el.textContent = t;
       });
     }).catch(function () {});

@@ -492,7 +492,11 @@ EVENTO_JS = '''
   <script>
     // Datos estructurados del próximo evento, generados desde salidas-data.json
     fetch('/salidas-data.json').then(function (r) { return r.json(); }).then(function (d) {
-      var s = (d.proximas || []).filter(function (x) { return x.activa && x.fechaISO; })[0];
+      // Solo si hay fecha real y todavía no ha pasado
+      var pendiente = function (v) { return !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim()); };
+      var s = (d.proximas || []).filter(function (x) {
+        return x.activa && x.fechaISO && !pendiente(x.fecha) && new Date(x.fechaISO).getTime() > Date.now();
+      })[0];
       if (!s) return;
       // Fin: fechaFinISO si existe; si no, 3 horas después del inicio, manteniendo la zona horaria (+02:00)
       function sumarHoras(iso, h) {

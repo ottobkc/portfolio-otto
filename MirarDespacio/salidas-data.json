@@ -1,6 +1,6 @@
 {
   "_ayuda": {
-    "proximas": "Próxima salida. fecha = texto que se ve; fechaISO = 2026-10-11T10:00:00+02:00 (para Google). Opcional: fechaFinISO si no acaba a las 3 horas. Se actualiza sola en todas las páginas.",
+    "proximas": "Próxima salida. fecha = texto que se ve; fechaISO = 2026-10-11T10:00:00+02:00 (para Google). Cuando pase una salida, pon fecha 'Por determinar' y listo: la web y Google dejan de mostrarla. Opcional: fechaFinISO si no acaba a las 3 horas.",
     "salidas": "Galerías de salidas anteriores, de la más reciente a la más antigua. Para añadir fotos: súbelas a Cloudinary y ponles la ETIQUETA (tag) de la salida, p. ej. salida-4 (el nombre del archivo no vale, tiene que ser la etiqueta). 'fotos' es la lista de respaldo por si Cloudinary no permite listar."
   },
   "proximas": [
