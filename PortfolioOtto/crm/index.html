@@ -180,6 +180,8 @@
     cursor: pointer;
   }
 
+  .datos-persona { margin: 8px 0 4px; }
+  .datos-persona input { margin-top: 6px; }
   .consent-toggle {
     display: flex;
     align-items: center;
@@ -283,7 +285,9 @@
     <div class="card">
       <div class="card-title">Añadir persona a esta salida</div>
       <input type="text" id="rosterName" placeholder="Nombre">
+      <input type="text" id="rosterApellidos" placeholder="Apellidos (opcional)">
       <input type="text" id="rosterEmail" placeholder="Email (opcional)">
+      <input type="tel" id="rosterTelefono" placeholder="Teléfono (opcional)">
       <select id="rosterStatus">
         <option value="pendiente">Pendiente</option>
         <option value="confirmado">Confirmado</option>
@@ -300,11 +304,13 @@
     <div class="card">
       <div class="card-title">Nueva persona</div>
       <input type="text" id="newPersonName" placeholder="Nombre">
+      <input type="text" id="newPersonApellidos" placeholder="Apellidos (opcional)">
       <input type="text" id="newPersonEmail" placeholder="Email (opcional)">
+      <input type="tel" id="newPersonTelefono" placeholder="Teléfono (opcional)">
       <button onclick="createPersonDirect()">Añadir persona</button>
     </div>
     <div class="card">
-      <input type="text" id="searchPeople" placeholder="Buscar por nombre o email..." oninput="renderPeople()">
+      <input type="text" id="searchPeople" placeholder="Buscar por nombre, apellidos, email o teléfono..." oninput="renderPeople()">
     </div>
     <div id="peopleList"></div>
   </div>
@@ -715,27 +721,70 @@ window.openEvent = function(id) {
   renderRoster();
 };
 
-async function findOrCreatePerson(name, email) {
-  let p = people.find(p => (email && p.email && p.email.toLowerCase() === email.toLowerCase()) || (!email && p.name.toLowerCase() === name.toLowerCase()));
+// Nombre completo (nombre + apellidos) para mostrar
+function nombreCompleto(p) {
+  return [p.name, p.apellidos].filter(Boolean).join(' ');
+}
+// Enlace de WhatsApp: si es un móvil español de 9 cifras, le pone el prefijo 34
+function waLink(tel) {
+  let n = String(tel || '').replace(/[^0-9+]/g, '').replace(/^\+/, '').replace(/^00/, '');
+  if (/^[67]\d{8}$/.test(n)) n = '34' + n;
+  return n.length >= 9 ? 'https://wa.me/' + n : '';
+}
+function telefonoHtml(tel) {
+  if (!tel) return '';
+  const wa = waLink(tel);
+  return ' · ' + escapeHtml(tel) + (wa ? ` <a href="${wa}" target="_blank" rel="noopener" style="color:inherit">WhatsApp</a>` : '');
+}
+
+async function findOrCreatePerson(name, email, extra = {}) {
+  const apellidos = (extra.apellidos || '').trim();
+  const telefono = (extra.telefono || '').trim();
+  let p = people.find(p => (email && p.email && p.email.toLowerCase() === email.toLowerCase()) || (!email && p.name.toLowerCase() === name.toLowerCase() && (!apellidos || !p.apellidos || p.apellidos.toLowerCase() === apellidos.toLowerCase())));
   if (!p) {
     const id = uid();
-    p = { id, name, email: email || '' };
-    await setDoc(doc(db, 'people', id), { name, email: email || '' });
-  } else if (email && !p.email) {
-    await setDoc(doc(db, 'people', p.id), { ...p, email }, { merge: true });
-    p.email = email;
+    p = { id, name, email: email || '', apellidos, telefono };
+    await setDoc(doc(db, 'people', id), { name, email: email || '', apellidos, telefono });
+  } else {
+    // Completa los datos que falten en una persona que ya existía
+    const cambios = {};
+    if (email && !p.email) cambios.email = email;
+    if (apellidos && !p.apellidos) cambios.apellidos = apellidos;
+    if (telefono && !p.telefono) cambios.telefono = telefono;
+    if (Object.keys(cambios).length) {
+      await setDoc(doc(db, 'people', p.id), cambios, { merge: true });
+      Object.assign(p, cambios);
+    }
   }
   return p;
 }
 
+// Fichas con "Editar datos" abiertas (para que no se cierren al guardar)
+window.datosAbiertos = new Set();
+// Editar los datos de una persona desde la pestaña Personas
+window.guardarDato = async function(personId, campo, valor) {
+  if (!['name', 'apellidos', 'email', 'telefono'].includes(campo)) return;
+  valor = valor.trim();
+  if (campo === 'name' && !valor) return;
+  setSyncStatus('Guardando…');
+  try {
+    await setDoc(doc(db, 'people', personId), { [campo]: valor }, { merge: true });
+    setSyncStatus('Guardado ✓');
+  } catch (err) {
+    setSyncStatus('Error: ' + err.message, true);
+  }
+};
+
 window.addToRoster = async function() {
   const name = document.getElementById('rosterName').value.trim();
   const email = document.getElementById('rosterEmail').value.trim();
+  const apellidos = document.getElementById('rosterApellidos').value.trim();
+  const telefono = document.getElementById('rosterTelefono').value.trim();
   const status = document.getElementById('rosterStatus').value;
   if (!name) return;
   setSyncStatus('Guardando…');
   try {
-    const person = await findOrCreatePerson(name, email);
+    const person = await findOrCreatePerson(name, email, { apellidos, telefono });
     const existing = signups.find(s => s.eventId === currentEventId && s.personId === person.id);
     if (existing) {
       await setDoc(doc(db, 'signups', existing.id), { personId: person.id, eventId: currentEventId, status, attended: existing.attended || false });
@@ -745,6 +794,8 @@ window.addToRoster = async function() {
     }
     document.getElementById('rosterName').value = '';
     document.getElementById('rosterEmail').value = '';
+    document.getElementById('rosterApellidos').value = '';
+    document.getElementById('rosterTelefono').value = '';
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error añadiendo a la lista:', err);
@@ -769,8 +820,8 @@ function renderRoster() {
       div.innerHTML = `
         <div class="attend-check ${s.attended ? 'checked' : ''}" onclick="toggleAttended('${s.id}')">${s.attended ? '✓' : ''}</div>
         <div class="person-main">
-          <div class="person-name">${escapeHtml(person.name)} ${timesAttended > 1 ? `<span class="badge">repite ×${timesAttended}</span>` : ''}</div>
-          <div class="person-meta">${escapeHtml(person.email || '')}</div>
+          <div class="person-name">${escapeHtml(nombreCompleto(person))} ${timesAttended > 1 ? `<span class="badge">repite ×${timesAttended}</span>` : ''}</div>
+          <div class="person-meta">${escapeHtml(person.email || '')}${telefonoHtml(person.telefono)}</div>
         </div>
         <select class="status-select" onchange="changeStatus('${s.id}', this.value)">
           <option value="pendiente" ${s.status==='pendiente'?'selected':''}>Pendiente</option>
@@ -813,12 +864,16 @@ window.removeSignup = async function(signupId) {
 window.createPersonDirect = async function() {
   const name = document.getElementById('newPersonName').value.trim();
   const email = document.getElementById('newPersonEmail').value.trim();
+  const apellidos = document.getElementById('newPersonApellidos').value.trim();
+  const telefono = document.getElementById('newPersonTelefono').value.trim();
   if (!name) return;
   setSyncStatus('Guardando…');
   try {
-    await findOrCreatePerson(name, email);
+    await findOrCreatePerson(name, email, { apellidos, telefono });
     document.getElementById('newPersonName').value = '';
     document.getElementById('newPersonEmail').value = '';
+    document.getElementById('newPersonApellidos').value = '';
+    document.getElementById('newPersonTelefono').value = '';
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error creando persona:', err);
@@ -833,7 +888,7 @@ function renderPeople() {
   if (!el) return;
   el.innerHTML = '';
   let filtered = people.filter(p =>
-    p.name.toLowerCase().includes(search) || (p.email||'').toLowerCase().includes(search)
+    [p.name, p.apellidos, p.email, p.telefono].some(v => (v || '').toLowerCase().includes(search))
   );
   filtered.sort((a,b) => {
     const countA = signups.filter(s => s.personId === a.id).length;
@@ -854,11 +909,18 @@ function renderPeople() {
     div.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px;">
         <div class="person-main">
-          <div class="person-name">${escapeHtml(p.name)} ${attended > 1 ? `<span class="badge">${attended} salidas</span>` : ''}</div>
-          <div class="person-meta">${escapeHtml(p.email || 'sin email')} · apuntado a ${psignups.length} salida(s)</div>
+          <div class="person-name">${escapeHtml(nombreCompleto(p))} ${attended > 1 ? `<span class="badge">${attended} salidas</span>` : ''}</div>
+          <div class="person-meta">${escapeHtml(p.email || 'sin email')}${telefonoHtml(p.telefono)} · apuntado a ${psignups.length} salida(s)</div>
         </div>
         <button class="small danger" onclick="deletePerson('${p.id}')">✕</button>
       </div>
+      <details class="datos-persona" ${datosAbiertos.has(p.id) ? 'open' : ''} ontoggle="this.open ? datosAbiertos.add('${p.id}') : datosAbiertos.delete('${p.id}')">
+        <summary class="person-meta" style="cursor:pointer;">Editar datos</summary>
+        <input type="text" placeholder="Nombre" value="${escapeAttr(p.name)}" onchange="guardarDato('${p.id}','name',this.value)">
+        <input type="text" placeholder="Apellidos" value="${escapeAttr(p.apellidos)}" onchange="guardarDato('${p.id}','apellidos',this.value)">
+        <input type="text" placeholder="Email" value="${escapeAttr(p.email)}" onchange="guardarDato('${p.id}','email',this.value)">
+        <input type="tel" placeholder="Teléfono" value="${escapeAttr(p.telefono)}" onchange="guardarDato('${p.id}','telefono',this.value)">
+      </details>
       <div class="trial-row">${trialControlHtml(p)}</div>
       <label class="consent-toggle">
         <input type="checkbox" ${p.consentImagen ? 'checked' : ''} onchange="toggleConsent('${p.id}', this.checked)">
@@ -1043,7 +1105,7 @@ window.copyExport = function() {
 };
 
 window.downloadCSV = function() {
-  let rows = [['Nombre','Email','Salida','Fecha','Estado','Asistio','AccesoMiembros_Inicio','AccesoMiembros_Fin','ConsentimientoImagen','MD_Plus_Activo','MD_Plus_Desde','MD_Plus_Hasta']];
+  let rows = [['Nombre','Apellidos','Email','Telefono','Salida','Fecha','Estado','Asistio','AccesoMiembros_Inicio','AccesoMiembros_Fin','ConsentimientoImagen','MD_Plus_Activo','MD_Plus_Desde','MD_Plus_Hasta']];
   signups.forEach(s => {
     const p = people.find(p => p.id === s.personId);
     const ev = events.find(e => e.id === s.eventId);
@@ -1057,7 +1119,7 @@ window.downloadCSV = function() {
     }
     const sub = p.subscription || {};
     rows.push([
-      p.name, p.email || '', ev.name, ev.date || '', s.status, s.attended ? 'si' : 'no',
+      p.name, p.apellidos || '', p.email || '', p.telefono || '', ev.name, ev.date || '', s.status, s.attended ? 'si' : 'no',
       trialStartStr, trialEndStr,
       p.consentImagen ? 'si' : 'no',
       sub.active ? 'si' : 'no',
@@ -1074,6 +1136,10 @@ window.downloadCSV = function() {
   a.click();
   URL.revokeObjectURL(url);
 };
+
+function escapeAttr(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
 
 function escapeHtml(str) {
   const d = document.createElement('div');
