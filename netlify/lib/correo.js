@@ -5,6 +5,7 @@
 //   SMTP_USER  -> info@mirardespacio.es
 //   SMTP_PASS  -> contraseña de ese buzón (secreta)
 //   MAIL_FROM  -> opcional, por defecto SMTP_USER
+//   AVISO_A    -> opcional: a dónde llega el aviso de cada inscripción (por defecto MAIL_FROM)
 // No depende de ningún plan de pago de Netlify.
 const nodemailer = require('nodemailer');
 
