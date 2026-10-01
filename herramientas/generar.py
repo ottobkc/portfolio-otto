@@ -13,6 +13,13 @@ FORMSPREE = 'https://formspree.io/f/mlgkdlno'
 ACCESO = 'https://ottokols.es/acceso.html'
 HOY = '2026-09-29'
 
+import hashlib
+def v(nombre):
+    # Versión del archivo según su contenido: el navegador guarda /assets 7 días,
+    # así cada cambio llega a todo el mundo al momento.
+    ruta = os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'assets', nombre)
+    return '/assets/' + nombre + '?v=' + hashlib.md5(open(ruta, 'rb').read()).hexdigest()[:8]
+
 def cld(url, t='f_auto,q_auto,w_900'):
     return url.replace('/upload/', '/upload/' + t + '/', 1)
 
@@ -59,7 +66,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Jost:wght@300;400;500&display=swap">
-  <link rel="stylesheet" href="/assets/md.css">
+  <link rel="stylesheet" href="{v('md.css')}">
   <script type="application/ld+json">
 {ld}
   </script>
@@ -103,7 +110,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
       <p class="legal">© 2026 Mirar Despacio · Otto Kols · Madrid</p>
     </div>
   </footer>
-  <script src="/assets/md.js"></script>{extra_pie}
+  <script src="{v('md.js')}"></script>{extra_pie}
 </body>
 </html>
 '''
@@ -113,6 +120,8 @@ def escribir(ruta, contenido):
     if ruta == '/':
         destino = os.path.join(RAIZ, 'index.html')
     os.makedirs(os.path.dirname(destino), exist_ok=True)
+    for js in ('pegatinas.js', 'galerias.js'):
+        contenido = contenido.replace('"/assets/' + js + '"', '"' + v(js) + '"')
     open(destino, 'w').write(contenido)
     print('✓', ruta)
 
