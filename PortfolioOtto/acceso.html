@@ -109,7 +109,9 @@
       });
       boton.addEventListener('click', function () { netlifyIdentity.open('login'); });
       salir.addEventListener('click', function () { netlifyIdentity.logout(); });
-      netlifyIdentity.init();
+      // No llamamos a netlifyIdentity.init(): el widget ya se inicia solo al cargar la página.
+      // Llamarlo otra vez creaba una segunda ventana del widget y el formulario de la
+      // invitación se quedaba invisible, tapando la página.
     })();
   </script>
 </body>
