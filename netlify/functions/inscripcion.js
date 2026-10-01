@@ -6,6 +6,7 @@
 // Si algo falla devuelve error y la web manda el formulario por Formspree como antes.
 const { db, FieldValue } = require('../lib/firestore');
 const { enviar, esc, hayCorreo } = require('../lib/correo');
+const { tarjeta, recibido, fechaLarga, enlacesCalendario, aTexto } = require('../lib/plantillas-salida');
 
 const PLAZAS = 10;
 const DATOS = 'https://mirardespacio.es/salidas-data.json';
@@ -39,6 +40,8 @@ async function proximaSalida() {
     fecha: s.fecha,
     zona: pendiente(s.zona) ? '' : s.zona,
     hora: pendiente(s.hora) ? '' : s.hora,
+    iso: s.fechaISO || '',
+    finISO: s.fechaFinISO || '',
   };
 }
 
@@ -154,54 +157,56 @@ function textoSalida(s) {
 }
 
 function correoPersona(datos, salida, r) {
-  const hola = `Hola, ${esc(datos.nombre)}:`;
-  const ya = r.yaEstaba ? ['Ya te habías apuntado antes, así que no tienes que hacer nada más. Te recuerdo cómo está tu inscripción.'] : [];
-  const whatsapp = datos.telefono
-    ? ' Como me has dejado tu teléfono, te añadiré a la comunidad de WhatsApp de Mirar Despacio, donde aviso de las salidas y compartimos fotos.'
-    : '';
-  const boton = { texto: 'Ver las salidas', url: 'https://mirardespacio.es/salidas/' };
+  const ya = r.yaEstaba ? 'Por cierto, ya te habías apuntado antes, así que no tienes que hacer nada más.' : '';
 
   if (!salida.conFecha) {
-    return {
-      asunto: 'Tienes plaza en la próxima salida de Mirar Despacio',
-      contenido: {
-        titulo: 'Tienes plaza',
-        parrafos: [hola, ...ya,
-          'Ya estás dentro de la próxima salida de Mirar Despacio. Todavía no hay fecha cerrada: en cuanto la tenga te escribo con el día, la hora y el punto de encuentro.'],
-        detalles: [['Fecha', 'Por anunciar'], ['Duración', 'Unas tres horas, de 10:00 a 13:00 más o menos'], ['Qué traer', 'Lo que tengas para hacer fotos, también vale el móvil']],
-        boton,
-        nota: 'A veces acabamos con unas cervezas.' + whatsapp + ' Si tienes cualquier duda, contesta a este correo.',
-      },
-    };
+    const html = recibido({
+      titulo: 'Recibido — próxima salida Mirar Despacio',
+      cabecera: `Recibido${datos.nombre ? ', ' + esc(datos.nombre) : ''}.`,
+      parrafos: [
+        'Ya tienes plaza para la próxima salida de Mirar Despacio.',
+        'Todavía no hay fecha ni barrio decididos — en cuanto los tenga cerrados, te aviso por aquí con todos los detalles.',
+        ...(ya ? [ya] : []),
+      ],
+      estado: 'Plaza reservada, a la espera de fecha y barrio',
+    });
+    return { asunto: 'Recibido — próxima salida de Mirar Despacio', html };
   }
-  const detalles = [['Fecha', esc(salida.fecha)]];
-  if (salida.zona) detalles.push(['Zona', esc(salida.zona)]);
-  if (salida.hora) detalles.push(['Hora', esc(salida.hora) + ' h · unas tres horas']);
+
+  const filas = [['📅', esc(fechaLarga(salida.iso, salida.fecha))]];
+  if (salida.hora) filas.push(['🕙', esc(salida.hora) + 'h']);
+  if (salida.zona) filas.push(['📍', 'Zona ' + esc(salida.zona)]);
 
   if (r.status === 'espera') {
-    return {
-      asunto: `Lista de espera · Salida del ${salida.fecha}`,
-      contenido: {
-        titulo: 'Estás en lista de espera',
-        parrafos: [hola, ...ya,
-          `Gracias por apuntarte. Esta vez ya están cubiertas las ${r.plazas} plazas, así que te he puesto en la lista de espera. Si alguien no puede venir, te escribo enseguida.`],
-        detalles: [...detalles, ['Tu puesto en la lista', r.posicion ? 'Número ' + r.posicion : 'En lista de espera']],
-        boton,
-        nota: 'Si esta vez no hay suerte, habrá más salidas: te avisaré de la próxima.' + whatsapp,
-      },
-    };
+    const html = tarjeta({
+      titulo: 'Lista de espera · Mirar Despacio',
+      nombre: datos.nombre,
+      intro: [`Gracias por apuntarte a la próxima salida de Mirar Despacio. Esta vez ya están cubiertas las ${r.plazas} plazas, así que te apunto en la lista de espera:`],
+      filas: [...filas, ['⏳', 'Lista de espera' + (r.posicion ? ' · nº ' + r.posicion : '')]],
+      calendario: null,
+      cuerpo: [
+        'Si alguien no puede venir, te escribo enseguida para ofrecerte la plaza.',
+        'Y si esta vez no hay suerte, te aviso de la próxima salida.',
+        ...(ya ? [ya] : []),
+      ],
+    });
+    return { asunto: `Lista de espera · Salida del ${fechaLarga(salida.iso, salida.fecha).toLowerCase()}`, html };
   }
-  return {
-    asunto: `Tienes plaza · Salida del ${salida.fecha}`,
-    contenido: {
-      titulo: 'Tienes plaza',
-      parrafos: [hola, ...ya,
-        'Ya estás dentro de la próxima salida de Mirar Despacio. Unos días antes te mando el punto exacto de encuentro.'],
-      detalles: [...detalles, ['Qué traer', 'Lo que tengas para hacer fotos, también vale el móvil']],
-      boton,
-      nota: 'Si al final no puedes venir, contesta a este correo y le paso tu plaza a otra persona. A veces acabamos con unas cervezas.' + whatsapp,
-    },
-  };
+
+  const html = tarjeta({
+    titulo: 'Próxima salida de Mirar Despacio',
+    nombre: datos.nombre,
+    intro: ['Te confirmo tu plaza, así como la fecha y el barrio de la próxima salida de Mirar Despacio:'],
+    filas,
+    calendario: enlacesCalendario(salida),
+    cuerpo: [
+      'El punto de encuentro exacto y el resto de detalles (dinámica del día, qué traer, duración aproximada) te los mando en un mail unos días antes.',
+      'De momento, apunta la fecha. Nos vemos en la calle.',
+      'Si por lo que sea ese día no puedes, avísame para liberar la plaza.',
+      ...(ya ? [ya] : []),
+    ],
+  });
+  return { asunto: `Tienes plaza · Salida del ${fechaLarga(salida.iso, salida.fecha).toLowerCase()}`, html };
 }
 
 function correoOtto(datos, salida, r) {
@@ -222,7 +227,6 @@ function correoOtto(datos, salida, r) {
 <p><a href="https://ottokols.es/crm/">Abrir el CRM</a></p></body></html>`;
   return {
     asunto: `Inscripción: ${datos.nombre} ${datos.apellidos} · ${estado}`,
-    contenido: { titulo: 'Nueva inscripción', parrafos: [], detalles: filas.map(([k, v]) => [k, esc(v)]) },
     html,
   };
 }
@@ -268,9 +272,9 @@ exports.handler = async (event) => {
   let correoEnviado = false;
   try {
     const c = correoPersona(datos, salida, r);
-    correoEnviado = await enviar({ para: datos.email, asunto: c.asunto, contenido: c.contenido });
+    correoEnviado = await enviar({ para: datos.email, asunto: c.asunto, html: c.html, texto: aTexto(c.html) });
     const o = correoOtto(datos, salida, r);
-    await enviar({ para: process.env.GMAIL_USER, asunto: o.asunto, contenido: o.contenido, html: o.html, responderA: datos.email });
+    await enviar({ para: process.env.GMAIL_USER, asunto: o.asunto, html: o.html, texto: aTexto(o.html), responderA: datos.email });
   } catch (e) {
     console.error('correo', e);
   }
