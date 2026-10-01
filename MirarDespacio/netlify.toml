@@ -7,6 +7,12 @@
   # Solo construye si ha cambiado algo dentro de MirarDespacio/ (ahorra créditos)
   ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ."
 
+# La clave web de Firebase (AIza…) es pública por diseño: va en el navegador y la
+# protegen las reglas de Firestore. El escáner de secretos de Netlify (plan Pro) la
+# marca como sospechosa y para el deploy; se la indicamos como conocida.
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDfRTs1pF5-iV2dlNFY-dlFv4A-HcxZeTk"
+
 [[redirects]]
   from   = "https://www.mirardespacio.es/*"
   to     = "https://mirardespacio.es/:splat"
