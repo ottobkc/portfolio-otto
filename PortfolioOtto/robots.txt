@@ -2,5 +2,6 @@ User-agent: *
 Disallow: /members/
 Disallow: /recursos.html
 Disallow: /crm/
+Disallow: /emails/
 
 Sitemap: https://ottokols.es/sitemap.xml
