@@ -506,6 +506,14 @@ EVENTO_JS = '''
         var p = function (n) { return String(n).padStart(2, '0'); };
         return dt.getUTCFullYear() + '-' + p(dt.getUTCMonth() + 1) + '-' + p(dt.getUTCDate()) + 'T' + p(dt.getUTCHours()) + ':' + p(dt.getUTCMinutes()) + ':00' + (m[6] || '');
       }
+      // Apertura de inscripciones: inscripcionDesdeISO si existe; si no, 30 días antes de la salida
+      function restarDias(iso, n) {
+        var m = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2})?(.*)$/);
+        if (!m) return iso;
+        var dt = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3] - n, 0, 0));
+        var p = function (k) { return String(k).padStart(2, '0'); };
+        return dt.getUTCFullYear() + '-' + p(dt.getUTCMonth() + 1) + '-' + p(dt.getUTCDate()) + 'T00:00:00' + (m[6] || '');
+      }
       var zona = s.zona || 'Madrid';
       var foto = (d.galeria && d.galeria[0] && d.galeria[0].src) || 'https://res.cloudinary.com/dybxateci/image/upload/v1785276700/logoMD_gizjap.png';
       var ev = {
@@ -520,6 +528,7 @@ EVENTO_JS = '''
         "image": [foto.replace('/upload/', '/upload/f_auto,q_auto,w_1200/')],
         "description": "Salida de fotografía callejera en grupo por " + zona + ": paseo, tarjetas de misión y visionado de fotos. Contribución libre.",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR",
+          "validFrom": s.inscripcionDesdeISO || restarDias(s.fechaISO, 30),
           "availability": "https://schema.org/InStock", "url": "https://mirardespacio.es/salidas/#apuntarse",
           "description": "Contribución libre al final de la salida" },
         "performer": { "@type": "Person", "name": "Otto Kols", "url": "https://ottokols.es/" },
