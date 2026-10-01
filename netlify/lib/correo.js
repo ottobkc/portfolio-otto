@@ -1,23 +1,29 @@
-// Envío de correos desde info@mirardespacio.es (Google Workspace) por SMTP de Gmail.
-// Variables de entorno en Netlify:
-//   GMAIL_USER          -> info@mirardespacio.es
-//   GMAIL_APP_PASSWORD  -> contraseña de aplicación de esa cuenta (16 letras)
+// Envío de correos desde info@mirardespacio.es por SMTP.
+// Variables de entorno en Netlify (proyecto ottokols):
+//   SMTP_HOST  -> servidor de salida (p. ej. el de Dondominio)
+//   SMTP_PORT  -> 465 (por defecto)
+//   SMTP_USER  -> info@mirardespacio.es
+//   SMTP_PASS  -> contraseña de ese buzón (secreta)
+//   MAIL_FROM  -> opcional, por defecto SMTP_USER
 // No depende de ningún plan de pago de Netlify.
 const nodemailer = require('nodemailer');
 
 let transporte = null;
 function smtp() {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) return null;
+  const { SMTP_HOST, SMTP_USER, SMTP_PASS } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
   if (!transporte) {
+    const port = Number(process.env.SMTP_PORT) || 465;
     transporte = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD.replace(/\s/g, '') },
+      host: SMTP_HOST,
+      port,
+      secure: port === 465,
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
     });
   }
   return transporte;
 }
+const remitente = () => process.env.MAIL_FROM || process.env.SMTP_USER;
 
 function esc(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -27,9 +33,9 @@ async function enviar({ para, asunto, html, texto, responderA }) {
   const t = smtp();
   if (!t) return false;
   await t.sendMail({
-    from: `"Mirar Despacio" <${process.env.GMAIL_USER}>`,
+    from: `"Mirar Despacio" <${remitente()}>`,
     to: para,
-    replyTo: responderA || process.env.GMAIL_USER,
+    replyTo: responderA || remitente(),
     subject: asunto,
     html,
     text: texto,
@@ -37,4 +43,4 @@ async function enviar({ para, asunto, html, texto, responderA }) {
   return true;
 }
 
-module.exports = { enviar, esc, hayCorreo: () => !!smtp() };
+module.exports = { enviar, esc, remitente, hayCorreo: () => !!smtp() };

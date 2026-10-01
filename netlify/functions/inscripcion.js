@@ -5,7 +5,7 @@
 // 3. Le contesta por email desde info@mirardespacio.es y te avisa a ti.
 // Si algo falla devuelve error y la web manda el formulario por Formspree como antes.
 const { db, FieldValue } = require('../lib/firestore');
-const { enviar, esc, hayCorreo } = require('../lib/correo');
+const { enviar, esc, remitente, hayCorreo } = require('../lib/correo');
 const { tarjeta, recibido, fechaLarga, enlacesCalendario, aTexto } = require('../lib/plantillas-salida');
 
 const PLAZAS = 10;
@@ -274,7 +274,7 @@ exports.handler = async (event) => {
     const c = correoPersona(datos, salida, r);
     correoEnviado = await enviar({ para: datos.email, asunto: c.asunto, html: c.html, texto: aTexto(c.html) });
     const o = correoOtto(datos, salida, r);
-    await enviar({ para: process.env.GMAIL_USER, asunto: o.asunto, html: o.html, texto: aTexto(o.html), responderA: datos.email });
+    await enviar({ para: remitente(), asunto: o.asunto, html: o.html, texto: aTexto(o.html), responderA: datos.email });
   } catch (e) {
     console.error('correo', e);
   }
