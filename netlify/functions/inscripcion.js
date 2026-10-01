@@ -155,39 +155,52 @@ function textoSalida(s) {
 
 function correoPersona(datos, salida, r) {
   const hola = `Hola, ${esc(datos.nombre)}:`;
-  const ya = r.yaEstaba ? ['Ya te habías apuntado antes, así que no tienes que hacer nada más. Te recuerdo cómo está tu inscripción:'] : [];
+  const ya = r.yaEstaba ? ['Ya te habías apuntado antes, así que no tienes que hacer nada más. Te recuerdo cómo está tu inscripción.'] : [];
   const whatsapp = datos.telefono
-    ? ['Como me has dejado tu teléfono, te añadiré a la comunidad de WhatsApp de Mirar Despacio, donde aviso de las salidas y compartimos fotos.']
-    : [];
-  const baja = 'Si al final no puedes venir, contéstame a este correo y le paso tu plaza a otra persona.';
+    ? ' Como me has dejado tu teléfono, te añadiré a la comunidad de WhatsApp de Mirar Despacio, donde aviso de las salidas y compartimos fotos.'
+    : '';
+  const boton = { texto: 'Ver las salidas', url: 'https://mirardespacio.es/salidas/' };
 
   if (!salida.conFecha) {
     return {
       asunto: 'Tienes plaza en la próxima salida de Mirar Despacio',
-      parrafos: [hola, ...ya,
-        '<strong>Tienes plaza para la próxima salida de Mirar Despacio.</strong>',
-        'Todavía no hay fecha cerrada. En cuanto la tenga te escribo con el día, la hora y el punto de encuentro.',
-        'Las salidas duran unas tres horas, de 10:00 a 13:00 más o menos, y a veces acabamos con unas cervezas.',
-        ...whatsapp, 'Gracias por apuntarte. ¡Nos vemos mirando despacio!'],
+      contenido: {
+        titulo: 'Tienes plaza',
+        parrafos: [hola, ...ya,
+          'Ya estás dentro de la próxima salida de Mirar Despacio. Todavía no hay fecha cerrada: en cuanto la tenga te escribo con el día, la hora y el punto de encuentro.'],
+        detalles: [['Fecha', 'Por anunciar'], ['Duración', 'Unas tres horas, de 10:00 a 13:00 más o menos'], ['Qué traer', 'Lo que tengas para hacer fotos, también vale el móvil']],
+        boton,
+        nota: 'A veces acabamos con unas cervezas.' + whatsapp + ' Si tienes cualquier duda, contesta a este correo.',
+      },
     };
   }
-  const cuando = esc(textoSalida(salida));
+  const detalles = [['Fecha', esc(salida.fecha)]];
+  if (salida.zona) detalles.push(['Zona', esc(salida.zona)]);
+  if (salida.hora) detalles.push(['Hora', esc(salida.hora) + ' h · unas tres horas']);
+
   if (r.status === 'espera') {
     return {
       asunto: `Lista de espera · Salida del ${salida.fecha}`,
-      parrafos: [hola, ...ya,
-        `Gracias por apuntarte a la salida del <strong>${cuando}</strong>.`,
-        `Esta vez ya están cubiertas las ${r.plazas} plazas, así que te he puesto en <strong>lista de espera</strong>${r.posicion ? ` (eres el número ${r.posicion})` : ''}.`,
-        'Si alguien no puede venir, te escribo enseguida. Y si esta vez no hay suerte, habrá más salidas: te avisaré de la próxima.',
-        ...whatsapp],
+      contenido: {
+        titulo: 'Estás en lista de espera',
+        parrafos: [hola, ...ya,
+          `Gracias por apuntarte. Esta vez ya están cubiertas las ${r.plazas} plazas, así que te he puesto en la lista de espera. Si alguien no puede venir, te escribo enseguida.`],
+        detalles: [...detalles, ['Tu puesto en la lista', r.posicion ? 'Número ' + r.posicion : 'En lista de espera']],
+        boton,
+        nota: 'Si esta vez no hay suerte, habrá más salidas: te avisaré de la próxima.' + whatsapp,
+      },
     };
   }
   return {
     asunto: `Tienes plaza · Salida del ${salida.fecha}`,
-    parrafos: [hola, ...ya,
-      `<strong>Tienes plaza para la salida del ${cuando}.</strong>`,
-      'Dura unas tres horas y a veces acabamos con unas cervezas. Unos días antes te mando el punto exacto de encuentro.',
-      baja, ...whatsapp, '¡Nos vemos mirando despacio!'],
+    contenido: {
+      titulo: 'Tienes plaza',
+      parrafos: [hola, ...ya,
+        'Ya estás dentro de la próxima salida de Mirar Despacio. Unos días antes te mando el punto exacto de encuentro.'],
+      detalles: [...detalles, ['Qué traer', 'Lo que tengas para hacer fotos, también vale el móvil']],
+      boton,
+      nota: 'Si al final no puedes venir, contesta a este correo y le paso tu plaza a otra persona. A veces acabamos con unas cervezas.' + whatsapp,
+    },
   };
 }
 
@@ -209,7 +222,7 @@ function correoOtto(datos, salida, r) {
 <p><a href="https://ottokols.es/crm/">Abrir el CRM</a></p></body></html>`;
   return {
     asunto: `Inscripción: ${datos.nombre} ${datos.apellidos} · ${estado}`,
-    parrafos: filas.map(([k, v]) => `${k}: ${esc(v)}`),
+    contenido: { titulo: 'Nueva inscripción', parrafos: [], detalles: filas.map(([k, v]) => [k, esc(v)]) },
     html,
   };
 }
@@ -255,9 +268,9 @@ exports.handler = async (event) => {
   let correoEnviado = false;
   try {
     const c = correoPersona(datos, salida, r);
-    correoEnviado = await enviar({ para: datos.email, asunto: c.asunto, parrafos: c.parrafos });
+    correoEnviado = await enviar({ para: datos.email, asunto: c.asunto, contenido: c.contenido });
     const o = correoOtto(datos, salida, r);
-    await enviar({ para: process.env.GMAIL_USER, asunto: o.asunto, parrafos: o.parrafos, html: o.html, responderA: datos.email });
+    await enviar({ para: process.env.GMAIL_USER, asunto: o.asunto, contenido: o.contenido, html: o.html, responderA: datos.email });
   } catch (e) {
     console.error('correo', e);
   }
@@ -276,3 +289,6 @@ exports.handler = async (event) => {
     }),
   };
 };
+
+// Para generar las vistas previas de los correos
+exports._correoPersona = correoPersona;
