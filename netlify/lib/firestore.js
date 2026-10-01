@@ -50,4 +50,4 @@ function conLimite(promesa, ms = 3000) {
   return Promise.race([promesa, new Promise((r) => setTimeout(r, ms))]);
 }
 
-module.exports = { registrar, conLimite };
+module.exports = { registrar, conLimite, db, FieldValue };

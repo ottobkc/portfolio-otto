@@ -76,13 +76,39 @@
       var btn = f.querySelector('button[type=submit]');
       var ok = document.getElementById(f.dataset.ok);
       btn.disabled = true;
-      fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } })
-        .then(function (r) {
-          if (!r.ok) throw new Error();
-          f.style.display = 'none';
-          if (ok) ok.style.display = 'block';
-          if (window.umami && f.dataset.evento) window.umami.track(f.dataset.evento);
-        })
+      var hecho = function (texto) {
+        f.style.display = 'none';
+        if (ok) {
+          var t = ok.querySelector('[data-ok-texto]');
+          if (t && texto) t.textContent = texto;
+          ok.style.display = 'block';
+        }
+        if (window.umami && f.dataset.evento) window.umami.track(f.dataset.evento);
+      };
+      var formspree = function () {
+        return fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } })
+          .then(function (r) { if (!r.ok) throw new Error(); hecho(); });
+      };
+      // Inscripción a salidas: va directa al CRM y contesta con plaza / lista de espera.
+      // Si el CRM falla, se manda por Formspree como siempre.
+      var envio = !f.dataset.inscripcion ? formspree() : fetch(f.dataset.inscripcion, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(f))),
+      }).then(function (r) {
+        if (!r.ok) throw new Error();
+        return r.json();
+      }).then(function (d) {
+        var mail = ' Te acabo de mandar un email con los detalles (mira en spam si no lo ves).';
+        var txt = d.estado === 'espera'
+          ? 'Esta salida ya está completa: estás en lista de espera' + (d.posicion ? ' (número ' + d.posicion + ')' : '') + '. Si se libera una plaza, te escribo.'
+          : d.estado === 'sin-fecha'
+            ? 'Tienes plaza en la próxima salida. En cuanto haya fecha te escribo con el día, la hora y el punto de encuentro.'
+            : 'Tienes plaza' + (d.salida ? ' para la salida del ' + d.salida : '') + '. Unos días antes te mando el punto de encuentro.';
+        if (d.yaEstaba) txt = 'Ya te habías apuntado. ' + txt;
+        hecho(txt + (d.correo ? mail : ''));
+      }).catch(formspree);
+      envio
         .catch(function () {
           btn.disabled = false;
           alert('No se ha podido enviar. Prueba otra vez o escríbeme a info@mirardespacio.es');

@@ -128,12 +128,13 @@
           <p class="antetitulo">Inscripción</p>
           <h2>Apúntate a la <em>próxima salida.</em></h2>
           <p style="font-size:1.1rem;"><strong data-proxima>Cargando fecha…</strong></p>
-          <p>Las plazas son limitadas para que el grupo no sea enorme. Van por orden de inscripción y te confirmo por email.</p>
+          <p>Las plazas son limitadas para que el grupo no sea enorme. Van por orden de inscripción y al momento te llega un email diciéndote si tienes plaza o estás en lista de espera.</p>
           <p>Si eres de <a href="/mirar-despacio-plus/">Mirar Despacio+</a>, la salida está incluida y tienes plaza reservada.</p>
           <p class="aviso">Durante las salidas se hacen fotos del grupo. Al apuntarte aceptas que puedan usarse para documentar y dar a conocer Mirar Despacio en la web y en redes, nunca para uso comercial de terceros. Puedes retirar el consentimiento cuando quieras escribiendo a <a href="mailto:info@mirardespacio.es">info@mirardespacio.es</a>.</p>
         </div>
         <div>
-          <form class="formulario" action="https://formspree.io/f/mlgkdlno" method="POST" data-formspree data-ok="okSalida" data-evento="salida-inscripcion">
+          <form class="formulario" action="https://formspree.io/f/mlgkdlno" method="POST" data-formspree data-inscripcion="https://ottokols.es/.netlify/functions/inscripcion" data-ok="okSalida" data-evento="salida-inscripcion">
+            <div aria-hidden="true" style="position:absolute;left:-9999px;"><label>No rellenes esto <input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
             <input type="hidden" name="_subject" value="Inscripción salida · mirardespacio.es">
             <input type="hidden" name="origen" value="mirardespacio.es/salidas">
             <div class="rejilla-2" style="gap:16px;">
@@ -151,7 +152,7 @@
             <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para gestionar la inscripción, avisarme de las salidas y, si he dejado mi teléfono, añadirme a la comunidad. No se ceden a nadie.</label>
             <div><button class="boton" type="submit">Quiero apuntarme</button></div>
           </form>
-          <div class="ok" id="okSalida"><strong>Apuntado.</strong> Te escribo para confirmarte la plaza y el punto de encuentro.</div>
+          <div class="ok" id="okSalida"><strong>¡Hecho!</strong> <span data-ok-texto>Te escribo para confirmarte la plaza y el punto de encuentro.</span></div>
         </div>
       </div>
     </section>
