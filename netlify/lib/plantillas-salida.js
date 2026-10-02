@@ -30,16 +30,17 @@ function enlacesCalendario(s) {
   const ini = new Date(s.iso);
   const fin = s.finISO ? new Date(s.finISO) : new Date(ini.getTime() + 3 * 3600e3);
   if (isNaN(ini) || isNaN(fin)) return null;
-  const titulo = 'Mirar Despacio - Salida ' + (s.zona || '');
-  const detalles = 'Salida fotográfica de Mirar Despacio' + (s.zona ? ' por la zona de ' + s.zona : '') +
-    '. El punto de encuentro se enviará por email antes de la fecha.';
+  const titulo = s.tituloCal || ('Mirar Despacio - Salida ' + (s.zona || ''));
+  const detalles = s.detallesCal || ('Salida fotográfica de Mirar Despacio' + (s.zona ? ' por la zona de ' + s.zona : '') +
+    '. El punto de encuentro se enviará por email antes de la fecha.');
   const google = 'https://www.google.com/calendar/render?action=TEMPLATE' +
     '&text=' + encodeURIComponent(titulo.trim()) +
     '&dates=' + utc(ini) + '/' + utc(fin) +
     '&details=' + encodeURIComponent(detalles) +
     '&location=' + encodeURIComponent((s.zona ? s.zona + ', ' : '') + 'Madrid');
   const apple = CAL + '?inicio=' + encodeURIComponent(ini.toISOString()) +
-    '&fin=' + encodeURIComponent(fin.toISOString()) + '&zona=' + encodeURIComponent(s.zona || '');
+    '&fin=' + encodeURIComponent(fin.toISOString()) + '&zona=' + encodeURIComponent(s.zona || '') +
+    (s.tituloCal ? '&titulo=' + encodeURIComponent(s.tituloCal) : '');
   return { google, apple };
 }
 
@@ -51,7 +52,7 @@ const boton = (url, texto) => `<td style="padding: 0 6px;">
                 </td>`;
 
 // Diseño "tarjeta" (correo de la cuarta salida)
-// o = { titulo, nombre, intro: [html], filas: [[emoji, html]], calendario: {google, apple}|null, cuerpo: [html] }
+// o = { titulo, nombre, intro: [html], filas: [[emoji, html]], calendario: {google, apple}|null, boton: {url, texto, antes}|null, cuerpo: [html] }
 function tarjeta(o) {
   const filas = o.filas.map(([icono, txt], i) =>
     `<p style="font-size:16px; margin:${i === o.filas.length - 1 ? '0' : '0 0 10px 0'}; color:#1a1814;">${icono} <strong>${txt}</strong></p>`).join('\n                  ');
@@ -67,6 +68,13 @@ function tarjeta(o) {
                 ${boton(o.calendario.apple, '🍏 Apple / iPhone')}
               </tr>
             </table>
+          </td>
+        </tr>` : '';
+  const btn = o.boton ? `
+        <tr>
+          <td style="padding: 20px 32px 0 32px; color:#1a1814;">
+            ${o.boton.antes ? `<p style="font-size:16px; line-height:1.6; margin:0 0 12px 0; text-align:center;">${o.boton.antes}</p>` : ''}
+            <table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>${boton(o.boton.url, o.boton.texto)}</tr></table>
           </td>
         </tr>` : '';
   return `<!DOCTYPE html>
@@ -105,7 +113,7 @@ function tarjeta(o) {
               </tr>
             </table>
           </td>
-        </tr>${cal}
+        </tr>${cal}${btn}
         <tr>
           <td style="padding: 20px 32px 0 32px; color:#1a1814;">
             ${o.cuerpo.map((t, i) => p(t, i === 0 ? '0' : '16px 0 0 0')).join('\n            ')}

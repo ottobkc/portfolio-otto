@@ -253,6 +253,7 @@
     <div class="tab" data-tab="personas">Personas</div>
     <div class="tab" data-tab="accesos">Accesos</div>
     <div class="tab" data-tab="pegatinas">Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></div>
+    <div class="tab" data-tab="ingresos">Ingresos</div>
     <div class="tab" data-tab="exportar">Exportar</div>
   </div>
 
@@ -361,6 +362,44 @@
     <div id="pegatinasTodas"></div>
   </div>
 
+  <!-- INGRESOS VIEW (control de ingresos y gastos) -->
+  <div class="view" id="view-ingresos">
+    <div class="card">
+      <div class="row" style="align-items:center;">
+        <select id="ingPeriodo" onchange="renderIngresos()"></select>
+      </div>
+      <div class="stat-grid" style="margin-top:12px;">
+        <div class="stat-box"><div class="stat-num" id="ingTotal">0 €</div><div class="stat-label">ingresos</div></div>
+        <div class="stat-box"><div class="stat-num" id="gasTotal">0 €</div><div class="stat-label">gastos</div></div>
+        <div class="stat-box"><div class="stat-num" id="netoTotal">0 €</div><div class="stat-label">diferencia</div></div>
+      </div>
+      <div id="ingCategorias"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Apuntar un movimiento</div>
+      <div class="row">
+        <select id="movTipo"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select>
+        <input type="date" id="movFecha">
+        <input type="number" id="movImporte" placeholder="Importe €" step="0.01" min="0">
+      </div>
+      <div class="row">
+        <select id="movCategoria"></select>
+        <select id="movMetodo"><option value="bizum">Bizum</option><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="tarjeta">Tarjeta</option><option value="kofi">Ko-fi</option></select>
+      </div>
+      <input type="text" id="movConcepto" placeholder="Concepto (p. ej. Tutoría 2h · Marta, Objetivo 35mm…)">
+      <input type="text" id="movQuien" placeholder="Cliente o proveedor (opcional)">
+      <button onclick="guardarMovimiento()">Apuntar</button>
+      <div class="person-meta">Los pagos de Ko-fi (talleres, regalos, Mirar Despacio+) se apuntan solos.</div>
+    </div>
+    <div class="card-title">Movimientos del periodo</div>
+    <div id="movList"></div>
+    <div class="card" style="margin-top:18px;">
+      <button class="secondary" onclick="descargarMovimientos()">Descargar CSV del periodo (para la gestoría)</button>
+    </div>
+    <div class="card-title" style="margin-top:18px;">Bonos regalo</div>
+    <div id="bonosList"></div>
+  </div>
+
   <!-- EXPORTAR VIEW -->
   <div class="view" id="view-exportar">
     <div class="card">
@@ -430,6 +469,7 @@ let signups = [];
 let currentEventId = null;
 let unsubEvents = null, unsubPeople = null, unsubSignups = null;
 let miembrosAct = [], accesos = [], unsubMiembros = null, unsubAccesos = null, miembroAbierto = null;
+let movimientos = [], bonos = [], unsubIngresos = null, unsubBonos = null;
 let pegatinas = [], unsubPegatinas = null;
 
 onAuthStateChanged(auth, (user) => {
@@ -446,6 +486,8 @@ onAuthStateChanged(auth, (user) => {
     if (unsubMiembros) unsubMiembros();
     if (unsubAccesos) unsubAccesos();
     if (unsubPegatinas) unsubPegatinas();
+    if (unsubIngresos) unsubIngresos();
+    if (unsubBonos) unsubBonos();
   }
 });
 
@@ -480,6 +522,14 @@ function attachListeners() {
     pegatinas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderPegatinas();
   }, () => {});
+  unsubIngresos = onSnapshot(collection(db, 'ingresos'), (snap) => {
+    movimientos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderIngresos();
+  }, () => {});
+  unsubBonos = onSnapshot(collection(db, 'bonos'), (snap) => {
+    bonos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderBonos();
+  }, () => {});
   unsubSignups = onSnapshot(collection(db, 'signups'), (snap) => {
     signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderEvents();
@@ -502,6 +552,137 @@ window.showTab = function(name) {
   if (name === 'exportar') updateExport();
   if (name === 'accesos') renderAccesos();
   if (name === 'pegatinas') renderPegatinas();
+  if (name === 'ingresos') { renderIngresos(); renderBonos(); }
+};
+
+// ---------- INGRESOS Y GASTOS ----------
+const CAT_INGRESO = { 'taller': 'Talleres', 'tutoria': 'Tutorías', 'sesion': 'Sesiones de fotos', 'encargo': 'Encargos', 'salida': 'Salidas (aportaciones)',
+  'mirar-despacio-plus': 'Mirar Despacio+', 'regalo-taller': 'Regalos de talleres', 'regalo-plus': 'Regalos de MD+', 'zine': 'Zine', 'marca': 'Marcas y colaboraciones',
+  'podcast': 'Podcast (Podimo…)', 'donativo': 'Donativos', 'otros': 'Otros', 'revisar': '⚠️ A revisar' };
+const CAT_GASTO = { 'equipo': 'Equipo fotográfico', 'imprenta': 'Imprenta y material', 'consumiciones': 'Consumiciones de talleres', 'software': 'Software y webs',
+  'publicidad': 'Publicidad', 'transporte': 'Transporte', 'gestoria': 'Gestoría', 'cuota': 'Cuota de autónomos', 'otros-gasto': 'Otros gastos' };
+const nombreCat = (c) => CAT_INGRESO[c] || CAT_GASTO[c] || c || '—';
+const eur = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const fechaMov = (m) => m.fechaManual ? new Date(m.fechaManual + 'T12:00:00') : (fechaDe(m.fecha) || new Date());
+
+function rellenarSelectores() {
+  const per = document.getElementById('ingPeriodo');
+  if (!per.options.length) {
+    const hoy = new Date(), y = hoy.getFullYear(), tq = Math.floor(hoy.getMonth() / 3) + 1;
+    const ops = [['mes', 'Este mes'], ['T' + tq + '-' + y, `${tq}º trimestre ${y}`]];
+    for (let q = tq - 1; q >= 1; q--) ops.push(['T' + q + '-' + y, `${q}º trimestre ${y}`]);
+    for (let q = 4; q >= 1; q--) ops.push(['T' + q + '-' + (y - 1), `${q}º trimestre ${y - 1}`]);
+    ops.push(['A-' + y, 'Año ' + y], ['A-' + (y - 1), 'Año ' + (y - 1)], ['todo', 'Todo']);
+    per.innerHTML = ops.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+    document.getElementById('movFecha').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('movTipo').onchange = rellenarCategorias;
+    rellenarCategorias();
+  }
+}
+function rellenarCategorias() {
+  const cats = document.getElementById('movTipo').value === 'gasto' ? CAT_GASTO : CAT_INGRESO;
+  document.getElementById('movCategoria').innerHTML = Object.entries(cats).filter(([k]) => k !== 'revisar').map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+}
+function enPeriodo(d, per) {
+  if (per === 'todo') return true;
+  const hoy = new Date();
+  if (per === 'mes') return d.getFullYear() === hoy.getFullYear() && d.getMonth() === hoy.getMonth();
+  const [k, y] = per.split('-');
+  if (d.getFullYear() !== Number(y)) return false;
+  if (k === 'A') return true;
+  return Math.floor(d.getMonth() / 3) + 1 === Number(k.slice(1));
+}
+function movimientosPeriodo() {
+  const per = document.getElementById('ingPeriodo').value || 'mes';
+  return movimientos.filter(m => enPeriodo(fechaMov(m), per)).sort((a, b) => fechaMov(b) - fechaMov(a));
+}
+
+window.renderIngresos = function() {
+  if (!document.getElementById('ingPeriodo')) return;
+  rellenarSelectores();
+  const lista = movimientosPeriodo();
+  const ing = lista.filter(m => m.tipo !== 'gasto'), gas = lista.filter(m => m.tipo === 'gasto');
+  const suma = (l) => l.reduce((n, m) => n + (Number(m.importe) || 0), 0);
+  document.getElementById('ingTotal').textContent = eur(suma(ing));
+  document.getElementById('gasTotal').textContent = eur(suma(gas));
+  document.getElementById('netoTotal').textContent = eur(suma(ing) - suma(gas));
+  const porCat = {};
+  lista.forEach(m => { const k = (m.tipo === 'gasto' ? '− ' : '') + nombreCat(m.categoria); porCat[k] = (porCat[k] || 0) + (Number(m.importe) || 0); });
+  document.getElementById('ingCategorias').innerHTML = Object.entries(porCat).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `<div class="person-meta" style="display:flex;justify-content:space-between;padding:3px 0;"><span>${escapeHtml(k)}</span><span>${eur(v)}</span></div>`).join('');
+  const el = document.getElementById('movList');
+  el.innerHTML = lista.length ? '' : '<div class="empty">Sin movimientos en este periodo</div>';
+  lista.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main">
+        <div class="person-name">${m.tipo === 'gasto' ? '−' : '+'} ${eur(m.importe)} · ${escapeHtml(m.concepto || nombreCat(m.categoria))}</div>
+        <div class="person-meta">${fechaMov(m).toLocaleDateString('es-ES')} · ${escapeHtml(nombreCat(m.categoria))} · ${escapeHtml(m.metodo || '')}${m.nombre || m.email || m.quien ? ' · ' + escapeHtml(m.quien || m.nombre || m.email) : ''}${m.origen === 'auto' ? ' · automático' : ''}</div>
+      </div>
+      <button class="small danger" onclick="borrarMovimiento('${m.id}')">✕</button>`;
+    el.appendChild(div);
+  });
+};
+
+window.guardarMovimiento = async function() {
+  const importe = parseFloat(document.getElementById('movImporte').value);
+  if (!(importe > 0)) { setSyncStatus('Pon un importe', true); return; }
+  const mov = {
+    tipo: document.getElementById('movTipo').value,
+    fechaManual: document.getElementById('movFecha').value || new Date().toISOString().slice(0, 10),
+    fecha: serverTimestamp(),
+    importe, moneda: 'EUR',
+    categoria: document.getElementById('movCategoria').value,
+    metodo: document.getElementById('movMetodo').value,
+    concepto: document.getElementById('movConcepto').value.trim(),
+    quien: document.getElementById('movQuien').value.trim(),
+    origen: 'manual',
+  };
+  setSyncStatus('Guardando…');
+  try {
+    await setDoc(doc(db, 'ingresos', 'm-' + uid()), mov);
+    document.getElementById('movImporte').value = '';
+    document.getElementById('movConcepto').value = '';
+    document.getElementById('movQuien').value = '';
+    setSyncStatus('Guardado ✓');
+  } catch (err) { setSyncStatus('Error: ' + err.message, true); }
+};
+
+window.borrarMovimiento = async function(id) {
+  if (!confirm('¿Borrar este movimiento?')) return;
+  try { await deleteDoc(doc(db, 'ingresos', id)); setSyncStatus('Borrado'); } catch (err) { setSyncStatus('Error: ' + err.message, true); }
+};
+
+window.descargarMovimientos = function() {
+  const rows = [['Fecha', 'Tipo', 'Categoria', 'Concepto', 'Importe', 'Metodo', 'Cliente/Proveedor', 'Email', 'Origen', 'Ref']];
+  movimientosPeriodo().slice().reverse().forEach(m => rows.push([
+    fechaMov(m).toLocaleDateString('es-ES'), m.tipo === 'gasto' ? 'gasto' : 'ingreso', nombreCat(m.categoria), m.concepto || '',
+    String(m.importe || 0).replace('.', ','), m.metodo || '', m.quien || m.nombre || '', m.email || '', m.origen || '', m.kofiId || m.id,
+  ]));
+  const csv = '\ufeff' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  a.download = 'mirar-despacio-movimientos-' + (document.getElementById('ingPeriodo').value || 'mes') + '.csv';
+  a.click();
+};
+
+window.renderBonos = function() {
+  const el = document.getElementById('bonosList');
+  if (!el) return;
+  if (!bonos.length) { el.innerHTML = '<div class="empty">Aún no se ha vendido ningún regalo</div>'; return; }
+  el.innerHTML = '';
+  bonos.slice().sort((a, b) => (fechaDe(b.creado) || 0) - (fechaDe(a.creado) || 0)).forEach(b => {
+    const caducado = b.caduca && new Date(b.caduca) < new Date();
+    const estado = b.usado ? `<span class="badge" style="background:#5a7a5d;">canjeado</span>` : caducado ? `<span class="badge" style="background:#b5654f;">caducado</span>` : `<span class="badge">pendiente</span>`;
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main">
+      <div class="person-name">${escapeHtml(b.titulo || '')} ${estado}</div>
+      <div class="person-meta">${escapeHtml(b.codigo)} · regalo de ${escapeHtml(b.compradorNombre || b.compradorEmail || '')}${b.usado ? ' · canjeado por ' + escapeHtml(b.canjeadoPor || '') : ''}${b.caduca ? ' · vale hasta ' + new Date(b.caduca).toLocaleDateString('es-ES') : ''}</div>
+      <div class="person-meta"><a href="https://mirardespacio.es/regalo/?c=${encodeURIComponent(b.codigo)}" target="_blank" rel="noopener" style="color:inherit">ver tarjeta</a></div>
+    </div>`;
+    el.appendChild(div);
+  });
 };
 
 // ---------- PEGATINAS ----------
@@ -952,7 +1133,7 @@ function renderPeople() {
     div.innerHTML = `
       <div style="display:flex; align-items:center; gap:10px;">
         <div class="person-main">
-          <div class="person-name">${escapeHtml(nombreCompleto(p))} ${attended > 1 ? `<span class="badge">${attended} salidas</span>` : ''}</div>
+          <div class="person-name">${escapeHtml(nombreCompleto(p))} ${attended > 1 ? `<span class="badge">${attended} salidas</span>` : ''} ${p.plusHasta ? `<span class="badge" style="background:${new Date(p.plusHasta) < new Date() ? '#b5654f' : '#5a7a5d'};">MD+${p.plusNivel === 'con-salidas' ? ' con salidas' : ''} hasta ${new Date(p.plusHasta).toLocaleDateString('es-ES')}</span>` : ''}</div>
           <div class="person-meta">${escapeHtml(p.email || 'sin email')}${telefonoHtml(p.telefono)} · apuntado a ${psignups.length} salida(s)</div>
         </div>
         <button class="small danger" onclick="deletePerson('${p.id}')">✕</button>

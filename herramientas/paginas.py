@@ -1,5 +1,5 @@
 # Contenido de cada página de mirardespacio.es. Lo llama generar.py.
-import json
+import json, html
 
 EPISODIOS_T1 = [
     (1, "Qué es para mí la fotografía callejera (y por qué nos da miedo mirar)", ""),
@@ -413,6 +413,142 @@ def construir(g):
         'Tutorías de fotografía individuales, presenciales en Madrid u online: tu cámara, la luz, composición y fotografía de calle. Presencial desde 40 €, online desde 30 €.',
         cuerpo, schema=[tut_schema]))
 
+    # ------------------------------------------------------------ TALLERES
+    import json as _json, os as _os
+    td = _json.load(open(_os.path.join(_os.path.dirname(__file__), '..', 'MirarDespacio', 'talleres-data.json')))
+    def tarjeta_taller(i, t):
+        temas = ''.join(f'<li>{html.escape(x)}</li>' for x in t['temas'])
+        incluye = ''.join(f'<li>{html.escape(x)}</li>' for x in t['incluye'])
+        return f"""
+          <article class="tarjeta taller" id="{t['id']}">
+            <span class="num">0{i}</span>
+            <h3>{html.escape(t['titulo'])}</h3>
+            <p class="sub">{html.escape(t['subtitulo'])}</p>
+            <p class="precio" data-taller-precio="{t['id']}">{t['precio']} €</p>
+            <ul class="datos"><li><span>Duración</span><span>{html.escape(t['duracion'])}</span></li><li><span>Grupo</span><span>{t['plazas']} personas como mucho</span></li></ul>
+            <p style="margin-top:14px;">{html.escape(t['descripcion'])}</p>
+            <p class="aviso">{html.escape(t['nivel'])}.</p>
+            <details><summary>Qué vemos</summary><ul class="lista">{temas}</ul></details>
+            <details><summary>Qué incluye</summary><ul class="lista">{incluye}</ul></details>
+            <p class="antetitulo" style="margin:18px 0 8px;">Próximas fechas</p>
+            <div data-ediciones="{t['id']}"><p class="aviso" style="margin:0">Cargando fechas…</p></div>
+            <a class="boton claro" style="margin-top:14px;" data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">🎁 Regalar este taller</a>
+          </article>"""
+    cuerpo = f"""
+    <section class="portada">
+      <div class="envoltura estrecho">
+        <p class="antetitulo">Talleres · Madrid</p>
+        <h1>Aprender <em>disparando.</em></h1>
+        <p class="entradilla">Talleres de 3 a 4 horas por las calles de Madrid, en grupos de {max(t['plazas'] for t in td['talleres'])} personas como mucho. Mucha práctica, poca teoría y alguien al lado para resolver dudas en el momento.</p>
+        <p><span class="nota" style="font-size:1.35rem;">te llevas</span> un manual impreso, pegatinas y un mes de <a href="/mirar-despacio-plus/">Mirar Despacio+</a> para seguir practicando.</p>
+        <div class="botones"><a class="boton" href="#talleres">Ver talleres</a><a class="boton claro" href="/regalo/">🎁 Regalar un taller</a></div>
+      </div>
+    </section>
+
+    <section class="seccion papel" id="talleres">
+      <div class="envoltura">
+        <div class="rejilla-3 talleres">{''.join(tarjeta_taller(i + 1, t) for i, t in enumerate(td['talleres']))}
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="envoltura rejilla-2" style="gap:48px;">
+        <div>
+          <p class="antetitulo">Para regalar</p>
+          <h2>Un regalo que se <em>usa.</em></h2>
+          <p>Cualquier taller se puede regalar. Te llega al momento una tarjeta regalo con un código para imprimir o reenviar, y quien la recibe elige la fecha que le venga bien. El código vale un año.</p>
+          <div class="botones"><a class="boton color" href="/regalo/">Ver regalos</a></div>
+        </div>
+        <div>
+          <p class="antetitulo">¿Te han regalado un taller?</p>
+          <h2>Canjea tu <em>código.</em></h2>
+          <form class="formulario" action="/regalo/" method="get">
+            <div><label for="c">Código del regalo</label><input type="text" id="c" name="c" placeholder="MD-XXXX-XXXX" required autocomplete="off"></div>
+            <div><button class="boton" type="submit">Canjear</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="envoltura estrecho">
+        <p class="antetitulo">Preguntas</p>
+        <h2>Antes de <em>reservar.</em></h2>
+        <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, si no tienes cámara, te presto una.</p></details>
+        <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, por Ko-fi, con tarjeta o PayPal. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
+        <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a> y lo hablamos.</p></details>
+        <details class="faq"><summary>¿En qué se diferencian de las salidas?</summary><p>Las salidas son paseos en grupo con retos, gratuitos y con contribución libre al final. Los talleres son más cortos de grupo, con un tema concreto, explicación y práctica guiada, y te llevas material.</p></details>
+      </div>
+    </section>"""
+    taller_schema = {
+        "@type": "Service", "name": "Talleres de fotografía callejera", "serviceType": "Taller de fotografía",
+        "provider": {"@id": DOM + "/#org"}, "areaServed": "Madrid", "url": DOM + "/talleres/",
+        "offers": [{"@type": "Offer", "name": "Taller " + t['titulo'], "price": str(t['precio']), "priceCurrency": "EUR"} for t in td['talleres']],
+    }
+    escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
+        'Talleres de fotografía callejera en Madrid: nocturna, atardecer y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual impreso y un mes de Mirar Despacio+. También para regalar.',
+        cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS))
+
+    # ------------------------------------------------------------ REGALO
+    regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{t['precio']} €</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
+    regalos_p = ''.join(f"""<li><span>Mirar Despacio+ · {r['meses']} {'mes' if r['meses'] == 1 else 'meses'}{' con salidas' if r['nivel'] == 'con-salidas' else ''}</span><span><span data-regalo-plus-precio="{r['id']}">{r['precio']} €</span> · <a data-regalo-plus="{r['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20Mirar%20Despacio%2B">Regalar</a></span></li>""" for r in td['regalosPlus'])
+    cuerpo = f"""
+    <section class="portada" id="regalo">
+      <div class="envoltura estrecho">
+        <div id="sinCodigo" hidden>
+          <p class="antetitulo">Regalos</p>
+          <h1>Regala <em>mirar despacio.</em></h1>
+          <p class="entradilla">Un taller o unos meses de Mirar Despacio+. Al pagar te llega al momento una tarjeta regalo con un código, para imprimir o reenviar. Quien la recibe la canjea aquí y elige fecha. Vale un año.</p>
+          <ul class="datos" style="margin-top:28px;">{regalos_t}{regalos_p}</ul>
+          <div style="margin-top:56px;">
+            <p class="antetitulo">¿Te han regalado algo?</p>
+            <h2>Canjea tu <em>código.</em></h2>
+            <form class="formulario" id="verCodigo" style="max-width:420px;">
+              <div><label for="codigoInput">Código del regalo</label><input type="text" id="codigoInput" placeholder="MD-XXXX-XXXX" required autocomplete="off"></div>
+              <p class="aviso" id="codigoError" hidden style="margin:0">No encuentro ese código. Revisa que esté bien escrito.</p>
+              <div><button class="boton" type="submit">Ver mi regalo</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div id="conCodigo" hidden>
+          <div class="tarjeta-regalo">
+            <img src="{cld(g['LOGO'], 'w_200')}" alt="Mirar Despacio" width="96" height="96">
+            <p class="nota">un regalo para</p>
+            <input class="campo-regalo para" type="text" placeholder="Nombre" aria-label="Para">
+            <p class="r-titulo" id="rTitulo">Un regalo</p>
+            <textarea class="campo-regalo dedicatoria" rows="2" placeholder="Escribe aquí una dedicatoria (opcional)" aria-label="Dedicatoria"></textarea>
+            <p class="r-de">de <input class="campo-regalo de" type="text" placeholder="tu nombre" aria-label="De"></p>
+            <p class="r-codigo">Código <strong id="rCodigo"></strong></p>
+            <p class="r-pie"><span id="rCaduca"></span> · Canjéalo en mirardespacio.es/regalo</p>
+          </div>
+          <div class="botones no-imprimir" style="justify-content:center;"><button class="boton claro" type="button" id="imprimir">Imprimir o guardar en PDF</button></div>
+
+          <div id="canje" class="no-imprimir" style="margin-top:56px;">
+            <p class="antetitulo">Canjear</p>
+            <h2>Tus <em>datos.</em></h2>
+            <form class="formulario" id="canjeForm" hidden>
+              <div aria-hidden="true" style="position:absolute;left:-9999px;"><label>No rellenes esto <input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
+              <div id="rEdicionCampo" hidden><label for="rEdicion">Elige fecha *</label><select id="rEdicion" name="edicion"></select></div>
+              <div class="rejilla-2" style="gap:16px;">
+                <div><label for="rNombre">Nombre *</label><input type="text" id="rNombre" name="nombre" required autocomplete="given-name"></div>
+                <div><label for="rApellidos">Apellidos *</label><input type="text" id="rApellidos" name="apellidos" required autocomplete="family-name"></div>
+              </div>
+              <div><label for="rEmail">Email *</label><input type="email" id="rEmail" name="email" required autocomplete="email"></div>
+              <div><label for="rTel">Teléfono</label><input type="tel" id="rTel" name="telefono" autocomplete="tel"></div>
+              <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para gestionar el regalo y avisarme de lo relacionado con él.</label>
+              <div><button class="boton color" type="submit">Canjear mi regalo</button></div>
+            </form>
+            <div class="ok" id="regaloMsg" hidden></div>
+          </div>
+        </div>
+      </div>
+    </section>"""
+    escribir('/regalo/', pagina('/regalo/', 'Regalos · Mirar Despacio',
+        'Regala un taller de fotografía callejera o unos meses de Mirar Despacio+, o canjea el código de tu regalo.',
+        cuerpo, extra_pie=TALLERES_JS))
+
     # ------------------------------------------------------------ ZINE
     cuerpo = f'''
     <section class="portada">
@@ -441,9 +577,23 @@ def construir(g):
         <h1>Mirar Despacio<em>+</em></h1>
         <p class="entradilla">Para quien quiere seguir mirando entre salida y salida. Una comunidad pequeña, con retos cada mes y alguien que mira tus fotos de verdad.</p>
         <div class="botones">
-          <a class="boton color" href="{PLUS_URL or 'mailto:' + EMAIL + '?subject=Me%20interesa%20Mirar%20Despacio%2B'}" data-umami-event="plus-interes">{'Unirme' if PLUS_URL else 'Me interesa'}</a>
+          <a class="boton color" href="#niveles">Ver precios</a>
           <a class="boton claro" href="{ACCESO}">Ya soy miembro · Entrar</a>
         </div>
+      </div>
+    </section>
+
+    <section class="seccion" id="niveles">
+      <div class="envoltura">
+        <div class="rejilla-2">
+          <div class="tarjeta"><h3>Mirar Despacio+</h3><p class="precio"><span data-plus-precio="sinSalidas">{td['plus']['sinSalidas']['precio']} €</span><small> /mes</small></p>
+            <ul class="lista" style="margin-top:14px;"><li>Retos y guías cada mes</li><li>Feedback de tus fotos</li><li>Grupo privado</li><li>Herramientas y tarjetas de misión</li></ul>
+            <a class="boton" data-plus-url="sinSalidas" data-umami-event="plus-interes" href="mailto:{EMAIL}?subject=Me%20interesa%20Mirar%20Despacio%2B">Me interesa</a></div>
+          <div class="tarjeta"><h3>Mirar Despacio+ <em>con salidas</em></h3><p class="precio"><span data-plus-precio="conSalidas">{td['plus']['conSalidas']['precio']} €</span><small> /mes</small></p>
+            <ul class="lista" style="margin-top:14px;"><li>Todo lo anterior</li><li><strong>Plaza asegurada en todas las salidas</strong>, sin aportación</li><li>Te enteras de las fechas antes que nadie</li></ul>
+            <a class="boton color" data-plus-url="conSalidas" data-umami-event="plus-interes" href="mailto:{EMAIL}?subject=Me%20interesa%20Mirar%20Despacio%2B%20con%20salidas">Me interesa</a></div>
+        </div>
+        <p style="margin-top:22px;">Sin permanencia: te das de baja cuando quieras. ¿Es para otra persona? <a href="/regalo/">Regala Mirar Despacio+</a>.</p>
       </div>
     </section>
 
@@ -460,7 +610,7 @@ def construir(g):
       </div>
     </section>'''
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
-        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: retos mensuales, prioridad en las salidas por Madrid, feedback de tus fotos y grupo privado.', cuerpo))
+        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: retos mensuales, prioridad en las salidas por Madrid, feedback de tus fotos y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
 
     # ------------------------------------------------------------ 404
     cuerpo = '''
@@ -474,6 +624,9 @@ def construir(g):
     </section>'''
     escribir('/404', pagina('/404', 'Página no encontrada · Mirar Despacio', 'Esta página no existe.', cuerpo))
 
+
+TALLERES_JS = '''
+  <script src="/assets/talleres.js"></script>'''
 
 MAPA_JS = '''
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>

@@ -56,6 +56,8 @@ const limpio = (v, max = 200) => String(v == null ? '' : v).trim().slice(0, max)
 
 function esMiembro(p) {
   if (!p) return false;
+  // Pagos por Ko-fi o regalos: plaza asegurada si tiene el nivel con salidas y está al día (3 días de margen)
+  if (p.plusHasta) return p.plusNivel !== 'sin-salidas' && new Date(p.plusHasta).getTime() + 3 * 864e5 > Date.now();
   if (p.subscription && p.subscription.active) return true;
   if (p.trialStart) return Date.now() - new Date(p.trialStart).getTime() < 30 * 864e5;
   return false;
