@@ -475,7 +475,7 @@ def construir(g):
       <div class="envoltura estrecho">
         <p class="antetitulo">Preguntas</p>
         <h2>Antes de <em>reservar.</em></h2>
-        <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, trae la cámara que quieras aprender a usar: réflex, mirrorless o compacta.</p></details>
+        <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, trae la cámara que quieras aprender a usar: réflex, mirrorless o compacta. Y para el de composición vale cualquier cosa, también el móvil.</p></details>
         <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, por Ko-fi, con tarjeta o PayPal. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
         <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a> y lo hablamos.</p></details>
         <details class="faq"><summary>¿En qué se diferencian de las salidas?</summary><p>Las salidas son paseos en grupo con retos, gratuitos y con contribución libre al final. Los talleres son más cortos de grupo, con un tema concreto, explicación y práctica guiada, y te llevas material.</p></details>
@@ -487,7 +487,7 @@ def construir(g):
         "offers": [{"@type": "Offer", "name": "Taller " + t['titulo'], "price": str(t['precio']), "priceCurrency": "EUR"} for t in td['talleres']],
     }
     escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
-        'Talleres de fotografía callejera en Madrid: nocturna, atardecer y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual impreso y un mes de Mirar Despacio+. También para regalar.',
+        'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual impreso y un mes de Mirar Despacio+. También para regalar.',
         cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS))
 
     # ------------------------------------------------------------ REGALO

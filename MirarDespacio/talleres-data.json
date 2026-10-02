@@ -18,8 +18,19 @@
       "plazas": 8,
       "nivel": "Para quien ya dispara y quiere perderle el miedo a la noche",
       "descripcion": "Escaparates, farolas, neones, siluetas y gente que pasa. Aprendemos a leer la luz artificial y a disparar con poca luz sin que todo salga movido o ruidoso, y lo practicamos en la calle desde el primer minuto.",
-      "temas": ["Exposición con poca luz: ISO, velocidad y apertura sin miedo", "Fuentes de luz de la ciudad y cómo usarlas", "Siluetas, reflejos y escaparates", "Movimiento con intención: barridos y estelas", "Revisión de fotos al final, tomando algo"],
-      "incluye": ["Manual impreso de fotografía nocturna", "Dos consumiciones (refresco o cerveza)", "Pegatinas de Mirar Despacio", "Un mes de Mirar Despacio+"],
+      "temas": [
+        "Exposición con poca luz: ISO, velocidad y apertura sin miedo",
+        "Fuentes de luz de la ciudad y cómo usarlas",
+        "Siluetas, reflejos y escaparates",
+        "Movimiento con intención: barridos y estelas",
+        "Revisión de fotos al final, tomando algo"
+      ],
+      "incluye": [
+        "Manual impreso de fotografía nocturna",
+        "Dos consumiciones (refresco o cerveza)",
+        "Pegatinas de Mirar Despacio",
+        "Un mes de Mirar Despacio+"
+      ],
       "bonoKofi": ""
     },
     {
@@ -32,8 +43,19 @@
       "plazas": 8,
       "nivel": "Para quien ya dispara y quiere aprovechar la mejor luz del día",
       "descripcion": "Del sol rasante a la hora azul. Sombras largas, contraluces, caras iluminadas de lado y el momento exacto en que la ciudad cambia de color. Mucha práctica y poca teoría.",
-      "temas": ["Luz rasante, contraluz y sombras largas", "Medir bien cuando la luz cambia cada minuto", "Composición con sombras y siluetas", "La hora azul", "Revisión de fotos al final, tomando algo"],
-      "incluye": ["Manual impreso de luz de atardecer", "Una consumición (café, infusión o refresco)", "Pegatinas de Mirar Despacio", "Un mes de Mirar Despacio+"],
+      "temas": [
+        "Luz rasante, contraluz y sombras largas",
+        "Medir bien cuando la luz cambia cada minuto",
+        "Composición con sombras y siluetas",
+        "La hora azul",
+        "Revisión de fotos al final, tomando algo"
+      ],
+      "incluye": [
+        "Manual impreso de luz de atardecer",
+        "Una consumición (café, infusión o refresco)",
+        "Pegatinas de Mirar Despacio",
+        "Un mes de Mirar Despacio+"
+      ],
       "bonoKofi": ""
     },
     {
@@ -46,8 +68,43 @@
       "plazas": 8,
       "nivel": "Para quien empieza o nunca ha salido del modo automático. Trae tu cámara: réflex, mirrorless o compacta",
       "descripcion": "Para quitarse el miedo a la cámara. Qué hace cada botón que importa, cómo funcionan la luz y la exposición, y cómo componer una foto con intención. Lo aprendemos disparando por la calle, no con diapositivas.",
-      "temas": ["Tu cámara: modos, enfoque y los ajustes que importan", "El triángulo de exposición sin fórmulas", "Leer la luz", "Componer con intención", "Primeras fotos de calle, sin vergüenza"],
-      "incluye": ["Manual impreso de iniciación", "Pegatinas de Mirar Despacio", "Un mes de Mirar Despacio+"],
+      "temas": [
+        "Tu cámara: modos, enfoque y los ajustes que importan",
+        "El triángulo de exposición sin fórmulas",
+        "Leer la luz",
+        "Componer con intención",
+        "Primeras fotos de calle, sin vergüenza"
+      ],
+      "incluye": [
+        "Manual impreso de iniciación",
+        "Pegatinas de Mirar Despacio",
+        "Un mes de Mirar Despacio+"
+      ],
+      "bonoKofi": ""
+    },
+    {
+      "id": "composicion",
+      "titulo": "Composición en la calle",
+      "subtitulo": "Mirar antes de disparar",
+      "precio": 40,
+      "duracion": "3 horas",
+      "hora": "10:00",
+      "plazas": 8,
+      "nivel": "Para cualquiera que haga fotos, con la cámara que lleve. El móvil también vale",
+      "descripcion": "No importa el equipo, importa dónde pones el marco. Trabajamos las herramientas de composición una a una con ejercicios cortos por la calle, y al final las rompemos con intención.",
+      "temas": [
+        "Encuadre: qué dejas dentro y qué fuera",
+        "Líneas, capas y profundidad",
+        "Luz y sombra como forma",
+        "Equilibrio, tensión y espacio negativo",
+        "Romper las reglas a propósito",
+        "Revisión de fotos al final"
+      ],
+      "incluye": [
+        "Manual impreso de composición",
+        "Pegatinas de Mirar Despacio",
+        "Un mes de Mirar Despacio+"
+      ],
       "bonoKofi": ""
     }
   ],
@@ -63,11 +120,31 @@
     }
   ],
   "plus": {
-    "sinSalidas": { "precio": 20, "tier": "Mirar Despacio+", "url": "" },
-    "conSalidas": { "precio": 30, "tier": "Mirar Despacio+ con salidas", "url": "" }
+    "sinSalidas": {
+      "precio": 20,
+      "tier": "Mirar Despacio+",
+      "url": ""
+    },
+    "conSalidas": {
+      "precio": 30,
+      "tier": "Mirar Despacio+ con salidas",
+      "url": ""
+    }
   },
   "regalosPlus": [
-    { "id": "plus-1", "meses": 1, "nivel": "con-salidas", "precio": 30, "kofi": "" },
-    { "id": "plus-3", "meses": 3, "nivel": "con-salidas", "precio": 85, "kofi": "" }
+    {
+      "id": "plus-1",
+      "meses": 1,
+      "nivel": "con-salidas",
+      "precio": 30,
+      "kofi": ""
+    },
+    {
+      "id": "plus-3",
+      "meses": 3,
+      "nivel": "con-salidas",
+      "precio": 85,
+      "kofi": ""
+    }
   ]
 }
