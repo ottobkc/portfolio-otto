@@ -188,20 +188,10 @@ async function avisoOtto(asunto, filas, responderA) {
 
 // ---------- Acceso a la zona de miembros (Netlify Identity) ----------
 // Invita al email si aún no tiene cuenta. El rol "member" lo pone identity-signup al aceptar.
+// Invita a la zona de miembros con acceso MD+ completo. Si la persona ya tenía cuenta
+// (por ejemplo, de "solo fotos"), le sube el acceso a MD+.
 async function invitarIdentity(context, email) {
-  const id = context && context.clientContext && context.clientContext.identity;
-  if (!id || !id.url || !id.token) return 'sin-identity';
-  try {
-    const r = await fetch(id.url + '/invite', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + id.token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    if (r.ok) return 'invitado';
-    return r.status === 422 ? 'ya-existe' : 'error-' + r.status;
-  } catch (e) {
-    return 'error';
-  }
+  return require('./identidad').invitarCon(context, email, 'plus');
 }
 
 function sumarMeses(base, meses) {

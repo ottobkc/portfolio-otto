@@ -65,6 +65,8 @@
           return (p.app_metadata && p.app_metadata.roles) || [];
         } catch (e) { return []; }
       }
+      // ?a=cuaderno -> después de entrar, ir directo al cuaderno de fotos
+      function destino() { return /[?&]a=cuaderno/.test(location.search) ? '/cuaderno/' : ''; }
       function intentos(n) {
         try {
           if (n === undefined) return parseInt(sessionStorage.getItem('md_intentos') || '0', 10);
@@ -79,8 +81,10 @@
         // Renovar el pase: así incluye el rol aunque se asignara después del último login
         user.jwt(true).then(function (token) {
           var r = roles(token);
-          if (r.indexOf('member') === -1 && r.indexOf('admin') === -1) {
-            estado.textContent = 'Has entrado como ' + user.email + ', pero tu cuenta todavía no tiene acceso de miembro. Escríbeme y lo activo.';
+          var plus = r.indexOf('member') !== -1 || r.indexOf('admin') !== -1;
+          var soloFotos = !plus && r.indexOf('participante') !== -1;
+          if (!plus && !soloFotos) {
+            estado.textContent = 'Has entrado como ' + user.email + ', pero ahora mismo tu cuenta no tiene acceso activo. Tus fotos y comentarios siguen guardados: escríbeme y lo reactivo.';
             return;
           }
           if (intentos() >= 2) {
@@ -90,7 +94,7 @@
           }
           intentos(intentos() + 1);
           estado.textContent = 'Entrando…';
-          location.replace('/recursos.html');
+          location.replace(soloFotos ? '/cuaderno/' : (/^\/cuaderno\//.test(destino()) ? '/cuaderno/' : '/recursos.html'));
         }).catch(function () {
           estado.textContent = 'Tu sesión ha caducado. Cierra sesión y vuelve a entrar.';
         });

@@ -40,6 +40,17 @@
     X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
+  for = "/cuaderno/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/subir/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
+
+[[headers]]
   for = "/crm/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
@@ -73,6 +84,21 @@
 [[redirects]]
   from   = "/recursos.html"
   to     = "/acceso.html"
+  status = 302
+  force  = true
+
+# Cuaderno de fotos: lo abren los miembros MD+ y también quien solo tiene acceso
+# "participante" (gente de las salidas que sube sus fotos sin ser MD+).
+[[redirects]]
+  from       = "/cuaderno/*"
+  to         = "/cuaderno/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["member", "participante", "admin"]}
+
+[[redirects]]
+  from   = "/cuaderno/*"
+  to     = "/acceso.html?a=cuaderno"
   status = 302
   force  = true
 

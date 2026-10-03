@@ -224,6 +224,7 @@
     color: var(--dim);
     z-index: 50;
   }
+  @media (max-width: 640px) { .foto-crm { grid-template-columns: 1fr !important; } }
 </style>
 </head>
 <body>
@@ -252,6 +253,7 @@
     <div class="tab active" data-tab="salidas">Salidas</div>
     <div class="tab" data-tab="personas">Personas</div>
     <div class="tab" data-tab="accesos">Accesos</div>
+    <div class="tab" data-tab="fotos">Fotos <span id="fotosPendientes" class="badge" style="display:none"></span></div>
     <div class="tab" data-tab="pegatinas">Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></div>
     <div class="tab" data-tab="ingresos">Ingresos</div>
     <div class="tab" data-tab="juego">Juego</div>
@@ -296,6 +298,15 @@
       </div>
     </div>
     <div class="card">
+      <div class="card-title">Fotos de esta salida</div>
+      <div class="person-meta">Manda a cada persona su enlace para subir sus fotos (sin contraseña, hasta 5 fotos). Si has pasado lista, solo a quienes asistieron. Cada persona lo recibe una sola vez.</div>
+      <div class="row" style="margin-top:8px;">
+        <button onclick="enviarEnlacesFotos(false)">Enviar enlaces por email</button>
+        <button class="secondary" onclick="enviarEnlacesFotos(true)">Reenviar a todos</button>
+      </div>
+      <div class="person-meta" id="enlacesEstado"></div>
+    </div>
+    <div class="card">
       <div class="card-title">Añadir persona a esta salida</div>
       <input type="text" id="rosterName" placeholder="Nombre">
       <input type="text" id="rosterApellidos" placeholder="Apellidos (opcional)">
@@ -338,10 +349,64 @@
         <div class="stat-box"><div class="stat-num" id="accInactivos">0</div><div class="stat-label">sin entrar +30 días</div></div>
       </div>
     </div>
+    <div class="card">
+      <div class="card-title">Cuentas y acceso</div>
+      <div class="person-meta">Quitar el acceso no borra nada: la cuenta, sus fotos y sus comentarios se quedan, y puedes devolvérselo cuando quieras.
+        <b>MD+</b> = todo · <b>Solo fotos</b> = solo su cuaderno de fotos · <b>Sin acceso</b> = no puede entrar.</div>
+      <div class="row" style="margin-top:8px;">
+        <input type="email" id="invitarEmail" placeholder="Email para invitar">
+        <select id="invitarAcceso"><option value="fotos">Solo fotos</option><option value="plus">MD+</option></select>
+        <button onclick="invitarCuenta()">Invitar</button>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button class="secondary" onclick="cargarCuentas()">Cargar cuentas</button>
+        <input type="text" id="buscarCuenta" placeholder="Buscar…" oninput="pintarCuentas()">
+      </div>
+      <div class="person-meta" id="cuentasEstado"></div>
+      <div id="cuentasList"></div>
+    </div>
     <div class="card-title">Miembros (toca uno para ver su historial)</div>
     <div id="miembrosList"></div>
     <div class="card-title" style="margin-top:18px;">Últimos movimientos</div>
     <div id="accesosList"></div>
+  </div>
+
+  <!-- FOTOS VIEW (cuaderno de fotos, retos y muro) -->
+  <div class="view" id="view-fotos">
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="fPend">0</div><div class="stat-label">por comentar</div></div>
+        <div class="stat-box"><div class="stat-num" id="fCom">0</div><div class="stat-label">comentadas</div></div>
+        <div class="stat-box"><div class="stat-num" id="fMuro">0</div><div class="stat-label">en el muro</div></div>
+        <div class="stat-box"><div class="stat-num" id="fGente">0</div><div class="stat-label">personas</div></div>
+      </div>
+      <div class="person-meta" style="margin-top:8px;">Muro público: <a href="https://mirardespacio.es/muro/" target="_blank">mirardespacio.es/muro</a> · Al guardar un comentario se le avisa por email. Si la persona lo permite y marcas «Al muro», sale publicada con tu comentario.</div>
+    </div>
+    <div class="row" style="margin-bottom:10px;">
+      <select id="fotosFiltro" onchange="renderFotos()">
+        <option value="pendiente">Por comentar</option>
+        <option value="comentada">Comentadas</option>
+        <option value="muro">En el muro</option>
+        <option value="todas">Todas</option>
+      </select>
+      <input type="text" id="fotosBuscar" placeholder="Buscar persona o salida…" oninput="renderFotos()">
+    </div>
+    <div id="fotosList"></div>
+
+    <div class="card" style="margin-top:22px;">
+      <div class="card-title">Reto del mes (solo MD+)</div>
+      <input type="hidden" id="retoId">
+      <input type="text" id="retoTitulo" placeholder="Título (p. ej. «Sombras largas»)">
+      <textarea id="retoEnunciado" rows="3" placeholder="Enunciado: qué tienen que fotografiar y cómo"></textarea>
+      <input type="text" id="retoPista" placeholder="Pista o consejo (opcional, sale en letra a mano)">
+      <div class="row">
+        <label class="person-meta">Empieza <input type="date" id="retoInicio"></label>
+        <label class="person-meta">Cierra <input type="date" id="retoCierre"></label>
+        <label class="person-meta"><input type="checkbox" id="retoActivo" checked> Activo</label>
+      </div>
+      <div class="row"><button onclick="guardarReto()">Guardar reto</button><button class="secondary" onclick="limpiarReto()">Nuevo</button></div>
+    </div>
+    <div id="retosList"></div>
   </div>
 
   <!-- PEGATINAS VIEW (mapa de mirardespacio.es/salidas) -->
@@ -496,6 +561,7 @@ let unsubEvents = null, unsubPeople = null, unsubSignups = null;
 let miembrosAct = [], accesos = [], unsubMiembros = null, unsubAccesos = null, miembroAbierto = null;
 let movimientos = [], bonos = [], unsubIngresos = null, unsubBonos = null;
 let pegatinas = [], unsubPegatinas = null;
+let fotos = [], retos = [], cuentas = [];
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -560,6 +626,14 @@ function attachListeners() {
       el.appendChild(div);
     });
   }, () => {});
+  onSnapshot(collection(db, 'fotos'), (snap) => {
+    fotos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderFotos();
+  }, () => {});
+  onSnapshot(collection(db, 'retos'), (snap) => {
+    retos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderRetos();
+  }, () => {});
   unsubPegatinas = onSnapshot(collection(db, 'pegatinas'), (snap) => {
     pegatinas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderPegatinas();
@@ -594,7 +668,204 @@ window.showTab = function(name) {
   if (name === 'exportar') updateExport();
   if (name === 'accesos') renderAccesos();
   if (name === 'pegatinas') renderPegatinas();
+  if (name === 'fotos') { renderFotos(); renderRetos(); }
   if (name === 'ingresos') { renderIngresos(); renderBonos(); }
+};
+
+// ---------- FOTOS (cuaderno, retos, muro) ----------
+// Llama a la función del servidor con la sesión de Firebase del CRM
+async function admin(cuerpo) {
+  const token = await auth.currentUser.getIdToken();
+  const r = await fetch('/.netlify/functions/fotos-admin', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(cuerpo),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('error ' + r.status));
+  return j;
+}
+const mini = (url, w) => String(url || '').replace('/image/upload/', `/image/upload/c_limit,w_${w},q_auto,f_auto/`);
+const fms = t => t && t.toMillis ? t.toMillis() : 0;
+
+window.renderFotos = function() {
+  const el = document.getElementById('fotosList');
+  if (!el) return;
+  const pend = fotos.filter(f => f.estado === 'pendiente');
+  const b = document.getElementById('fotosPendientes');
+  b.style.display = pend.length ? '' : 'none'; b.textContent = pend.length;
+  document.getElementById('fPend').textContent = pend.length;
+  document.getElementById('fCom').textContent = fotos.filter(f => f.estado === 'comentada').length;
+  document.getElementById('fMuro').textContent = fotos.filter(f => f.enMuro).length;
+  document.getElementById('fGente').textContent = new Set(fotos.map(f => f.email)).size;
+  const filtro = document.getElementById('fotosFiltro').value;
+  const q = (document.getElementById('fotosBuscar').value || '').toLowerCase();
+  let lista = fotos.filter(f => filtro === 'todas' ? true : filtro === 'muro' ? f.enMuro : f.estado === filtro);
+  if (q) lista = lista.filter(f => [f.nombreMuro, f.nombreCuenta, f.email, f.refNombre].join(' ').toLowerCase().includes(q));
+  lista.sort((a, b) => filtro === 'pendiente' ? fms(a.creada) - fms(b.creada) : fms(b.creada) - fms(a.creada));
+  el.innerHTML = lista.length ? '' : '<div class="empty">Nada por aquí</div>';
+  lista.forEach(f => {
+    const otras = fotos.filter(x => x.email === f.email).length;
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;" class="foto-crm">
+        <a href="${escapeHtml(f.url)}" target="_blank"><img src="${escapeHtml(mini(f.url, 700))}" style="width:100%;display:block;border-radius:6px;" loading="lazy"></a>
+        <div>
+          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''}</div>
+          <div class="person-meta">${escapeHtml(f.refNombre || '')} · ${fechaTxt(fechaDe(f.creada))} · ${otras} foto(s) suyas · ${f.origen === 'enlace' ? 'por enlace' : 'con cuenta'}</div>
+          <div class="person-meta">Firma en el muro: ${escapeHtml(f.nombreMuro || '')} · ${f.publicable ? 'permite el muro' : '<b>no quiere salir en el muro</b>'}</div>
+          ${f.texto ? `<p style="font-style:italic;margin:8px 0;">“${escapeHtml(f.texto)}”</p>` : ''}
+          <textarea id="com-${f.id}" rows="4" placeholder="Tu comentario…" style="width:100%;margin-top:6px;">${escapeHtml(f.comentario || '')}</textarea>
+          <div class="row" style="align-items:center;margin-top:6px;">
+            <label class="person-meta"><input type="checkbox" id="muro-${f.id}" ${f.enMuro || (f.estado === 'pendiente' && f.publicable) ? 'checked' : ''} ${f.publicable ? '' : 'disabled'}> Al muro</label>
+            <label class="person-meta"><input type="checkbox" id="dest-${f.id}" ${f.destacada ? 'checked' : ''}> Destacada</label>
+          </div>
+          <div class="row" style="margin-top:6px;">
+            <button onclick="guardarComentario('${f.id}', true)">${f.estado === 'pendiente' ? 'Guardar y avisar' : 'Guardar y volver a avisar'}</button>
+            <button class="secondary" onclick="guardarComentario('${f.id}', false)">Guardar sin avisar</button>
+            <button class="small danger" onclick="borrarFoto('${f.id}')">✕</button>
+          </div>
+          ${f.avisadoEn ? `<div class="person-meta">Avisado: ${fechaTxt(fechaDe(f.avisadoEn))}</div>` : ''}
+        </div>
+      </div>`;
+    el.appendChild(div);
+  });
+};
+
+window.guardarComentario = async function(id, avisar) {
+  const f = fotos.find(x => x.id === id);
+  const comentario = document.getElementById('com-' + id).value.trim();
+  if (!comentario) { alert('Escribe un comentario.'); return; }
+  const enMuro = !!f.publicable && document.getElementById('muro-' + id).checked;
+  setSyncStatus('Guardando…');
+  try {
+    await updateDoc(doc(db, 'fotos', id), {
+      comentario, enMuro, destacada: document.getElementById('dest-' + id).checked, estado: 'comentada',
+      ...(f.estado === 'pendiente' ? { comentadaEn: serverTimestamp() } : {}),
+    });
+    if (avisar) await admin({ accion: 'avisar', id });
+    setSyncStatus(avisar ? 'Guardado y avisado ✓' : 'Guardado ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
+window.borrarFoto = async function(id) {
+  if (!confirm('¿Borrar esta foto del cuaderno? (La imagen sigue en Cloudinary, carpeta del cuaderno.)')) return;
+  await deleteDoc(doc(db, 'fotos', id));
+};
+
+function renderRetos() {
+  const el = document.getElementById('retosList');
+  if (!el) return;
+  const lista = [...retos].sort((a, b) => String(b.inicio || '').localeCompare(String(a.inicio || '')));
+  el.innerHTML = lista.length ? '' : '<div class="empty">Aún no hay retos</div>';
+  lista.forEach(r => {
+    const n = fotos.filter(f => f.tipo === 'reto' && f.refId === r.id).length;
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main" style="cursor:pointer" onclick="editarReto('${r.id}')">
+        <div class="person-name">${escapeHtml(r.titulo)} ${r.activo ? '<span class="badge">activo</span>' : ''}</div>
+        <div class="person-meta">${r.inicio || '?'} → ${r.cierre || '?'} · ${n} foto(s)</div></div>
+      <button class="small danger" onclick="borrarReto('${r.id}')">✕</button>`;
+    el.appendChild(div);
+  });
+}
+window.limpiarReto = function() {
+  ['retoId', 'retoTitulo', 'retoEnunciado', 'retoPista', 'retoInicio', 'retoCierre'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('retoActivo').checked = true;
+};
+window.editarReto = function(id) {
+  const r = retos.find(x => x.id === id); if (!r) return;
+  document.getElementById('retoId').value = r.id;
+  document.getElementById('retoTitulo').value = r.titulo || '';
+  document.getElementById('retoEnunciado').value = r.enunciado || '';
+  document.getElementById('retoPista').value = r.pista || '';
+  document.getElementById('retoInicio').value = r.inicio || '';
+  document.getElementById('retoCierre').value = r.cierre || '';
+  document.getElementById('retoActivo').checked = !!r.activo;
+  document.getElementById('retoTitulo').scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+window.guardarReto = async function() {
+  const titulo = document.getElementById('retoTitulo').value.trim();
+  if (!titulo) { alert('Ponle un título.'); return; }
+  const id = document.getElementById('retoId').value || ('reto-' + (document.getElementById('retoInicio').value || new Date().toISOString().slice(0, 10)) + '-' + uid().slice(-4));
+  const activo = document.getElementById('retoActivo').checked;
+  // Solo un reto activo a la vez
+  if (activo) for (const r of retos.filter(x => x.activo && x.id !== id)) await updateDoc(doc(db, 'retos', r.id), { activo: false });
+  await setDoc(doc(db, 'retos', id), {
+    titulo, enunciado: document.getElementById('retoEnunciado').value.trim(), pista: document.getElementById('retoPista').value.trim(),
+    inicio: document.getElementById('retoInicio').value || new Date().toISOString().slice(0, 10),
+    cierre: document.getElementById('retoCierre').value || '', activo,
+  }, { merge: true });
+  limpiarReto();
+  setSyncStatus('Reto guardado ✓');
+};
+window.borrarReto = async function(id) {
+  if (fotos.some(f => f.refId === id)) { alert('Este reto ya tiene fotos: mejor desactívalo en vez de borrarlo.'); return; }
+  if (confirm('¿Borrar este reto?')) await deleteDoc(doc(db, 'retos', id));
+};
+
+// Enlaces para subir fotos sin cuenta
+window.enviarEnlacesFotos = async function(reenviar) {
+  if (!currentEventId) return;
+  if (!confirm(reenviar ? '¿Reenviar el enlace a todos los de esta salida (también a quien ya lo recibió)?' : '¿Mandar por email el enlace para subir fotos a la gente de esta salida?')) return;
+  const est = document.getElementById('enlacesEstado');
+  est.textContent = 'Enviando…';
+  try {
+    const r = await admin({ accion: 'enlaces', eventId: currentEventId, reenviar });
+    est.textContent = `Enviados: ${r.enviados}` + (r.saltados ? ` · ya lo tenían: ${r.saltados}` : '') + (r.sinEmail ? ` · sin email: ${r.sinEmail}` : '');
+  } catch (e) { est.textContent = 'Error: ' + e.message; }
+};
+window.copiarEnlaceFotos = async function(personId) {
+  try {
+    const r = await admin({ accion: 'enlace', personId });
+    const p = people.find(x => x.id === personId);
+    const texto = `Hola ${p && p.name ? p.name : ''}, aquí puedes subir tus fotos de la salida y te las comento: ${r.url}`;
+    await navigator.clipboard.writeText(texto).catch(() => prompt('Copia el mensaje:', texto));
+    setSyncStatus('Enlace copiado ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
+// Cuentas de la zona de miembros (Netlify Identity)
+const NOMBRE_ACCESO = { plus: 'MD+', fotos: 'Solo fotos', ninguno: 'Sin acceso', admin: 'Admin' };
+window.cargarCuentas = async function() {
+  const est = document.getElementById('cuentasEstado');
+  est.textContent = 'Cargando…';
+  try { cuentas = await admin({ accion: 'cuentas' }); est.textContent = cuentas.length + ' cuentas'; pintarCuentas(); }
+  catch (e) { est.textContent = 'Error: ' + e.message; }
+};
+window.pintarCuentas = function() {
+  const el = document.getElementById('cuentasList');
+  const q = (document.getElementById('buscarCuenta').value || '').toLowerCase();
+  const lista = cuentas.filter(c => !q || (c.email + ' ' + c.nombre).toLowerCase().includes(q))
+    .sort((a, b) => (a.acceso === 'ninguno') - (b.acceso === 'ninguno') || String(a.email).localeCompare(b.email));
+  el.innerHTML = '';
+  lista.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main">
+        <div class="person-name">${escapeHtml(c.nombre || c.email)} ${c.acceso === 'ninguno' ? '<span class="badge" style="background:#b5654f;">sin acceso</span>' : ''} ${c.confirmada ? '' : '<span class="badge" style="background:#7a756f;">invitación sin aceptar</span>'}</div>
+        <div class="person-meta">${escapeHtml(c.email)} · último login: ${c.ultimoLogin ? fechaTxt(new Date(c.ultimoLogin)) : '—'}</div></div>
+      ${c.acceso === 'admin' ? '<span class="person-meta">Admin</span>' : `<select class="status-select" onchange="cambiarAcceso('${c.id}', this.value, this)">
+        ${['plus', 'fotos', 'ninguno'].map(a => `<option value="${a}" ${c.acceso === a ? 'selected' : ''}>${NOMBRE_ACCESO[a]}</option>`).join('')}</select>`}`;
+    el.appendChild(div);
+  });
+};
+window.cambiarAcceso = async function(id, acceso, sel) {
+  const c = cuentas.find(x => x.id === id);
+  if (!confirm(`¿Cambiar el acceso de ${c.email} a «${NOMBRE_ACCESO[acceso]}»?`)) { sel.value = c.acceso; return; }
+  try { await admin({ accion: 'acceso', id, acceso }); c.acceso = acceso; pintarCuentas(); setSyncStatus('Acceso cambiado ✓'); }
+  catch (e) { sel.value = c.acceso; setSyncStatus('Error: ' + e.message, true); }
+};
+window.invitarCuenta = async function() {
+  const email = document.getElementById('invitarEmail').value.trim();
+  const acceso = document.getElementById('invitarAcceso').value;
+  if (!email) return;
+  try {
+    const r = await admin({ accion: 'invitar', email, acceso });
+    const txt = { invitado: 'Invitación enviada ✓', 'ya-existe': 'Ya tenía cuenta: acceso actualizado ✓' }[r.estado] || ('Resultado: ' + r.estado);
+    document.getElementById('cuentasEstado').textContent = txt;
+    document.getElementById('invitarEmail').value = '';
+    if (cuentas.length) cargarCuentas();
+  } catch (e) { document.getElementById('cuentasEstado').textContent = 'Error: ' + e.message; }
 };
 
 // ---------- INGRESOS Y GASTOS ----------
@@ -1123,6 +1394,7 @@ function renderRoster() {
           <option value="confirmado" ${s.status==='confirmado'?'selected':''}>Confirmado</option>
           <option value="espera" ${s.status==='espera'?'selected':''}>Espera</option>
         </select>
+        ${person.email ? `<button class="small secondary" title="Copiar su enlace para subir fotos (para mandarlo por WhatsApp)" onclick="copiarEnlaceFotos('${person.id}')">📷</button>` : ''}
         <button class="small danger" onclick="removeSignup('${s.id}')">✕</button>
       `;
       el.appendChild(div);
@@ -1400,7 +1672,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores'];
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);

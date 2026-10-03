@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Tu cuaderno · Mirar Despacio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Caveat:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de; --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
+      --accent: #c8a97a; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce; --ok: #5a8a5e;
+      --grad: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      --font-serif: Georgia, 'Times New Roman', serif; --font-sans: 'Jost', sans-serif; --font-mano: 'Caveat', cursive;
+      --max: 960px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300;
+      font-size: clamp(14px, 1.5vw, 16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
+    a { color: inherit; }
+    [hidden] { display: none !important; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+
+    nav { background: rgba(245,243,239,.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .nav-logo { font-family: var(--font-serif); }
+    .nav-right { display: flex; align-items: center; gap: 1.25rem; }
+    .nav-link { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+    .nav-link:hover { color: var(--ink); }
+    .btn-sec { background: none; border: 1px solid var(--border); color: var(--muted); font-size: .7rem; letter-spacing: .1em;
+      text-transform: uppercase; cursor: pointer; padding: .4rem .9rem; }
+    .btn-sec:hover { border-color: var(--ink); color: var(--ink); }
+
+    .cab { max-width: var(--max); margin: 0 auto; padding: 3.5rem 2rem 2.5rem; border-bottom: 1px solid var(--border); }
+    .etiqueta { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--md-orange); margin-bottom: .6rem; }
+    h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.15; }
+    h1 em, .grad { font-style: italic; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .cab p { color: var(--muted); margin-top: .5rem; max-width: 40em; }
+    .cifras { display: flex; flex-wrap: wrap; gap: 2.2rem; margin-top: 1.8rem; }
+    .cifra b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1; }
+    .cifra span { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+    .contenido { max-width: var(--max); margin: 0 auto; padding: 2.5rem 2rem 6rem; }
+    .rotulo { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+      margin: 2.8rem 0 1.2rem; padding-bottom: .7rem; border-bottom: 1px solid var(--border); }
+    .rotulo:first-child { margin-top: 0; }
+
+    .reto { background: var(--ink); color: var(--bg); padding: 2rem 2.2rem; position: relative; overflow: hidden; }
+    .reto::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--grad); }
+    .reto .etiqueta { color: var(--accent); }
+    .reto h2 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: .6rem; }
+    .reto p { color: #cfc9bf; max-width: 42em; }
+    .reto .pista { font-family: var(--font-mano); font-size: 1.35rem; color: var(--accent); margin-top: .8rem; }
+    .reto .pie { display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: center; margin-top: 1.4rem; font-size: .85rem; color: #b8b1a4; }
+    .reto.bloqueado h2 { filter: none; }
+    .boton { display: inline-block; border: 0; cursor: pointer; padding: .8rem 1.4rem; background: var(--ink); color: var(--bg);
+      font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; }
+    .boton.color { background: var(--grad); color: #fff; }
+    .boton:disabled { opacity: .5; cursor: wait; }
+
+    form.subir { background: var(--bg2); padding: 1.8rem 2rem; display: grid; gap: 1.1rem; }
+    .campo label { display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; }
+    .campo select, .campo input[type=text], .campo textarea { width: 100%; border: 1px solid var(--border); background: var(--bg); padding: .65rem .8rem; }
+    .campo textarea { min-height: 90px; resize: vertical; }
+    .soltar { border: 1.5px dashed var(--border); background: var(--bg); padding: 1.4rem; text-align: center; cursor: pointer; display: block; }
+    .soltar:hover { border-color: var(--ink); }
+    .soltar input { display: none; }
+    .soltar img { max-height: 280px; max-width: 100%; margin: 0 auto .6rem; display: block; }
+    .soltar small { color: var(--muted); }
+    .check { display: flex; gap: .6rem; align-items: flex-start; font-size: .9rem; color: var(--ink-faint); }
+    .check input { margin-top: .35rem; accent-color: var(--md-pink); }
+    .msg { font-size: .9rem; min-height: 1.4em; }
+    .msg.error { color: #b5654f; } .msg.ok { color: var(--ok); }
+    .barra { height: 3px; background: var(--bg3); } .barra i { display: block; height: 100%; width: 0; background: var(--grad); transition: width .2s; }
+
+    .fotos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.6rem; }
+    .foto { background: var(--bg2); display: flex; flex-direction: column; }
+    .foto img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--bg3); cursor: zoom-in; }
+    .foto .datos { padding: 1rem 1.2rem 1.2rem; display: grid; gap: .55rem; }
+    .foto .donde { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .estado { display: inline-block; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; padding: .15rem .55rem; border: 1px solid var(--border); color: var(--muted); }
+    .estado.comentada { border-color: var(--ok); color: var(--ok); }
+    .estado.muro { border: 0; background: var(--grad); color: #fff; }
+    .suyo { font-size: .9rem; color: var(--ink-faint); font-style: italic; }
+    .comentario { font-family: var(--font-mano); font-size: 1.4rem; line-height: 1.25; color: var(--ink); border-left: 3px solid var(--md-pink); padding-left: .8rem; white-space: pre-line; }
+    .comentario small { display: block; font-family: var(--font-sans); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-top: .3rem; }
+    .acciones { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; font-size: .85rem; }
+    .acciones button.link { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 0; }
+    .vacio { color: var(--muted); padding: 2rem; background: var(--bg2); text-align: center; }
+    .aviso-fotos { background: var(--bg2); padding: 1.3rem 1.6rem; border-left: 3px solid var(--md-orange); color: var(--ink-faint); }
+
+    .visor { position: fixed; inset: 0; background: rgba(20,18,15,.94); display: flex; align-items: center; justify-content: center; z-index: 50; cursor: zoom-out; padding: 2vw; }
+    .visor img { max-width: 100%; max-height: 100%; }
+
+    @media (max-width: 640px) {
+      nav, .cab, .contenido { padding-left: 16px; padding-right: 16px; }
+      .fotos { grid-template-columns: 1fr; }
+      form.subir, .reto { padding: 1.4rem 1.2rem; }
+      .nav-link.recursos { display: none; }
+    }
+  </style>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+  <nav>
+    <span class="nav-logo">Mirar Despacio <span class="grad" id="navPlus" hidden>+</span></span>
+    <div class="nav-right">
+      <a class="nav-link recursos" href="/recursos.html" id="navRecursos" hidden>Recursos</a>
+      <a class="nav-link" href="https://mirardespacio.es/muro/">El muro</a>
+      <button class="btn-sec" id="salir">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <header class="cab">
+    <p class="etiqueta">Tu cuaderno</p>
+    <h1>Lo que has <em>mirado.</em></h1>
+    <p id="saludo">Cargando tu cuaderno…</p>
+    <div class="cifras" id="cifras" hidden>
+      <div class="cifra"><b id="cSubidas">0</b><span>fotos</span></div>
+      <div class="cifra"><b id="cComentadas">0</b><span>comentadas</span></div>
+      <div class="cifra"><b id="cMuro">0</b><span>en el muro</span></div>
+      <div class="cifra" id="cifraRacha" hidden><b id="cRacha">0</b><span>retos seguidos</span></div>
+    </div>
+  </header>
+
+  <main class="contenido">
+    <section id="zonaReto" hidden>
+      <p class="rotulo">Reto del mes</p>
+      <div class="reto" id="reto"></div>
+    </section>
+
+    <p class="rotulo">Subir una foto</p>
+    <form class="subir" id="formSubir" hidden>
+      <div class="campo">
+        <label for="destino">¿De dónde es?</label>
+        <select id="destino" required></select>
+      </div>
+      <label class="soltar" id="soltar">
+        <input type="file" id="archivo" accept="image/jpeg,image/png,image/webp,image/heic,image/heif">
+        <img id="previa" alt="" hidden>
+        <span id="soltarTexto"><strong>Elige una foto</strong><br><small>JPG, PNG o WEBP. Se reduce sola a 2000 px antes de subir.</small></span>
+      </label>
+      <div class="campo">
+        <label for="texto">Cuéntame algo (opcional)</label>
+        <textarea id="texto" maxlength="600" placeholder="Qué buscabas, qué no te convence, qué te gustaría que mirase…"></textarea>
+      </div>
+      <div class="campo">
+        <label for="nombreMuro">Cómo firmas si sale en el muro</label>
+        <input type="text" id="nombreMuro" maxlength="40" placeholder="Tu nombre o @usuario">
+      </div>
+      <label class="check"><input type="checkbox" id="publicable">
+        <span>Si te la comento, puede salir en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro público</a> de Mirar Despacio con tu firma y mi comentario. Puedes quitarla cuando quieras.</span></label>
+      <div class="barra" hidden id="barra"><i></i></div>
+      <div><button class="boton color" id="enviar" type="submit">Subir foto</button></div>
+      <p class="msg" id="msg" role="status"></p>
+    </form>
+    <p class="aviso-fotos" id="sinDestino" hidden>Ahora mismo no hay ninguna salida reciente ni reto abierto. Cuando vengas a una salida, podrás subir aquí tus fotos durante el mes siguiente.</p>
+
+    <p class="rotulo">Tus fotos</p>
+    <div class="fotos" id="fotos"><p class="vacio">Cargando…</p></div>
+  </main>
+
+  <div class="visor" id="visor" hidden><img alt=""></div>
+
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+  (function () {
+    var API = '/.netlify/functions/fotos';
+    var CLOUD = 'https://api.cloudinary.com/v1_1/dybxateci/image/upload';
+    var PRESET = 'cuaderno_fotos';
+    var LADO = 2000;
+    var datos = null, blob = null, medidas = null;
+    var $ = function (id) { return document.getElementById(id); };
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var umami = function (e, d) { try { window.umami && window.umami.track(e, d); } catch (x) {} };
+
+    function token() {
+      var u = netlifyIdentity.currentUser();
+      return u ? u.jwt() : Promise.reject(new Error('sesion'));
+    }
+    function llamar(metodo, cuerpo) {
+      return token().then(function (t) {
+        return fetch(API, { method: metodo, headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+          body: cuerpo ? JSON.stringify(cuerpo) : undefined });
+      }).then(function (r) {
+        if (r.status === 401) { location.replace('/acceso.html?a=cuaderno'); throw new Error('sesion'); }
+        return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.error || 'error'); e.codigo = j.error; throw e; } return j; });
+      });
+    }
+
+    var ERRORES = {
+      'reto-cerrado': 'El reto ya está cerrado.', 'ya-comentada': 'Esa foto ya está comentada y no se puede cambiar.',
+      'max-salida': 'Ya has subido el máximo de fotos de esa salida.', 'demasiadas': 'Tienes muchas fotos esperando comentario. Espera a que te las comente.',
+      'grande': 'La foto ocupa demasiado. Prueba con otra.', 'url': 'No se ha podido subir la foto.', 'no-existe': 'No se ha podido subir la foto.',
+      'tipo': 'Ese archivo no es una imagen.', 'salida': 'Esa salida ya no admite fotos.', 'solo-plus': 'Los retos son para Mirar Despacio+.'
+    };
+
+    function dias(fecha) {
+      var fin = new Date(fecha + 'T23:59:59'); var n = Math.ceil((fin - Date.now()) / 864e5);
+      return n <= 0 ? 'último día' : n === 1 ? 'queda 1 día' : 'quedan ' + n + ' días';
+    }
+
+    function pintar() {
+      var d = datos;
+      $('saludo').textContent = 'Hola, ' + (d.yo.nombre || d.yo.email) + '. ' +
+        (d.yo.plus ? 'Aquí guardas tus fotos del reto y de las salidas. Las comento una a una.' :
+          'Aquí subes tus fotos de las salidas y te las comento una a una.');
+      $('navPlus').hidden = !d.yo.plus; $('navRecursos').hidden = !d.yo.plus;
+      var com = d.mias.filter(function (f) { return f.estado === 'comentada'; }).length;
+      $('cSubidas').textContent = d.mias.length; $('cComentadas').textContent = com;
+      $('cMuro').textContent = d.mias.filter(function (f) { return f.enMuro; }).length;
+      $('cifraRacha').hidden = !d.yo.plus; $('cRacha').textContent = d.racha || 0;
+      $('cifras').hidden = false;
+
+      // Reto
+      var r = d.reto;
+      $('zonaReto').hidden = !r;
+      if (r && r.bloqueado) {
+        $('reto').className = 'reto bloqueado';
+        $('reto').innerHTML = '<p class="etiqueta">Este mes, en Mirar Despacio+</p><h2>' + esc(r.titulo) + '</h2>' +
+          '<p>Cada mes hay un reto para los miembros de Mirar Despacio+: suben su foto, se la comento y las mejores van al muro. Además, plaza asegurada en todas las salidas y todas las herramientas.</p>' +
+          '<div class="pie"><a class="boton color" href="https://mirardespacio.es/mirar-despacio-plus/">Conocer Mirar Despacio+</a></div>';
+      } else if (r) {
+        var mia = d.mias.filter(function (f) { return f.tipo === 'reto' && f.refId === r.id; })[0];
+        $('reto').className = 'reto';
+        $('reto').innerHTML = '<p class="etiqueta">Reto abierto' + (r.cierre ? ' · ' + dias(r.cierre) : '') + '</p><h2>' + esc(r.titulo) + '</h2>' +
+          '<p>' + esc(r.enunciado).replace(/\n/g, '<br>') + '</p>' + (r.pista ? '<p class="pista">' + esc(r.pista) + '</p>' : '') +
+          '<div class="pie"><span>' + (r.participantes === 1 ? '1 foto enviada' : r.participantes + ' fotos enviadas') + '</span>' +
+          (mia ? '<span>✓ Ya has enviado la tuya' + (mia.estado === 'pendiente' ? ' (puedes cambiarla hasta que la comente)' : '') + '</span>' : '<button class="boton color" type="button" id="irReto">Subir mi foto del reto</button>') + '</div>';
+        var b = $('irReto'); if (b) b.onclick = function () { $('destino').value = 'reto:' + r.id; $('formSubir').scrollIntoView({ behavior: 'smooth' }); };
+      }
+
+      // Destinos para subir
+      var ops = [];
+      if (r && !r.bloqueado) {
+        var miaR = d.mias.filter(function (f) { return f.tipo === 'reto' && f.refId === r.id; })[0];
+        if (!miaR || miaR.estado === 'pendiente') ops.push('<option value="reto:' + r.id + '">Reto del mes · ' + esc(r.titulo) + (miaR ? ' (cambiar la mía)' : '') + '</option>');
+      }
+      d.salidas.forEach(function (s) {
+        var n = d.mias.filter(function (f) { return f.refId === s.id; }).length;
+        var f = new Date(s.fecha + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+        ops.push('<option value="salida:' + s.id + '"' + (n >= d.limites.porSalida ? ' disabled' : '') + '>' + esc(s.nombre) + ' · ' + f +
+          (s.zona ? ' · ' + esc(s.zona) : '') + ' (' + n + '/' + d.limites.porSalida + ')</option>');
+      });
+      var sel = $('destino'), antes = sel.value;
+      sel.innerHTML = ops.join('');
+      if (antes && sel.querySelector('option[value="' + antes + '"]:not([disabled])')) sel.value = antes;
+      $('formSubir').hidden = !ops.length; $('sinDestino').hidden = !!ops.length;
+      if (!$('nombreMuro').value) $('nombreMuro').value = d.yo.nombre || '';
+
+      // Mis fotos
+      var cont = $('fotos');
+      if (!d.mias.length) { cont.innerHTML = '<p class="vacio" style="grid-column:1/-1">Aún no has subido ninguna foto. La primera es la que más cuesta.</p>'; return; }
+      cont.innerHTML = d.mias.map(function (f) {
+        var est = f.enMuro ? '<span class="estado muro">' + (f.destacada ? '★ Destacada en el muro' : 'En el muro') + '</span>' :
+          f.estado === 'comentada' ? '<span class="estado comentada">Comentada</span>' : '<span class="estado">Esperando comentario</span>';
+        var acc = [];
+        if (f.estado === 'pendiente') acc.push('<button class="link" data-borrar="' + f.id + '">Borrar</button>');
+        acc.push('<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>');
+        return '<article class="foto"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
+          '<span class="donde">' + (f.tipo === 'reto' ? 'Reto · ' : '') + esc(f.donde) + '</span>' + '<div>' + est + '</div>' +
+          (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
+          (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
+          '<div class="acciones">' + acc.join('') + '</div></div></article>';
+      }).join('');
+    }
+
+    function cargar() {
+      return llamar('GET').then(function (d) { datos = d; pintar(); }).catch(function (e) {
+        if (e.message !== 'sesion') $('saludo').textContent = 'No se ha podido cargar tu cuaderno. Recarga la página.';
+      });
+    }
+
+    // Reducir la foto a 2000 px en el navegador (así nunca sube un archivo enorme)
+    function reducir(file) {
+      return new Promise(function (ok, ko) {
+        var img = new Image(), url = URL.createObjectURL(file);
+        img.onload = function () {
+          var k = Math.min(1, LADO / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement('canvas');
+          c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          c.toBlob(function (b) { b ? ok({ blob: b, ancho: c.width, alto: c.height }) : ko(new Error('formato')); }, 'image/jpeg', 0.86);
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); ko(new Error('formato')); };
+        img.src = url;
+      });
+    }
+
+    $('archivo').addEventListener('change', function () {
+      var f = this.files && this.files[0]; blob = null;
+      $('msg').textContent = ''; $('msg').className = 'msg';
+      if (!f) return;
+      if (f.size > 40 * 1048576) { $('msg').textContent = 'Ese archivo es demasiado grande (más de 40 MB).'; $('msg').className = 'msg error'; return; }
+      $('soltarTexto').innerHTML = '<small>Preparando…</small>';
+      reducir(f).then(function (r) {
+        blob = r.blob; medidas = r;
+        $('previa').src = URL.createObjectURL(r.blob); $('previa').hidden = false;
+        $('soltarTexto').innerHTML = '<small>' + r.ancho + ' × ' + r.alto + ' px · ' + (r.blob.size / 1048576).toFixed(1) + ' MB · toca para cambiarla</small>';
+      }).catch(function () {
+        $('previa').hidden = true;
+        $('soltarTexto').innerHTML = '<strong>Elige una foto</strong>';
+        $('msg').textContent = 'Este navegador no puede leer ese formato. Exporta la foto como JPG y vuelve a probar.'; $('msg').className = 'msg error';
+      });
+    });
+
+    function subirCloudinary(b) {
+      return new Promise(function (ok, ko) {
+        var fd = new FormData(); fd.append('file', b, 'foto.jpg'); fd.append('upload_preset', PRESET);
+        var x = new XMLHttpRequest(); x.open('POST', CLOUD);
+        $('barra').hidden = false;
+        x.upload.onprogress = function (e) { if (e.lengthComputable) $('barra').firstChild.style.width = (e.loaded / e.total * 100) + '%'; };
+        x.onload = function () { try { var j = JSON.parse(x.responseText); j.secure_url ? ok(j) : ko(new Error('url')); } catch (e) { ko(new Error('url')); } };
+        x.onerror = function () { ko(new Error('url')); };
+        x.send(fd);
+      });
+    }
+
+    $('formSubir').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var m = $('msg'); m.className = 'msg';
+      if (!blob) { m.textContent = 'Elige primero una foto.'; m.className = 'msg error'; return; }
+      var v = $('destino').value.split(':');
+      $('enviar').disabled = true; m.textContent = 'Subiendo…';
+      subirCloudinary(blob).then(function (c) {
+        return llamar('POST', { accion: 'subir', tipo: v[0], refId: v[1], url: c.secure_url, ancho: c.width, alto: c.height,
+          texto: $('texto').value, nombreMuro: $('nombreMuro').value, publicable: $('publicable').checked });
+      }).then(function () {
+        umami('cuaderno-subir', { tipo: v[0] });
+        m.textContent = '¡Subida! Te aviso por email cuando la comente.'; m.className = 'msg ok';
+        blob = null; $('archivo').value = ''; $('previa').hidden = true; $('texto').value = '';
+        $('soltarTexto').innerHTML = '<strong>Elige otra foto</strong>';
+        return cargar();
+      }).catch(function (err) {
+        m.textContent = ERRORES[err.codigo || err.message] || 'No se ha podido subir. Prueba otra vez.'; m.className = 'msg error';
+      }).then(function () { $('enviar').disabled = false; $('barra').hidden = true; $('barra').firstChild.style.width = 0; });
+    });
+
+    $('fotos').addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.dataset.borrar) {
+        if (!confirm('¿Borrar esta foto de tu cuaderno?')) return;
+        llamar('POST', { accion: 'borrar', id: t.dataset.borrar }).then(cargar).catch(function () { alert('No se ha podido borrar.'); });
+      } else if (t.dataset.grande) {
+        $('visor').firstChild.src = t.dataset.grande; $('visor').hidden = false;
+      }
+    });
+    $('fotos').addEventListener('change', function (e) {
+      var t = e.target;
+      if (t.dataset.publicable) llamar('POST', { accion: 'publicable', id: t.dataset.publicable, valor: t.checked }).then(cargar);
+    });
+    $('visor').addEventListener('click', function () { this.hidden = true; });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('visor').hidden = true; });
+    $('salir').addEventListener('click', function () { netlifyIdentity.logout(); });
+
+    netlifyIdentity.on('init', function (u) { if (!u) location.replace('/acceso.html?a=cuaderno'); else cargar(); });
+    netlifyIdentity.on('logout', function () { location.replace('/acceso.html'); });
+  })();
+  </script>
+</body>
+</html>

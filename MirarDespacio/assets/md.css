@@ -295,3 +295,21 @@ a.tarjeta:hover { border-color: var(--tinta); transform: translateY(-2px); }
 .ranking li.yo { background: #fbefe4; }
 .ranking .nombre { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .guardado { font-weight: 500; color: var(--rosa); }
+
+/* ---------- Muro ---------- */
+.muro-grid { columns: 3 280px; column-gap: 22px; }
+.muro-foto { break-inside: avoid; margin: 0 0 28px; background: #fff; box-shadow: 0 2px 12px rgba(26,24,20,.07); }
+.muro-foto button { display: block; width: 100%; padding: 0; border: 0; background: var(--papel); cursor: zoom-in; }
+.muro-foto img { display: block; width: 100%; height: auto; }
+.muro-foto figcaption { padding: 14px 16px 18px; display: grid; gap: 2px; }
+.muro-autor { font-weight: 500; }
+.muro-donde { font-size: .85rem; color: var(--gris); }
+.muro-comentario { font-family: var(--f-mano); font-size: 1.35rem; line-height: 1.2; margin-top: 8px; padding-left: 10px; border-left: 3px solid var(--rosa); white-space: pre-line; }
+.muro-foto.destacada { box-shadow: 0 0 0 3px var(--rosa), 0 4px 18px rgba(26,24,20,.1); }
+.muro-destacadas { margin-bottom: 40px; }
+.muro-destacadas .muro-grid { columns: 2 340px; }
+.muro-visor { position: fixed; inset: 0; z-index: 100; background: rgba(20,18,15,.95); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; cursor: zoom-out; color: var(--crema); }
+.muro-visor img { max-width: 100%; max-height: 78vh; object-fit: contain; }
+.muro-visor-texto { max-width: 640px; margin-top: 14px; text-align: center; }
+.muro-visor .muro-donde { color: #b8b1a4; }
+.muro-visor .muro-comentario { border: 0; padding: 0; font-size: 1.5rem; }

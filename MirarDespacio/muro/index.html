@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Zine de fotografía callejera · Mirar Despacio</title>
-  <meta name="description" content="Zine impreso de Mirar Despacio: la primera temporada del podcast de fotografía callejera en 36 páginas de fotos e ideas. A5, grapado, 12 €.">
-  <link rel="canonical" href="https://mirardespacio.es/zine/">
+  <title>El muro · Fotos de la comunidad de Mirar Despacio</title>
+  <meta name="description" content="Fotos de calle de la gente que viene a las salidas de Mirar Despacio en Madrid y de los miembros de Mirar Despacio+, con los comentarios de Otto.">
+  <link rel="canonical" href="https://mirardespacio.es/muro/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Mirar Despacio">
   <meta property="og:locale" content="es_ES">
-  <meta property="og:url" content="https://mirardespacio.es/zine/">
-  <meta property="og:title" content="Zine de fotografía callejera · Mirar Despacio">
-  <meta property="og:description" content="Zine impreso de Mirar Despacio: la primera temporada del podcast de fotografía callejera en 36 páginas de fotos e ideas. A5, grapado, 12 €.">
+  <meta property="og:url" content="https://mirardespacio.es/muro/">
+  <meta property="og:title" content="El muro · Fotos de la comunidad de Mirar Despacio">
+  <meta property="og:description" content="Fotos de calle de la gente que viene a las salidas de Mirar Despacio en Madrid y de los miembros de Mirar Despacio+, con los comentarios de Otto.">
   <meta property="og:image" content="https://res.cloudinary.com/dybxateci/image/upload/f_auto,q_auto,w_1100/v1781522503/calle1_rgx5tu.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f5f3ef">
@@ -58,10 +58,10 @@
       <ul>
         <li><a href="/podcast/">Podcast</a></li>
         <li><a href="/salidas/">Salidas</a></li>
-        <li><a href="/muro/">Muro</a></li>
+        <li><a href="/muro/" aria-current="page">Muro</a></li>
         <li><a href="/talleres/">Talleres</a></li>
         <li><a href="/tutorias/">Tutorías</a></li>
-        <li><a href="/zine/" aria-current="page">Zine</a></li>
+        <li><a href="/zine/">Zine</a></li>
         <li><a href="/juego/">Juego</a></li>
         <li><a href="/mirar-despacio-plus/">Mirar Despacio+</a></li>
       </ul>
@@ -70,18 +70,26 @@
   <main id="contenido">
 
     <section class="portada">
+      <div class="envoltura">
+        <p class="antetitulo">Fotos de la comunidad</p>
+        <h1>El <em>muro.</em></h1>
+        <p class="entradilla">Fotos de la gente que viene a las salidas y de los miembros de Mirar Despacio+. Cada una con lo que vi en ella.</p>
+      </div>
+    </section>
+    <section class="seccion">
+      <div class="envoltura">
+        <div class="muro-destacadas" id="muroDestacadas" hidden>
+          <p class="antetitulo">Destacadas</p>
+          <div class="muro-grid"></div>
+        </div>
+        <div class="muro-grid" id="muro"><p class="aviso">Cargando…</p></div>
+      </div>
+    </section>
+    <section class="seccion papel">
       <div class="envoltura estrecho">
-        <p class="antetitulo">Zine · Temporada 1</p>
-        <h1>El <em>zine.</em></h1>
-        <p class="entradilla">La primera temporada del podcast, en papel. Un zine A5 de 36 páginas, grapado, con fotos de calle y las ideas que más resonaron en los 20 episodios.</p>
-        <ul class="datos" style="max-width:460px;">
-          <li><span>Formato</span><span>A5 · 36 páginas · grapado</span></li>
-          <li><span>Disponibilidad</span><span>Quedan ejemplares</span></li>
-          <li><span>Precio</span><span>12 € en mano en las salidas</span></li>
-        </ul>
-        <p style="margin-top:24px;">Si vienes a una salida te lo llevo en mano y te ahorras el envío. Si no, escríbeme y vemos cómo hacértelo llegar.</p>
-        
-        <div class="botones"><a class="boton" href="mailto:info@mirardespacio.es?subject=Quiero%20un%20zine">Quiero uno</a><a class="boton claro" href="/salidas/">Próxima salida</a></div>
+        <h2>¿Quieres que <em>comente las tuyas?</em></h2>
+        <p>Si vienes a una salida, después te mando un enlace para subir tus fotos favoritas y te digo lo que veo en cada una. Los miembros de Mirar Despacio+ tienen además un reto cada mes.</p>
+        <div class="botones"><a class="boton color" href="/salidas/">Apuntarme a una salida</a><a class="boton claro" href="/mirar-despacio-plus/">Mirar Despacio+</a></div>
       </div>
     </section>
   </main>
@@ -117,5 +125,6 @@
     </div>
   </footer>
   <script src="/assets/md.js?v=7450a926"></script>
+  <script src="/assets/muro.js?v=2cbe16ab"></script>
 </body>
 </html>
