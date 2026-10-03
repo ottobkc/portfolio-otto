@@ -469,16 +469,16 @@ def construir(g):
         <p class="antetitulo">Un descanso</p>
         <h1>El juego del <em>fotógrafo.</em></h1>
         <p class="entradilla">Vas por la calle y no paran de pasar cosas. Hazles la foto cuando entren en el visor o te arrollarán. Cada 15 segundos, un nivel más.</p>
+        <div class="jugador">
+          <label for="jugadorNombre">Tu nombre o tu @ de Instagram</label>
+          <input type="text" id="jugadorNombre" maxlength="24" placeholder="@tu_usuario" autocomplete="nickname" autocapitalize="none" spellcheck="false">
+          <span class="aviso" id="jugadorAviso" hidden>Escríbelo para poder jugar: tu puntuación se guarda sola al terminar.</span>
+        </div>
         <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
         <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles</p>
         <div class="rejilla-2" style="gap:40px;margin-top:20px;align-items:start;">
           <div>
             <p id="juegoResumen" style="min-height:1.6em;margin-top:0;"></p>
-            <form class="formulario" id="rankingForm" hidden style="max-width:380px;">
-              <p style="margin:0;"><strong>¡Has entrado en el top 10 con <span id="rankingPuntos"></span> puntos!</strong> Deja tu usuario de Instagram para salir en la lista.</p>
-              <div><label for="rankingIg">Tu @ de Instagram</label><input type="text" id="rankingIg" placeholder="@tu_usuario" maxlength="31" autocomplete="off" autocapitalize="none"></div>
-              <div><button class="boton color" type="submit">Guardar mi puntuación</button></div>
-            </form>
             <button class="boton" type="button" id="juegoCompartir" hidden style="margin-top:12px;">Retar a alguien</button>
           </div>
           <div>

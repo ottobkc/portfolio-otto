@@ -1,6 +1,7 @@
 // Ranking del juego del fotógrafo (mirardespacio.es/juego/)
 //  GET  -> las 10 mejores puntuaciones (una por usuario de Instagram)
-//  POST {ig, puntos, nivel, segundos} -> guarda la puntuación si es la mejor de ese usuario
+//  POST {nombre, puntos, nivel, segundos} -> guarda la puntuación si es la mejor de ese jugador
+//  (nombre = un nombre o un @ de Instagram; con @ se enlaza a su perfil)
 // Comprueba que la puntuación sea posible para el tiempo jugado, para frenar trampas fáciles.
 // Desde el CRM (pestaña Pegatinas) se pueden borrar entradas.
 const { db, FieldValue } = require('../lib/firestore');
@@ -16,7 +17,7 @@ const cab = (o) => ({
 
 async function top(fs) {
   const q = await fs.collection('ranking').orderBy('puntos', 'desc').limit(10).get();
-  return q.docs.map((d) => ({ ig: d.data().ig, puntos: d.data().puntos, nivel: d.data().nivel }));
+  return q.docs.map((d) => ({ nombre: d.data().nombre || d.data().ig, puntos: d.data().puntos, nivel: d.data().nivel }));
 }
 
 exports.handler = async (event) => {
@@ -30,11 +31,11 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, headers: h, body: '{}' };
 
     const b = JSON.parse(event.body || '{}');
-    const ig = String(b.ig || '').trim().replace(/^@+/, '');
+    const nombre = String(b.nombre || b.ig || '').trim().replace(/\s+/g, ' ').replace(/^@+/, '@');
     const puntos = Math.floor(Number(b.puntos));
     const nivel = Math.floor(Number(b.nivel));
     const segundos = Number(b.segundos);
-    if (!/^[A-Za-z0-9._]{1,30}$/.test(ig)) return { statusCode: 400, headers: h, body: '{"error":"usuario"}' };
+    if (!/^@?[\p{L}\p{N}._ ]{2,24}$/u.test(nombre)) return { statusCode: 400, headers: h, body: '{"error":"nombre"}' };
     // ¿Es posible esa puntuación? Nivel según el tiempo, puntos múltiplos de 5 y con un máximo por segundo.
     const nivelEsperado = 1 + Math.floor(segundos / 15);
     if (!(segundos > 0 && segundos < 7200) || !(puntos > 0) || puntos % 5 !== 0 ||
@@ -42,10 +43,11 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: h, body: '{"error":"puntuacion"}' };
     }
 
-    const ref = fs.collection('ranking').doc(ig.toLowerCase());
+    const clave = nombre.replace(/^@/, '').toLowerCase().replace(/[^\p{L}\p{N}._]+/gu, '_').slice(0, 40);
+    const ref = fs.collection('ranking').doc(clave);
     const actual = await ref.get();
     if (!actual.exists || actual.data().puntos < puntos) {
-      await ref.set({ ig: '@' + ig, puntos, nivel, segundos: Math.round(segundos), fecha: FieldValue.serverTimestamp() });
+      await ref.set({ nombre, puntos, nivel, segundos: Math.round(segundos), fecha: FieldValue.serverTimestamp() });
     }
     return { statusCode: 200, headers: h, body: JSON.stringify(await top(fs)) };
   } catch (e) {

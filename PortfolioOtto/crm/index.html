@@ -486,7 +486,7 @@ function attachListeners() {
     filas.forEach((r, i) => {
       const div = document.createElement('div');
       div.className = 'person-row';
-      div.innerHTML = `<div class="person-main"><div class="person-name">${i + 1}. ${escapeHtml(r.ig || r.id)} · ${r.puntos} puntos</div>
+      div.innerHTML = `<div class="person-main"><div class="person-name">${i + 1}. ${escapeHtml(r.nombre || r.ig || r.id)} · ${r.puntos} puntos</div>
         <div class="person-meta">Nivel ${r.nivel || '?'} · ${r.segundos || '?'} s</div></div>
         <button class="small danger" onclick="borrarRanking('${r.id}')">✕</button>`;
       el.appendChild(div);
