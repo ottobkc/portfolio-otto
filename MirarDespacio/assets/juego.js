@@ -75,7 +75,11 @@
 
   // ---------- Disparo ----------
   function disparar() {
-    if (estado.fase === 'inicio' || estado.fase === 'fin') { empezar(); return; }
+    if (estado.fase === 'inicio' || estado.fase === 'fin') {
+      if (estado.fase === 'fin' && performance.now() - estado.finEn < 1200) return; // evita reiniciar sin querer
+      if (!nombreValido()) { pedirNombre(); return; }
+      empezar(); return;
+    }
     if (estado.fase !== 'jugando' || estado.enfriar > 0) return;
     var v = VISOR(), mejor = null;
     estado.cosas.forEach(function (c) {
@@ -99,9 +103,9 @@
   function flotante(txt, x, y, color) { estado.textos.push({ txt: txt, x: x, y: y, vida: 1, color: color }); }
 
   function empezar() {
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); // que el espacio dispare, no escriba
     nuevo();
     var c = document.getElementById('juegoCompartir'); if (c) c.hidden = true;
-    var fr = document.getElementById('rankingForm'); if (fr) fr.hidden = true;
     estado.fase = 'jugando';
     estado.banner = 1.4;
     if (window.umami) window.umami.track('juego-empezar');
@@ -109,6 +113,7 @@
 
   function terminar() {
     estado.fase = 'fin';
+    estado.finEn = performance.now();
     if (estado.puntos > record) { record = estado.puntos; try { localStorage.setItem('md-juego-record', String(record)); } catch (e) {} }
     var resumen = document.getElementById('juegoResumen');
     if (resumen) {
@@ -267,14 +272,16 @@
       ctx.fillText('Haz la foto cuando algo entre en el visor naranja.', W / 2, H / 2 + 6);
       ctx.fillText('Si te llega sin foto, te golpea. Tienes 3 vidas.', W / 2, H / 2 + 28);
       ctx.fillStyle = C.rosa; ctx.font = '600 15px Jost, system-ui, sans-serif';
-      ctx.fillText(('ontouchstart' in window ? 'Toca' : 'Pulsa espacio o haz clic') + ' para empezar', W / 2, H / 2 + 62);
+      ctx.fillText(nombreValido()
+        ? ('ontouchstart' in window ? 'Toca' : 'Pulsa espacio o haz clic') + ' para empezar'
+        : 'Escribe arriba tu nombre o tu @ para jugar', W / 2, H / 2 + 62);
     } else {
       ctx.font = 'italic ' + Math.min(36, W / 11) + 'px Georgia, serif';
       ctx.fillText(e.puntos + ' puntos', W / 2, H / 2 - 22);
       ctx.font = '400 15px Jost, system-ui, sans-serif'; ctx.fillStyle = C.suave;
       ctx.fillText('Nivel ' + e.nivel + (e.puntos >= record && e.puntos > 0 ? '  ·  ¡Nuevo récord!' : '  ·  Récord ' + record), W / 2, H / 2 + 8);
       ctx.fillStyle = C.rosa; ctx.font = '600 15px Jost, system-ui, sans-serif';
-      ctx.fillText(('ontouchstart' in window ? 'Toca' : 'Pulsa espacio') + ' para volver a jugar', W / 2, H / 2 + 44);
+      ctx.fillText(performance.now() - e.finEn < 1200 ? '' : ('ontouchstart' in window ? 'Toca' : 'Pulsa espacio') + ' para volver a jugar', W / 2, H / 2 + 44);
     }
   }
 
@@ -358,48 +365,78 @@
     }
   }
 
-  // ---------- Ranking (top 10) ----------
+  // ---------- Jugador y ranking (top 10) ----------
   var API = 'https://ottokols.es/.netlify/functions/ranking';
   var lista = document.getElementById('rankingLista');
-  var formR = document.getElementById('rankingForm');
+  var campo = document.getElementById('jugadorNombre');
+  var aviso = document.getElementById('jugadorAviso');
+  var resumenEl = document.getElementById('juegoResumen');
   var ranking = [];
-  function pintarRanking() {
+  var NOMBRE_OK = /^@?[\p{L}\p{N}._ ]{2,24}$/u;
+  try { if (campo) campo.value = localStorage.getItem('md-juego-nombre') || localStorage.getItem('md-juego-ig') || ''; } catch (e) {}
+  function jugador() { return campo ? campo.value.trim().replace(/\s+/g, ' ') : ''; }
+  function nombreValido() { return NOMBRE_OK.test(jugador()); }
+  function pedirNombre() {
+    if (!campo) return;
+    campo.focus();
+    campo.classList.add('falta');
+    if (aviso) aviso.hidden = false;
+    setTimeout(function () { campo.classList.remove('falta'); }, 900);
+  }
+  if (campo) campo.addEventListener('input', function () {
+    if (aviso) aviso.hidden = true;
+    try { localStorage.setItem('md-juego-nombre', jugador()); } catch (e) {}
+  });
+  if (campo) campo.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); campo.blur(); if (nombreValido()) empezar(); else pedirNombre(); }
+  });
+
+  function textoNombre(r) { return String(r.nombre || r.ig || ''); }
+  function pintarRanking(resaltar) {
     if (!lista) return;
     if (!ranking.length) { lista.innerHTML = '<li class="aviso">Todavía no hay nadie. Sé el primero.</li>'; return; }
     lista.innerHTML = ranking.map(function (r, i) {
-      var ig = String(r.ig || '').replace(/[^@A-Za-z0-9._]/g, '');
-      return '<li><span class="pos">' + (i + 1) + '</span><a href="https://instagram.com/' + ig.replace('@', '') + '" target="_blank" rel="noopener nofollow">' + ig + '</a><span class="pts">' + r.puntos + '</span></li>';
+      var n = textoNombre(r);
+      var limpio = n.replace(/[<>&"]/g, '');
+      var esIg = /^@[A-Za-z0-9._]{1,30}$/.test(n);
+      var nombreHtml = esIg ? '<a href="https://instagram.com/' + n.slice(1) + '" target="_blank" rel="noopener nofollow">' + limpio + '</a>' : '<span class="nombre">' + limpio + '</span>';
+      var yo = resaltar && n.toLowerCase() === resaltar.toLowerCase() ? ' class="yo"' : '';
+      return '<li' + yo + '><span class="pos">' + (i + 1) + '</span>' + nombreHtml + '<span class="pts">' + r.puntos + '</span></li>';
     }).join('');
   }
   function cargarRanking() {
     fetch(API).then(function (r) { return r.json(); }).then(function (d) { if (Array.isArray(d)) { ranking = d; pintarRanking(); } }).catch(function () {});
   }
   cargarRanking();
-  // ¿Entra en el top 10?
-  function entraEnTop(p) { return p > 0 && (ranking.length < 10 || p > ranking[ranking.length - 1].puntos); }
+
+  // Al terminar, la puntuación se guarda sola con el nombre del jugador
   var finAntes = terminar;
   terminar = function () {
     finAntes();
-    if (formR && entraEnTop(estado.puntos)) {
-      formR.hidden = false;
-      document.getElementById('rankingPuntos').textContent = estado.puntos;
-      var guardado = '';
-      try { guardado = localStorage.getItem('md-juego-ig') || ''; } catch (e) {}
-      if (guardado) document.getElementById('rankingIg').value = guardado;
-    }
-  };
-  if (formR) formR.addEventListener('submit', function (ev) {
-    ev.preventDefault();
-    var ig = document.getElementById('rankingIg').value.trim().replace(/^@+/, '');
-    if (!/^[A-Za-z0-9._]{1,30}$/.test(ig)) { alert('Escribe tu usuario de Instagram (solo letras, números, puntos y guiones bajos).'); return; }
-    var btn = formR.querySelector('button'); btn.disabled = true;
-    try { localStorage.setItem('md-juego-ig', ig); } catch (e) {}
+    var quien = jugador(), pts = estado.puntos;
+    if (!pts || !nombreValido()) return;
+    var linea = document.createElement('span');
+    linea.className = 'guardado';
+    linea.textContent = ' Guardando puntuación…';
+    if (resumenEl) resumenEl.appendChild(linea);
     fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ig: ig, puntos: estado.puntos, nivel: estado.nivel, segundos: estado.t }) })
+      body: JSON.stringify({ nombre: quien, puntos: pts, nivel: estado.nivel, segundos: estado.t }) })
       .then(function (r) { return r.json(); })
-      .then(function (d) { if (Array.isArray(d)) { ranking = d; pintarRanking(); } formR.hidden = true; btn.disabled = false; if (window.umami) window.umami.track('juego-ranking'); })
-      .catch(function () { btn.disabled = false; alert('No se ha podido guardar. Prueba otra vez.'); });
-  });
+      .then(function (d) {
+        if (!Array.isArray(d)) throw d;
+        ranking = d;
+        var clave = quien.replace(/^@+/, '').toLowerCase();
+        var puesto = -1;
+        d.forEach(function (r, i) { if (textoNombre(r).replace(/^@+/, '').toLowerCase() === clave) puesto = i + 1; });
+        var mia = puesto > 0 ? d[puesto - 1] : null;
+        linea.textContent = puesto > 0
+          ? (mia.puntos === pts ? ' ¡Entras en el top 10, puesto ' + puesto + '!' : ' Tu mejor marca sigue en el puesto ' + puesto + '.')
+          : ' Esta vez no entras en el top 10.';
+        pintarRanking(puesto > 0 ? textoNombre(mia) : null);
+        if (window.umami && puesto > 0) window.umami.track('juego-top10', { puesto: puesto });
+      })
+      .catch(function () { linea.textContent = ' No se ha podido guardar la puntuación.'; });
+  };
 
   // ---------- Controles ----------
   window.addEventListener('keydown', function (ev) {
