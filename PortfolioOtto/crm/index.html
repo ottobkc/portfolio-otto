@@ -253,6 +253,7 @@
     <div class="tab" data-tab="personas">Personas</div>
     <div class="tab" data-tab="accesos">Accesos</div>
     <div class="tab" data-tab="pegatinas">Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></div>
+    <div class="tab" data-tab="juego">Juego</div>
     <div class="tab" data-tab="exportar">Exportar</div>
   </div>
 
@@ -359,9 +360,25 @@
     </div>
     <div class="card-title" style="margin-top:18px;">Todas las pegatinas</div>
     <div id="pegatinasTodas"></div>
-    <div class="card-title" style="margin-top:18px;">Ranking del juego (mirardespacio.es/juego)</div>
-    <div class="person-meta" style="margin-bottom:8px;">Si alguien pone un usuario ofensivo o una puntuación sospechosa, bórrala.</div>
+
+  </div>
+
+  <!-- JUEGO VIEW (mirardespacio.es/juego) -->
+  <div class="view" id="view-juego">
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="juegoJugadores">0</div><div class="stat-label">jugadores</div></div>
+        <div class="stat-box"><div class="stat-num" id="juegoPartidas">0</div><div class="stat-label">partidas</div></div>
+        <div class="stat-box"><div class="stat-num" id="juegoHoy">0</div><div class="stat-label">jugaron hoy</div></div>
+        <div class="stat-box"><div class="stat-num" id="juegoSemana">0</div><div class="stat-label">últimos 7 días</div></div>
+      </div>
+    </div>
+    <div class="card-title">Ranking (top 30)</div>
+    <div class="person-meta" style="margin-bottom:8px;">Si alguien pone un nombre ofensivo o una puntuación sospechosa, bórrala del ranking.</div>
     <div id="rankingCRM"></div>
+    <div class="card-title" style="margin-top:18px;">Jugadores (los últimos primero)</div>
+    <input type="text" id="buscarJugador" placeholder="Buscar jugador…" oninput="renderJugadores()">
+    <div id="jugadoresCRM"></div>
   </div>
 
   <!-- EXPORTAR VIEW -->
@@ -479,6 +496,10 @@ function attachListeners() {
     accesos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderAccesos();
   }, () => {});
+  onSnapshot(collection(db, 'jugadores'), (snap) => {
+    jugadores = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderJugadores();
+  }, () => {});
   onSnapshot(collection(db, 'ranking'), (snap) => {
     const el = document.getElementById('rankingCRM');
     const filas = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.puntos - a.puntos).slice(0, 30);
@@ -521,6 +542,31 @@ window.showTab = function(name) {
 };
 
 // ---------- PEGATINAS ----------
+let jugadores = [];
+window.renderJugadores = function() {
+  const el = document.getElementById('jugadoresCRM');
+  if (!el) return;
+  const ahora = Date.now(), dia = 864e5;
+  const fecha = (j) => fechaDe(j.ultimaVez) || new Date(0);
+  document.getElementById('juegoJugadores').textContent = jugadores.length;
+  document.getElementById('juegoPartidas').textContent = jugadores.reduce((n, j) => n + (j.partidas || 0), 0);
+  document.getElementById('juegoHoy').textContent = jugadores.filter(j => fecha(j).toDateString() === new Date().toDateString()).length;
+  document.getElementById('juegoSemana').textContent = jugadores.filter(j => ahora - fecha(j) < 7 * dia).length;
+  const q = (document.getElementById('buscarJugador').value || '').toLowerCase();
+  const lista = jugadores.filter(j => (j.nombre || '').toLowerCase().includes(q)).sort((a, b) => fecha(b) - fecha(a));
+  el.innerHTML = lista.length ? '' : '<div class="empty">Nadie ha jugado todavía</div>';
+  lista.slice(0, 200).forEach(j => {
+    const esIg = /^@[A-Za-z0-9._]{1,30}$/.test(j.nombre || '');
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main">
+      <div class="person-name">${esIg ? `<a href="https://instagram.com/${(j.nombre || '').slice(1)}" target="_blank" rel="noopener" style="color:inherit">${escapeHtml(j.nombre)}</a>` : escapeHtml(j.nombre || j.id)}</div>
+      <div class="person-meta">${j.partidas || 0} partida(s) · mejor ${j.mejor || 0} puntos · nivel máx. ${j.nivelMax || 1} · última vez ${fechaTxt(fechaDe(j.ultimaVez))}</div>
+    </div>`;
+    el.appendChild(div);
+  });
+};
+
 window.borrarRanking = async function(id) {
   if (!confirm('¿Borrar esta puntuación del ranking?')) return;
   try { await deleteDoc(doc(db, 'ranking', id)); setSyncStatus('Borrado'); } catch (err) { setSyncStatus('Error: ' + err.message, true); }

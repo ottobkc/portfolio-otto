@@ -427,7 +427,12 @@
   terminar = function () {
     finAntes();
     var quien = jugador(), pts = estado.puntos;
-    if (!pts || !nombreValido()) return;
+    if (!nombreValido()) return;
+    if (!pts) { // también se apuntan las partidas de 0 puntos (para saber cuánta gente juega)
+      fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: quien, puntos: 0, nivel: estado.nivel, segundos: estado.t }) }).catch(function () {});
+      return;
+    }
     var linea = document.createElement('span');
     linea.className = 'guardado';
     linea.textContent = ' Guardando puntuación…';
