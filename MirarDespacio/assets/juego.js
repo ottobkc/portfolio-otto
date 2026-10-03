@@ -436,17 +436,18 @@
       body: JSON.stringify({ nombre: quien, puntos: pts, nivel: estado.nivel, segundos: estado.t }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (!Array.isArray(d)) throw d;
-        ranking = d;
-        var clave = quien.replace(/^@+/, '').toLowerCase();
-        var puesto = -1;
-        d.forEach(function (r, i) { if (textoNombre(r).replace(/^@+/, '').toLowerCase() === clave) puesto = i + 1; });
-        var mia = puesto > 0 ? d[puesto - 1] : null;
-        linea.textContent = puesto > 0
-          ? (mia.puntos === pts ? ' ¡Entras en el top 10, puesto ' + puesto + '!' : ' Tu mejor marca sigue en el puesto ' + puesto + '.')
-          : ' Esta vez no entras en el top 10.';
-        pintarRanking(puesto > 0 ? textoNombre(mia) : null);
-        if (window.umami && puesto > 0) window.umami.track('juego-top10', { puesto: puesto });
+        if (!d || !Array.isArray(d.top)) throw d;
+        ranking = d.top;
+        var fmt = function (n) { return Number(n).toLocaleString('es-ES'); };
+        var enTop = d.puesto <= 10;
+        var txt = enTop
+          ? ' ¡Entras en el top 10, puesto ' + d.puesto + '!'
+          : ' Tu puntuación queda en el puesto ' + fmt(d.puesto) + ' de ' + fmt(d.total) + ' jugadores.';
+        if (d.mejor > pts) txt += ' Tu mejor marca (' + fmt(d.mejor) + ') sigue en el puesto ' + fmt(d.puestoMejor) + '.';
+        else if (!enTop && d.puesto > 10) txt += ' Te faltan ' + fmt(ranking.length ? ranking[ranking.length - 1].puntos - pts + 5 : 0) + ' puntos para el top 10.';
+        linea.textContent = txt;
+        pintarRanking(d.puestoMejor <= 10 ? quien : null);
+        if (window.umami) window.umami.track('juego-puesto', { puesto: d.puesto });
       })
       .catch(function () { linea.textContent = ' No se ha podido guardar la puntuación.'; });
   };
