@@ -17,6 +17,10 @@
   node_bundler = "esbuild"
   external_node_modules = ["firebase-admin"]
 
+# Copia de seguridad del CRM: cada lunes a las 6:00 UTC
+[functions."copia-seguridad"]
+  schedule = "0 6 * * 1"
+
 # -----------------------------------------------
 # HEADERS /members/ — sin indexar
 # -----------------------------------------------

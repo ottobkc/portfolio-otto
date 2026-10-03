@@ -439,6 +439,11 @@
       <button class="secondary" onclick="downloadCSV()">Descargar CSV (personas + asistencia)</button>
     </div>
     <div class="card">
+      <div class="card-title">Copia de seguridad</div>
+      <button class="secondary" onclick="descargarCopia()">Descargar copia completa (JSON)</button>
+      <div class="person-meta" id="copiaInfo">Todos los datos del CRM en un archivo. Además, cada lunes te llega una copia por correo.</div>
+    </div>
+    <div class="card">
       <button class="danger" style="width:100%;" onclick="doLogout()">Cerrar sesión</button>
     </div>
   </div>
@@ -452,7 +457,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc,
-  query, orderBy, limit, where, updateDoc, serverTimestamp
+  query, orderBy, limit, where, updateDoc, serverTimestamp, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1392,6 +1397,35 @@ window.copyExport = function() {
   document.execCommand('copy');
   document.getElementById('copyHint').textContent = 'Copiado ✓';
   setTimeout(() => document.getElementById('copyHint').textContent = '', 2000);
+};
+
+// ---------- COPIA DE SEGURIDAD ----------
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores'];
+function limpiarDato(v) {
+  if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
+  if (Array.isArray(v)) return v.map(limpiarDato);
+  if (v && typeof v === 'object') { const o = {}; for (const k of Object.keys(v)) o[k] = limpiarDato(v[k]); return o; }
+  return v;
+}
+window.descargarCopia = async function() {
+  const info = document.getElementById('copiaInfo');
+  info.textContent = 'Preparando copia…';
+  const datos = { creada: new Date().toISOString(), proyecto: 'mirardespaciocrm', colecciones: {} };
+  const resumen = [];
+  try {
+    for (const c of COLECCIONES) {
+      const snap = await getDocs(collection(db, c));
+      datos.colecciones[c] = snap.docs.map(d => ({ id: d.id, ...limpiarDato(d.data()) }));
+      resumen.push(c + ': ' + snap.size);
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(datos, null, 1)], { type: 'application/json' }));
+    a.download = 'crm-mirardespacio-' + datos.creada.slice(0, 10) + '.json';
+    a.click();
+    info.textContent = 'Copia descargada ✓ (' + resumen.join(' · ') + ')';
+  } catch (err) {
+    info.textContent = 'Error: ' + err.message;
+  }
 };
 
 window.downloadCSV = function() {

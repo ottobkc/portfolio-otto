@@ -30,7 +30,7 @@ function esc(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-async function enviar({ para, asunto, html, texto, responderA }) {
+async function enviar({ para, asunto, html, texto, responderA, adjuntos }) {
   const t = smtp();
   if (!t) return false;
   await t.sendMail({
@@ -40,6 +40,7 @@ async function enviar({ para, asunto, html, texto, responderA }) {
     subject: asunto,
     html,
     text: texto,
+    attachments: adjuntos || undefined,
   });
   return true;
 }
