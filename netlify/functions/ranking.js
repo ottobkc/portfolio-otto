@@ -1,6 +1,7 @@
 // Ranking del juego del fotógrafo (mirardespacio.es/juego/)
 //  GET  -> las 10 mejores puntuaciones (una por usuario de Instagram)
-//  POST {nombre, puntos, nivel, segundos} -> guarda la puntuación si es la mejor de ese jugador
+//  POST {nombre, puntos, nivel, segundos} -> guarda la puntuación si es la mejor de ese jugador y
+//       devuelve {top, puesto, total, mejor, puestoMejor} (puesto de esta partida entre todos los jugadores)
 //  (nombre = un nombre o un @ de Instagram; con @ se enlaza a su perfil)
 // Comprueba que la puntuación sea posible para el tiempo jugado, para frenar trampas fáciles.
 // Desde el CRM (pestaña Pegatinas) se pueden borrar entradas.
@@ -46,10 +47,20 @@ exports.handler = async (event) => {
     const clave = nombre.replace(/^@/, '').toLowerCase().replace(/[^\p{L}\p{N}._]+/gu, '_').slice(0, 40);
     const ref = fs.collection('ranking').doc(clave);
     const actual = await ref.get();
-    if (!actual.exists || actual.data().puntos < puntos) {
+    const anterior = actual.exists ? actual.data().puntos : 0;
+    if (puntos > anterior) {
       await ref.set({ nombre, puntos, nivel, segundos: Math.round(segundos), fecha: FieldValue.serverTimestamp() });
     }
-    return { statusCode: 200, headers: h, body: JSON.stringify(await top(fs)) };
+    const col = fs.collection('ranking');
+    const porEncima = async (p) => (await col.where('puntos', '>', p).count().get()).data().count;
+    const mejor = Math.max(puntos, anterior);
+    const [puesto, puestoMejor, total, lista] = await Promise.all([
+      porEncima(puntos).then((n) => n + 1),
+      porEncima(mejor).then((n) => n + 1),
+      col.count().get().then((r) => r.data().count),
+      top(fs),
+    ]);
+    return { statusCode: 200, headers: h, body: JSON.stringify({ top: lista, puesto, total, mejor, puestoMejor }) };
   } catch (e) {
     console.error('ranking', e);
     return { statusCode: 500, headers: h, body: '{"error":"servidor"}' };
