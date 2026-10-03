@@ -120,7 +120,7 @@ def escribir(ruta, contenido):
     if ruta == '/':
         destino = os.path.join(RAIZ, 'index.html')
     os.makedirs(os.path.dirname(destino), exist_ok=True)
-    for js in ('pegatinas.js', 'galerias.js', 'talleres.js'):
+    for js in ('pegatinas.js', 'galerias.js', 'talleres.js', 'juego.js'):
         contenido = contenido.replace('"/assets/' + js + '"', '"' + v(js) + '"')
     open(destino, 'w').write(contenido)
     print('✓', ruta)

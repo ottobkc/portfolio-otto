@@ -612,7 +612,38 @@ def construir(g):
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
         'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: retos mensuales, prioridad en las salidas por Madrid, feedback de tus fotos y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
 
-    # ------------------------------------------------------------ 404
+    # ------------------------------------------------------------ JUEGO
+    cuerpo = """
+    <section class="portada">
+      <div class="envoltura">
+        <p class="antetitulo">Un descanso</p>
+        <h1>El juego del <em>fotógrafo.</em></h1>
+        <p class="entradilla">Vas por la calle y no paran de pasar cosas. Hazles la foto cuando entren en el visor o te arrollarán. Cada 15 segundos, un nivel más.</p>
+        <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
+        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles</p>
+        <div class="rejilla-2" style="gap:40px;margin-top:20px;align-items:start;">
+          <div>
+            <p id="juegoResumen" style="min-height:1.6em;margin-top:0;"></p>
+            <form class="formulario" id="rankingForm" hidden style="max-width:380px;">
+              <p style="margin:0;"><strong>¡Has entrado en el top 10 con <span id="rankingPuntos"></span> puntos!</strong> Deja tu usuario de Instagram para salir en la lista.</p>
+              <div><label for="rankingIg">Tu @ de Instagram</label><input type="text" id="rankingIg" placeholder="@tu_usuario" maxlength="31" autocomplete="off" autocapitalize="none"></div>
+              <div><button class="boton color" type="submit">Guardar mi puntuación</button></div>
+            </form>
+            <button class="boton" type="button" id="juegoCompartir" hidden style="margin-top:12px;">Retar a alguien</button>
+          </div>
+          <div>
+            <p class="antetitulo">Top 10</p>
+            <ol class="ranking" id="rankingLista"><li class="aviso">Cargando…</li></ol>
+          </div>
+        </div>
+        <div class="botones"><a class="boton color" href="/salidas/">Ahora, en la calle de verdad</a><a class="boton claro" href="/">Volver al inicio</a></div>
+      </div>
+    </section>"""
+    escribir('/juego/', pagina('/juego/', 'El juego del fotógrafo · Mirar Despacio',
+        'Un pequeño juego de Mirar Despacio: un fotógrafo camina por la calle y tiene que fotografiar todo lo que pasa antes de que le arrolle.',
+        cuerpo, extra_pie=JUEGO_JS))
+
+
     cuerpo = '''
     <section class="portada">
       <div class="envoltura estrecho">
@@ -620,6 +651,7 @@ def construir(g):
         <h1>Esta página <em>no existe.</em></h1>
         <p class="entradilla">A veces lo interesante está fuera del encuadre. Prueba por aquí:</p>
         <div class="botones"><a class="boton" href="/">Inicio</a><a class="boton claro" href="/salidas/">Salidas</a><a class="boton claro" href="/podcast/">Podcast</a></div>
+        <p style="margin-top:28px;"><span class="nota" style="font-size:1.35rem;">o, ya que estás,</span> <a href="/juego/">echa una partida al juego del fotógrafo</a>.</p>
       </div>
     </section>'''
     escribir('/404', pagina('/404', 'Página no encontrada · Mirar Despacio', 'Esta página no existe.', cuerpo))
@@ -627,6 +659,8 @@ def construir(g):
 
 TALLERES_JS = '''
   <script src="/assets/talleres.js"></script>'''
+JUEGO_JS = '''
+  <script src="/assets/juego.js"></script>'''
 
 MAPA_JS = '''
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>

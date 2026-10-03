@@ -360,6 +360,9 @@
     </div>
     <div class="card-title" style="margin-top:18px;">Todas las pegatinas</div>
     <div id="pegatinasTodas"></div>
+    <div class="card-title" style="margin-top:18px;">Ranking del juego (mirardespacio.es/juego)</div>
+    <div class="person-meta" style="margin-bottom:8px;">Si alguien pone un usuario ofensivo o una puntuación sospechosa, bórrala.</div>
+    <div id="rankingCRM"></div>
   </div>
 
   <!-- INGRESOS VIEW (control de ingresos y gastos) -->
@@ -517,6 +520,19 @@ function attachListeners() {
   unsubAccesos = onSnapshot(query(collection(db, 'accesos'), orderBy('fecha', 'desc'), limit(300)), (snap) => {
     accesos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderAccesos();
+  }, () => {});
+  onSnapshot(collection(db, 'ranking'), (snap) => {
+    const el = document.getElementById('rankingCRM');
+    const filas = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.puntos - a.puntos).slice(0, 30);
+    el.innerHTML = filas.length ? '' : '<div class="empty">Nadie ha jugado todavía</div>';
+    filas.forEach((r, i) => {
+      const div = document.createElement('div');
+      div.className = 'person-row';
+      div.innerHTML = `<div class="person-main"><div class="person-name">${i + 1}. ${escapeHtml(r.ig || r.id)} · ${r.puntos} puntos</div>
+        <div class="person-meta">Nivel ${r.nivel || '?'} · ${r.segundos || '?'} s</div></div>
+        <button class="small danger" onclick="borrarRanking('${r.id}')">✕</button>`;
+      el.appendChild(div);
+    });
   }, () => {});
   unsubPegatinas = onSnapshot(collection(db, 'pegatinas'), (snap) => {
     pegatinas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -686,6 +702,10 @@ window.renderBonos = function() {
 };
 
 // ---------- PEGATINAS ----------
+window.borrarRanking = async function(id) {
+  if (!confirm('¿Borrar esta puntuación del ranking?')) return;
+  try { await deleteDoc(doc(db, 'ranking', id)); setSyncStatus('Borrado'); } catch (err) { setSyncStatus('Error: ' + err.message, true); }
+};
 window.aprobarFoto = async function(id, valor) {
   setSyncStatus('Guardando…');
   try { await updateDoc(doc(db, 'pegatinas', id), { fotoAprobada: valor }); setSyncStatus('Guardado'); }
