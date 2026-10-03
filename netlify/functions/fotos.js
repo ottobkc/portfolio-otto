@@ -59,14 +59,21 @@ async function porClave(fs, clave) {
   };
 }
 
-// Con enlace: primero las salidas a las que se apuntó; si no hay ninguna, todas las recientes
+// Solo las salidas recientes a las que esa persona estaba apuntada en el CRM (no en lista de espera).
+// Así, quien tiene MD+ online y no viene a salidas no ve nada de salidas.
 async function salidasDe(fs, yo) {
-  const todas = await salidasRecientes(fs);
-  if (!yo.porEnlace) return todas;
-  const q = await fs.collection('signups').where('personId', '==', yo.personaId).get();
+  let personaId = yo.personaId;
+  if (!personaId) {
+    const variantes = Array.from(new Set([yo.email, yo.emailOriginal].filter(Boolean)));
+    const q = await fs.collection('people').where('email', 'in', variantes).limit(1).get();
+    if (q.empty) return [];
+    personaId = q.docs[0].id;
+  }
+  const [todas, q] = await Promise.all([
+    salidasRecientes(fs), fs.collection('signups').where('personId', '==', personaId).get(),
+  ]);
   const suyas = new Set(q.docs.map((d) => d.data()).filter((x) => x.status !== 'espera').map((x) => x.eventId));
-  const propias = todas.filter((s) => suyas.has(s.id));
-  return propias.length ? propias : todas;
+  return todas.filter((s) => suyas.has(s.id));
 }
 
 async function salidasRecientes(fs) {
@@ -147,6 +154,8 @@ exports.handler = async (event, context) => {
       return res(h, 200, {
         yo: { nombre: yo.nombre, nombreCorto: yo.nombreCorto || (yo.nombre || '').split(' ')[0], email: yo.email, plus: yo.plus, porEnlace: !!yo.porEnlace },
         reto: yo.plus ? reto : reto && { titulo: reto.titulo, bloqueado: true },
+        historial: yo.plus ? lista.filter((r) => r.inicio && r.inicio <= hoy())
+          .map((r) => ({ id: r.id, titulo: r.titulo, inicio: r.inicio, cierre: r.cierre || '', abierto: retoAbierto(r) })) : [],
         salidas,
         mias: mias.sort((a, b) => ms(b.creada) - ms(a.creada)).map((f) => ({
           id: f.id, tipo: f.tipo, refId: f.refId, donde: f.refNombre || nombres[f.refId] || '', url: mini(f.url, 900),

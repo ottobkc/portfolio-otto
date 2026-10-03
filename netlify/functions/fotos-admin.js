@@ -18,6 +18,7 @@ const { tarjeta, aTexto } = require('../lib/plantillas-salida');
 // La misma cuenta que tiene permiso en las reglas de Firestore (crm/firestore.rules)
 const ADMIN = (process.env.CRM_ADMIN || 'ottobkc@gmail.com').toLowerCase();
 const CUADERNO = 'https://ottokols.es/cuaderno/';
+const RETOS = 'https://ottokols.es/retos/';
 const MURO = 'https://mirardespacio.es/muro/';
 const SUBIR = 'https://ottokols.es/subir/?c=';
 
@@ -52,10 +53,13 @@ function correoComentario(f) {
   const html = tarjeta({
     titulo: 'Te he comentado una foto · Mirar Despacio',
     nombre: (f.nombreCuenta || f.nombreMuro || '').split(' ')[0],
-    intro: [`He visto la foto que subiste${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''} y te he dejado un comentario.`],
+    intro: [f.tipo === 'reto'
+      ? `He visto tu foto para el reto <em>${esc(f.refNombre || '')}</em> y te he dejado un comentario.`
+      : `He visto la foto que subiste${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''} y te he dejado un comentario.`],
     filas: [['💬', esc(f.comentario).replace(/\n/g, '<br>')]],
     calendario: null,
-    boton: { url: f.enlace || CUADERNO, texto: f.enlace ? 'Ver el comentario' : 'Ver tu cuaderno', antes: '' },
+    boton: f.tipo === 'reto' ? { url: RETOS, texto: 'Ver el comentario', antes: '' }
+      : { url: f.enlace || CUADERNO, texto: 'Ver el comentario', antes: '' },
     cuerpo: [
       enMuro
         ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde tu cuaderno.`

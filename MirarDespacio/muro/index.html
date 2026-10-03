@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Jost:wght@300;400;500&display=swap">
-  <link rel="stylesheet" href="/assets/md.css?v=800a476b">
+  <link rel="stylesheet" href="/assets/md.css?v=5138c6d7">
   <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -73,11 +73,14 @@
       <div class="envoltura">
         <p class="antetitulo">Fotos de la comunidad</p>
         <h1>El <em>muro.</em></h1>
-        <p class="entradilla">Fotos de la gente que viene a las salidas y de los miembros de Mirar Despacio+. Cada una con lo que vi en ella.</p>
+        <p class="entradilla">Fotos de la gente que viene a las salidas por Madrid y de los retos mensuales de Mirar Despacio+, que se hacen desde cualquier sitio. Cada una con lo que vi en ella.</p>
       </div>
     </section>
     <section class="seccion">
       <div class="envoltura">
+        <div class="muro-filtros" id="muroFiltros" hidden>
+          <button type="button" data-f="" aria-pressed="true">Todas</button><button type="button" data-f="salida" aria-pressed="false">Salidas</button><button type="button" data-f="reto" aria-pressed="false">Retos del mes</button>
+        </div>
         <div class="muro-destacadas" id="muroDestacadas" hidden>
           <p class="antetitulo">Destacadas</p>
           <div class="muro-grid"></div>
@@ -88,7 +91,7 @@
     <section class="seccion papel">
       <div class="envoltura estrecho">
         <h2>¿Quieres que <em>comente las tuyas?</em></h2>
-        <p>Si vienes a una salida, después te mando un enlace para subir tus fotos favoritas y te digo lo que veo en cada una. Los miembros de Mirar Despacio+ tienen además un reto cada mes.</p>
+        <p>Si vienes a una salida, después te mando un enlace para subir tus fotos favoritas y te digo lo que veo en cada una. Y si no vives en Madrid, con Mirar Despacio+ tienes un reto cada mes que puedes hacer desde donde estés.</p>
         <div class="botones"><a class="boton color" href="/salidas/">Apuntarme a una salida</a><a class="boton claro" href="/mirar-despacio-plus/">Mirar Despacio+</a></div>
       </div>
     </section>
@@ -125,6 +128,6 @@
     </div>
   </footer>
   <script src="/assets/md.js?v=7450a926"></script>
-  <script src="/assets/muro.js?v=2cbe16ab"></script>
+  <script src="/assets/muro.js?v=22613daa"></script>
 </body>
 </html>

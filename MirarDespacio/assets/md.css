@@ -313,3 +313,6 @@ a.tarjeta:hover { border-color: var(--tinta); transform: translateY(-2px); }
 .muro-visor-texto { max-width: 640px; margin-top: 14px; text-align: center; }
 .muro-visor .muro-donde { color: #b8b1a4; }
 .muro-visor .muro-comentario { border: 0; padding: 0; font-size: 1.5rem; }
+.muro-filtros { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.muro-filtros button { border: 1px solid var(--linea); background: transparent; padding: 8px 16px; border-radius: 999px; font: inherit; font-size: .9rem; cursor: pointer; color: var(--tinta-suave); }
+.muro-filtros button[aria-pressed="true"] { background: var(--tinta); color: var(--crema); border-color: var(--tinta); }

@@ -17,6 +17,7 @@ function usuarioDe(context) {
   return {
     id: u.sub,
     email: (u.email || '').toLowerCase(),
+    emailOriginal: u.email || '',
     nombre: (u.user_metadata && u.user_metadata.full_name) || '',
     roles,
     plus: roles.includes('member') || roles.includes('admin'),

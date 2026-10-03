@@ -299,11 +299,14 @@
     }
     .cheatlist-card:hover .launch-arrow { opacity: 1; transform: translateX(0); }
 
+    [hidden] { display: none !important; }
     .reto-banner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1px; margin-bottom: 3.5rem; }
     .reto-banner > a { padding: 1.9rem; display: block; position: relative; }
     .reto-banner .rb-reto { background: var(--ink); color: var(--bg); }
     .reto-banner .rb-reto::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); }
     .reto-banner .rb-cuaderno { background: var(--bg2); }
+    .reto-banner .rb-salidas { grid-column: 1 / -1; padding: 1.2rem 1.9rem; }
+    .reto-banner .rb-salidas h3 { font-size: 1.15rem; }
     .reto-banner small { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
     .reto-banner .rb-cuaderno small { color: var(--md-orange); }
     .reto-banner h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.5rem; margin: .4rem 0 .5rem; }
@@ -344,17 +347,23 @@
 
     <!-- ── Reto del mes y cuaderno ── -->
     <div class="reto-banner">
-      <a href="/cuaderno/" class="rb-reto" id="rbReto">
+      <a href="/retos/" class="rb-reto" id="rbReto">
         <small id="rbEtiqueta">Reto del mes</small>
         <h3 id="rbTitulo">Sube tus fotos y te las comento</h3>
-        <p id="rbTexto">Cada mes, un reto. Mandas tu foto, te digo lo que veo y las mejores van al muro de Mirar Despacio.</p>
+        <p id="rbTexto">Cada mes, un reto que puedes hacer vivas donde vivas. Mandas tu foto, te digo lo que veo y las mejores van al muro de Mirar Despacio.</p>
         <span class="ir">Ir al reto →</span>
       </a>
-      <a href="/cuaderno/" class="rb-cuaderno">
-        <small>Tu cuaderno</small>
+      <a href="/retos/" class="rb-cuaderno" id="rbRacha">
+        <small>Tus retos</small>
         <h3 id="rbCifras">Tus fotos, con mis comentarios</h3>
-        <p id="rbCuaderno">Las fotos del reto y de las salidas, todas juntas y comentadas.</p>
-        <span class="ir">Abrir cuaderno →</span>
+        <p id="rbCuaderno">Todos tus retos, comentados, en un mismo sitio.</p>
+        <span class="ir">Ver tus retos →</span>
+      </a>
+      <a href="/cuaderno/" class="rb-cuaderno rb-salidas" id="rbSalidas" hidden>
+        <small>Salidas por Madrid</small>
+        <h3 id="rbSalTit">Fotos de las salidas</h3>
+        <p id="rbSalTxt">Sube tus fotos de las salidas a las que vienes y te las comento.</p>
+        <span class="ir">Subir fotos de salidas →</span>
       </a>
     </div>
 
@@ -648,10 +657,17 @@
           document.getElementById('rbTexto').textContent = mia ? '✓ Ya has mandado tu foto. ' + d.reto.participantes + ' fotos enviadas este mes.' :
             (d.reto.enunciado || '').slice(0, 160) + ((d.reto.enunciado || '').length > 160 ? '…' : '');
         }
-        var com = d.mias.filter(function (f) { return f.estado === 'comentada'; }).length;
-        if (d.mias.length) {
-          document.getElementById('rbCifras').textContent = d.mias.length + (d.mias.length === 1 ? ' foto' : ' fotos') + ' · ' + com + ' comentadas';
-          document.getElementById('rbCuaderno').textContent = d.racha ? 'Llevas ' + d.racha + (d.racha === 1 ? ' reto' : ' retos seguidos') + '. No rompas la racha.' : 'Abre tu cuaderno para ver mis comentarios.';
+        var retosMios = d.mias.filter(function (f) { return f.tipo === 'reto'; });
+        var com = retosMios.filter(function (f) { return f.estado === 'comentada'; }).length;
+        if (retosMios.length) {
+          document.getElementById('rbCifras').textContent = retosMios.length + (retosMios.length === 1 ? ' reto hecho' : ' retos hechos') + ' · ' + com + ' comentados';
+          document.getElementById('rbCuaderno').textContent = d.racha ? 'Llevas ' + d.racha + (d.racha === 1 ? ' reto' : ' retos seguidos') + '. No rompas la racha.' : 'Entra para ver mis comentarios.';
+        }
+        // Fotos de salidas: solo si viene a salidas (las online no lo ven)
+        var deSalidas = d.mias.filter(function (f) { return f.tipo !== 'reto'; }).length;
+        if (d.salidas.length || deSalidas) {
+          document.getElementById('rbSalidas').hidden = false;
+          if (d.salidas.length) document.getElementById('rbSalTxt').textContent = 'Tienes ' + (d.salidas.length === 1 ? 'una salida reciente' : d.salidas.length + ' salidas recientes') + ' para subir fotos.';
         }
       }).catch(function () {});
     })();

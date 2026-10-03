@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Fotos de las salidas · Mirar Despacio</title>
+  <title>Reto del mes · Mirar Despacio +</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Caveat:wght@500&display=swap" rel="stylesheet" />
@@ -101,46 +101,50 @@
       form.subir, .reto { padding: 1.4rem 1.2rem; }
       .nav-link.recursos { display: none; }
     }
+  
+    .archivo { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .archivo div { background: var(--bg); padding: .8rem 1.1rem; display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
+    .archivo .hecho { color: var(--ok); } .archivo .no { color: var(--muted); }
+    .reto-vacio { background: var(--bg2); padding: 2rem; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
 </head>
 <body>
   <nav>
-    <span class="nav-logo">Mirar Despacio <span class="grad" id="navPlus" hidden>+</span></span>
+    <span class="nav-logo">Mirar Despacio <span class="grad">+</span></span>
     <div class="nav-right">
-      <a class="nav-link recursos" href="/recursos.html" id="navRecursos" hidden>Recursos</a>
-      <a class="nav-link recursos" href="/retos/" id="navRetos" hidden>Reto del mes</a>
+      <a class="nav-link recursos" href="/recursos.html">Recursos</a>
       <a class="nav-link" href="https://mirardespacio.es/muro/">El muro</a>
       <button class="btn-sec" id="salir">Cerrar sesión</button>
     </div>
   </nav>
 
   <header class="cab">
-    <p class="etiqueta">Fotos de las salidas</p>
-    <h1>Lo que has <em>mirado.</em></h1>
-    <p id="saludo">Cargando tu cuaderno…</p>
+    <p class="etiqueta">Retos · Mirar Despacio +</p>
+    <h1>Un reto <em>cada mes.</em></h1>
+    <p id="saludo">Cargando…</p>
     <div class="cifras" id="cifras" hidden>
-      <div class="cifra"><b id="cSubidas">0</b><span>fotos</span></div>
-      <div class="cifra"><b id="cComentadas">0</b><span>comentadas</span></div>
+      <div class="cifra"><b id="cRacha">0</b><span>retos seguidos</span></div>
+      <div class="cifra"><b id="cTotal">0</b><span>retos hechos</span></div>
       <div class="cifra"><b id="cMuro">0</b><span>en el muro</span></div>
     </div>
   </header>
 
   <main class="contenido">
-    <p class="rotulo">Subir una foto</p>
-    <form class="subir" id="formSubir" hidden>
-      <div class="campo">
-        <label for="destino">¿De dónde es?</label>
-        <select id="destino" required></select>
-      </div>
+    <p class="rotulo">Este mes</p>
+    <div class="reto" id="reto" hidden></div>
+    <div class="reto-vacio" id="sinReto" hidden>Este mes todavía no hay reto abierto. Te aviso en cuanto lo haya.</div>
+
+    <form class="subir" id="formSubir" hidden style="margin-top:1.6rem;">
+      <p class="msg" id="tuyaYa" style="color:var(--ink-faint)"></p>
       <label class="soltar" id="soltar">
         <input type="file" id="archivo" accept="image/jpeg,image/png,image/webp,image/heic,image/heif">
         <img id="previa" alt="" hidden>
-        <span id="soltarTexto"><strong>Elige una foto</strong><br><small>JPG, PNG o WEBP. Se reduce sola a 2000 px antes de subir.</small></span>
+        <span id="soltarTexto"><strong>Elige tu foto del reto</strong><br><small>Una por reto. Se reduce sola a 2000 px antes de subir.</small></span>
       </label>
       <div class="campo">
         <label for="texto">Cuéntame algo (opcional)</label>
-        <textarea id="texto" maxlength="600" placeholder="Qué buscabas, qué no te convence, qué te gustaría que mirase…"></textarea>
+        <textarea id="texto" maxlength="600" placeholder="Cómo la has resuelto, qué buscabas, qué dudas tienes…"></textarea>
       </div>
       <div class="campo">
         <label for="nombreMuro">Cómo firmas si sale en el muro</label>
@@ -149,17 +153,16 @@
       <label class="check"><input type="checkbox" id="publicable">
         <span>Si te la comento, puede salir en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro público</a> de Mirar Despacio con tu firma y mi comentario. Puedes quitarla cuando quieras.</span></label>
       <div class="barra" hidden id="barra"><i></i></div>
-      <div><button class="boton color" id="enviar" type="submit">Subir foto</button></div>
+      <div><button class="boton color" id="enviar" type="submit">Enviar mi foto</button></div>
       <p class="msg" id="msg" role="status"></p>
     </form>
-    <p class="aviso-fotos" id="sinDestino" hidden>Aquí se suben las fotos de las salidas por Madrid a las que vienes. Ahora mismo no tienes ninguna salida reciente: después de la próxima a la que te apuntes, podrás subir tus fotos durante un mes.</p>
 
-    <p class="rotulo">Tus fotos de las salidas</p>
+    <p class="rotulo">Tus retos</p>
     <div class="fotos" id="fotos"><p class="vacio">Cargando…</p></div>
 
-    <section id="zonaReto" hidden>
-      <p class="rotulo">Reto del mes</p>
-      <div class="reto bloqueado" id="reto"></div>
+    <section id="zonaArchivo" hidden>
+      <p class="rotulo">Todos los retos</p>
+      <div class="archivo" id="archivo2"></div>
     </section>
   </main>
 
@@ -172,175 +175,136 @@
     var CLOUD = 'https://api.cloudinary.com/v1_1/dybxateci/image/upload';
     var PRESET = 'cuaderno_fotos';
     var LADO = 2000;
-    var datos = null, blob = null, medidas = null;
+    var datos = null, blob = null;
     var $ = function (id) { return document.getElementById(id); };
     var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
     var umami = function (e, d) { try { window.umami && window.umami.track(e, d); } catch (x) {} };
+    var ERRORES = { 'reto-cerrado': 'El reto ya está cerrado.', 'ya-comentada': 'Ya te la he comentado, así que no se puede cambiar.',
+      'demasiadas': 'Tienes muchas fotos esperando comentario.', 'grande': 'La foto ocupa demasiado. Prueba con otra.',
+      'tipo': 'Ese archivo no es una imagen.', 'solo-plus': 'Los retos son para Mirar Despacio+.' };
 
-    function token() {
-      var u = netlifyIdentity.currentUser();
-      return u ? u.jwt() : Promise.reject(new Error('sesion'));
-    }
     function llamar(metodo, cuerpo) {
-      return token().then(function (t) {
-        return fetch(API, { method: metodo, headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
-          body: cuerpo ? JSON.stringify(cuerpo) : undefined });
+      var u = netlifyIdentity.currentUser();
+      return (u ? u.jwt() : Promise.reject(new Error('sesion'))).then(function (t) {
+        return fetch(API, { method: metodo, headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
       }).then(function (r) {
-        if (r.status === 401) { location.replace('/acceso.html?a=cuaderno'); throw new Error('sesion'); }
+        if (r.status === 401) { location.replace('/acceso.html?a=retos'); throw new Error('sesion'); }
         return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.error || 'error'); e.codigo = j.error; throw e; } return j; });
       });
     }
-
-    var ERRORES = {
-      'reto-cerrado': 'El reto ya está cerrado.', 'ya-comentada': 'Esa foto ya está comentada y no se puede cambiar.',
-      'max-salida': 'Ya has subido el máximo de fotos de esa salida.', 'demasiadas': 'Tienes muchas fotos esperando comentario. Espera a que te las comente.',
-      'grande': 'La foto ocupa demasiado. Prueba con otra.', 'url': 'No se ha podido subir la foto.', 'no-existe': 'No se ha podido subir la foto.',
-      'tipo': 'Ese archivo no es una imagen.', 'salida': 'Esa salida ya no admite fotos.', 'solo-plus': 'Los retos son para Mirar Despacio+.'
-    };
-
     function dias(fecha) {
-      var fin = new Date(fecha + 'T23:59:59'); var n = Math.ceil((fin - Date.now()) / 864e5);
+      var n = Math.ceil((new Date(fecha + 'T23:59:59') - Date.now()) / 864e5);
       return n <= 0 ? 'último día' : n === 1 ? 'queda 1 día' : 'quedan ' + n + ' días';
     }
+    var mes = function (iso) { var t = new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); };
 
     function pintar() {
-      var d = datos;
-      var mias = d.mias.filter(function (f) { return f.tipo !== 'reto'; });
-      $('saludo').textContent = 'Hola, ' + (d.yo.nombre || d.yo.email) + '. Aquí subes tus fotos de las salidas y te las comento una a una.';
-      $('navPlus').hidden = !d.yo.plus; $('navRecursos').hidden = !d.yo.plus; $('navRetos').hidden = !d.yo.plus;
-      $('cSubidas').textContent = mias.length;
-      $('cComentadas').textContent = mias.filter(function (f) { return f.estado === 'comentada'; }).length;
-      $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length;
-      $('cifras').hidden = false;
+      var d = datos, r = d.reto && !d.reto.bloqueado ? d.reto : null;
+      var mias = d.mias.filter(function (f) { return f.tipo === 'reto'; });
+      if (!d.yo.plus) { location.replace('/cuaderno/'); return; }
+      $('saludo').textContent = 'Hola, ' + (d.yo.nombre || d.yo.email) + '. Un tema cada mes, lo resuelves donde vivas, me mandas tu foto y te digo lo que veo.';
+      $('cRacha').textContent = d.racha || 0; $('cTotal').textContent = d.total || 0;
+      $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length; $('cifras').hidden = false;
 
-      // Solo para quien no es MD+: el reto del mes se ve, pero bloqueado
-      var r = d.reto;
-      $('zonaReto').hidden = !(r && r.bloqueado);
-      if (r && r.bloqueado) {
-        $('reto').innerHTML = '<p class="etiqueta">Este mes, en Mirar Despacio+</p><h2>' + esc(r.titulo) + '</h2>' +
-          '<p>Cada mes hay un reto para los miembros de Mirar Despacio+, vivan donde vivan: mandan su foto, se la comento y las mejores van al muro.</p>' +
-          '<div class="pie"><a class="boton color" href="https://mirardespacio.es/mirar-despacio-plus/">Conocer Mirar Despacio+</a></div>';
+      var mia = r && mias.filter(function (f) { return f.refId === r.id; })[0];
+      $('reto').hidden = !r; $('sinReto').hidden = !!r;
+      if (r) {
+        $('reto').innerHTML = '<p class="etiqueta">Reto abierto' + (r.cierre ? ' · ' + dias(r.cierre) : '') + '</p><h2>' + esc(r.titulo) + '</h2>' +
+          '<p>' + esc(r.enunciado).replace(/\n/g, '<br>') + '</p>' + (r.pista ? '<p class="pista">' + esc(r.pista) + '</p>' : '') +
+          '<div class="pie"><span>' + (r.participantes === 1 ? '1 foto enviada' : r.participantes + ' fotos enviadas') + '</span>' +
+          (mia ? '<span>✓ Ya has enviado la tuya</span>' : '') + '</div>';
       }
-
-      // Salidas a las que vino
-      var ops = d.salidas.map(function (s) {
-        var n = mias.filter(function (f) { return f.refId === s.id; }).length;
-        var f = new Date(s.fecha + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-        return '<option value="salida:' + s.id + '"' + (n >= d.limites.porSalida ? ' disabled' : '') + '>' + esc(s.nombre) + ' · ' + f +
-          (s.zona ? ' · ' + esc(s.zona) : '') + ' (' + n + '/' + d.limites.porSalida + ')</option>';
-      });
-      var sel = $('destino'), antes = sel.value;
-      sel.innerHTML = ops.join('');
-      if (antes && sel.querySelector('option[value="' + antes + '"]:not([disabled])')) sel.value = antes;
-      $('formSubir').hidden = !ops.length; $('sinDestino').hidden = !!ops.length;
+      var puede = r && (!mia || mia.estado === 'pendiente');
+      $('formSubir').hidden = !puede;
+      $('tuyaYa').textContent = mia && mia.estado === 'pendiente' ? 'Ya me has enviado una. Si subes otra, sustituye a la anterior (hasta que te la comente).' : '';
       if (!$('nombreMuro').value) $('nombreMuro').value = d.yo.nombre || '';
 
-      var cont = $('fotos');
-      if (!mias.length) { cont.innerHTML = '<p class="vacio" style="grid-column:1/-1">Aún no has subido ninguna foto de una salida.' + (d.yo.plus ? ' El reto del mes está en <a href="/retos/">su propia página</a>.' : '') + '</p>'; return; }
-      cont.innerHTML = mias.map(function (f) {
+      $('fotos').innerHTML = mias.length ? mias.map(function (f) {
         var est = f.enMuro ? '<span class="estado muro">' + (f.destacada ? '★ Destacada en el muro' : 'En el muro') + '</span>' :
           f.estado === 'comentada' ? '<span class="estado comentada">Comentada</span>' : '<span class="estado">Esperando comentario</span>';
-        var acc = [];
-        if (f.estado === 'pendiente') acc.push('<button class="link" data-borrar="' + f.id + '">Borrar</button>');
-        acc.push('<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>');
         return '<article class="foto"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
-          '<span class="donde">' + esc(f.donde) + '</span>' + '<div>' + est + '</div>' +
-          (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
+          '<span class="donde">' + esc(f.donde) + '</span><div>' + est + '</div>' + (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
-          '<div class="acciones">' + acc.join('') + '</div></div></article>';
+          '<div class="acciones">' + (f.estado === 'pendiente' ? '<button class="link" data-borrar="' + f.id + '">Borrar</button>' : '') +
+          '<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label></div></div></article>';
+      }).join('') : '<p class="vacio" style="grid-column:1/-1">Todavía no has hecho ningún reto. El de este mes es un buen comienzo.</p>';
+
+      var hechos = {}; mias.forEach(function (f) { hechos[f.refId] = true; });
+      $('zonaArchivo').hidden = d.historial.length < 2;
+      $('archivo2').innerHTML = d.historial.map(function (h) {
+        return '<div><span><strong>' + esc(h.titulo) + '</strong> · ' + mes(h.inicio) + '</span>' +
+          (hechos[h.id] ? '<span class="hecho">✓ hecho</span>' : h.abierto ? '<span class="no">abierto</span>' : '<span class="no">—</span>') + '</div>';
       }).join('');
     }
 
     function cargar() {
       return llamar('GET').then(function (d) { datos = d; pintar(); }).catch(function (e) {
-        if (e.message !== 'sesion') $('saludo').textContent = 'No se ha podido cargar tu cuaderno. Recarga la página.';
+        if (e.message !== 'sesion') $('saludo').textContent = 'No se ha podido cargar. Recarga la página.';
       });
     }
-
-    // Reducir la foto a 2000 px en el navegador (así nunca sube un archivo enorme)
     function reducir(file) {
       return new Promise(function (ok, ko) {
         var img = new Image(), url = URL.createObjectURL(file);
         img.onload = function () {
           var k = Math.min(1, LADO / Math.max(img.naturalWidth, img.naturalHeight));
-          var c = document.createElement('canvas');
-          c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
-          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-          URL.revokeObjectURL(url);
+          var c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
           c.toBlob(function (b) { b ? ok({ blob: b, ancho: c.width, alto: c.height }) : ko(new Error('formato')); }, 'image/jpeg', 0.86);
         };
         img.onerror = function () { URL.revokeObjectURL(url); ko(new Error('formato')); };
         img.src = url;
       });
     }
-
     $('archivo').addEventListener('change', function () {
-      var f = this.files && this.files[0]; blob = null;
-      $('msg').textContent = ''; $('msg').className = 'msg';
+      var f = this.files && this.files[0]; blob = null; $('msg').textContent = ''; $('msg').className = 'msg';
       if (!f) return;
-      if (f.size > 40 * 1048576) { $('msg').textContent = 'Ese archivo es demasiado grande (más de 40 MB).'; $('msg').className = 'msg error'; return; }
       $('soltarTexto').innerHTML = '<small>Preparando…</small>';
       reducir(f).then(function (r) {
-        blob = r.blob; medidas = r;
-        $('previa').src = URL.createObjectURL(r.blob); $('previa').hidden = false;
-        $('soltarTexto').innerHTML = '<small>' + r.ancho + ' × ' + r.alto + ' px · ' + (r.blob.size / 1048576).toFixed(1) + ' MB · toca para cambiarla</small>';
+        blob = r.blob; $('previa').src = URL.createObjectURL(r.blob); $('previa').hidden = false;
+        $('soltarTexto').innerHTML = '<small>' + r.ancho + ' × ' + r.alto + ' px · toca para cambiarla</small>';
       }).catch(function () {
-        $('previa').hidden = true;
-        $('soltarTexto').innerHTML = '<strong>Elige una foto</strong>';
+        $('previa').hidden = true; $('soltarTexto').innerHTML = '<strong>Elige tu foto del reto</strong>';
         $('msg').textContent = 'Este navegador no puede leer ese formato. Exporta la foto como JPG y vuelve a probar.'; $('msg').className = 'msg error';
       });
     });
-
     function subirCloudinary(b) {
       return new Promise(function (ok, ko) {
-        var fd = new FormData(); fd.append('file', b, 'foto.jpg'); fd.append('upload_preset', PRESET);
-        var x = new XMLHttpRequest(); x.open('POST', CLOUD);
-        $('barra').hidden = false;
+        var fd = new FormData(); fd.append('file', b, 'reto.jpg'); fd.append('upload_preset', PRESET);
+        var x = new XMLHttpRequest(); x.open('POST', CLOUD); $('barra').hidden = false;
         x.upload.onprogress = function (e) { if (e.lengthComputable) $('barra').firstChild.style.width = (e.loaded / e.total * 100) + '%'; };
         x.onload = function () { try { var j = JSON.parse(x.responseText); j.secure_url ? ok(j) : ko(new Error('url')); } catch (e) { ko(new Error('url')); } };
-        x.onerror = function () { ko(new Error('url')); };
-        x.send(fd);
+        x.onerror = function () { ko(new Error('url')); }; x.send(fd);
       });
     }
-
     $('formSubir').addEventListener('submit', function (e) {
       e.preventDefault();
       var m = $('msg'); m.className = 'msg';
       if (!blob) { m.textContent = 'Elige primero una foto.'; m.className = 'msg error'; return; }
-      var v = $('destino').value.split(':');
       $('enviar').disabled = true; m.textContent = 'Subiendo…';
       subirCloudinary(blob).then(function (c) {
-        return llamar('POST', { accion: 'subir', tipo: v[0], refId: v[1], url: c.secure_url, ancho: c.width, alto: c.height,
+        return llamar('POST', { accion: 'subir', tipo: 'reto', refId: datos.reto.id, url: c.secure_url, ancho: c.width, alto: c.height,
           texto: $('texto').value, nombreMuro: $('nombreMuro').value, publicable: $('publicable').checked });
       }).then(function () {
-        umami('cuaderno-subir', { tipo: v[0] });
-        m.textContent = '¡Subida! Te aviso por email cuando la comente.'; m.className = 'msg ok';
+        umami('reto-subir');
+        m.textContent = '¡Recibida! Te aviso por email cuando la comente.'; m.className = 'msg ok';
         blob = null; $('archivo').value = ''; $('previa').hidden = true; $('texto').value = '';
-        $('soltarTexto').innerHTML = '<strong>Elige otra foto</strong>';
+        $('soltarTexto').innerHTML = '<strong>Elige tu foto del reto</strong>';
         return cargar();
-      }).catch(function (err) {
-        m.textContent = ERRORES[err.codigo || err.message] || 'No se ha podido subir. Prueba otra vez.'; m.className = 'msg error';
-      }).then(function () { $('enviar').disabled = false; $('barra').hidden = true; $('barra').firstChild.style.width = 0; });
+      }).catch(function (err) { m.textContent = ERRORES[err.codigo] || 'No se ha podido subir. Prueba otra vez.'; m.className = 'msg error'; })
+        .then(function () { $('enviar').disabled = false; $('barra').hidden = true; $('barra').firstChild.style.width = 0; });
     });
-
     $('fotos').addEventListener('click', function (e) {
       var t = e.target;
-      if (t.dataset.borrar) {
-        if (!confirm('¿Borrar esta foto de tu cuaderno?')) return;
-        llamar('POST', { accion: 'borrar', id: t.dataset.borrar }).then(cargar).catch(function () { alert('No se ha podido borrar.'); });
-      } else if (t.dataset.grande) {
-        $('visor').firstChild.src = t.dataset.grande; $('visor').hidden = false;
-      }
+      if (t.dataset.borrar) { if (confirm('¿Borrar esta foto?')) llamar('POST', { accion: 'borrar', id: t.dataset.borrar }).then(cargar); }
+      else if (t.dataset.grande) { $('visor').firstChild.src = t.dataset.grande; $('visor').hidden = false; }
     });
     $('fotos').addEventListener('change', function (e) {
-      var t = e.target;
-      if (t.dataset.publicable) llamar('POST', { accion: 'publicable', id: t.dataset.publicable, valor: t.checked }).then(cargar);
+      if (e.target.dataset.publicable) llamar('POST', { accion: 'publicable', id: e.target.dataset.publicable, valor: e.target.checked }).then(cargar);
     });
     $('visor').addEventListener('click', function () { this.hidden = true; });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('visor').hidden = true; });
     $('salir').addEventListener('click', function () { netlifyIdentity.logout(); });
-
-    netlifyIdentity.on('init', function (u) { if (!u) location.replace('/acceso.html?a=cuaderno'); else cargar(); });
+    netlifyIdentity.on('init', function (u) { if (!u) location.replace('/acceso.html?a=retos'); else cargar(); });
     netlifyIdentity.on('logout', function () { location.replace('/acceso.html'); });
   })();
   </script>

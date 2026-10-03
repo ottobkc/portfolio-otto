@@ -40,6 +40,11 @@
     X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
+  for = "/retos/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
   for = "/cuaderno/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
@@ -87,7 +92,21 @@
   status = 302
   force  = true
 
-# Cuaderno de fotos: lo abren los miembros MD+ y también quien solo tiene acceso
+# Reto del mes: solo Mirar Despacio+ (también la suscripción online, sin salidas)
+[[redirects]]
+  from       = "/retos/*"
+  to         = "/retos/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["member", "admin"]}
+
+[[redirects]]
+  from   = "/retos/*"
+  to     = "/acceso.html?a=retos"
+  status = 302
+  force  = true
+
+# Fotos de las salidas: lo abren los miembros MD+ y también quien solo tiene acceso
 # "participante" (gente de las salidas que sube sus fotos sin ser MD+).
 [[redirects]]
   from       = "/cuaderno/*"

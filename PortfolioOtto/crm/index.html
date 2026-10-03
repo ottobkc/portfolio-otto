@@ -389,6 +389,11 @@
         <option value="muro">En el muro</option>
         <option value="todas">Todas</option>
       </select>
+      <select id="fotosTipo" onchange="renderFotos()">
+        <option value="">Retos y salidas</option>
+        <option value="reto">Solo retos (MD+)</option>
+        <option value="salida">Solo salidas</option>
+      </select>
       <input type="text" id="fotosBuscar" placeholder="Buscar persona o salida…" oninput="renderFotos()">
     </div>
     <div id="fotosList"></div>
@@ -699,6 +704,8 @@ window.renderFotos = function() {
   const filtro = document.getElementById('fotosFiltro').value;
   const q = (document.getElementById('fotosBuscar').value || '').toLowerCase();
   let lista = fotos.filter(f => filtro === 'todas' ? true : filtro === 'muro' ? f.enMuro : f.estado === filtro);
+  const tipo = document.getElementById('fotosTipo').value;
+  if (tipo) lista = lista.filter(f => (f.tipo === 'reto') === (tipo === 'reto'));
   if (q) lista = lista.filter(f => [f.nombreMuro, f.nombreCuenta, f.email, f.refNombre].join(' ').toLowerCase().includes(q));
   lista.sort((a, b) => filtro === 'pendiente' ? fms(a.creada) - fms(b.creada) : fms(b.creada) - fms(a.creada));
   el.innerHTML = lista.length ? '' : '<div class="empty">Nada por aquí</div>';
