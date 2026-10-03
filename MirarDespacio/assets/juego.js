@@ -81,23 +81,36 @@
       empezar(); return;
     }
     if (estado.fase !== 'jugando' || estado.enfriar > 0) return;
-    var v = VISOR(), mejor = null;
-    estado.cosas.forEach(function (c) {
-      var cx = c.x + c.w / 2;
-      if (cx >= v.x && cx <= v.x + v.w && (!mejor || c.x < mejor.x)) mejor = c;
+    var v = VISOR();
+    // Todo lo que esté (al menos en buena parte) dentro del visor sale en la foto
+    var dentro = estado.cosas.filter(function (c) {
+      var visible = Math.min(c.x + c.w, v.x + v.w) - Math.max(c.x, v.x);
+      return visible >= c.w * 0.5;
     });
     estado.flash = 1;
-    if (!mejor) { estado.enfriar = 0.5; clic(180, 0.08, 0.04); flotante('fuera de plano', v.x + v.w / 2, SUELO - 120, C.gris); return; }
+    if (!dentro.length) { estado.enfriar = 0.5; clic(180, 0.08, 0.04); flotante('fuera de plano', v.x + v.w / 2, SUELO - 120, C.gris); return; }
     estado.enfriar = 0.28;
-    var centro = mejor.x + mejor.w / 2, medio = v.x + v.w / 2;
-    var perfecta = Math.abs(centro - medio) < v.w * 0.2;
-    var pts = TIPOS[mejor.tipo].pts * estado.nivel * (perfecta ? 2 : 1);
-    estado.puntos += pts;
-    estado.fotos[mejor.tipo] = (estado.fotos[mejor.tipo] || 0) + 1;
-    if (perfecta) estado.perfectas++;
-    flotante((perfecta ? '¡Perfecta! ' : '') + '+' + pts, centro, mejor.y - 8, perfecta ? C.rosa : C.naranja);
-    estado.cosas.splice(estado.cosas.indexOf(mejor), 1);
-    clic(perfecta ? 1400 : 900, 0.05, 0.05);
+    var medio = v.x + v.w / 2, total = 0, algunaPerfecta = false;
+    dentro.forEach(function (c) {
+      var centro = c.x + c.w / 2;
+      var perfecta = Math.abs(centro - medio) < v.w * 0.2;
+      var pts = TIPOS[c.tipo].pts * estado.nivel * (perfecta ? 2 : 1);
+      total += pts;
+      estado.fotos[c.tipo] = (estado.fotos[c.tipo] || 0) + 1;
+      if (perfecta) { estado.perfectas++; algunaPerfecta = true; }
+      flotante((perfecta ? '¡Perfecta! ' : '') + '+' + pts, centro, c.y - 8, perfecta ? C.rosa : C.naranja);
+      estado.cosas.splice(estado.cosas.indexOf(c), 1);
+    });
+    // Bonus por meter varias cosas en el mismo encuadre
+    if (dentro.length > 1) {
+      var bonus = (dentro.length === 2 ? 25 : 60) * estado.nivel;
+      total += bonus;
+      estado.composiciones = (estado.composiciones || 0) + 1;
+      flotante((dentro.length === 2 ? '¡Bonus composición! +' : '¡Composición triple! +') + bonus, medio, SUELO - 140, C.rosa);
+      clic(1800, 0.09, 0.05);
+    }
+    estado.puntos += total;
+    clic(algunaPerfecta ? 1400 : 900, 0.05, 0.05);
   }
 
   function flotante(txt, x, y, color) { estado.textos.push({ txt: txt, x: x, y: y, vida: 1, color: color }); }
@@ -118,7 +131,7 @@
     var resumen = document.getElementById('juegoResumen');
     if (resumen) {
       var partes = LISTA.filter(function (k) { return estado.fotos[k]; }).map(function (k) { return estado.fotos[k] + ' ' + (estado.fotos[k] === 1 ? TIPOS[k].uno : TIPOS[k].nombre); });
-      resumen.textContent = partes.length ? 'Has fotografiado: ' + partes.join(', ') + (estado.perfectas ? ' (' + estado.perfectas + ' perfectas)' : '') + '.' : 'Ni una foto. A veces hay que mirar más despacio.';
+      resumen.textContent = partes.length ? 'Has fotografiado: ' + partes.join(', ') + (estado.perfectas ? ' (' + estado.perfectas + ' perfectas)' : '') + (estado.composiciones ? ' y ' + estado.composiciones + (estado.composiciones === 1 ? ' composición' : ' composiciones') + ' con varias cosas' : '') + '.' : 'Ni una foto. A veces hay que mirar más despacio.';
     }
     var comp = document.getElementById('juegoCompartir');
     if (comp && estado.puntos > 0) comp.hidden = false;
