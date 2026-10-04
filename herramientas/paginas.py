@@ -644,12 +644,14 @@ def construir(g):
         <h2>Con quién se comparten</h2>
         <p>Con nadie para su propio uso. Para que la web funcione uso servicios que guardan los datos por mí: Netlify (web y cuentas), Google Firebase (lista de inscripciones), Cloudinary (fotos) y Brevo (envío de emails). Algunos están fuera de la Unión Europea y trabajan con las garantías que exige la normativa.</p>
 
-        <h2>Tus derechos</h2>
-        <p>Puedes pedir ver, corregir o borrar tus datos, oponerte a su uso o retirar tu consentimiento escribiendo a <a href="mailto:{EMAIL}">{EMAIL}</a>. Si crees que no lo he hecho bien, puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
+        <h2>Si quieres cambiar algo</h2>
+        <p>Escríbeme a <a href="mailto:{EMAIL}">{EMAIL}</a> y lo hago: ver qué datos tengo tuyos, corregirlos, borrarlos o dejar de usarlos. Si crees que algo no está bien hecho, dímelo y lo reviso y lo corrijo.</p>
+        <p class="aviso">Como en cualquier web, la ley también te reconoce el derecho a dirigirte a la Agencia Española de Protección de Datos.</p>
 
         <p class="aviso">Última actualización: octubre de 2026.</p>
       </div>
     </section>"""
+    cuerpo = cuerpo.replace('{EMAIL}', g['EMAIL'])
     escribir('/privacidad/', pagina('/privacidad/', 'Privacidad · Mirar Despacio',
         'Qué datos recoge Mirar Despacio, para qué los usa y cómo puedes pedir que los cambie o los borre.', cuerpo))
 
