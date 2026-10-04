@@ -53,7 +53,7 @@
     estado = {
       fase: 'inicio', t: 0, puntos: 0, vidas: 3, nivel: 1, racha: 0, cosas: [], textos: [],
       proximo: 1.2, enfriar: 0, flash: 0, golpe: 0, temblor: 0, banner: 0, paso: 0, fondo: 0,
-      fotos: {}, perfectas: 0,
+      fotos: {}, perfectas: 0, montura: null, nueva: false, monturasPartida: [], nuevasPartida: [],
     };
   }
   nuevo();
@@ -133,8 +133,36 @@
       var partes = LISTA.filter(function (k) { return estado.fotos[k]; }).map(function (k) { return estado.fotos[k] + ' ' + (estado.fotos[k] === 1 ? TIPOS[k].uno : TIPOS[k].nombre); });
       resumen.textContent = partes.length ? 'Has fotografiado: ' + partes.join(', ') + (estado.perfectas ? ' (' + estado.perfectas + ' perfectas)' : '') + (estado.composiciones ? ' y ' + estado.composiciones + (estado.composiciones === 1 ? ' composición' : ' composiciones') + ' con varias cosas' : '') + '.' : 'Ni una foto. A veces hay que mirar más despacio.';
     }
+    if (resumen) {
+      var d = descubiertas();
+      var col = document.createElement('span');
+      col.className = 'coleccion';
+      col.textContent = d.length
+        ? ' Monturas descubiertas: ' + d.length + ' de ' + CLAVES.length + ' (' + d.map(function (k) { return MONTURAS[k].nombre; }).join(', ') + ').'
+        : ' Llega al nivel 5 para descubrir la primera montura… hay ' + CLAVES.length + '.';
+      resumen.appendChild(col);
+    }
     var comp = document.getElementById('juegoCompartir');
     if (comp && estado.puntos > 0) comp.hidden = false;
+    // Compartir en Instagram la montura nueva (o la última a la que ha llegado)
+    var cajaM = document.getElementById('juegoMonturas');
+    if (!cajaM && comp) { cajaM = document.createElement('div'); cajaM.id = 'juegoMonturas'; cajaM.className = 'juego-monturas'; comp.parentNode.appendChild(cajaM); }
+    if (cajaM) {
+      var k = (estado.nuevasPartida || []).slice(-1)[0] || estado.monturasPartida.slice(-1)[0];
+      cajaM.innerHTML = '';
+      if (k && window.MDCompartir) {
+        var nueva = (estado.nuevasPartida || []).indexOf(k) !== -1;
+        cajaM.innerHTML = '<p class="aviso" style="margin:14px 0 8px">' + (nueva ? '¡Montura nueva desbloqueada: ' + MONTURAS[k].nombre + '! ' : 'Has llegado a ir ' + MONTURAS[k].texto + '. ') + 'Compártelo:</p>' +
+          '<button class="boton" type="button" data-f="post">📲 Post para Instagram</button> <button class="boton claro" type="button" data-f="historia">📲 Historia</button>';
+        cajaM.querySelectorAll('button').forEach(function (b) {
+          b.onclick = function () {
+            var t = b.textContent; b.disabled = true; b.textContent = 'Preparando…';
+            MDCompartir.montura(k, { formato: b.dataset.f, cuantas: descubiertas().length, jugador: jugador(), logo: '/assets/logo-md-ig.png' })
+              .catch(function () {}).then(function () { b.disabled = false; b.textContent = t; });
+          };
+        });
+      }
+    }
     if (window.umami) window.umami.track('juego-fin', { puntos: estado.puntos, nivel: estado.nivel });
   }
 
@@ -165,7 +193,17 @@
     var e = estado;
     e.t += dt; e.racha += dt;
     var nivel = 1 + Math.floor(e.t / 15);
-    if (nivel > e.nivel) { e.nivel = nivel; e.banner = 1.4; clic(660, 0.12, 0.04); }
+    if (nivel > e.nivel) {
+      e.nivel = nivel; e.banner = 1.4; clic(660, 0.12, 0.04);
+      // Cada 5 niveles, montura nueva al azar (nunca la misma que la anterior)
+      if (nivel % 5 === 0) {
+        e.montura = elegirMontura(e.montura);
+        e.nueva = descubrir(e.montura);
+        if (e.nueva) e.nuevasPartida = (e.nuevasPartida || []).concat(e.montura);
+        e.monturasPartida.push(e.montura);
+        if (window.umami) window.umami.track('juego-montura', { montura: e.montura });
+      }
+    }
     var vel = velocidad();
     e.paso += dt * (6 + vel / 80);
     e.fondo += dt * vel * 0.25;
@@ -240,8 +278,14 @@
     // Cosas
     e.cosas.forEach(dibujarCosa);
 
-    // Fotógrafo
-    if (!(e.golpe > 0 && Math.floor(e.golpe * 10) % 2 === 0)) fotografo(FX(), SUELO, e.paso, e.enfriar > 0 && e.flash > 0.4);
+    // Fotógrafo (desde el nivel 5, montado en algo distinto cada 5 niveles)
+    if (!(e.golpe > 0 && Math.floor(e.golpe * 10) % 2 === 0)) {
+      if (e.montura) {
+        var m = dibujarMontura(e.montura, FX(), SUELO, e.paso);
+        fotografo(FX(), SUELO - m.alto, 0, e.enfriar > 0 && e.flash > 0.4, !m.dePie);
+        if (m.cupula) cupula(FX(), SUELO, e.paso);
+      } else fotografo(FX(), SUELO, e.paso, e.enfriar > 0 && e.flash > 0.4);
+    }
 
     // Textos flotantes
     ctx.textAlign = 'center';
@@ -268,6 +312,11 @@
       var gr = ctx.createLinearGradient(W / 2 - 80, 0, W / 2 + 80, 0);
       gr.addColorStop(0, C.naranja); gr.addColorStop(1, C.rosa);
       ctx.fillStyle = gr; ctx.fillText('Nivel ' + e.nivel, W / 2, H / 2 - 20);
+      if (e.montura && e.nivel % 5 === 0) {
+        ctx.font = '600 16px Jost, system-ui, sans-serif'; ctx.fillStyle = C.tinta;
+        ctx.fillText('¡Ahora vas ' + MONTURAS[e.montura].texto + '!', W / 2, H / 2 + 8);
+        if (e.nueva) { ctx.fillStyle = C.rosa; ctx.font = '600 13px Jost, system-ui, sans-serif'; ctx.fillText('Nueva montura descubierta · ' + descubiertas().length + ' de ' + CLAVES.length, W / 2, H / 2 + 30); }
+      }
       ctx.globalAlpha = 1;
     }
     ctx.restore();
@@ -305,12 +354,43 @@
     ctx.beginPath(); ctx.arc(x + 11, y + 11, 4, 0, 7); ctx.fill();
   }
 
-  function fotografo(x, suelo, paso, disparando) {
+  // ---------- Monturas: cada 5 niveles el fotógrafo cambia de montura, al azar entre 20 ----------
+  // Los dibujos están en monturas.js (compartido con la zona MD+). Si no cargara, se juega sin monturas.
+  var MM = window.MDMonturas || { MONTURAS: {}, CLAVES: [], crear: function () { return { dibujar: function () { return { alto: 0 }; }, cupula: function () {} }; } };
+  var MONTURAS = MM.MONTURAS, CLAVES = MM.CLAVES, DIB = MM.crear(ctx, C);
+  function dibujarMontura(t, x, s, p) { return DIB.dibujar(t, x, s, p); }
+  function cupula(x, s, p) { DIB.cupula(x, s, p); }
+  // Cada una devuelve { alto, dePie }: a qué altura va el fotógrafo y si va de pie (patinete, monopatín…)
+  function elegirMontura(actual) {
+    var opciones = CLAVES.filter(function (k) { return k !== actual; });
+    if (!opciones.length) return null;
+    return opciones[Math.floor(Math.random() * opciones.length)];
+  }
+  // Monturas descubiertas por este jugador. Se guardan en el servidor con su nombre (así las ve juegue
+  // donde juegue y en la zona MD+); aquí se guarda una copia para enseñarlas al momento.
+  function claveColeccion() { return 'md-juego-monturas:' + (typeof jugador === 'function' ? jugador().replace(/^@+/, '').toLowerCase() : ''); }
+  function descubiertas() { try { return JSON.parse(localStorage.getItem(claveColeccion()) || '[]'); } catch (e) { return []; } }
+  function mezclarMonturas(lista) {
+    var d = descubiertas();
+    (lista || []).forEach(function (k) { if (MONTURAS[k] && d.indexOf(k) === -1) d.push(k); });
+    try { localStorage.setItem(claveColeccion(), JSON.stringify(d)); } catch (e) {}
+    return d;
+  }
+  function descubrir(k) {
+    if (descubiertas().indexOf(k) !== -1) return false;
+    mezclarMonturas([k]);
+    return true;
+  }
+
+
+  function fotografo(x, suelo, paso, disparando, montado) {
     var p = Math.sin(paso * 2.2);
     ctx.strokeStyle = C.tinta; ctx.fillStyle = C.tinta; ctx.lineWidth = 4; ctx.lineCap = 'round';
-    // piernas
-    ctx.beginPath(); ctx.moveTo(x, suelo - 30); ctx.lineTo(x - 8 * p, suelo - 2);
-    ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 8 * p, suelo - 2); ctx.stroke();
+    // piernas (montado: sentado a horcajadas, colgando)
+    ctx.beginPath();
+    if (montado) { ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 6, suelo - 18); ctx.lineTo(x + 3, suelo - 6); }
+    else { ctx.moveTo(x, suelo - 30); ctx.lineTo(x - 8 * p, suelo - 2); ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 8 * p, suelo - 2); }
+    ctx.stroke();
     // cuerpo
     ctx.beginPath(); ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 2, suelo - 60); ctx.stroke();
     // cabeza y gorra
@@ -396,10 +476,19 @@
     if (aviso) aviso.hidden = false;
     setTimeout(function () { campo.classList.remove('falta'); }, 900);
   }
+  var esperaMonturas = null;
   if (campo) campo.addEventListener('input', function () {
     if (aviso) aviso.hidden = true;
     try { localStorage.setItem('md-juego-nombre', jugador()); } catch (e) {}
+    clearTimeout(esperaMonturas); esperaMonturas = setTimeout(cargarMonturasJugador, 800);
   });
+  // Trae del servidor las monturas que este jugador ya ha descubierto (en cualquier dispositivo)
+  function cargarMonturasJugador() {
+    if (!nombreValido()) return;
+    fetch(API + '?jugador=' + encodeURIComponent(jugador())).then(function (r) { return r.json(); })
+      .then(function (d) { if (d && Array.isArray(d.monturas)) mezclarMonturas(d.monturas); }).catch(function () {});
+  }
+  setTimeout(cargarMonturasJugador, 300);
   if (campo) campo.addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') { ev.preventDefault(); campo.blur(); if (nombreValido()) empezar(); else pedirNombre(); }
   });
@@ -430,7 +519,8 @@
     if (!nombreValido()) return;
     if (!pts) { // también se apuntan las partidas de 0 puntos (para saber cuánta gente juega)
       fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: quien, puntos: 0, nivel: estado.nivel, segundos: estado.t }) }).catch(function () {});
+        body: JSON.stringify({ nombre: quien, puntos: 0, nivel: estado.nivel, segundos: estado.t, monturas: estado.monturasPartida }) })
+        .then(function (r) { return r.json(); }).then(function (d) { if (d && d.monturas) mezclarMonturas(d.monturas); }).catch(function () {});
       return;
     }
     var linea = document.createElement('span');
@@ -438,11 +528,12 @@
     linea.textContent = ' Guardando puntuación…';
     if (resumenEl) resumenEl.appendChild(linea);
     fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: quien, puntos: pts, nivel: estado.nivel, segundos: estado.t }) })
+      body: JSON.stringify({ nombre: quien, puntos: pts, nivel: estado.nivel, segundos: estado.t, monturas: estado.monturasPartida }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !Array.isArray(d.top)) throw d;
         ranking = d.top;
+        if (d.monturas) mezclarMonturas(d.monturas);
         var fmt = function (n) { return Number(n).toLocaleString('es-ES'); };
         var enTop = d.puesto <= 10;
         var txt = enTop

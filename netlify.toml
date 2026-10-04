@@ -17,7 +17,10 @@
   node_bundler = "esbuild"
   external_node_modules = ["firebase-admin"]
 
-# Copia de seguridad del CRM: cada lunes a las 6:00 UTC
+# Tareas semanales (lunes, hora UTC): limpieza de fotos antiguas y copia de seguridad del CRM
+[functions."tareas-diarias"]
+  schedule = "15 7 * * *"
+
 [functions."limpieza-fotos"]
   schedule = "0 4 * * 1"
 

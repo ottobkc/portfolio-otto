@@ -250,7 +250,8 @@ def construir(g):
               <select id="camara" name="camara"><option value="">Elige…</option><option>Réflex o mirrorless</option><option>Compacta o analógica</option><option>Móvil</option><option>Lo que tenga a mano</option></select></div>
             <div><label for="mensaje">¿Algo que quieras contarme?</label><textarea id="mensaje" name="mensaje" rows="3"></textarea></div>
             <label class="check"><input type="checkbox" name="acepta_imagen" value="si" required> Acepto el uso de imagen descrito a la izquierda.</label>
-            <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para gestionar la inscripción, avisarme de las salidas y, si he dejado mi teléfono, añadirme a la comunidad. No se ceden a nadie.</label>
+            <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos para gestionar la inscripción, avisarme de las salidas, mandarme después el enlace para subir mis fotos de la salida y, si he dejado mi teléfono, añadirme a la comunidad. No se ceden a nadie. <a href="/privacidad/">Privacidad</a></label>
+            <label class="check"><input type="checkbox" name="acepta_novedades" value="si"> <span>Quiero recibir por email novedades de Mirar Despacio (talleres y actividades nuevas). <em>Opcional; puedes darte de baja cuando quieras.</em></span></label>
             <div><button class="boton" type="submit">Quiero apuntarme</button></div>
           </form>
           <div class="ok" id="okSalida"><strong>¡Hecho!</strong> <span data-ok-texto>Te escribo para confirmarte la plaza y el punto de encuentro.</span></div>
@@ -393,7 +394,7 @@ def construir(g):
           <div><label for="t-duracion">Duración</label><select id="t-duracion" name="duracion"><option>2 horas</option><option>1 hora</option></select></div>
           <div><label for="t-camara">¿Qué cámara usas?</label><input type="text" id="t-camara" name="camara" placeholder="Modelo, o móvil"></div>
           <div><label for="t-mensaje">¿Qué te gustaría trabajar? *</label><textarea id="t-mensaje" name="mensaje" rows="4" required></textarea></div>
-          <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para responder a esta solicitud.</label>
+          <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para responder a esta solicitud. <a href="/privacidad/">Privacidad</a></label>
           <div><button class="boton" type="submit">Enviar solicitud</button></div>
         </form>
         <div class="ok" id="okTutoria"><strong>Recibido.</strong> Te contesto en un par de días con propuesta de fecha.</div>
@@ -600,17 +601,57 @@ def construir(g):
     <section class="seccion papel">
       <div class="envoltura">
         <div class="rejilla-3">
-          <div class="tarjeta"><span class="num">01</span><h3>Retos y guías cada mes</h3><p>Un PDF mensual con un reto fotográfico y guías prácticas: calle, noche, retrato urbano, luz difícil.</p></div>
-          <div class="tarjeta"><span class="num">02</span><h3>Salidas incluidas</h3><p>Plaza reservada en todas las salidas, sin pagar nada en ellas, antes de que se anuncie la fecha en público.</p></div>
-          <div class="tarjeta"><span class="num">03</span><h3>Feedback de tus fotos</h3><p>Un reto cada mes, que puedes hacer vivas donde vivas: mandas tu foto y te digo lo que veo, sin halagos de compromiso. Las mejores van al <a href="/muro/">muro</a>.</p></div>
+          <div class="tarjeta"><span class="num">01</span><h3>Un reto cada mes</h3><p>Un tema nuevo cada mes que puedes hacer vivas donde vivas. Cuando cierra, ves las fotos de los demás con mis comentarios, y vas ganando medallas por constancia.</p></div>
+          <div class="tarjeta"><span class="num">02</span><h3>Salidas incluidas</h3><p>Te enteras de cada salida antes de que se anuncie en público y reservas tu plaza el primero, sin pagar nada en ellas.</p></div>
+          <div class="tarjeta"><span class="num">03</span><h3>Feedback de tus fotos</h3><p>Subes tus fotos del reto y de las salidas y te comento cada una, sin halagos de compromiso. Las mejores van al <a href="/muro/">muro</a>.</p></div>
           <div class="tarjeta"><span class="num">04</span><h3>Grupo privado</h3><p>Una comunidad de WhatsApp para compartir fotos y quedar. También si no vives en Madrid.</p></div>
-          <div class="tarjeta"><span class="num">05</span><h3>Herramientas</h3><p>Calculadora de profundidad de campo, simulador visual, generador de retos y mapas de luz de Madrid.</p></div>
-          <div class="tarjeta"><span class="num">06</span><h3>Tarjetas de misión</h3><p>Los packs de tarjetas de las salidas, para usarlos por tu cuenta.</p></div>
+          <div class="tarjeta"><span class="num">05</span><h3>Herramientas</h3><p>Calculadora de profundidad de campo, simulador visual, generador de retos, banco de ejercicios y mapas de luz de Madrid.</p></div>
+          <div class="tarjeta"><span class="num">06</span><h3>Guías para imprimir</h3><p>Una página por tema para llevar encima: calle, noche, retrato urbano, luz difícil, composición y más.</p></div>
         </div>
       </div>
     </section>'''
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
-        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: retos mensuales, prioridad en las salidas por Madrid, feedback de tus fotos y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
+        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
+
+    # ------------------------------------------------------------ PRIVACIDAD
+    cuerpo = """
+    <section class="portada">
+      <div class="envoltura estrecho">
+        <p class="antetitulo">Tus datos</p>
+        <h1>Política de <em>privacidad.</em></h1>
+        <p class="entradilla">Qué datos recojo, para qué los uso y cómo puedes pedir que los cambie o los borre. Sin letra pequeña.</p>
+      </div>
+    </section>
+    <section class="seccion">
+      <div class="envoltura estrecho texto-legal">
+        <h2>Quién es el responsable</h2>
+        <p>Otto Kols, fotógrafo en Madrid, responsable de Mirar Despacio (mirardespacio.es y ottokols.es). Contacto: <a href="mailto:{EMAIL}">{EMAIL}</a>.</p>
+
+        <h2>Qué datos recojo y para qué</h2>
+        <ul>
+          <li><strong>Inscripción a salidas:</strong> nombre, apellidos, email y, si los das, teléfono, Instagram y con qué haces fotos. Los uso para gestionar tu plaza, mandarte la confirmación y el punto de encuentro, avisarte de las salidas, mandarte después el enlace para subir tus fotos y, si dejas el teléfono, añadirte a la comunidad de WhatsApp. Base: tu consentimiento y la gestión de la actividad a la que te apuntas.</li>
+          <li><strong>Fotos que subes:</strong> las guardo para comentarlas. Solo salen en el <a href="/muro/">muro</a> público si tú lo marcas, y en la galería de los retos (solo para miembros) si tú lo marcas. Puedes quitarlas cuando quieras.</li>
+          <li><strong>Mirar Despacio+:</strong> tu cuenta (email y nombre), tus fotos, comentarios y retos hechos. Uso tu email para lo relacionado con el servicio: avisos del reto del mes, fechas de salidas y cambios en tu suscripción. Puedes dejar de recibir los avisos del reto desde el enlace de cada email.</li>
+          <li><strong>Novedades:</strong> solo si marcas la casilla, te escribiré sobre talleres y actividades nuevas. Puedes darte de baja en cualquier momento.</li>
+          <li><strong>Fotos del grupo en las salidas:</strong> se pueden usar para documentar y dar a conocer Mirar Despacio en la web y en redes, nunca para uso comercial de terceros. Si no quieres aparecer, dímelo y retiro las fotos en las que salgas.</li>
+          <li><strong>Formularios de contacto:</strong> solo para contestarte.</li>
+          <li><strong>Estadísticas:</strong> uso Umami, que cuenta visitas sin cookies y sin identificarte.</li>
+        </ul>
+
+        <h2>Cuánto tiempo</h2>
+        <p>Mientras participes en Mirar Despacio o tengas cuenta. Las fotos de las salidas se borran del servidor a los 90 días (salvo las que estén en el muro); las de los retos, cuando hay tres retos más nuevos. Si me pides que borre tus datos, los borro.</p>
+
+        <h2>Con quién se comparten</h2>
+        <p>Con nadie para su propio uso. Para que la web funcione uso servicios que guardan los datos por mí: Netlify (web y cuentas), Google Firebase (lista de inscripciones), Cloudinary (fotos) y Brevo (envío de emails). Algunos están fuera de la Unión Europea y trabajan con las garantías que exige la normativa.</p>
+
+        <h2>Tus derechos</h2>
+        <p>Puedes pedir ver, corregir o borrar tus datos, oponerte a su uso o retirar tu consentimiento escribiendo a <a href="mailto:{EMAIL}">{EMAIL}</a>. Si crees que no lo he hecho bien, puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
+
+        <p class="aviso">Última actualización: octubre de 2026.</p>
+      </div>
+    </section>"""
+    escribir('/privacidad/', pagina('/privacidad/', 'Privacidad · Mirar Despacio',
+        'Qué datos recoge Mirar Despacio, para qué los usa y cómo puedes pedir que los cambie o los borre.', cuerpo))
 
     # ------------------------------------------------------------ AGENDA
     cuerpo = """
@@ -675,7 +716,7 @@ def construir(g):
           <span class="aviso" id="jugadorAviso" hidden>Escríbelo para poder jugar: tu puntuación se guarda sola al terminar.</span>
         </div>
         <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
-        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición</p>
+        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición · Cada 5 niveles, una sorpresa</p>
         <div class="rejilla-2" style="gap:40px;margin-top:20px;align-items:start;">
           <div>
             <p id="juegoResumen" style="min-height:1.6em;margin-top:0;"></p>
@@ -713,8 +754,10 @@ AGENDA_JS = '''
   <script src="https://ottokols.es/js/agenda.js"></script>
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8 });</script>'''
 MURO_JS = '''
+  <script src="https://ottokols.es/js/medallas.js"></script>
   <script src="/assets/muro.js"></script>'''
 JUEGO_JS = '''
+  <script src="/assets/monturas.js"></script>
   <script src="/assets/juego.js"></script>'''
 
 MAPA_JS = '''
@@ -738,7 +781,8 @@ EVENTO_JS = '''
       // Solo si hay fecha real y todavía no ha pasado
       var pendiente = function (v) { return !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim()); };
       var s = (d.proximas || []).filter(function (x) {
-        return x.activa && x.fechaISO && !pendiente(x.fecha) && new Date(x.fechaISO).getTime() > Date.now();
+        var oculta = x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime();
+        return x.activa && x.fechaISO && !pendiente(x.fecha) && !oculta && new Date(x.fechaISO).getTime() > Date.now();
       })[0];
       if (!s) return;
       // Fin: fechaFinISO si existe; si no, 3 horas después del inicio, manteniendo la zona horaria (+02:00)

@@ -6,6 +6,8 @@
 //  POST {accion:'acceso', id, acceso}         -> acceso = 'plus' | 'fotos' | 'ninguno' (la cuenta no se borra)
 //  POST {accion:'invitar', email, acceso}     -> invita a alguien ('fotos' = solo cuaderno de fotos)
 //  POST {accion:'enlace', personId}           -> enlace personal para subir fotos sin cuenta (para copiar a WhatsApp)
+//  POST {accion:'plus-alta', personId, meses, nivel, desde} / {accion:'plus-baja', personId, dejarFotos} / {accion:'plus-prueba', personId}
+//  POST {accion:'avisar-reto', retoId}       -> email «nuevo reto» a los miembros MD+
 //  POST {accion:'enlaces', eventId, reenviar} -> manda por email su enlace a la gente de esa salida
 //        (si en la salida hay alguien marcado como "asistió", solo a los que asistieron)
 const crypto = require('crypto');
@@ -14,6 +16,9 @@ const { db, FieldValue } = require('../lib/firestore');
 const { listarUsuarios, ponerRoles, rolesPara, invitarCon } = require('../lib/identidad');
 const { enviar, esc } = require('../lib/correo');
 const { tarjeta, aTexto } = require('../lib/plantillas-salida');
+const { miembrosConAvisos, correoReto, enviarATodos } = require('../lib/avisos');
+const plus = require('../lib/plus');
+const { SALIDA_DIAS, RETOS_GUARDADOS } = require('../lib/fotos-config');
 
 // La misma cuenta que tiene permiso en las reglas de Firestore (crm/firestore.rules)
 const ADMIN = (process.env.CRM_ADMIN || 'ottobkc@gmail.com').toLowerCase();
@@ -40,7 +45,8 @@ function correoEnlace(p, ev, url) {
     filas: [['🔑', 'No necesitas contraseña: el enlace es solo tuyo.'], ['💬', 'Te aviso por email cuando las comente.']],
     calendario: null,
     boton: { url, texto: '📷 Subir mis fotos', antes: '' },
-    cuerpo: ['Guarda este email: el mismo enlace te sirve para las próximas salidas y para ver mis comentarios.'],
+    cuerpo: ['Guarda este email: el mismo enlace te sirve para las próximas salidas y para ver mis comentarios.',
+      `<span style="font-size:13px;color:#8a8378;">Las fotos se guardan ${SALIDA_DIAS} días después de cada salida.</span>`],
   });
   return { asunto: 'Sube tus fotos de la salida · Mirar Despacio', html, texto: aTexto(html) };
 }
@@ -64,6 +70,9 @@ function correoComentario(f) {
       enMuro
         ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde tu cuaderno.`
         : 'Sigue subiendo: cuantas más vea, mejor te puedo decir hacia dónde tirar.',
+      `<span style="font-size:13px;color:#8a8378;">${f.tipo === 'reto'
+        ? `Las fotos de los retos se guardan mientras estén entre los ${RETOS_GUARDADOS} últimos`
+        : `Las fotos de las salidas se guardan ${SALIDA_DIAS} días`}${enMuro ? ' (las del muro, siempre)' : ''}. Si quieres conservarla con el comentario, usa el botón «Guardar para Instagram» y quedará en tu móvil.</span>`,
     ],
   });
   return { asunto: 'Te he comentado una foto · Mirar Despacio', html, texto: aTexto(html) };
@@ -158,6 +167,32 @@ exports.handler = async (event, context) => {
         }
       }
       return res(200, { enviados, saltados, sinEmail });
+    }
+
+    // Altas, renovaciones, bajas y pruebas de MD+ (ficha del CRM + acceso a la zona de miembros a la vez)
+    if (['plus-alta', 'plus-baja', 'plus-prueba'].includes(b.accion)) {
+      const ref = fs.collection('people').doc(String(b.personId || ''));
+      const snap = await ref.get();
+      if (!snap.exists) return res(404, { error: 'no-existe' });
+      const p = snap.data();
+      if (!p.email && b.accion !== 'plus-baja') return res(400, { error: 'sin-email' });
+      let r;
+      if (b.accion === 'plus-alta') r = await plus.alta(context, ref, p, { meses: b.meses, nivel: b.nivel, desde: b.desde });
+      else if (b.accion === 'plus-baja') r = await plus.baja(context, ref, p, { dejarFotos: b.dejarFotos !== false });
+      else r = await plus.prueba(context, ref, p);
+      await fs.collection('cambios_acceso').add({ personId: ref.id, email: p.email || '', accion: b.accion, detalle: { meses: b.meses || null, nivel: b.nivel || null }, resultado: r.acceso, fecha: FieldValue.serverTimestamp() });
+      return res(200, r);
+    }
+
+    // Email «nuevo reto» a todos los miembros MD+ (menos quien se dio de baja de los avisos)
+    if (b.accion === 'avisar-reto') {
+      const ref = fs.collection('retos').doc(String(b.retoId || ''));
+      const snap = await ref.get();
+      if (!snap.exists) return res(404, { error: 'no-existe' });
+      const lista = await miembrosConAvisos(context, fs);
+      const enviados = await enviarATodos(lista, (m) => correoReto('nuevo', snap.data(), m));
+      await ref.update({ avisadoEn: FieldValue.serverTimestamp(), avisadosA: enviados });
+      return res(200, { enviados, total: lista.length });
     }
 
     return res(400, { error: 'accion' });

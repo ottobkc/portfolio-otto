@@ -202,13 +202,19 @@ function sumarMeses(base, meses) {
 const fechaCorta = (d) => new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Madrid' }).format(d);
 
 // Da o amplía Mirar Despacio+ a una persona del CRM
+// Da o amplía Mirar Despacio+ (pagos de Ko-fi y regalos). Usa la misma ficha que las altas del CRM
+// (subscription), así la caducidad, las pausas y la plaza en salidas funcionan igual.
 async function darPlus(fs, persona, { meses, nivel, origen }) {
-  const ahora = new Date();
-  const actual = persona.plusHasta ? new Date(persona.plusHasta) : null;
-  const base = actual && actual > ahora ? actual : ahora;
-  const hasta = sumarMeses(base, meses);
-  await persona.ref.set({ plusHasta: hasta.toISOString(), plusNivel: nivel, plusOrigen: origen }, { merge: true });
-  return hasta;
+  const plus = require('./plus');
+  const s = persona.subscription || {};
+  const base = s.active && s.until && s.until >= plus.hoy() ? s.until : plus.hoy();
+  const until = plus.sumarMeses(base, Number(meses) || 1);
+  const pausas = (persona.pausas || []).map((x) => (x.hasta ? x : { ...x, hasta: plus.hoy() }));
+  await persona.ref.set({
+    subscription: { active: true, since: s.active && s.since ? s.since : plus.hoy(), until, nivel: nivel === 'sin-salidas' ? 'online' : 'salidas', origen: origen || 'kofi' },
+    avisoCaducidad: null, ...(persona.pausas ? { pausas } : {}),
+  }, { merge: true });
+  return new Date(until + 'T12:00:00');
 }
 
 module.exports = {

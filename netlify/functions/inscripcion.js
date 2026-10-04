@@ -24,14 +24,16 @@ function cabeceras(origen) {
 }
 
 const pendiente = (v) => !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim());
+// publicaDesde: hasta esa fecha la salida solo está abierta para MD+ (inscripción anticipada)
+const oculta = (x) => !!(x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime());
 const pasada = (x) => x.fechaISO && new Date(x.fechaISO).getTime() + 4 * 3600e3 < Date.now();
 
 // La próxima salida, igual que la calcula la web.
-async function proximaSalida() {
+async function proximaSalida({ anticipada = false } = {}) {
   const r = await fetch(DATOS + '?t=' + Date.now(), { signal: AbortSignal.timeout(5000) });
   if (!r.ok) throw new Error('No se pudo leer salidas-data.json');
   const d = await r.json();
-  const s = (d.proximas || []).filter((x) => x.activa && !pendiente(x.fecha) && !pasada(x))[0];
+  const s = (d.proximas || []).filter((x) => x.activa && !pendiente(x.fecha) && !pasada(x) && (anticipada || !oculta(x)))[0];
   if (!s) return { conFecha: false };
   const dia = s.fechaISO ? s.fechaISO.slice(0, 10) : null;
   return {
@@ -54,13 +56,10 @@ function leerCuerpo(event) {
 
 const limpio = (v, max = 200) => String(v == null ? '' : v).trim().slice(0, max);
 
+// MD+ con salidas, al día (o en prueba): plaza asegurada. La suscripción online no incluye salidas.
 function esMiembro(p) {
   if (!p) return false;
-  // Pagos por Ko-fi o regalos: plaza asegurada si tiene el nivel con salidas y está al día (3 días de margen)
-  if (p.plusHasta) return p.plusNivel !== 'sin-salidas' && new Date(p.plusHasta).getTime() + 3 * 864e5 > Date.now();
-  if (p.subscription && p.subscription.active) return true;
-  if (p.trialStart) return Date.now() - new Date(p.trialStart).getTime() < 30 * 864e5;
-  return false;
+  return require('../lib/plus').conSalidas(p);
 }
 
 // Busca la salida del CRM para esa fecha (o la crea). Sin fecha: una salida "Próxima salida (sin fecha)".
@@ -106,6 +105,8 @@ async function personaDelCRM(fs, datos) {
     if (datos.telefono && !p.telefono) cambios.telefono = datos.telefono;
     if (datos.instagram && !p.instagram) cambios.instagram = datos.instagram;
     if (datos.aceptaImagen && !p.consentImagen) cambios.consentImagen = true;
+    // Casilla opcional de novedades: se guarda cuándo la marcó (solo se activa, nunca se desactiva aquí)
+    if (datos.aceptaNovedades && !p.aceptaNovedades) { cambios.aceptaNovedades = true; cambios.novedadesDesde = new Date().toISOString(); }
     if (Object.keys(cambios).length) await doc.ref.set(cambios, { merge: true });
     return { id: doc.id, ...p, ...cambios };
   }
@@ -117,6 +118,8 @@ async function personaDelCRM(fs, datos) {
     telefono: datos.telefono,
     instagram: datos.instagram,
     consentImagen: datos.aceptaImagen,
+    aceptaNovedades: datos.aceptaNovedades,
+    ...(datos.aceptaNovedades ? { novedadesDesde: new Date().toISOString() } : {}),
     origen: 'web',
     createdAt: FieldValue.serverTimestamp(),
   };
@@ -215,6 +218,7 @@ function correoOtto(datos, salida, r) {
   const estado = !salida.conFecha ? 'plaza (aún sin fecha)' : r.status === 'espera' ? `lista de espera (nº ${r.posicion})` : 'plaza';
   const filas = [
     ['Salida', salida.conFecha ? textoSalida(salida) : 'Próxima salida (sin fecha)'],
+    ['Novedades por email', datos.aceptaNovedades ? 'Sí' : 'No'],
     ['Estado', estado + (r.yaEstaba ? ' · ya estaba apuntado/a' : '')],
     ['Nombre', `${datos.nombre} ${datos.apellidos}`],
     ['Email', datos.email],
@@ -233,7 +237,7 @@ function correoOtto(datos, salida, r) {
   };
 }
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
   const h = cabeceras(event.headers.origin);
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: h, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: h, body: '{}' };
@@ -242,6 +246,15 @@ exports.handler = async (event) => {
   try { b = leerCuerpo(event); } catch (e) { return { statusCode: 400, headers: h, body: '{"error":"datos"}' }; }
   // Campo trampa para bots: las personas no lo ven
   if (b.web) return { statusCode: 200, headers: h, body: JSON.stringify({ estado: 'plaza' }) };
+
+  // Inscripción anticipada desde la zona MD+: solo con sesión de miembro, y el email es el de su cuenta
+  const usuario = context && context.clientContext && context.clientContext.user;
+  const roles = (usuario && usuario.app_metadata && usuario.app_metadata.roles) || [];
+  const anticipada = b.anticipada === 'si' || b.anticipada === true;
+  if (anticipada && !(roles.includes('member') || roles.includes('admin'))) {
+    return { statusCode: 403, headers: h, body: '{"error":"solo-miembros"}' };
+  }
+  if (anticipada) b.email = usuario.email;
 
   const datos = {
     nombre: limpio(b.nombre, 80),
@@ -252,6 +265,7 @@ exports.handler = async (event) => {
     camara: limpio(b.camara, 60),
     mensaje: limpio(b.mensaje, 2000),
     aceptaImagen: b.acepta_imagen === 'si',
+    aceptaNovedades: b.acepta_novedades === 'si',
   };
   if (!datos.nombre || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email) || b.acepta_datos !== 'si') {
     return { statusCode: 400, headers: h, body: '{"error":"faltan datos"}' };
@@ -260,7 +274,8 @@ exports.handler = async (event) => {
   let salida, r;
   try {
     const fs = db();
-    salida = await proximaSalida();
+    salida = await proximaSalida({ anticipada });
+    if (anticipada && !salida.conFecha) return { statusCode: 400, headers: h, body: '{"error":"sin-salida"}' };
     const eventRef = await salidaDelCRM(fs, salida);
     if (salida.conFecha) await pasarSinFechaA(fs, eventRef);
     const persona = await personaDelCRM(fs, datos);
