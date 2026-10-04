@@ -45,6 +45,8 @@
     gato:     { uno: 'gato', nombre: 'gatos', pts: 25, w: 24, h: 18, alto: [0, 0], vel: 1.6 },
   };
   var LISTA = Object.keys(TIPOS);
+  // Carrete: si le haces foto, ganas una vida. Si se escapa, no pasa nada.
+  var VIDAS_MAX = 5;
 
   var estado, record = 0;
   try { record = parseInt(localStorage.getItem('md-juego-record') || '0', 10) || 0; } catch (e) {}
@@ -53,7 +55,7 @@
     estado = {
       fase: 'inicio', t: 0, puntos: 0, vidas: 3, nivel: 1, racha: 0, cosas: [], textos: [],
       proximo: 1.2, enfriar: 0, flash: 0, golpe: 0, temblor: 0, banner: 0, paso: 0, fondo: 0,
-      fotos: {}, perfectas: 0, montura: null, nueva: false, monturasPartida: [], nuevasPartida: [],
+      fotos: {}, perfectas: 0, carrete: 20, fallosSeguidos: 0, ultimoFallo: -9, bloqueo: 0, vidasGanadas: 0, montura: null, nueva: false, monturasPartida: [], nuevasPartida: [],
     };
   }
   nuevo();
@@ -73,6 +75,20 @@
     estado.cosas.push({ tipo: tipo, x: W + 20, y: SUELO - d.h - alto, w: d.w, h: d.h, vel: d.vel * (0.9 + Math.random() * 0.25), fase: Math.random() * 6 });
   }
 
+  function aparecerCarrete() {
+    estado.cosas.push({ tipo: 'carrete', especial: true, x: W + 20, y: SUELO - 22 - (45 + Math.random() * 60), w: 26, h: 22, vel: 1.05, fase: 0 });
+  }
+  function ganarVida(x, y, texto) {
+    if (estado.vidas >= VIDAS_MAX) { flotante(texto ? texto + ' (vidas al máximo)' : '+50', x, y, C.rosa); if (!texto) estado.puntos += 50 * estado.nivel; return; }
+    estado.vidas++; estado.vidasGanadas = (estado.vidasGanadas || 0) + 1;
+    flotante(texto || '¡+1 vida!', x, y, C.rosa); clic(1200, 0.08, 0.05); setTimeout(function () { clic(1600, 0.1, 0.05); }, 90);
+  }
+
+  // Tiempo de espera entre disparos: más corto cuanto más alto el nivel (va más rápido),
+  // pero disparar al aire seguido bloquea la cámara cada vez más (castiga el clic compulsivo).
+  function esperaAcierto() { return Math.max(0.12, 0.28 - 0.016 * (estado.nivel - 1)); }
+  function esperaFallo() { return Math.max(0.22, 0.5 - 0.03 * (estado.nivel - 1)); }
+
   // ---------- Disparo ----------
   function disparar() {
     if (estado.fase === 'inicio' || estado.fase === 'fin') {
@@ -80,7 +96,20 @@
       if (!nombreValido()) { pedirNombre(); return; }
       empezar(); return;
     }
-    if (estado.fase !== 'jugando' || estado.enfriar > 0) return;
+    if (estado.fase !== 'jugando') return;
+    if (estado.enfriar > 0) {
+      // Aporrear el botón mientras la cámara aún no está lista también cuenta como clic compulsivo
+      estado.prisa = (estado.prisa || 0) + 1;
+      if (estado.prisa >= 3) {
+        estado.prisa = 0;
+        estado.enfriar = Math.min(2, estado.enfriar + 0.5);
+        estado.bloqueo = estado.enfriar;
+        flotante('¡Sin prisa!', VISOR().x + VISOR().w / 2, SUELO - 150, C.rosa);
+        clic(140, 0.12, 0.05);
+      }
+      return;
+    }
+    estado.prisa = 0;
     var v = VISOR();
     // Todo lo que esté (al menos en buena parte) dentro del visor sale en la foto
     var dentro = estado.cosas.filter(function (c) {
@@ -88,8 +117,29 @@
       return visible >= c.w * 0.5;
     });
     estado.flash = 1;
-    if (!dentro.length) { estado.enfriar = 0.5; clic(180, 0.08, 0.04); flotante('fuera de plano', v.x + v.w / 2, SUELO - 120, C.gris); return; }
-    estado.enfriar = 0.28;
+    if (!dentro.length) {
+      // Fallos seguidos en poco tiempo = clic compulsivo: cada uno bloquea más y, desde el tercero, resta puntos
+      estado.fallosSeguidos = estado.t - (estado.ultimoFallo || -9) < 1.4 ? (estado.fallosSeguidos || 0) + 1 : 1;
+      estado.ultimoFallo = estado.t;
+      estado.enfriar = Math.min(2, esperaFallo() * estado.fallosSeguidos);
+      clic(180, 0.08, 0.04);
+      if (estado.fallosSeguidos >= 3) {
+        var multa = 5 * estado.nivel;
+        estado.puntos = Math.max(0, estado.puntos - multa);
+        estado.bloqueo = estado.enfriar;
+        flotante('¡Sin mirar no vale! −' + multa, v.x + v.w / 2, SUELO - 120, C.rosa);
+      } else flotante('fuera de plano', v.x + v.w / 2, SUELO - 120, C.gris);
+      return;
+    }
+    estado.fallosSeguidos = 0;
+    estado.enfriar = esperaAcierto();
+    // El carrete da una vida (no cuenta como foto ni suma puntos)
+    dentro.filter(function (c) { return c.especial; }).forEach(function (c) {
+      ganarVida(c.x + c.w / 2, c.y - 8);
+      estado.cosas.splice(estado.cosas.indexOf(c), 1);
+    });
+    dentro = dentro.filter(function (c) { return !c.especial; });
+    if (!dentro.length) return;
     var medio = v.x + v.w / 2, total = 0, algunaPerfecta = false;
     dentro.forEach(function (c) {
       var centro = c.x + c.w / 2;
@@ -197,6 +247,7 @@
       e.nivel = nivel; e.banner = 1.4; clic(660, 0.12, 0.04);
       // Cada 5 niveles, montura nueva al azar (nunca la misma que la anterior)
       if (nivel % 5 === 0) {
+        ganarVida(FX() + 30, SUELO - 130, '¡+1 vida de regalo!');
         e.montura = elegirMontura(e.montura);
         e.nueva = descubrir(e.montura);
         if (e.nueva) e.nuevasPartida = (e.nuevasPartida || []).concat(e.montura);
@@ -214,6 +265,13 @@
     e.banner = Math.max(0, e.banner - dt);
     e.proximo -= dt;
     if (e.proximo <= 0) { aparecer(); e.proximo = cadencia() * (0.7 + Math.random() * 0.6); }
+    // Un carrete de vez en cuando (desde el nivel 3, más a menudo si te quedan pocas vidas)
+    e.carrete -= dt;
+    if (e.carrete <= 0) {
+      if (e.nivel >= 3 && e.vidas < VIDAS_MAX) aparecerCarrete();
+      e.carrete = (e.vidas <= 1 ? 14 : 22) + Math.random() * 10;
+    }
+    e.bloqueo = Math.max(0, (e.bloqueo || 0) - dt);
 
     for (var i = e.cosas.length - 1; i >= 0; i--) {
       var c = e.cosas[i];
@@ -221,6 +279,7 @@
       c.fase += dt * 10;
       if (c.x <= FX() + 14) {
         e.cosas.splice(i, 1);
+        if (c.especial) continue;               // el carrete no hace daño: simplemente se va
         if (e.golpe > 0) continue;              // invulnerable un momento tras un golpe
         e.vidas--; e.golpe = 1.2; e.temblor = 1; e.racha = 0;
         flotante('¡Pum!', FX() + 10, SUELO - 90, C.tinta);
@@ -264,7 +323,7 @@
 
     // Visor
     var v = VISOR();
-    ctx.strokeStyle = e.enfriar > 0.3 ? C.gris : C.naranja;
+    ctx.strokeStyle = e.bloqueo > 0 ? C.rosa : e.enfriar > 0.15 ? C.gris : C.naranja;
     ctx.lineWidth = 2;
     var vy0 = 20, vh = SUELO - 24, l = 14;
     [[v.x, vy0, 1, 1], [v.x + v.w, vy0, -1, 1], [v.x, vy0 + vh, 1, -1], [v.x + v.w, vy0 + vh, -1, -1]].forEach(function (p) {
@@ -300,7 +359,11 @@
     ctx.textAlign = 'left'; ctx.fillStyle = C.tinta; ctx.font = '500 14px Jost, system-ui, sans-serif';
     ctx.fillText('Puntos ' + e.puntos, 14, 24);
     ctx.fillStyle = C.gris; ctx.fillText('Nivel ' + e.nivel + (record ? '   ·   Récord ' + record : ''), 14, 44);
-    for (var k = 0; k < 3; k++) camarita(W - 26 - k * 30, 14, k < e.vidas);
+    for (var k = 0; k < Math.max(3, e.vidas); k++) camarita(W - 26 - k * 30, 14, k < e.vidas);
+    if (e.bloqueo > 0) {
+      ctx.textAlign = 'right'; ctx.fillStyle = C.rosa; ctx.font = '600 13px Jost, system-ui, sans-serif';
+      ctx.fillText('Cámara bloqueada ' + e.bloqueo.toFixed(1) + ' s', W - 14, 50); ctx.textAlign = 'left';
+    }
 
     // Destello del disparo
     if (e.flash > 0) { ctx.fillStyle = 'rgba(255,255,255,' + (e.flash * 0.55) + ')'; ctx.fillRect(0, 0, W, H); }
@@ -333,10 +396,11 @@
       ctx.font = '400 15px Jost, system-ui, sans-serif'; ctx.fillStyle = C.suave;
       ctx.fillText('Haz la foto cuando algo entre en el visor naranja.', W / 2, H / 2 + 6);
       ctx.fillText('Si te llega sin foto, te golpea. Tienes 3 vidas.', W / 2, H / 2 + 28);
+      ctx.fillText('Haz foto al carrete y ganas una más.', W / 2, H / 2 + 50);
       ctx.fillStyle = C.rosa; ctx.font = '600 15px Jost, system-ui, sans-serif';
       ctx.fillText(nombreValido()
         ? ('ontouchstart' in window ? 'Toca' : 'Pulsa espacio o haz clic') + ' para empezar'
-        : 'Escribe arriba tu nombre o tu @ para jugar', W / 2, H / 2 + 62);
+        : 'Escribe arriba tu nombre o tu @ para jugar', W / 2, H / 2 + 80);
     } else {
       ctx.font = 'italic ' + Math.min(36, W / 11) + 'px Georgia, serif';
       ctx.fillText(e.puntos + ' puntos', W / 2, H / 2 - 22);
@@ -446,6 +510,17 @@
         ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + 13, y + 42); ctx.lineTo(x + 13 - 4 * Math.sin(f / 2), y + 54);
         ctx.moveTo(x + 17, y + 42); ctx.lineTo(x + 17 + 4 * Math.sin(f / 2), y + 54); ctx.stroke();
         break;
+      case 'carrete': {
+        // Carrete de fotos con un brillo rosa que late
+        var brillo = 0.35 + 0.25 * Math.sin(f * 0.6);
+        ctx.fillStyle = 'rgba(232,52,122,' + brillo + ')'; ctx.beginPath(); ctx.arc(x + 13, y + 11, 18, 0, 7); ctx.fill();
+        ctx.fillStyle = C.tinta; ctx.fillRect(x + 4, y + 2, 16, 18);
+        ctx.fillStyle = C.naranja; ctx.fillRect(x + 6, y + 5, 12, 12);
+        ctx.fillStyle = C.tinta; ctx.fillRect(x + 9, y - 2, 6, 4); ctx.fillRect(x + 9, y + 20, 6, 3);
+        ctx.fillStyle = '#c9a46a'; ctx.beginPath(); ctx.moveTo(x + 20, y + 6); ctx.lineTo(x + 30, y + 6 + 2 * Math.sin(f / 2)); ctx.lineTo(x + 30, y + 14 + 2 * Math.sin(f / 2)); ctx.lineTo(x + 20, y + 14); ctx.fill();
+        ctx.fillStyle = C.crema; ctx.font = '700 9px Jost, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('+1', x + 12, y + 14); ctx.textAlign = 'left';
+        break;
+      }
       case 'gato':
         ctx.fillStyle = C.tinta; ctx.beginPath(); ctx.ellipse(x + 14, y + 10, 10, 5, 0, 0, 7); ctx.fill();
         ctx.beginPath(); ctx.arc(x + 4, y + 7, 4.5, 0, 7); ctx.fill();

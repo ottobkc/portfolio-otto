@@ -717,7 +717,7 @@ def construir(g):
         </div>
         <p class="nota sorpresa">Cada 5 niveles, una sorpresa… hay 20 por descubrir</p>
         <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
-        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición</p>
+        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición · Foto al carrete = +1 vida · Disparar sin mirar bloquea la cámara</p>
         <div class="rejilla-2" style="gap:40px;margin-top:20px;align-items:start;">
           <div>
             <p id="juegoResumen" style="min-height:1.6em;margin-top:0;"></p>
