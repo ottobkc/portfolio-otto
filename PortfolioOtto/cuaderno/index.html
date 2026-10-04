@@ -153,6 +153,7 @@
         <span>Si te la comento, puede salir en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro público</a> de Mirar Despacio con tu firma y mi comentario. Puedes quitarla cuando quieras.</span></label>
       <div class="barra" hidden id="barra"><i></i></div>
       <div><button class="boton color" id="enviar" type="submit">Subir foto</button></div>
+      <p class="nota-guardado" style="margin:0">Las fotos se guardan 90 días después de la salida (las del muro, siempre). Guarda en tu móvil las que quieras conservar.</p>
       <p class="msg" id="msg" role="status"></p>
     </form>
     <p class="aviso-fotos" id="sinDestino" hidden>Aquí se suben las fotos de las salidas por Madrid a las que vienes. Ahora mismo no tienes ninguna salida reciente: después de la próxima a la que te apuntes, podrás subir tus fotos durante un mes.</p>
@@ -240,6 +241,7 @@
       $('formSubir').hidden = !ops.length; $('sinDestino').hidden = !!ops.length;
       if (!$('nombreMuro').value) $('nombreMuro').value = d.yo.nombre || '';
 
+      $('notaGuardado').textContent = 'Las fotos se guardan ' + d.guardado.salidaDias + ' días después de cada salida (las del muro, siempre). Si quieres conservar una con mi comentario, guárdala con el botón de Instagram.';
       var cont = $('fotos');
       if (!mias.length) { cont.innerHTML = '<p class="vacio" style="grid-column:1/-1">Aún no has subido ninguna foto de una salida.' + (d.yo.plus ? ' El reto del mes está en <a href="/retos/">su propia página</a>.' : '') + '</p>'; return; }
       cont.innerHTML = mias.map(function (f) {
@@ -256,7 +258,6 @@
           (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
           '</div></article>';
       }).join('');
-      $('notaGuardado').textContent = 'Las fotos se guardan ' + d.guardado.salidaDias + ' días después de cada salida (las del muro, siempre). Si quieres conservar una con mi comentario, guárdala con el botón de Instagram.';
     }
 
     function cargar() {
