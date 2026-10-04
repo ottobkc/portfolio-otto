@@ -3,7 +3,8 @@
 //   TarjetaIG.compartir({ url, comentario, nombre, donde, formato: 'post' | 'historia' })
 // En el móvil abre el menú de compartir (Instagram incluido); en el ordenador, descarga la imagen.
 (function () {
-  var LOGO = 'https://res.cloudinary.com/dybxateci/image/upload/v1785276700/logoMD_gizjap.png';
+  // Logo recortado y servido desde la propia web (así el navegador siempre puede dibujarlo)
+  var LOGO = '/assets/logo-md-ig.png';
   var C = { fondo: '#f5f3ef', tinta: '#1a1814', gris: '#7a756f', naranja: '#e8821a', rosa: '#e8347a' };
 
   function cargar(src) {
@@ -42,8 +43,10 @@
     if (ls.length > max) { ls = ls.slice(0, max); ls[max - 1] = ls[max - 1].replace(/\s*\S*$/, '') + '…'; }
     var lh = tam * 1.12;
     var altoTexto = ls.length ? ls.length * lh + 56 : 0;      // comentario + firma
-    var pieAlto = historia ? 260 : 170;                        // autor y logo abajo
-    var arriba = historia ? 150 : 70;
+    // En las historias Instagram tapa arriba y abajo: el logo va arriba (bajo la barra de perfil)
+    // y el autor abajo, dejando margen. En el post, autor y logo van juntos abajo.
+    var pieAlto = historia ? 380 : 170;
+    var arriba = historia ? 420 : 70;
     var hueco = H - arriba - pieAlto;                          // sitio para foto + texto
     var sep = ls.length ? 70 : 0;
     var cajaW = W - 2 * M, cajaH = hueco - altoTexto - sep - 40;
@@ -65,15 +68,38 @@
       x.fillText('— Otto, Mirar Despacio', M + 30, y + (ls.length - 1) * lh + 56);
     }
 
-    // Pie: autor a la izquierda, logo a la derecha
-    var py = H - (historia ? 170 : 75);
-    x.fillStyle = C.tinta; x.font = '500 30px Jost, sans-serif';
-    x.fillText(o.nombre ? '📷 ' + o.nombre : '', M, py - 18);
-    x.fillStyle = C.gris; x.font = '400 24px Jost, sans-serif';
-    x.fillText(o.donde || 'mirardespacio.es', M, py + 20);
-    if (logo) {
-      var lw = 230, lh = logo.naturalHeight * lw / logo.naturalWidth;
-      x.drawImage(logo, W - M - lw, py - lh / 2 - 6, lw, lh);
+    // Logo de Mirar Despacio (si no cargara, se escribe el nombre con la misma gama de color)
+    function logoEn(cx, cy, ancho, alinear) {
+      var lx;
+      if (logo) {
+        var lh2 = logo.naturalHeight * ancho / logo.naturalWidth;
+        lx = alinear === 'centro' ? cx - ancho / 2 : cx - ancho;
+        x.drawImage(logo, lx, cy - lh2 / 2, ancho, lh2);
+      } else {
+        x.font = '600 ' + Math.round(ancho / 6.5) + 'px Jost, sans-serif';
+        var tw = x.measureText('Mirar Despacio').width;
+        lx = alinear === 'centro' ? cx - tw / 2 : cx - tw;
+        var gl = x.createLinearGradient(lx, 0, lx + tw, 0); gl.addColorStop(0, C.naranja); gl.addColorStop(1, C.rosa);
+        x.fillStyle = gl; x.fillText('Mirar Despacio', lx, cy + ancho / 20);
+      }
+    }
+
+    if (historia) {
+      logoEn(W / 2, 290, 420, 'centro');
+      var hy = H - 320;
+      x.fillStyle = C.tinta; x.font = '500 34px Jost, sans-serif';
+      x.textAlign = 'center';
+      if (o.nombre) x.fillText('📷 ' + o.nombre, W / 2, hy);
+      x.fillStyle = C.gris; x.font = '400 26px Jost, sans-serif';
+      x.fillText((o.donde ? o.donde + ' · ' : '') + 'mirardespacio.es', W / 2, hy + 44);
+      x.textAlign = 'left';
+    } else {
+      var py = H - 85;
+      x.fillStyle = C.tinta; x.font = '500 30px Jost, sans-serif';
+      if (o.nombre) x.fillText('📷 ' + o.nombre, M, py - 14);
+      x.fillStyle = C.gris; x.font = '400 24px Jost, sans-serif';
+      x.fillText(o.donde || 'mirardespacio.es', M, py + 24);
+      logoEn(W - M, py, 300, 'derecha');
     }
     return c;
   }
