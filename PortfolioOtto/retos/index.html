@@ -106,6 +106,25 @@
     .archivo div { background: var(--bg); padding: .8rem 1.1rem; display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
     .archivo .hecho { color: var(--ok); } .archivo .no { color: var(--muted); }
     .reto-vacio { background: var(--bg2); padding: 2rem; }
+    .ig { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .ig button { background: var(--bg); border: 1px solid var(--border); padding: .35rem .7rem; font-size: .78rem; cursor: pointer; }
+    .ig button:hover { border-color: var(--ink); }
+    .insignias { display: flex; flex-wrap: wrap; gap: .6rem; }
+    .insignia { border: 1px solid var(--border); padding: .55rem .9rem; font-size: .85rem; color: var(--muted); background: var(--bg); }
+    .insignia b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: 1.05rem; color: var(--muted); }
+    .insignia.si { border-color: transparent; background: var(--ink); color: #cfc9bf; }
+    .insignia.si b { color: #fff; }
+    .constancia { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .constancia div { background: var(--bg); padding: .7rem 1.1rem; display: grid; grid-template-columns: 1fr auto auto; gap: 1.2rem; align-items: center; }
+    .constancia div.yo { background: #fff5f9; }
+    .constancia .n { font-family: var(--font-serif); font-size: 1.2rem; }
+    .constancia small { color: var(--muted); font-size: .78rem; }
+    .galeria-reto h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.3rem; margin: 1.6rem 0 .8rem; }
+    .galeria-reto .fotos { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .galeria-reto .foto img { aspect-ratio: 1; }
+    .galeria-reto .comentario { font-size: 1.15rem; }
+    .nota-guardado { font-size: .85rem; color: var(--muted); margin-top: .8rem; }
+    @media (max-width: 640px) { .galeria-reto .fotos { grid-template-columns: 1fr 1fr; } .constancia div { grid-template-columns: 1fr auto; } .constancia .racha { display: none; } }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
 </head>
@@ -152,6 +171,8 @@
       </div>
       <label class="check"><input type="checkbox" id="publicable">
         <span>Si te la comento, puede salir en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro público</a> de Mirar Despacio con tu firma y mi comentario. Puedes quitarla cuando quieras.</span></label>
+      <label class="check"><input type="checkbox" id="compartir">
+        <span>Que la vean los demás miembros cuando cierre el reto (en la galería del reto y en el cuadro de constancia). Solo la ven miembros de Mirar Despacio+.</span></label>
       <div class="barra" hidden id="barra"><i></i></div>
       <div><button class="boton color" id="enviar" type="submit">Enviar mi foto</button></div>
       <p class="msg" id="msg" role="status"></p>
@@ -159,6 +180,24 @@
 
     <p class="rotulo">Tus retos</p>
     <div class="fotos" id="fotos"><p class="vacio">Cargando…</p></div>
+    <p class="nota-guardado" id="notaGuardado"></p>
+
+    <section id="zonaInsignias">
+      <p class="rotulo">Tus insignias</p>
+      <div class="insignias" id="insignias"></div>
+      <p class="nota-guardado">Aquí no hay notas ni fotos mejores o peores: solo cuenta cuántos meses te has puesto a mirar.</p>
+    </section>
+
+    <section id="zonaGaleria" hidden>
+      <p class="rotulo">Lo que han mirado los demás</p>
+      <div id="galeria"></div>
+    </section>
+
+    <section id="zonaConstancia" hidden>
+      <p class="rotulo">Constancia · quién lleva más retos</p>
+      <div class="constancia" id="constancia"></div>
+      <p class="nota-guardado">Solo aparece quien comparte sus fotos con los miembros. Cuenta retos hechos, no cómo de buenos son.</p>
+    </section>
 
     <section id="zonaArchivo" hidden>
       <p class="rotulo">Todos los retos</p>
@@ -169,6 +208,7 @@
   <div class="visor" id="visor" hidden><img alt=""></div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="/js/tarjeta-ig.js"></script>
   <script>
   (function () {
     var API = '/.netlify/functions/fotos';
@@ -186,7 +226,7 @@
     function llamar(metodo, cuerpo) {
       var u = netlifyIdentity.currentUser();
       return (u ? u.jwt() : Promise.reject(new Error('sesion'))).then(function (t) {
-        return fetch(API, { method: metodo, headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
+        return fetch(metodo === 'GET' ? API + '?vista=retos' : API, { method: metodo, headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
       }).then(function (r) {
         if (r.status === 401) { location.replace('/acceso.html?a=retos'); throw new Error('sesion'); }
         return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.error || 'error'); e.codigo = j.error; throw e; } return j; });
@@ -226,15 +266,60 @@
           '<span class="donde">' + esc(f.donde) + '</span><div>' + est + '</div>' + (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
           '<div class="acciones">' + (f.estado === 'pendiente' ? '<button class="link" data-borrar="' + f.id + '">Borrar</button>' : '') +
-          '<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label></div></div></article>';
+          '<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
+          '<label class="check" style="font-size:.85rem"><input type="checkbox" data-compartir="' + f.id + '"' + (f.compartir ? ' checked' : '') + '> La ven los miembros</label></div>' +
+          (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
+          '</div></article>';
       }).join('') : '<p class="vacio" style="grid-column:1/-1">Todavía no has hecho ningún reto. El de este mes es un buen comienzo.</p>';
 
-      var hechos = {}; mias.forEach(function (f) { hechos[f.refId] = true; });
+      var hechos = {}; (d.hechos || []).forEach(function (id) { hechos[id] = true; });
       $('zonaArchivo').hidden = d.historial.length < 2;
       $('archivo2').innerHTML = d.historial.map(function (h) {
         return '<div><span><strong>' + esc(h.titulo) + '</strong> · ' + mes(h.inicio) + '</span>' +
           (hechos[h.id] ? '<span class="hecho">✓ hecho</span>' : h.abierto ? '<span class="no">abierto</span>' : '<span class="no">—</span>') + '</div>';
       }).join('');
+
+      $('notaGuardado').textContent = 'Las fotos de los ' + d.guardado.retos + ' últimos retos se guardan aquí; las más antiguas se archivan (el comentario y tu racha se conservan). Si quieres conservar una, guárdala con el botón de Instagram.';
+
+      // Insignias: por constancia, nunca por calidad
+      var total = d.total || 0, racha = d.racha || 0;
+      var INS = [
+        { n: 1, t: 'Primera mirada', d: 'Tu primer reto' }, { n: 3, t: 'Tres meses', d: '3 retos hechos' },
+        { n: 6, t: 'Medio año', d: '6 retos hechos' }, { n: 12, t: 'Un año despacio', d: '12 retos hechos' },
+        { r: 3, t: 'Sin fallar', d: '3 retos seguidos' }, { r: 6, t: 'Constancia', d: '6 retos seguidos' }
+      ];
+      $('insignias').innerHTML = INS.map(function (i) {
+        var ok = i.n ? total >= i.n : racha >= i.r;
+        var falta = i.n ? i.n - total : i.r - racha;
+        return '<div class="insignia' + (ok ? ' si' : '') + '"><b>' + (ok ? '★ ' : '') + i.t + '</b>' + (ok ? i.d : (falta === 1 ? 'Te falta 1' : 'Te faltan ' + falta)) + '</div>';
+      }).join('');
+
+      // Galería de los últimos retos cerrados
+      var gal = (d.galeria || []).filter(function (g) { return g.fotos.length; });
+      $('zonaGaleria').hidden = !gal.length;
+      $('galeria').innerHTML = gal.map(function (g) {
+        return '<div class="galeria-reto"><h3>' + esc(g.reto.titulo) + ' <small style="font-size:.8rem;color:var(--muted)">' + mes(g.reto.inicio) + ' · ' + g.fotos.length + ' fotos</small></h3><div class="fotos">' +
+          g.fotos.map(function (f) {
+            return '<article class="foto"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
+              '<span class="donde">' + esc(f.nombre) + (f.mia ? ' · tú' : '') + '</span>' +
+              (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') + '</div></article>';
+          }).join('') + '</div></div>';
+      }).join('');
+
+      // Constancia
+      var cons = d.constancia || [];
+      $('zonaConstancia').hidden = cons.filter(function (c) { return !c.yo; }).length < 2;
+      $('constancia').innerHTML = cons.map(function (c) {
+        return '<div' + (c.yo ? ' class="yo"' : '') + '><span>' + esc(c.nombre) + (c.yo ? ' <small>(tú)</small>' : '') + '</span>' +
+          '<span class="racha"><small>' + (c.racha > 1 ? c.racha + ' seguidos' : '') + '</small></span>' +
+          '<span class="n">' + c.retos + ' <small>' + (c.retos === 1 ? 'reto' : 'retos') + '</small></span></div>';
+      }).join('');
+    }
+
+    function buscarFoto(id) {
+      var todas = datos.mias.slice();
+      (datos.galeria || []).forEach(function (g) { todas = todas.concat(g.fotos); });
+      return todas.filter(function (f) { return f.id === id; })[0];
     }
 
     function cargar() {
@@ -283,7 +368,7 @@
       $('enviar').disabled = true; m.textContent = 'Subiendo…';
       subirCloudinary(blob).then(function (c) {
         return llamar('POST', { accion: 'subir', tipo: 'reto', refId: datos.reto.id, url: c.secure_url, ancho: c.width, alto: c.height,
-          texto: $('texto').value, nombreMuro: $('nombreMuro').value, publicable: $('publicable').checked });
+          texto: $('texto').value, nombreMuro: $('nombreMuro').value, publicable: $('publicable').checked, compartir: $('compartir').checked });
       }).then(function () {
         umami('reto-subir');
         m.textContent = '¡Recibida! Te aviso por email cuando la comente.'; m.className = 'msg ok';
@@ -295,11 +380,23 @@
     });
     $('fotos').addEventListener('click', function (e) {
       var t = e.target;
+      if (t.dataset.ig) {
+        var f = buscarFoto(t.dataset.id); if (!f) return;
+        var txt = t.textContent; t.disabled = true; t.textContent = 'Preparando…';
+        TarjetaIG.compartir({ url: f.grande, comentario: f.comentario, nombre: f.nombreMuro || datos.yo.nombre, donde: 'Reto del mes · ' + f.donde, formato: t.dataset.ig })
+          .catch(function () { alert('No se ha podido preparar la imagen. Prueba otra vez.'); })
+          .then(function () { t.disabled = false; t.textContent = txt; });
+        return;
+      }
       if (t.dataset.borrar) { if (confirm('¿Borrar esta foto?')) llamar('POST', { accion: 'borrar', id: t.dataset.borrar }).then(cargar); }
       else if (t.dataset.grande) { $('visor').firstChild.src = t.dataset.grande; $('visor').hidden = false; }
     });
     $('fotos').addEventListener('change', function (e) {
       if (e.target.dataset.publicable) llamar('POST', { accion: 'publicable', id: e.target.dataset.publicable, valor: e.target.checked }).then(cargar);
+      if (e.target.dataset.compartir) llamar('POST', { accion: 'compartir', id: e.target.dataset.compartir, valor: e.target.checked }).then(cargar);
+    });
+    $('galeria').addEventListener('click', function (e) {
+      if (e.target.dataset.grande) { $('visor').firstChild.src = e.target.dataset.grande; $('visor').hidden = false; }
     });
     $('visor').addEventListener('click', function () { this.hidden = true; });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('visor').hidden = true; });

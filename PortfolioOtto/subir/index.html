@@ -52,6 +52,8 @@
     .comentario small { display: block; font-family: 'Jost', sans-serif; font-size: .85rem; color: var(--muted); }
     .check { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
     .check input { width: 26px; height: 26px; accent-color: var(--rosa); flex: none; margin-top: 2px; }
+    .boton-ig { display: block; width: 100%; margin-top: 14px; min-height: 52px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; font-size: 1.05rem; font-weight: 500; cursor: pointer; }
+    .link-hist { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: .95rem; margin-top: 8px; }
     footer { text-align: center; color: var(--muted); font-size: .95rem; margin-top: 50px; }
     footer a { color: inherit; }
   </style>
@@ -92,6 +94,7 @@
     <section id="zonaMias" hidden>
       <h2>Tus fotos</h2>
       <div class="fotos" id="mias"></div>
+      <p class="aviso" id="notaGuardado" style="margin-top:18px;"></p>
     </section>
 
     <footer>
@@ -100,6 +103,7 @@
     </footer>
   </main>
 
+  <script src="/js/tarjeta-ig.js"></script>
   <script>
   (function () {
     var API = '/.netlify/functions/fotos';
@@ -167,11 +171,14 @@
         return '<article class="foto"><img src="' + esc(f.url) + '" alt="" loading="lazy"><div class="datos">' + etq +
           '<p style="color:var(--muted);font-size:1rem;margin-top:8px;">' + esc(f.donde) + '</p>' +
           (f.texto ? '<p style="font-style:italic">“' + esc(f.texto) + '”</p>' : '') +
-          (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
+          (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' +
+            '<button class="boton-ig" type="button" data-ig="post" data-id="' + f.id + '">📲 Guardar para Instagram</button>' +
+            '<button class="link-hist" type="button" data-ig="historia" data-id="' + f.id + '">o en formato historia</button>' : '') +
           '<label class="check" style="margin-top:14px;font-size:1rem;"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
           (f.estado === 'pendiente' ? '<p style="margin-top:10px"><button class="quitar" style="background:none;border:0;text-decoration:underline;color:var(--muted);cursor:pointer" data-borrar="' + f.id + '">Borrar esta foto</button></p>' : '') +
           '</div></article>';
       }).join('');
+      $('notaGuardado').textContent = 'Tus fotos se guardan aquí ' + d.guardado.salidaDias + ' días después de cada salida. Si quieres conservar una con mi comentario, pulsa «Guardar para Instagram» y quedará en tu móvil.';
     }
 
     function cargar() {
@@ -284,6 +291,15 @@
       if (e.target.dataset.publicable) api('POST', { accion: 'publicable', id: e.target.dataset.publicable, valor: e.target.checked }).then(cargar);
     });
     $('mias').addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.dataset.ig) {
+        var f = datos.mias.filter(function (x) { return x.id === t.dataset.id; })[0]; if (!f) return;
+        var txt = t.textContent; t.disabled = true; t.textContent = 'Preparando…';
+        TarjetaIG.compartir({ url: f.grande, comentario: f.comentario, nombre: datos.yo.nombre, donde: f.donde, formato: t.dataset.ig })
+          .catch(function () { alert('No se ha podido preparar la imagen. Prueba otra vez.'); })
+          .then(function () { t.disabled = false; t.textContent = txt; });
+        return;
+      }
       if (e.target.dataset.borrar && confirm('¿Borrar esta foto?')) api('POST', { accion: 'borrar', id: e.target.dataset.borrar }).then(cargar);
     });
 

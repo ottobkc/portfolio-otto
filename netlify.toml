@@ -18,6 +18,9 @@
   external_node_modules = ["firebase-admin"]
 
 # Copia de seguridad del CRM: cada lunes a las 6:00 UTC
+[functions."limpieza-fotos"]
+  schedule = "0 4 * * 1"
+
 [functions."copia-seguridad"]
   schedule = "0 6 * * 1"
 

@@ -89,6 +89,9 @@
     .comentario small { display: block; font-family: var(--font-sans); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-top: .3rem; }
     .acciones { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; font-size: .85rem; }
     .acciones button.link { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 0; }
+    .ig { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .ig button { background: var(--bg); border: 1px solid var(--border); padding: .35rem .7rem; font-size: .78rem; cursor: pointer; }
+    .nota-guardado { font-size: .85rem; color: var(--muted); margin-top: .8rem; }
     .vacio { color: var(--muted); padding: 2rem; background: var(--bg2); text-align: center; }
     .aviso-fotos { background: var(--bg2); padding: 1.3rem 1.6rem; border-left: 3px solid var(--md-orange); color: var(--ink-faint); }
 
@@ -156,6 +159,7 @@
 
     <p class="rotulo">Tus fotos de las salidas</p>
     <div class="fotos" id="fotos"><p class="vacio">Cargando…</p></div>
+    <p class="nota-guardado" id="notaGuardado"></p>
 
     <section id="zonaReto" hidden>
       <p class="rotulo">Reto del mes</p>
@@ -166,6 +170,7 @@
   <div class="visor" id="visor" hidden><img alt=""></div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="/js/tarjeta-ig.js"></script>
   <script>
   (function () {
     var API = '/.netlify/functions/fotos';
@@ -247,8 +252,11 @@
           '<span class="donde">' + esc(f.donde) + '</span>' + '<div>' + est + '</div>' +
           (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
-          '<div class="acciones">' + acc.join('') + '</div></div></article>';
+          '<div class="acciones">' + acc.join('') + '</div>' +
+          (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
+          '</div></article>';
       }).join('');
+      $('notaGuardado').textContent = 'Las fotos se guardan ' + d.guardado.salidaDias + ' días después de cada salida (las del muro, siempre). Si quieres conservar una con mi comentario, guárdala con el botón de Instagram.';
     }
 
     function cargar() {
@@ -325,6 +333,14 @@
 
     $('fotos').addEventListener('click', function (e) {
       var t = e.target;
+      if (t.dataset.ig) {
+        var f = datos.mias.filter(function (x) { return x.id === t.dataset.id; })[0]; if (!f) return;
+        var txt = t.textContent; t.disabled = true; t.textContent = 'Preparando…';
+        TarjetaIG.compartir({ url: f.grande, comentario: f.comentario, nombre: f.nombreMuro || datos.yo.nombre, donde: f.donde, formato: t.dataset.ig })
+          .catch(function () { alert('No se ha podido preparar la imagen. Prueba otra vez.'); })
+          .then(function () { t.disabled = false; t.textContent = txt; });
+        return;
+      }
       if (t.dataset.borrar) {
         if (!confirm('¿Borrar esta foto de tu cuaderno?')) return;
         llamar('POST', { accion: 'borrar', id: t.dataset.borrar }).then(cargar).catch(function () { alert('No se ha podido borrar.'); });

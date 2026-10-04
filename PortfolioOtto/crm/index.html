@@ -380,6 +380,7 @@
         <div class="stat-box"><div class="stat-num" id="fMuro">0</div><div class="stat-label">en el muro</div></div>
         <div class="stat-box"><div class="stat-num" id="fGente">0</div><div class="stat-label">personas</div></div>
       </div>
+      <div class="person-meta" style="margin-top:8px;">Limpieza automática cada lunes: las fotos de salidas se archivan a los 90 días y las de retos cuando hay 3 retos cerrados más nuevos. Las del muro no se tocan nunca.</div>
       <div class="person-meta" style="margin-top:8px;">Muro público: <a href="https://mirardespacio.es/muro/" target="_blank">mirardespacio.es/muro</a> · Al guardar un comentario se le avisa por email. Si la persona lo permite y marcas «Al muro», sale publicada con tu comentario.</div>
     </div>
     <div class="row" style="margin-bottom:10px;">
@@ -715,11 +716,11 @@ window.renderFotos = function() {
     div.className = 'card';
     div.innerHTML = `
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;" class="foto-crm">
-        <a href="${escapeHtml(f.url)}" target="_blank"><img src="${escapeHtml(mini(f.url, 700))}" style="width:100%;display:block;border-radius:6px;" loading="lazy"></a>
+        ${f.archivada ? '<div class="empty">Imagen archivada (limpieza automática)</div>' : `<a href="${escapeHtml(f.url)}" target="_blank"><img src="${escapeHtml(mini(f.url, 700))}" style="width:100%;display:block;border-radius:6px;" loading="lazy"></a>`}
         <div>
           <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''}</div>
           <div class="person-meta">${escapeHtml(f.refNombre || '')} · ${fechaTxt(fechaDe(f.creada))} · ${otras} foto(s) suyas · ${f.origen === 'enlace' ? 'por enlace' : 'con cuenta'}</div>
-          <div class="person-meta">Firma en el muro: ${escapeHtml(f.nombreMuro || '')} · ${f.publicable ? 'permite el muro' : '<b>no quiere salir en el muro</b>'}</div>
+          <div class="person-meta">Firma en el muro: ${escapeHtml(f.nombreMuro || '')} · ${f.publicable ? 'permite el muro' : '<b>no quiere salir en el muro</b>'}${f.tipo === 'reto' ? ' · ' + (f.compartir ? 'la ven los miembros' : 'no la comparte con los miembros') : ''}</div>
           ${f.texto ? `<p style="font-style:italic;margin:8px 0;">“${escapeHtml(f.texto)}”</p>` : ''}
           <textarea id="com-${f.id}" rows="4" placeholder="Tu comentario…" style="width:100%;margin-top:6px;">${escapeHtml(f.comentario || '')}</textarea>
           <div class="row" style="align-items:center;margin-top:6px;">

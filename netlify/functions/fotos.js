@@ -5,6 +5,9 @@
 //  POST (con sesión) {accion:'subir', tipo:'salida'|'reto', refId, url, ancho, alto, texto, nombreMuro, publicable}
 //  POST (con sesión) {accion:'borrar', id}             -> solo mientras está pendiente
 //  POST (con sesión) {accion:'publicable', id, valor}  -> el autor decide si sale en el muro
+//  POST (con sesión) {accion:'compartir', id, valor}   -> retos: si la ven los demás miembros (galería y constancia)
+//
+// Gamificación sin notas: solo se cuenta CUÁNTOS retos ha hecho cada uno y la racha, nunca si son mejores o peores.
 //
 // Las fotos se suben directamente del navegador a Cloudinary (ya reducidas a 2000 px);
 // aquí se comprueba de verdad lo que ocupan antes de guardarlas.
@@ -16,6 +19,7 @@
 const { db, FieldValue, conLimite } = require('../lib/firestore');
 const { usuarioDe } = require('../lib/identidad');
 const { enviar, esc, remitente } = require('../lib/correo');
+const { SALIDA_DIAS, RETOS_GUARDADOS } = require('../lib/fotos-config');
 
 const MAX_BYTES = 6 * 1024 * 1024;
 const POR_SALIDA = 5;
@@ -98,6 +102,35 @@ function calcularRacha(lista, mias) {
   return { racha, total: hechos.size };
 }
 
+// Galería interna de los últimos retos cerrados (solo miembros, solo quien acepta compartir)
+async function galeria(fs, lista, yo) {
+  const cerrados = lista.filter((r) => r.inicio && r.inicio <= hoy() && !retoAbierto(r)).slice(0, RETOS_GUARDADOS);
+  return Promise.all(cerrados.map(async (r) => {
+    const q = await fs.collection('fotos').where('refId', '==', r.id).get();
+    const fotos = q.docs.map((d) => ({ id: d.id, ...d.data() }))
+      .filter((f) => f.tipo === 'reto' && f.compartir && f.url && !f.archivada)
+      .sort((a, b) => ms(a.creada) - ms(b.creada))
+      .map((f) => ({ id: f.id, nombre: f.nombreMuro || 'Anónimo', url: mini(f.url, 700), grande: mini(f.url, 1800),
+        comentario: f.comentario || '', texto: f.texto || '', mia: f.email === yo.email }));
+    return { reto: { id: r.id, titulo: r.titulo, inicio: r.inicio }, fotos };
+  }));
+}
+
+// Cuadro de constancia: cuántos retos ha hecho cada miembro (que acepta compartir) y su racha
+async function constancia(fs, lista, yo) {
+  const q = await fs.collection('fotos').where('tipo', '==', 'reto').get();
+  const porEmail = {};
+  q.docs.forEach((d) => { const f = d.data(); (porEmail[f.email] = porEmail[f.email] || []).push(f); });
+  const filas = Object.entries(porEmail).map(([email, fs2]) => {
+    const r = calcularRacha(lista, fs2);
+    const ultima = fs2.slice().sort((a, b) => ms(b.creada) - ms(a.creada))[0];
+    return { nombre: (ultima && ultima.nombreMuro) || 'Anónimo', retos: r.total, racha: r.racha, yo: email === yo.email,
+      visible: fs2.some((f) => f.compartir) };
+  }).filter((x) => x.visible || x.yo)
+    .sort((a, b) => b.retos - a.retos || b.racha - a.racha || a.nombre.localeCompare(b.nombre, 'es'));
+  return filas.map(({ visible, ...x }) => x).slice(0, 40);
+}
+
 const publica = (f) => ({
   id: f.id, nombre: f.nombreMuro || 'Anónimo', url: mini(f.url, 1000), grande: mini(f.url, 1800),
   ancho: f.ancho || null, alto: f.alto || null, comentario: f.comentario || '', donde: f.refNombre || '',
@@ -157,10 +190,14 @@ exports.handler = async (event, context) => {
         historial: yo.plus ? lista.filter((r) => r.inicio && r.inicio <= hoy())
           .map((r) => ({ id: r.id, titulo: r.titulo, inicio: r.inicio, cierre: r.cierre || '', abierto: retoAbierto(r) })) : [],
         salidas,
-        mias: mias.sort((a, b) => ms(b.creada) - ms(a.creada)).map((f) => ({
+        hechos: Array.from(new Set(mias.filter((f) => f.tipo === 'reto').map((f) => f.refId))),
+        guardado: { salidaDias: SALIDA_DIAS, retos: RETOS_GUARDADOS },
+        ...(yo.plus && qs.vista === 'retos' ? { galeria: await galeria(fs, lista, yo), constancia: await constancia(fs, lista, yo) } : {}),
+        mias: mias.filter((f) => f.url && !f.archivada).sort((a, b) => ms(b.creada) - ms(a.creada)).map((f) => ({
           id: f.id, tipo: f.tipo, refId: f.refId, donde: f.refNombre || nombres[f.refId] || '', url: mini(f.url, 900),
           grande: mini(f.url, 1800), texto: f.texto || '', estado: f.estado, comentario: f.comentario || '',
-          enMuro: !!f.enMuro, publicable: !!f.publicable, destacada: !!f.destacada, creada: ms(f.creada), comentadaEn: ms(f.comentadaEn),
+          enMuro: !!f.enMuro, publicable: !!f.publicable, compartir: !!f.compartir, destacada: !!f.destacada,
+          nombreMuro: f.nombreMuro || '', creada: ms(f.creada), comentadaEn: ms(f.comentadaEn),
         })),
         ...(yo.plus ? calcularRacha(lista, mias) : {}),
         limites: { porSalida: POR_SALIDA, pendientes: PENDIENTES_MAX, mb: MAX_BYTES / 1048576 },
@@ -170,13 +207,15 @@ exports.handler = async (event, context) => {
 
     const b = cuerpo;
 
-    if (b.accion === 'borrar' || b.accion === 'publicable') {
+    if (b.accion === 'borrar' || b.accion === 'publicable' || b.accion === 'compartir') {
       const ref = fs.collection('fotos').doc(String(b.id || ''));
       const snap = await ref.get();
       if (!snap.exists || snap.data().email !== yo.email) return res(h, 404, { error: 'no-existe' });
       if (b.accion === 'borrar') {
         if (snap.data().estado !== 'pendiente') return res(h, 400, { error: 'ya-comentada' });
         await ref.delete();
+      } else if (b.accion === 'compartir') {
+        await ref.update({ compartir: !!b.valor });
       } else {
         const valor = !!b.valor;
         await ref.update({ publicable: valor, ...(valor ? {} : { enMuro: false }) });
@@ -189,6 +228,7 @@ exports.handler = async (event, context) => {
     const refId = String(b.refId || '');
     const url = String(b.url || '');
     let refNombre = '';
+    let refFecha = hoy();
     let docId = null;
     const mias = await misFotos();
     if (mias.filter((f) => f.estado === 'pendiente').length >= PENDIENTES_MAX) return res(h, 400, { error: 'demasiadas' });
@@ -198,6 +238,7 @@ exports.handler = async (event, context) => {
       const r = await fs.collection('retos').doc(refId).get();
       if (!r.exists || !retoAbierto(r.data())) return res(h, 400, { error: 'reto-cerrado' });
       refNombre = r.data().titulo || 'Reto';
+      refFecha = r.data().cierre || r.data().inicio || hoy();
       docId = `${refId}_${yo.id}`; // una foto por reto (se puede cambiar mientras no esté comentada)
       const previa = mias.find((f) => f.id === docId);
       if (previa && previa.estado !== 'pendiente') return res(h, 400, { error: 'ya-comentada' });
@@ -205,6 +246,7 @@ exports.handler = async (event, context) => {
       const s = (await salidasDe(fs, yo)).find((x) => x.id === refId);
       if (!s) return res(h, 400, { error: 'salida' });
       refNombre = [s.nombre, s.zona].filter(Boolean).join(' · ');
+      refFecha = s.fecha;
       if (mias.filter((f) => f.refId === refId).length >= POR_SALIDA) return res(h, 400, { error: 'max-salida' });
     }
 
@@ -213,11 +255,12 @@ exports.handler = async (event, context) => {
 
     const foto = {
       userId: yo.id, email: yo.email, nombreCuenta: yo.nombre, origen: yo.porEnlace ? 'enlace' : 'cuenta',
-      personaId: yo.personaId || null, tipo, refId, refNombre, url,
+      personaId: yo.personaId || null, tipo, refId, refNombre, refFecha, url,
       ancho: Number(b.ancho) || null, alto: Number(b.alto) || null,
       texto: limpio(b.texto, 600),
       nombreMuro: limpio(b.nombreMuro, 40) || yo.nombre || 'Anónimo',
       publicable: !!b.publicable,
+      compartir: tipo === 'reto' && !!b.compartir,
       estado: 'pendiente', comentario: '', enMuro: false, destacada: false,
       creada: FieldValue.serverTimestamp(),
     };
