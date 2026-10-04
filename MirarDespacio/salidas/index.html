@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Jost:wght@300;400;500&display=swap">
-  <link rel="stylesheet" href="/assets/md.css?v=178fea0a">
+  <link rel="stylesheet" href="/assets/md.css?v=ddcca204">
   <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -152,7 +152,8 @@
               <select id="camara" name="camara"><option value="">Elige…</option><option>Réflex o mirrorless</option><option>Compacta o analógica</option><option>Móvil</option><option>Lo que tenga a mano</option></select></div>
             <div><label for="mensaje">¿Algo que quieras contarme?</label><textarea id="mensaje" name="mensaje" rows="3"></textarea></div>
             <label class="check"><input type="checkbox" name="acepta_imagen" value="si" required> Acepto el uso de imagen descrito a la izquierda.</label>
-            <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para gestionar la inscripción, avisarme de las salidas y, si he dejado mi teléfono, añadirme a la comunidad. No se ceden a nadie.</label>
+            <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos para gestionar la inscripción, avisarme de las salidas, mandarme después el enlace para subir mis fotos de la salida y, si he dejado mi teléfono, añadirme a la comunidad. No se ceden a nadie. <a href="/privacidad/">Privacidad</a></label>
+            <label class="check"><input type="checkbox" name="acepta_novedades" value="si"> <span>Quiero recibir por email novedades de Mirar Despacio (talleres y actividades nuevas). <em>Opcional; puedes darte de baja cuando quieras.</em></span></label>
             <div><button class="boton" type="submit">Quiero apuntarme</button></div>
           </form>
           <div class="ok" id="okSalida"><strong>¡Hecho!</strong> <span data-ok-texto>Te escribo para confirmarte la plaza y el punto de encuentro.</span></div>
@@ -236,6 +237,7 @@
           <li><a href="https://instagram.com/ob.kc" rel="me">Instagram · @ob.kc</a></li>
           <li><a href="https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB">Spotify</a></li>
           <li><a href="https://ottokols.es/acceso.html">Acceso miembros</a></li>
+          <li><a href="/privacidad/">Privacidad</a></li>
         </ul>
       </div>
       <p class="legal">© 2026 Mirar Despacio · Otto Kols · Madrid</p>
@@ -248,7 +250,9 @@
     fetch('/salidas-data.json').then(function (r) { return r.json(); }).then(function (d) {
       var pendiente = function (v) { return !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim()); };
       var pasada = function (x) { return x.fechaISO && new Date(x.fechaISO).getTime() + 4 * 3600e3 < Date.now(); };
-      var s = (d.proximas || []).filter(function (x) { return x.activa && !pendiente(x.fecha) && !pasada(x); })[0];
+      // publicaDesde: fecha en la que la salida se anuncia en público (antes solo la ven los de MD+)
+      var oculta = function (x) { return x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime(); };
+      var s = (d.proximas || []).filter(function (x) { return x.activa && !pendiente(x.fecha) && !pasada(x) && !oculta(x); })[0];
       document.querySelectorAll('[data-proxima]').forEach(function (el) {
         if (!s) { el.textContent = 'Próxima fecha por anunciar. Apúntate y te aviso.'; return; }
         var t = s.fecha;
@@ -264,7 +268,8 @@
       // Solo si hay fecha real y todavía no ha pasado
       var pendiente = function (v) { return !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim()); };
       var s = (d.proximas || []).filter(function (x) {
-        return x.activa && x.fechaISO && !pendiente(x.fecha) && new Date(x.fechaISO).getTime() > Date.now();
+        var oculta = x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime();
+        return x.activa && x.fechaISO && !pendiente(x.fecha) && !oculta && new Date(x.fechaISO).getTime() > Date.now();
       })[0];
       if (!s) return;
       // Fin: fechaFinISO si existe; si no, 3 horas después del inicio, manteniendo la zona horaria (+02:00)

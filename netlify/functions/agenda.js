@@ -8,6 +8,8 @@ const BASE = 'https://mirardespacio.es/';
 let cache = null;
 
 const ORIGENES = /^https:\/\/((www\.)?mirardespacio\.es|([a-z0-9-]+--)?mirar-despacio\.netlify\.app|(www\.)?ottokols\.es)$/;
+// publicaDesde: hasta esa fecha la salida solo la ven los de MD+ (anticipada)
+const oculta = (x) => !!(x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime());
 const pendiente = (v) => !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim());
 
 async function leer(nombre) {
@@ -17,17 +19,19 @@ async function leer(nombre) {
   } catch (e) { return {}; }
 }
 
-async function eventos() {
-  if (cache && Date.now() - cache.t < 120e3) return cache.e;
+async function eventos(anticipadas) {
+  const k = anticipadas ? 'a' : 'p';
+  if (cache && cache.k === k && Date.now() - cache.t < 120e3) return cache.e;
   const [s, t] = await Promise.all([leer('salidas-data.json'), leer('talleres-data.json')]);
   const ahora = Date.now();
   const lista = [];
-  (s.proximas || []).filter((x) => x.activa && x.fechaISO && !pendiente(x.fecha)).forEach((x) => {
+  (s.proximas || []).filter((x) => x.activa && x.fechaISO && !pendiente(x.fecha) && (anticipadas || !oculta(x))).forEach((x) => {
     const ini = new Date(x.fechaISO);
     const fin = x.fechaFinISO ? new Date(x.fechaFinISO) : new Date(ini.getTime() + 3 * 3600e3);
     if (isNaN(ini) || fin.getTime() < ahora) return;
     lista.push({ id: 'salida-' + x.fechaISO.slice(0, 10), tipo: 'salida', titulo: 'Salida' + (x.zona ? ' · ' + x.zona : ''),
-      zona: x.zona || '', inicio: ini.toISOString(), fin: fin.toISOString(), url: BASE + 'salidas/#apuntarse', gratis: true });
+      zona: x.zona || '', inicio: ini.toISOString(), fin: fin.toISOString(), url: oculta(x) ? '/recursos.html#anticipada' : BASE + 'salidas/#apuntarse', gratis: true,
+      ...(oculta(x) ? { anticipada: true, publicaDesde: x.publicaDesde } : {}) });
   });
   const talleres = Object.fromEntries((t.talleres || []).map((x) => [x.id, x]));
   (t.ediciones || []).filter((e) => e.activa && e.fechaISO).forEach((e) => {
@@ -41,7 +45,7 @@ async function eventos() {
       inicio: ini.toISOString(), fin: fin.toISOString(), url: BASE + 'talleres/#' + (e.taller || ''), precio: tl.precio || null });
   });
   lista.sort((a, b) => a.inicio.localeCompare(b.inicio));
-  cache = { t: Date.now(), e: lista };
+  cache = { t: Date.now(), e: lista, k };
   return lista;
 }
 
@@ -62,8 +66,9 @@ function ics(lista) {
 
 exports.handler = async (event) => {
   const o = event.headers.origin || '';
-  const lista = await eventos();
-  if ((event.queryStringParameters || {}).formato === 'ics') {
+  const qs = event.queryStringParameters || {};
+  const lista = await eventos(!!qs.anticipadas && qs.formato !== 'ics');
+  if (qs.formato === 'ics') {
     return { statusCode: 200, headers: { 'Content-Type': 'text/calendar; charset=utf-8', 'Cache-Control': 'public, max-age=1800',
       'Content-Disposition': 'inline; filename="mirar-despacio.ics"' }, body: ics(lista) };
   }

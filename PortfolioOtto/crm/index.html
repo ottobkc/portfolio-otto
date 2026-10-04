@@ -334,6 +334,16 @@
     </div>
     <div class="card">
       <input type="text" id="searchPeople" placeholder="Buscar por nombre, apellidos, email o teléfono..." oninput="renderPeople()">
+      <div class="row" style="margin-top:8px;align-items:center;">
+        <select id="filtroPersonas" onchange="renderPeople()">
+          <option value="">Todas las personas</option>
+          <option value="plus">MD+ activos</option>
+          <option value="pronto">MD+ que termina esta semana</option>
+          <option value="revisar">MD+ por revisar (puestos a mano)</option>
+          <option value="novedades">Aceptan novedades por email</option>
+        </select>
+        <button class="secondary" onclick="copiarNovedades()">Copiar emails de novedades</button>
+      </div>
     </div>
     <div id="peopleList"></div>
   </div>
@@ -400,6 +410,7 @@
 
     <div class="card" style="margin-top:22px;">
       <div class="card-title">Reto del mes (solo MD+)</div>
+      <div class="person-meta" style="margin-bottom:6px;">Al crearlo, pulsa «✉️ Avisar» para mandar el email a los miembros. Tres días antes del cierre se manda solo un recordatorio a quien no ha enviado foto, y al día siguiente del cierre el aviso de la galería.</div>
       <input type="hidden" id="retoId">
       <input type="text" id="retoTitulo" placeholder="Título (p. ej. «Sombras largas»)">
       <textarea id="retoEnunciado" rows="3" placeholder="Enunciado: qué tienen que fotografiar y cómo"></textarea>
@@ -720,7 +731,8 @@ function renderRetos() {
     div.className = 'person-row';
     div.innerHTML = `<div class="person-main" style="cursor:pointer" onclick="editarReto('${r.id}')">
         <div class="person-name">${escapeHtml(r.titulo)} ${r.activo ? '<span class="badge">activo</span>' : ''}</div>
-        <div class="person-meta">${r.inicio || '?'} → ${r.cierre || '?'} · ${n} foto(s)</div></div>
+        <div class="person-meta">${r.inicio || '?'} → ${r.cierre || '?'} · ${n} foto(s)${r.avisadoEn ? ' · avisado a ' + (r.avisadosA || 0) + ' miembros' : ''}${r.recordatorioEn ? ' · recordatorio enviado' : ''}</div></div>
+      ${r.activo ? `<button class="small secondary" onclick="avisarReto('${r.id}')">✉️ Avisar</button>` : ''}
       <button class="small danger" onclick="borrarReto('${r.id}')">✕</button>`;
     el.appendChild(div);
   });
@@ -754,6 +766,13 @@ window.guardarReto = async function() {
   }, { merge: true });
   limpiarReto();
   setSyncStatus('Reto guardado ✓');
+};
+window.avisarReto = async function(id) {
+  const r = retos.find(x => x.id === id);
+  if (!confirm((r.avisadoEn ? 'Ya avisaste de este reto. ¿Volver a mandar' : '¿Mandar') + ` el email «Nuevo reto: ${r.titulo}» a todos los miembros MD+?`)) return;
+  setSyncStatus('Enviando…');
+  try { const x = await admin({ accion: 'avisar-reto', retoId: id }); setSyncStatus(`Avisados ${x.enviados} de ${x.total} ✓`); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 window.borrarReto = async function(id) {
   if (fotos.some(f => f.refId === id)) { alert('Este reto ya tiene fotos: mejor desactívalo en vez de borrarlo.'); return; }
@@ -1281,9 +1300,18 @@ function renderPeople() {
   const el = document.getElementById('peopleList');
   if (!el) return;
   el.innerHTML = '';
+  const filtro = document.getElementById('filtroPersonas')?.value || '';
   let filtered = people.filter(p =>
     [p.name, p.apellidos, p.email, p.telefono].some(v => (v || '').toLowerCase().includes(search))
-  );
+  ).filter(p => {
+    const e = estadoPlus(p);
+    if (filtro === 'plus') return e.activo;
+    if (filtro === 'pronto') return e.activo && e.hasta && e.hasta <= new Date(Date.now() + 7*864e5).toISOString().slice(0,10);
+    if (filtro === 'revisar') return e.revisar;
+    if (filtro === 'novedades') return p.aceptaNovedades;
+    return true;
+  });
+  if (!cuentasCargadas) cargarCuentasPersonas();
   filtered.sort((a,b) => {
     const countA = signups.filter(s => s.personId === a.id).length;
     const countB = signups.filter(s => s.personId === b.id).length;
@@ -1315,12 +1343,12 @@ function renderPeople() {
         <input type="text" placeholder="Email" value="${escapeAttr(p.email)}" onchange="guardarDato('${p.id}','email',this.value)">
         <input type="tel" placeholder="Teléfono" value="${escapeAttr(p.telefono)}" onchange="guardarDato('${p.id}','telefono',this.value)">
       </details>
-      <div class="trial-row">${trialControlHtml(p)}</div>
+      <div class="sub-panel">${mdPanelHtml(p)}</div>
       <label class="consent-toggle">
         <input type="checkbox" ${p.consentImagen ? 'checked' : ''} onchange="toggleConsent('${p.id}', this.checked)">
         Consentimiento de uso de imagen
       </label>
-      <div class="sub-panel">${subControlHtml(p)}</div>
+      ${p.aceptaNovedades ? '<div class="person-meta">✉️ Acepta novedades por email</div>' : ''}
     `;
     el.appendChild(div);
   });
@@ -1370,7 +1398,86 @@ window.toggleConsent = async function(personId, value) {
   }
 };
 
-// ---------- SUSCRIPCIÓN MIRAR DESPACIO+ ----------
+// ---------- MIRAR DESPACIO+ : altas, renovaciones y bajas ----------
+// Misma lógica que netlify/lib/plus.js. Las acciones van al servidor, que cambia la ficha
+// y el acceso a la zona de miembros a la vez.
+let cuentasPorEmail = {}, cuentasCargadas = false;
+async function cargarCuentasPersonas() {
+  cuentasCargadas = true;
+  try {
+    const lista = await admin({ accion: 'cuentas' });
+    cuentasPorEmail = Object.fromEntries(lista.map(c => [String(c.email).toLowerCase(), c]));
+    renderPeople();
+  } catch (e) { console.warn('cuentas', e.message); }
+}
+function estadoPlus(p) {
+  const s = p.subscription || {};
+  const fin = d => new Date(d + 'T23:59:59').getTime() + 3*864e5;
+  if (s.active) {
+    const vencida = s.until && fin(s.until) < Date.now();
+    return { activo: !(s.origen && vencida), tipo: 'suscripcion', hasta: s.until || null, nivel: s.nivel || 'salidas', revisar: !s.origen && !!vencida };
+  }
+  if (p.trialStart) {
+    const f = new Date(new Date(p.trialStart).getTime() + 30*864e5);
+    return { activo: f > new Date(), tipo: 'prueba', hasta: f.toISOString().slice(0,10), nivel: 'salidas' };
+  }
+  return { activo: false, tipo: 'ninguno', baja: s.bajaEn || null };
+}
+const fechaCorta = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('es-ES') : '';
+const TXT_CUENTA = { plus: 'acceso MD+', fotos: 'solo fotos de salidas', ninguno: 'sin acceso', admin: 'admin' };
+function mdPanelHtml(p) {
+  const e = estadoPlus(p);
+  const c = cuentasPorEmail[String(p.email || '').toLowerCase()];
+  const cuenta = !cuentasCargadas ? '' : !p.email ? 'sin email' : !c ? 'sin cuenta (se le invita al dar de alta)' : !c.confirmada ? 'invitación enviada, sin aceptar' : TXT_CUENTA[c.acceso];
+  let estado;
+  if (e.activo && e.tipo === 'prueba') estado = `<strong style="color:var(--gold);">En prueba</strong> hasta ${fechaCorta(e.hasta)}`;
+  else if (e.activo) estado = `<strong style="color:var(--ok);">Activo</strong> · ${e.nivel === 'online' ? 'online' : 'con salidas'}${e.hasta ? ' · hasta ' + fechaCorta(e.hasta) : ''}`;
+  else estado = `<span style="color:var(--dim);">Inactivo</span>${e.baja ? ' · baja el ' + fechaCorta(e.baja) : ''}`;
+  if (e.revisar) estado = `<strong style="color:var(--danger);">Revisar</strong> · puesto a mano, la fecha (${fechaCorta(e.hasta)}) ya pasó: renueva o da de baja`;
+  const aviso = c && e.activo && c.acceso !== 'plus' && c.acceso !== 'admin' ? ' <span class="badge" style="background:#b5654f;">la cuenta no tiene acceso MD+</span>' : '';
+  return `
+    <div class="person-meta" style="margin-bottom:6px;">Mirar Despacio+: ${estado}${cuenta ? ' · cuenta: ' + cuenta : ''}${aviso}</div>
+    <div class="sub-panel-row" style="flex-wrap:wrap;">
+      <select id="mdMeses_${p.id}" style="width:auto;"><option value="1">1 mes</option><option value="3">3 meses</option><option value="6">6 meses</option><option value="12">12 meses</option></select>
+      <select id="mdNivel_${p.id}" style="width:auto;"><option value="salidas" ${e.nivel !== 'online' ? 'selected' : ''}>Con salidas</option><option value="online" ${e.nivel === 'online' ? 'selected' : ''}>Online</option></select>
+      <button class="trial-btn" onclick="mdAlta('${p.id}')">${e.activo && e.tipo === 'suscripcion' ? 'Renovar' : 'Dar de alta'}</button>
+      ${!e.activo ? `<button class="trial-btn" onclick="mdAccion('${p.id}','plus-prueba')">Prueba 30 días</button>` : ''}
+      ${e.activo || e.revisar ? `<button class="trial-btn" onclick="mdBaja('${p.id}')">Dar de baja</button>` : ''}
+    </div>`;
+}
+async function mdAccion(personId, accion, extra = {}) {
+  setSyncStatus('Guardando…');
+  try {
+    const r = await admin({ accion, personId, ...extra });
+    const txt = { invitado: 'invitación enviada', 'ya-existe': 'acceso actualizado', hecho: 'acceso actualizado', 'sin-cuenta': 'no tenía cuenta', 'sin-identity': 'OJO: no se pudo cambiar el acceso', error: 'OJO: error al cambiar el acceso' }[r.acceso] || r.acceso;
+    setSyncStatus('Guardado ✓ · ' + txt, /OJO/.test(txt));
+    cargarCuentasPersonas();
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+}
+window.mdAccion = mdAccion;
+window.mdAlta = function(personId) {
+  const p = people.find(x => x.id === personId);
+  const meses = document.getElementById('mdMeses_' + personId).value;
+  const nivel = document.getElementById('mdNivel_' + personId).value;
+  const e = estadoPlus(p);
+  if (!p.email) { alert('Ponle un email primero.'); return; }
+  if (!confirm(`${e.activo && e.tipo === 'suscripcion' ? 'Renovar' : 'Dar de alta'} MD+ (${nivel === 'online' ? 'online' : 'con salidas'}) ${meses} mes(es) a ${nombreCompleto(p)}?` +
+    (cuentasPorEmail[String(p.email).toLowerCase()] ? '' : '\n\nNo tiene cuenta: le llegará un email para crear su contraseña.'))) return;
+  mdAccion(personId, 'plus-alta', { meses: Number(meses), nivel });
+};
+window.mdBaja = function(personId) {
+  const p = people.find(x => x.id === personId);
+  if (!confirm(`¿Dar de baja de MD+ a ${nombreCompleto(p)}? Su cuenta, fotos y comentarios se conservan.`)) return;
+  const dejarFotos = confirm('¿Dejarle seguir subiendo fotos de las salidas? (Aceptar = sí, Cancelar = sin acceso)');
+  mdAccion(personId, 'plus-baja', { dejarFotos });
+};
+window.copiarNovedades = async function() {
+  const emails = people.filter(p => p.aceptaNovedades && p.email).map(p => p.email);
+  await navigator.clipboard.writeText(emails.join(', ')).catch(() => prompt('Copia los emails:', emails.join(', ')));
+  setSyncStatus(emails.length + ' emails copiados ✓');
+};
+
+// ---------- SUSCRIPCIÓN MIRAR DESPACIO+ (antiguo, ya no se muestra) ----------
 function subControlHtml(p) {
   const sub = p.subscription || {};
   if (!sub.active) {

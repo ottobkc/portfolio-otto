@@ -5,6 +5,7 @@
 //  POST (con sesión) {accion:'subir', tipo:'salida'|'reto', refId, url, ancho, alto, texto, nombreMuro, publicable}
 //  POST (con sesión) {accion:'borrar', id}             -> solo mientras está pendiente
 //  POST (con sesión) {accion:'publicable', id, valor}  -> el autor decide si sale en el muro
+//  POST (con sesión) {accion:'avisos', valor}         -> MD+: recibir o no los emails del reto
 //  POST (con sesión) {accion:'compartir', id, valor}   -> retos: si la ven los demás miembros (galería y constancia)
 //
 // Gamificación sin notas: solo se cuenta CUÁNTOS retos ha hecho cada uno y la racha, nunca si son mejores o peores.
@@ -102,8 +103,21 @@ function calcularRacha(lista, mias) {
   return { racha, total: hechos.size };
 }
 
+// Retos hechos y racha de cada persona (para las medallas junto al nombre)
+async function logros(fs, lista) {
+  const q = await fs.collection('fotos').where('tipo', '==', 'reto').get();
+  const porEmail = {};
+  q.docs.forEach((d) => { const f = d.data(); (porEmail[f.email] = porEmail[f.email] || []).push(f); });
+  const res = {};
+  Object.entries(porEmail).forEach(([email, fs2]) => {
+    const r = calcularRacha(lista, fs2);
+    res[email] = { retos: r.total, racha: r.racha, fotos: fs2 };
+  });
+  return res;
+}
+
 // Galería interna de los últimos retos cerrados (solo miembros, solo quien acepta compartir)
-async function galeria(fs, lista, yo) {
+async function galeria(fs, lista, yo, mapa) {
   const cerrados = lista.filter((r) => r.inicio && r.inicio <= hoy() && !retoAbierto(r)).slice(0, RETOS_GUARDADOS);
   return Promise.all(cerrados.map(async (r) => {
     const q = await fs.collection('fotos').where('refId', '==', r.id).get();
@@ -111,18 +125,16 @@ async function galeria(fs, lista, yo) {
       .filter((f) => f.tipo === 'reto' && f.compartir && f.url && !f.archivada)
       .sort((a, b) => ms(a.creada) - ms(b.creada))
       .map((f) => ({ id: f.id, nombre: f.nombreMuro || 'Anónimo', url: mini(f.url, 700), grande: mini(f.url, 1800),
-        comentario: f.comentario || '', texto: f.texto || '', mia: f.email === yo.email }));
+        comentario: f.comentario || '', texto: f.texto || '', mia: f.email === yo.email,
+        retos: (mapa[f.email] || {}).retos || 0, racha: (mapa[f.email] || {}).racha || 0 }));
     return { reto: { id: r.id, titulo: r.titulo, inicio: r.inicio }, fotos };
   }));
 }
 
 // Cuadro de constancia: cuántos retos ha hecho cada miembro (que acepta compartir) y su racha
-async function constancia(fs, lista, yo) {
-  const q = await fs.collection('fotos').where('tipo', '==', 'reto').get();
-  const porEmail = {};
-  q.docs.forEach((d) => { const f = d.data(); (porEmail[f.email] = porEmail[f.email] || []).push(f); });
-  const filas = Object.entries(porEmail).map(([email, fs2]) => {
-    const r = calcularRacha(lista, fs2);
+async function constancia(fs, lista, yo, mapa) {
+  const filas = Object.entries(mapa).map(([email, x]) => {
+    const fs2 = x.fotos, r = { total: x.retos, racha: x.racha };
     const ultima = fs2.slice().sort((a, b) => ms(b.creada) - ms(a.creada))[0];
     return { nombre: (ultima && ultima.nombreMuro) || 'Anónimo', retos: r.total, racha: r.racha, yo: email === yo.email,
       visible: fs2.some((f) => f.compartir) };
@@ -131,7 +143,8 @@ async function constancia(fs, lista, yo) {
   return filas.map(({ visible, ...x }) => x).slice(0, 40);
 }
 
-const publica = (f) => ({
+const publica = (f, mapa = {}) => ({
+  retos: (mapa[f.email] || {}).retos || 0, racha: (mapa[f.email] || {}).racha || 0,
   id: f.id, nombre: f.nombreMuro || 'Anónimo', url: mini(f.url, 1000), grande: mini(f.url, 1800),
   ancho: f.ancho || null, alto: f.alto || null, comentario: f.comentario || '', donde: f.refNombre || '',
   tipo: f.tipo, destacada: !!f.destacada, fecha: ms(f.comentadaEn),
@@ -164,7 +177,9 @@ exports.handler = async (event, context) => {
       const lista = q.docs.map((d) => ({ id: d.id, ...d.data() }))
         .filter((f) => f.publicable)
         .sort((a, b) => (b.destacada - a.destacada) || (ms(b.comentadaEn) - ms(a.comentadaEn)))
-        .slice(0, 90).map(publica);
+        .slice(0, 90);
+      const mapaMuro = await logros(fs, await retos(fs));
+      lista.splice(0, lista.length, ...lista.map((f) => publica(f, mapaMuro)));
       return res(h, 200, lista, { 'Cache-Control': 'public, max-age=120' });
     }
 
@@ -192,7 +207,11 @@ exports.handler = async (event, context) => {
         salidas,
         hechos: Array.from(new Set(mias.filter((f) => f.tipo === 'reto').map((f) => f.refId))),
         guardado: { salidaDias: SALIDA_DIAS, retos: RETOS_GUARDADOS },
-        ...(yo.plus && qs.vista === 'retos' ? { galeria: await galeria(fs, lista, yo), constancia: await constancia(fs, lista, yo) } : {}),
+        ...(yo.plus ? { avisosRetos: !((await fs.collection('preferencias').doc(yo.email).get()).data() || {}).sinAvisosRetos } : {}),
+        ...(yo.plus && qs.vista === 'retos' ? await (async () => {
+          const mapa = await logros(fs, lista);
+          return { galeria: await galeria(fs, lista, yo, mapa), constancia: await constancia(fs, lista, yo, mapa) };
+        })() : {}),
         mias: mias.filter((f) => f.url && !f.archivada).sort((a, b) => ms(b.creada) - ms(a.creada)).map((f) => ({
           id: f.id, tipo: f.tipo, refId: f.refId, donde: f.refNombre || nombres[f.refId] || '', url: mini(f.url, 900),
           grande: mini(f.url, 1800), texto: f.texto || '', estado: f.estado, comentario: f.comentario || '',
@@ -206,6 +225,11 @@ exports.handler = async (event, context) => {
     if (event.httpMethod !== 'POST') return res(h, 405, {});
 
     const b = cuerpo;
+
+    if (b.accion === 'avisos' && yo.plus) {
+      await fs.collection('preferencias').doc(yo.email).set({ sinAvisosRetos: !b.valor, cambiado: FieldValue.serverTimestamp() }, { merge: true });
+      return res(200, { ok: true });
+    }
 
     if (b.accion === 'borrar' || b.accion === 'publicable' || b.accion === 'compartir') {
       const ref = fs.collection('fotos').doc(String(b.id || ''));

@@ -109,11 +109,6 @@
     .ig { display: flex; gap: .5rem; flex-wrap: wrap; }
     .ig button { background: var(--bg); border: 1px solid var(--border); padding: .35rem .7rem; font-size: .78rem; cursor: pointer; }
     .ig button:hover { border-color: var(--ink); }
-    .insignias { display: flex; flex-wrap: wrap; gap: .6rem; }
-    .insignia { border: 1px solid var(--border); padding: .55rem .9rem; font-size: .85rem; color: var(--muted); background: var(--bg); }
-    .insignia b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: 1.05rem; color: var(--muted); }
-    .insignia.si { border-color: transparent; background: var(--ink); color: #cfc9bf; }
-    .insignia.si b { color: #fff; }
     .constancia { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
     .constancia div { background: var(--bg); padding: .7rem 1.1rem; display: grid; grid-template-columns: 1fr auto auto; gap: 1.2rem; align-items: center; }
     .constancia div.yo { background: #fff5f9; }
@@ -142,6 +137,7 @@
     <p class="etiqueta">Retos · Mirar Despacio +</p>
     <h1>Un reto <em>cada mes.</em></h1>
     <p id="saludo">Cargando…</p>
+    <label class="check" style="margin-top:.8rem;font-size:.85rem;color:var(--muted);"><input type="checkbox" id="avisosRetos" checked> Avisarme por email del reto nuevo y unos días antes del cierre</label>
     <div class="cifras" id="cifras" hidden>
       <div class="cifra"><b id="cRacha">0</b><span>retos seguidos</span></div>
       <div class="cifra"><b id="cTotal">0</b><span>retos hechos</span></div>
@@ -183,8 +179,8 @@
     <p class="nota-guardado" id="notaGuardado"></p>
 
     <section id="zonaInsignias">
-      <p class="rotulo">Tus insignias</p>
-      <div class="insignias" id="insignias"></div>
+      <p class="rotulo">Tus medallas</p>
+      <div id="insignias"></div>
       <p class="nota-guardado">Aquí no hay notas ni fotos mejores o peores: solo cuenta cuántos meses te has puesto a mirar.</p>
     </section>
 
@@ -209,6 +205,7 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/tarjeta-ig.js"></script>
+  <script src="/js/medallas.js"></script>
   <script>
   (function () {
     var API = '/.netlify/functions/fotos';
@@ -242,7 +239,7 @@
       var d = datos, r = d.reto && !d.reto.bloqueado ? d.reto : null;
       var mias = d.mias.filter(function (f) { return f.tipo === 'reto'; });
       if (!d.yo.plus) { location.replace('/cuaderno/'); return; }
-      $('saludo').textContent = 'Hola, ' + (d.yo.nombre || d.yo.email) + '. Un tema cada mes, lo resuelves donde vivas, me mandas tu foto y te digo lo que veo.';
+      $('saludo').innerHTML = 'Hola, ' + esc(d.yo.nombre || d.yo.email) + MDMedallas.junto(d.total, d.racha, 22) + '. Un tema cada mes, lo resuelves donde vivas, me mandas tu foto y te digo lo que veo.';
       $('cRacha').textContent = d.racha || 0; $('cTotal').textContent = d.total || 0;
       $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length; $('cifras').hidden = false;
 
@@ -281,18 +278,9 @@
 
       $('notaGuardado').textContent = 'Las fotos de los ' + d.guardado.retos + ' últimos retos se guardan aquí; las más antiguas se archivan (el comentario y tu racha se conservan). Si quieres conservar una, guárdala con el botón de Instagram.';
 
-      // Insignias: por constancia, nunca por calidad
-      var total = d.total || 0, racha = d.racha || 0;
-      var INS = [
-        { n: 1, t: 'Primera mirada', d: 'Tu primer reto' }, { n: 3, t: 'Tres meses', d: '3 retos hechos' },
-        { n: 6, t: 'Medio año', d: '6 retos hechos' }, { n: 12, t: 'Un año despacio', d: '12 retos hechos' },
-        { r: 3, t: 'Sin fallar', d: '3 retos seguidos' }, { r: 6, t: 'Constancia', d: '6 retos seguidos' }
-      ];
-      $('insignias').innerHTML = INS.map(function (i) {
-        var ok = i.n ? total >= i.n : racha >= i.r;
-        var falta = i.n ? i.n - total : i.r - racha;
-        return '<div class="insignia' + (ok ? ' si' : '') + '"><b>' + (ok ? '★ ' : '') + i.t + '</b>' + (ok ? i.d : (falta === 1 ? 'Te falta 1' : 'Te faltan ' + falta)) + '</div>';
-      }).join('');
+      // Medallas: por constancia, nunca por calidad
+      $('insignias').innerHTML = MDMedallas.panel(d.total || 0, d.racha || 0);
+      $('avisosRetos').checked = d.avisosRetos !== false;
 
       // Galería de los últimos retos cerrados
       var gal = (d.galeria || []).filter(function (g) { return g.fotos.length; });
@@ -301,7 +289,7 @@
         return '<div class="galeria-reto"><h3>' + esc(g.reto.titulo) + ' <small style="font-size:.8rem;color:var(--muted)">' + mes(g.reto.inicio) + ' · ' + g.fotos.length + ' fotos</small></h3><div class="fotos">' +
           g.fotos.map(function (f) {
             return '<article class="foto"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
-              '<span class="donde">' + esc(f.nombre) + (f.mia ? ' · tú' : '') + '</span>' +
+              '<span class="donde">' + esc(f.nombre) + (f.mia ? ' · tú' : '') + MDMedallas.junto(f.retos, f.racha, 18) + '</span>' +
               (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') + '</div></article>';
           }).join('') + '</div></div>';
       }).join('');
@@ -310,7 +298,7 @@
       var cons = d.constancia || [];
       $('zonaConstancia').hidden = cons.filter(function (c) { return !c.yo; }).length < 2;
       $('constancia').innerHTML = cons.map(function (c) {
-        return '<div' + (c.yo ? ' class="yo"' : '') + '><span>' + esc(c.nombre) + (c.yo ? ' <small>(tú)</small>' : '') + '</span>' +
+        return '<div' + (c.yo ? ' class="yo"' : '') + '><span>' + esc(c.nombre) + MDMedallas.junto(c.retos, c.racha, 20) + (c.yo ? ' <small>(tú)</small>' : '') + '</span>' +
           '<span class="racha"><small>' + (c.racha > 1 ? c.racha + ' seguidos' : '') + '</small></span>' +
           '<span class="n">' + c.retos + ' <small>' + (c.retos === 1 ? 'reto' : 'retos') + '</small></span></div>';
       }).join('');
@@ -398,6 +386,7 @@
     $('galeria').addEventListener('click', function (e) {
       if (e.target.dataset.grande) { $('visor').firstChild.src = e.target.dataset.grande; $('visor').hidden = false; }
     });
+    $('avisosRetos').addEventListener('change', function () { llamar('POST', { accion: 'avisos', valor: this.checked }); });
     $('visor').addEventListener('click', function () { this.hidden = true; });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('visor').hidden = true; });
     $('salir').addEventListener('click', function () { netlifyIdentity.logout(); });

@@ -240,8 +240,15 @@
     // Cosas
     e.cosas.forEach(dibujarCosa);
 
-    // Fotógrafo
-    if (!(e.golpe > 0 && Math.floor(e.golpe * 10) % 2 === 0)) fotografo(FX(), SUELO, e.paso, e.enfriar > 0 && e.flash > 0.4);
+    // Fotógrafo (desde el nivel 5, montado en algo distinto cada 5 niveles)
+    if (!(e.golpe > 0 && Math.floor(e.golpe * 10) % 2 === 0)) {
+      var mont = montura(e.nivel);
+      if (mont) {
+        var alto = dibujarMontura(mont, FX(), SUELO, e.paso);
+        fotografo(FX(), SUELO - alto, 0, e.enfriar > 0 && e.flash > 0.4, true);
+        if (mont === 'ovni') cupula(FX(), SUELO, e.paso);
+      } else fotografo(FX(), SUELO, e.paso, e.enfriar > 0 && e.flash > 0.4);
+    }
 
     // Textos flotantes
     ctx.textAlign = 'center';
@@ -268,6 +275,11 @@
       var gr = ctx.createLinearGradient(W / 2 - 80, 0, W / 2 + 80, 0);
       gr.addColorStop(0, C.naranja); gr.addColorStop(1, C.rosa);
       ctx.fillStyle = gr; ctx.fillText('Nivel ' + e.nivel, W / 2, H / 2 - 20);
+      var mb = montura(e.nivel);
+      if (mb && e.nivel % 5 === 0) {
+        ctx.font = '600 16px Jost, system-ui, sans-serif'; ctx.fillStyle = C.tinta;
+        ctx.fillText('¡Ahora vas ' + MONTURAS[mb].texto + '!', W / 2, H / 2 + 8);
+      }
       ctx.globalAlpha = 1;
     }
     ctx.restore();
@@ -305,12 +317,91 @@
     ctx.beginPath(); ctx.arc(x + 11, y + 11, 4, 0, 7); ctx.fill();
   }
 
-  function fotografo(x, suelo, paso, disparando) {
+  // ---------- Monturas: nivel 5 T-Rex, 10 ovni, 15 conejo, 20 cerdo, y vuelta a empezar ----------
+  var MONTURAS = {
+    trex: { texto: 'en T-Rex' }, ovni: { texto: 'en ovni' }, conejo: { texto: 'en conejo gigante' }, cerdo: { texto: 'en cerdo' }
+  };
+  var ORDEN = ['trex', 'ovni', 'conejo', 'cerdo'];
+  function montura(nivel) { return nivel >= 5 ? ORDEN[(Math.floor(nivel / 5) - 1) % ORDEN.length] : null; }
+
+  function elipse(x, y, rx, ry, color, borde) {
+    ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, 7); ctx.fill();
+    if (borde) { ctx.strokeStyle = borde; ctx.lineWidth = 1.6; ctx.stroke(); }
+  }
+
+  // Dibuja la montura con los pies en el suelo y devuelve a qué altura va sentado el fotógrafo
+  function dibujarMontura(tipo, x, suelo, paso) {
+    var p = Math.sin(paso * 2.2), q = Math.sin(paso * 2.2 + Math.PI);
+    ctx.lineCap = 'round';
+    if (tipo === 'trex') {
+      var verde = '#5f7f4f', oscuro = '#3f5a34';
+      ctx.strokeStyle = oscuro; ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(x - 4, suelo - 30); ctx.lineTo(x - 6 + 7 * p, suelo - 2); ctx.stroke();           // patas
+      ctx.beginPath(); ctx.moveTo(x + 10, suelo - 30); ctx.lineTo(x + 8 + 7 * q, suelo - 2); ctx.stroke();
+      ctx.fillStyle = verde; ctx.beginPath();                                                                         // cola
+      ctx.moveTo(x - 10, suelo - 46); ctx.quadraticCurveTo(x - 40, suelo - 44, x - 52, suelo - 30 + 3 * p); ctx.quadraticCurveTo(x - 34, suelo - 34, x - 8, suelo - 30); ctx.fill();
+      elipse(x + 3, suelo - 40, 20, 14, verde);                                                                       // cuerpo
+      ctx.beginPath(); ctx.moveTo(x + 14, suelo - 48); ctx.lineTo(x + 26, suelo - 70); ctx.lineTo(x + 32, suelo - 64); ctx.lineTo(x + 22, suelo - 40); ctx.fill(); // cuello
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x + 20, suelo - 84, 32, 18, 7) : ctx.rect(x + 20, suelo - 84, 32, 18); ctx.fill(); // cabeza
+      ctx.fillStyle = '#fff'; ctx.fillRect(x + 36, suelo - 68, 14, 3);                                                // dientes
+      ctx.fillStyle = C.tinta; ctx.beginPath(); ctx.arc(x + 38, suelo - 78, 2.4, 0, 7); ctx.fill();                   // ojo
+      ctx.strokeStyle = oscuro; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + 20, suelo - 46); ctx.lineTo(x + 27, suelo - 41 + 2 * p); ctx.stroke(); // bracito
+      return 24;
+    }
+    if (tipo === 'ovni') {
+      var flota = Math.sin(paso * 1.3) * 3;
+      var base = suelo - 34 + flota;
+      ctx.fillStyle = 'rgba(232,130,26,.18)';                                                                         // rayo
+      ctx.beginPath(); ctx.moveTo(x - 8, base + 4); ctx.lineTo(x + 14, base + 4); ctx.lineTo(x + 28, suelo); ctx.lineTo(x - 22, suelo); ctx.fill();
+      elipse(x + 3, base, 38, 9, '#8d8a85');                                                                          // platillo
+      elipse(x + 3, base - 3, 30, 5, '#b9b5ae');
+      for (var i = 0; i < 5; i++) { ctx.fillStyle = (Math.floor(paso * 4) + i) % 2 ? C.naranja : C.rosa; ctx.beginPath(); ctx.arc(x - 21 + i * 12, base + 3, 2.2, 0, 7); ctx.fill(); }
+      return 26 - flota;
+    }
+    if (tipo === 'conejo') {
+      var salto = Math.abs(Math.sin(paso * 1.6)) * 12;
+      var b = suelo - salto;
+      var blanco = '#f3eee6', rosa = '#f2a7b8';
+      elipse(x - 4, b - 8, 16, 7, '#e5ddd1');                                                                         // patas
+      var linea = '#bdb2a2';
+      elipse(x + 1, b - 34, 26, 22, blanco, linea);                                                                   // cuerpo
+      elipse(x - 25, b - 36, 7, 7, '#fff', linea);                                                                    // cola
+      elipse(x + 33, b - 80, 4.5, 15, blanco, linea); elipse(x + 42, b - 78, 4.5, 15, blanco, linea);                 // orejas
+      elipse(x + 36, b - 54, 13, 12, blanco, linea);                                                                  // cabeza
+      elipse(x + 33, b - 80, 2.2, 11, rosa); elipse(x + 42, b - 78, 2.2, 11, rosa);
+      ctx.fillStyle = C.tinta; ctx.beginPath(); ctx.arc(x + 41, b - 57, 2, 0, 7); ctx.fill();                          // ojo
+      elipse(x + 48, b - 52, 2.4, 2, rosa);                                                                           // nariz
+      return 26 + salto;
+    }
+    // cerdo
+    var cerdo = '#f2a7b8', cerdoOsc = '#d9849a';
+    ctx.strokeStyle = cerdoOsc; ctx.lineWidth = 6;
+    [[-14, p], [-4, q], [10, p], [18, q]].forEach(function (pt) { ctx.beginPath(); ctx.moveTo(x + pt[0], suelo - 18); ctx.lineTo(x + pt[0] + 3 * pt[1], suelo - 2); ctx.stroke(); });
+    elipse(x + 2, suelo - 28, 30, 16, cerdo);                                                                         // cuerpo
+    elipse(x + 32, suelo - 32, 12, 11, cerdo);                                                                        // cabeza
+    elipse(x + 42, suelo - 30, 5, 4.5, cerdoOsc);                                                                     // hocico
+    ctx.fillStyle = C.tinta; ctx.beginPath(); ctx.arc(x + 41, suelo - 30, 1, 0, 7); ctx.arc(x + 44, suelo - 30, 1, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 34, suelo - 37, 1.8, 0, 7); ctx.fill();                                              // ojo
+    ctx.fillStyle = cerdoOsc; ctx.beginPath(); ctx.moveTo(x + 26, suelo - 42); ctx.lineTo(x + 30, suelo - 50); ctx.lineTo(x + 33, suelo - 41); ctx.fill(); // oreja
+    ctx.strokeStyle = cerdoOsc; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x - 30, suelo - 32, 4, 0, 5); ctx.stroke(); // cola rizada
+    return 14;
+  }
+
+  // Cúpula del ovni, encima del fotógrafo (va dentro)
+  function cupula(x, suelo, paso) {
+    var base = suelo - 34 + Math.sin(paso * 1.3) * 3;
+    ctx.fillStyle = 'rgba(170,215,232,.35)'; ctx.strokeStyle = 'rgba(120,160,175,.6)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.ellipse(x + 3, base - 4, 27, 60, 0, Math.PI, 0); ctx.fill(); ctx.stroke();
+  }
+
+  function fotografo(x, suelo, paso, disparando, montado) {
     var p = Math.sin(paso * 2.2);
     ctx.strokeStyle = C.tinta; ctx.fillStyle = C.tinta; ctx.lineWidth = 4; ctx.lineCap = 'round';
-    // piernas
-    ctx.beginPath(); ctx.moveTo(x, suelo - 30); ctx.lineTo(x - 8 * p, suelo - 2);
-    ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 8 * p, suelo - 2); ctx.stroke();
+    // piernas (montado: sentado a horcajadas, colgando)
+    ctx.beginPath();
+    if (montado) { ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 6, suelo - 18); ctx.lineTo(x + 3, suelo - 6); }
+    else { ctx.moveTo(x, suelo - 30); ctx.lineTo(x - 8 * p, suelo - 2); ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 8 * p, suelo - 2); }
+    ctx.stroke();
     // cuerpo
     ctx.beginPath(); ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 2, suelo - 60); ctx.stroke();
     // cabeza y gorra

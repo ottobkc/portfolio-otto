@@ -278,3 +278,8 @@ a.tarjeta:hover { border-color: var(--tinta); transform: translateY(-2px); }
 .muro-filtros { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
 .muro-filtros button { border: 1px solid var(--linea); background: transparent; padding: 8px 16px; border-radius: 999px; font: inherit; font-size: .9rem; cursor: pointer; color: var(--tinta-suave); }
 .muro-filtros button[aria-pressed="true"] { background: var(--tinta); color: var(--crema); border-color: var(--tinta); }
+
+/* ---------- Texto legal ---------- */
+.texto-legal h2 { font-size: 1.35rem; margin: 2rem 0 .6rem; }
+.texto-legal ul { padding-left: 1.2rem; }
+.texto-legal li { margin-bottom: .7rem; }

@@ -105,6 +105,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
           <li><a href="{INSTAGRAM}" rel="me">Instagram · @ob.kc</a></li>
           <li><a href="{SPOTIFY}">Spotify</a></li>
           <li><a href="{ACCESO}">Acceso miembros</a></li>
+          <li><a href="/privacidad/">Privacidad</a></li>
         </ul>
       </div>
       <p class="legal">© 2026 Mirar Despacio · Otto Kols · Madrid</p>
@@ -133,7 +134,9 @@ PROXIMA_JS = '''
     fetch('/salidas-data.json').then(function (r) { return r.json(); }).then(function (d) {
       var pendiente = function (v) { return !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim()); };
       var pasada = function (x) { return x.fechaISO && new Date(x.fechaISO).getTime() + 4 * 3600e3 < Date.now(); };
-      var s = (d.proximas || []).filter(function (x) { return x.activa && !pendiente(x.fecha) && !pasada(x); })[0];
+      // publicaDesde: fecha en la que la salida se anuncia en público (antes solo la ven los de MD+)
+      var oculta = function (x) { return x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime(); };
+      var s = (d.proximas || []).filter(function (x) { return x.activa && !pendiente(x.fecha) && !pasada(x) && !oculta(x); })[0];
       document.querySelectorAll('[data-proxima]').forEach(function (el) {
         if (!s) { el.textContent = 'Próxima fecha por anunciar. Apúntate y te aviso.'; return; }
         var t = s.fecha;

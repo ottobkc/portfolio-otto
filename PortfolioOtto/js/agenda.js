@@ -37,6 +37,7 @@
     '.mda-ev h4{margin:0 0 2px;font-size:1rem;font-weight:500}.mda-ev p{margin:0;font-size:.88rem;color:var(--mda-gris)}' +
     '.mda-acc{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:.85rem}.mda-acc a{color:inherit}' +
     '.mda-tipo{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mda-gris)}' +
+    '.mda-solo{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;background:linear-gradient(90deg,#e8821a,#e8347a);color:#fff;padding:2px 7px;border-radius:20px;vertical-align:2px;margin-left:4px}' +
     '.mda-vacio{padding:18px;background:var(--mda-papel);border-radius:10px;color:var(--mda-gris)}' +
     '.mda-suscribir{margin-top:16px;font-size:.88rem;color:var(--mda-gris)}.mda-suscribir a{color:inherit}' +
     '@media (max-width:760px){.mda-grid-wrap{grid-template-columns:1fr}}';
@@ -51,7 +52,7 @@
     estilos();
     el.classList.add('mda');
     el.innerHTML = '<p class="mda-vacio">Cargando calendario…</p>';
-    return fetch(API).then(function (r) { return r.json(); }).catch(function () { return []; }).then(function (lista) {
+    return fetch(API + (op.anticipadas ? '?anticipadas=1' : '')).then(function (r) { return r.json(); }).catch(function () { return []; }).then(function (lista) {
       var eventos = (Array.isArray(lista) ? lista : []).concat(op.extra || []).filter(function (e) { return e && e.inicio; })
         .sort(function (a, b) { return a.inicio.localeCompare(b.inicio); });
       var porDia = {};
@@ -103,7 +104,7 @@
           var ir = e.url ? '<a href="' + esc(e.url) + '"><strong>' + (e.tipo === 'salida' ? 'Apuntarme' : e.tipo === 'taller' ? 'Ver el taller' : 'Ir al reto') + ' →</strong></a>' : '';
           return '<article class="mda-ev ' + e.tipo + '" data-dia="' + dia(e.inicio) + '"><div class="mda-fecha"><span>' + sem + '</span><b>' +
             Number(dia(e.inicio).slice(8)) + '</b><span>' + mes + '</span></div><div><span class="mda-tipo">' + (TIPOS[e.tipo] || '') + '</span>' +
-            '<h4>' + esc(e.titulo) + '</h4><p>' + (e.tipo === 'reto' ? 'Último día para mandar tu foto' : hora(e.inicio) + ' h' + (e.zona ? ' · ' + esc(e.zona) : '') +
+            '<h4>' + esc(e.titulo) + (e.anticipada ? ' <span class="mda-solo">Solo MD+ por ahora</span>' : '') + '</h4><p>' + (e.tipo === 'reto' ? 'Último día para mandar tu foto' : hora(e.inicio) + ' h' + (e.zona ? ' · ' + esc(e.zona) : '') +
             (e.tipo === 'salida' ? ' · gratis' : e.precio ? ' · ' + e.precio + ' €' : '')) + '</p><div class="mda-acc">' + ir + cal + '</div></div></article>';
         }).join('');
       }

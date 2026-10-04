@@ -314,6 +314,37 @@
     .reto-banner .rb-cuaderno p { color: var(--muted); }
     .reto-banner .ir { display: inline-block; margin-top: 1rem; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; border-bottom: 1px solid currentColor; }
     @media (max-width: 700px) { .reto-banner { grid-template-columns: 1fr; } }
+    [hidden] { display: none !important; }
+
+    /* Bloques plegables: al abrir uno se cierra el anterior */
+    .bloque { border-top: 1px solid var(--border); }
+    .bloque:last-of-type { border-bottom: 1px solid var(--border); }
+    .bloque summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .3rem 1rem; padding: 1.35rem .25rem; }
+    .bloque summary::-webkit-details-marker { display: none; }
+    .b-tit { font-family: var(--font-serif); font-size: 1.35rem; color: var(--ink); }
+    .b-desc { grid-column: 1; grid-row: 2; font-size: .85rem; color: var(--muted); }
+    .b-n { grid-row: 1 / span 2; font-size: .72rem; letter-spacing: .12em; color: var(--muted); border: 1px solid var(--border); border-radius: 20px; padding: .1rem .6rem; }
+    .b-flecha { grid-row: 1 / span 2; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); position: relative; transition: transform .25s, background .2s; }
+    .b-flecha::before { content: ''; position: absolute; left: 12px; top: 10px; width: 8px; height: 8px; border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); transform: rotate(45deg); }
+    .bloque[open] .b-flecha { transform: rotate(180deg); background: var(--ink); }
+    .bloque[open] .b-flecha::before { border-color: var(--bg); }
+    .bloque summary:hover .b-tit { background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .b-cuerpo { padding: .2rem 0 2rem; animation: abrir .3s ease; }
+    .b-cuerpo .resources-grid, .b-cuerpo .cheatlists-grid { margin-bottom: 0; }
+    @keyframes abrir { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .bloques-fin { height: 3rem; }
+
+    /* Inscripción anticipada */
+    .anticipada { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--md-pink); padding: 1.6rem 1.8rem; margin: -2rem 0 3rem; }
+    .anticipada small { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--md-pink); }
+    .anticipada h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; margin: .3rem 0 .4rem; }
+    .anticipada p { color: var(--muted); font-size: .92rem; }
+    .anticipada form { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: 1rem; }
+    .anticipada input[type=text], .anticipada input[type=tel] { border: 1px solid var(--border); background: var(--bg); padding: .6rem .7rem; font: inherit; }
+    .anticipada label.ck { grid-column: 1 / -1; display: flex; gap: .5rem; font-size: .85rem; color: var(--ink-faint); }
+    .anticipada button { grid-column: 1 / -1; justify-self: start; border: 0; padding: .8rem 1.4rem; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); color: #fff; letter-spacing: .1em; text-transform: uppercase; font-size: .75rem; cursor: pointer; font-family: var(--font-sans); }
+    .anticipada .msg { grid-column: 1 / -1; font-size: .9rem; }
+    @media (max-width: 600px) { .anticipada form { grid-template-columns: 1fr; } .anticipada { padding: 1.3rem 1.1rem; } }
     @media (max-width: 700px) {
       .cheatlists-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -367,13 +398,20 @@
       </a>
     </div>
 
-    <!-- ── Calendario ── -->
-    <p class="resources-label">Próximas fechas</p>
-    <div id="agenda" style="margin-bottom:3.5rem;"></div>
+    <!-- ── Inscripción anticipada (solo MD+) ── -->
+    <div class="anticipada" id="anticipada" hidden></div>
 
-    <!-- ── Herramientas interactivas ── -->
-    <p class="resources-label">Herramientas interactivas</p>
-    <div class="resources-grid">
+    <details class="bloque" name="bloques" id="b-agenda" open>
+      <summary><span class="b-tit">Próximas fechas</span><span class="b-desc">Salidas, talleres y el cierre del reto</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+    <div id="agenda"></div>
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-herr">
+      <summary><span class="b-tit">Herramientas</span><span class="b-desc">Calculadoras, simuladores y ejercicios</span><span class="b-n">7</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="resources-grid">
 
       <a href="/members/receta-fotografica.html" class="tool-card">
         <div class="tool-icon">◈</div>
@@ -447,9 +485,13 @@
 
     </div>
 
-    <!-- ── Guías rápidas imprimibles ── -->
-    <p class="resources-label">Guías rápidas · Imprimibles A4</p>
-    <div class="cheatlists-grid">
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-guias">
+      <summary><span class="b-tit">Guías rápidas</span><span class="b-desc">Una página para imprimir y llevar</span><span class="b-n">9</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="cheatlists-grid">
 
       <a href="/members/cheatlists/guia-calle.html" class="cheatlist-card" target="_blank">
         <span class="cheatlist-icon">⊕</span>
@@ -525,9 +567,13 @@
 
     </div>
 
-    <!-- ── Localizaciones y mapas de luz ── -->
-    <p class="resources-label">Dónde y cuándo ir</p>
-    <div class="resources-grid">
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-donde">
+      <summary><span class="b-tit">Dónde y cuándo ir</span><span class="b-desc">Localizaciones y mapas de luz de Madrid</span><span class="b-n">2</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="resources-grid">
 
       <a href="/members/localizaciones.html" class="tool-card">
         <div class="tool-icon">◎</div>
@@ -551,9 +597,13 @@
 
     </div>
 
-    <!-- ── Análisis fotográfico ── -->
-    <p class="resources-label">Análisis fotográfico</p>
-    <div class="resources-grid">
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-mas">
+      <summary><span class="b-tit">Aprender mirando</span><span class="b-desc">Análisis de fotos famosas y pack legal</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="resources-grid">
 
       <a href="/members/analisis-fotos.html" class="tool-card" style="grid-column:1/-1;">
         <div class="tool-icon">◉</div>
@@ -567,9 +617,8 @@
 
     </div>
 
-    <!-- ── Pack legal ── -->
-    <p class="resources-label">Legal</p>
-    <div class="resources-grid">
+
+<div class="resources-grid">
 
       <a href="/members/pack-legal.html" class="tool-card">
         <div class="tool-icon">§</div>
@@ -587,36 +636,8 @@
 
     </div>
 
-    <!-- ── Tarjetas de misión ── -->
-    <p class="resources-label">Tarjetas de misión</p>
-    <div class="resources-grid">
-      <a href="/members/tarjetas-mision-pack1.pdf" class="resource-card" download>
-        <div class="resource-icon">↓</div>
-        <div class="resource-body">
-          <h3>Pack 1 — Iniciación</h3>
-          <p>12 tarjetas para los primeros pasos. Misiones concretas, accesibles y sin requisitos técnicos.</p>
-          <span class="resource-tag">PDF · Imprimible</span>
-        </div>
-      </a>
-      <a href="/members/tarjetas-mision-pack2.pdf" class="resource-card" download>
-        <div class="resource-icon">↓</div>
-        <div class="resource-body">
-          <h3>Pack 2 — Medio / Avanzado</h3>
-          <p>12 tarjetas con misiones más exigentes. Para quienes ya tienen un recorrido y quieren salir de sus patrones.</p>
-          <span class="resource-tag">PDF · Imprimible</span>
-        </div>
-      </a>
-      <div class="coming-soon">Más packs en preparación</div>
-    </div>
-
-    <!-- ── Episodios exclusivos ── -->
-    <p class="resources-label">Episodios exclusivos · Podcast</p>
-    <div class="resources-grid">
-      <div class="coming-soon" style="grid-column:1/-1;">
-        Los episodios exclusivos para suscriptores aparecerán aquí próximamente.
       </div>
-    </div>
-
+    </details>
   </div>
 
   <footer>
@@ -632,6 +653,7 @@
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/acceso.js" data-init="no"></script>
   <script src="/js/agenda.js"></script>
+  <script src="/js/medallas.js"></script>
   <script>
     var isPreview = !window.location.hostname.includes('ottokols');
 
@@ -655,7 +677,8 @@
         // Calendario: salidas y talleres, más el último día del reto
         var extra = d && d.reto && !d.reto.bloqueado && d.reto.cierre ? [{ tipo: 'reto', titulo: 'Cierra el reto: ' + d.reto.titulo,
           inicio: new Date(d.reto.cierre + 'T20:00:00').toISOString(), url: '/retos/' }] : [];
-        MDAgenda.pintar(document.getElementById('agenda'), { extra: extra });
+        MDAgenda.pintar(document.getElementById('agenda'), { extra: extra, anticipadas: true }).then(anticipada);
+        if (d) document.getElementById('welcomeUser').insertAdjacentHTML('afterend', MDMedallas.junto(d.total, d.racha, 20));
         if (!d) return;
         var esc = function (s) { var e = document.createElement('i'); e.textContent = s || ''; return e.innerHTML; };
         if (d.reto && !d.reto.bloqueado) {
@@ -678,7 +701,46 @@
           document.getElementById('rbSalidas').hidden = false;
           if (d.salidas.length) document.getElementById('rbSalTxt').textContent = 'Tienes ' + (d.salidas.length === 1 ? 'una salida reciente' : d.salidas.length + ' salidas recientes') + ' para subir fotos.';
         }
-      }).catch(function () { MDAgenda.pintar(document.getElementById('agenda')); });
+      }).catch(function () { MDAgenda.pintar(document.getElementById('agenda'), { anticipadas: true }).then(anticipada); });
+
+      // Bloques: solo uno abierto a la vez (para navegadores sin <details name>)
+      document.querySelectorAll('details.bloque').forEach(function (d) {
+        d.addEventListener('toggle', function () {
+          if (d.open) document.querySelectorAll('details.bloque').forEach(function (o) { if (o !== d) o.open = false; });
+        });
+      });
+
+      // Salida que todavía no se ha anunciado en público: los de MD+ se apuntan antes
+      function anticipada(eventos) {
+        var s = (eventos || []).filter(function (e) { return e.anticipada; })[0];
+        var caja = document.getElementById('anticipada');
+        if (!s) return;
+        var esc = function (t) { var e = document.createElement('i'); e.textContent = t || ''; return e.innerHTML; };
+        var f = new Date(s.inicio).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+        var pub = new Date(s.publicaDesde).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' });
+        var u = netlifyIdentity.currentUser() || {};
+        var nombre = ((u.user_metadata && u.user_metadata.full_name) || '').split(' ');
+        caja.hidden = false;
+        caja.innerHTML = '<small>Solo para Mirar Despacio+ · se anuncia en público el ' + pub + '</small>' +
+          '<h3>' + esc(s.titulo) + '</h3><p>' + esc(f.charAt(0).toUpperCase() + f.slice(1)) + ' h. Todavía no lo sabe nadie más: reserva tu plaza antes de que se publique.</p>' +
+          '<form id="formAnticipada"><input type="text" name="nombre" placeholder="Nombre" required value="' + esc(nombre[0] || '') + '">' +
+          '<input type="text" name="apellidos" placeholder="Apellidos" required value="' + esc(nombre.slice(1).join(' ')) + '">' +
+          '<input type="tel" name="telefono" placeholder="Teléfono (opcional)">' +
+          '<label class="ck"><input type="checkbox" name="acepta_imagen" value="si" required> <span>Acepto que las fotos del grupo puedan usarse para dar a conocer Mirar Despacio en la web y en redes.</span></label>' +
+          '<label class="ck"><input type="checkbox" name="acepta_datos" value="si" required> <span>Acepto que se usen mis datos para gestionar la inscripción (<a href="https://mirardespacio.es/privacidad/" target="_blank">privacidad</a>).</span></label>' +
+          '<button type="submit">Reservar mi plaza</button><p class="msg" id="msgAnticipada"></p></form>';
+        document.getElementById('formAnticipada').addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var datos = Object.fromEntries(new FormData(this)); datos.anticipada = 'si';
+          var m = document.getElementById('msgAnticipada'), b = this.querySelector('button');
+          b.disabled = true; m.textContent = 'Reservando…';
+          netlifyIdentity.currentUser().jwt().then(function (t) {
+            return fetch('/.netlify/functions/inscripcion', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t }, body: JSON.stringify(datos) });
+          }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error); return j; }); }).then(function (j) {
+            caja.querySelector('form').outerHTML = '<p style="color:#5a8a5e;margin-top:1rem;"><strong>' + (j.yaEstaba ? 'Ya estabas apuntado.' : '¡Plaza reservada!') + '</strong> Te llega un email con los detalles.</p>';
+          }).catch(function () { m.textContent = 'No se ha podido reservar. Prueba otra vez o escríbeme.'; b.disabled = false; });
+        });
+      }
     })();
 
     document.getElementById('logoutBtn').addEventListener('click', () => {

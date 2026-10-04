@@ -18,6 +18,9 @@
   external_node_modules = ["firebase-admin"]
 
 # Tareas semanales (lunes, hora UTC): limpieza de fotos antiguas y copia de seguridad del CRM
+[functions."tareas-diarias"]
+  schedule = "15 7 * * *"
+
 [functions."limpieza-fotos"]
   schedule = "0 4 * * 1"
 
