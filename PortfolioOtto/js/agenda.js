@@ -63,7 +63,8 @@
 
       el.innerHTML = '<div class="mda-grid-wrap"><div><div class="mda-cab"><button type="button" data-m="-1" aria-label="Mes anterior">‹</button><h3></h3>' +
         '<button type="button" data-m="1" aria-label="Mes siguiente">›</button></div><div class="mda-mes"></div>' +
-        '<div class="mda-leyenda"><span><i class="mda-punto mda-salida"></i>Salidas</span><span><i class="mda-punto mda-taller"></i>Talleres</span>' +
+        '<div class="mda-leyenda"><span><i class="mda-punto mda-salida"></i>Salidas</span>' +
+        (eventos.some(function (e) { return e.tipo === 'taller'; }) ? '<span><i class="mda-punto mda-taller"></i>Talleres</span>' : '') +
         (eventos.some(function (e) { return e.tipo === 'reto'; }) ? '<span><i class="mda-punto mda-reto"></i>Reto del mes</span>' : '') + '</div></div>' +
         '<div><div class="mda-lista"></div><p class="mda-suscribir">📅 <a href="' + FEED + '">Suscríbete al calendario</a> y las fechas nuevas aparecerán solas en el tuyo · ' +
         '<a href="https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(FEED) + '" target="_blank" rel="noopener">en Google Calendar</a></p></div></div>';
@@ -92,7 +93,7 @@
       function pintarLista() {
         var cont = el.querySelector('.mda-lista');
         var prox = eventos.slice(0, op.max || 6);
-        if (!prox.length) { cont.innerHTML = '<p class="mda-vacio">Ahora mismo no hay fechas cerradas. En cuanto haya una salida o un taller nuevo, aparecerá aquí.</p>'; return; }
+        if (!prox.length) { cont.innerHTML = '<p class="mda-vacio">Ahora mismo no hay fechas cerradas. En cuanto haya una fecha nueva, aparecerá aquí.</p>'; return; }
         cont.innerHTML = prox.map(function (e) {
           var f = new Date(e.inicio);
           var sem = f.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'Europe/Madrid' });
