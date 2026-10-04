@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>El juego del fotógrafo · Mirar Despacio</title>
-  <meta name="description" content="Un pequeño juego de Mirar Despacio: un fotógrafo camina por la calle y tiene que fotografiar todo lo que pasa antes de que le arrolle.">
-  <link rel="canonical" href="https://mirardespacio.es/juego/">
+  <title>Agenda · Salidas y talleres de fotografía en Madrid · Mirar Despacio</title>
+  <meta name="description" content="Calendario de las próximas salidas y talleres de fotografía callejera de Mirar Despacio en Madrid. Suscríbete y las fechas nuevas aparecen solas en tu calendario.">
+  <link rel="canonical" href="https://mirardespacio.es/agenda/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Mirar Despacio">
   <meta property="og:locale" content="es_ES">
-  <meta property="og:url" content="https://mirardespacio.es/juego/">
-  <meta property="og:title" content="El juego del fotógrafo · Mirar Despacio">
-  <meta property="og:description" content="Un pequeño juego de Mirar Despacio: un fotógrafo camina por la calle y tiene que fotografiar todo lo que pasa antes de que le arrolle.">
+  <meta property="og:url" content="https://mirardespacio.es/agenda/">
+  <meta property="og:title" content="Agenda · Salidas y talleres de fotografía en Madrid · Mirar Despacio">
+  <meta property="og:description" content="Calendario de las próximas salidas y talleres de fotografía callejera de Mirar Despacio en Madrid. Suscríbete y las fechas nuevas aparecen solas en tu calendario.">
   <meta property="og:image" content="https://res.cloudinary.com/dybxateci/image/upload/f_auto,q_auto,w_1100/v1781522503/calle1_rgx5tu.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f5f3ef">
@@ -58,12 +58,12 @@
       <ul>
         <li><a href="/podcast/">Podcast</a></li>
         <li><a href="/salidas/">Salidas</a></li>
-        <li><a href="/agenda/">Agenda</a></li>
+        <li><a href="/agenda/" aria-current="page">Agenda</a></li>
         <li><a href="/muro/">Muro</a></li>
         <li><a href="/talleres/">Talleres</a></li>
         <li><a href="/tutorias/">Tutorías</a></li>
         <li><a href="/zine/">Zine</a></li>
-        <li><a href="/juego/" aria-current="page">Juego</a></li>
+        <li><a href="/juego/">Juego</a></li>
         <li><a href="/mirar-despacio-plus/">Mirar Despacio+</a></li>
       </ul>
     </div>
@@ -72,27 +72,14 @@
 
     <section class="portada">
       <div class="envoltura">
-        <p class="antetitulo">Un descanso</p>
-        <h1>El juego del <em>fotógrafo.</em></h1>
-        <p class="entradilla">Vas por la calle y no paran de pasar cosas. Hazles la foto cuando entren en el visor o te arrollarán. Cada 15 segundos, un nivel más.</p>
-        <div class="jugador">
-          <label for="jugadorNombre">Tu nombre o tu @ de Instagram</label>
-          <input type="text" id="jugadorNombre" maxlength="24" placeholder="@tu_usuario" autocomplete="nickname" autocapitalize="none" spellcheck="false">
-          <span class="aviso" id="jugadorAviso" hidden>Escríbelo para poder jugar: tu puntuación se guarda sola al terminar.</span>
-        </div>
-        <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
-        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición</p>
-        <div class="rejilla-2" style="gap:40px;margin-top:20px;align-items:start;">
-          <div>
-            <p id="juegoResumen" style="min-height:1.6em;margin-top:0;"></p>
-            <button class="boton" type="button" id="juegoCompartir" hidden style="margin-top:12px;">Retar a alguien</button>
-          </div>
-          <div>
-            <p class="antetitulo">Top 10</p>
-            <ol class="ranking" id="rankingLista"><li class="aviso">Cargando…</li></ol>
-          </div>
-        </div>
-        <div class="botones"><a class="boton color" href="/salidas/">Ahora, en la calle de verdad</a><a class="boton claro" href="/">Volver al inicio</a></div>
+        <p class="antetitulo">Próximas fechas</p>
+        <h1>La <em>agenda.</em></h1>
+        <p class="entradilla">Salidas y talleres de fotografía callejera por Madrid. Suscríbete al calendario y las fechas nuevas te aparecerán solas en el móvil.</p>
+      </div>
+    </section>
+    <section class="seccion">
+      <div class="envoltura">
+        <div id="agenda"></div>
       </div>
     </section>
   </main>
@@ -129,6 +116,7 @@
     </div>
   </footer>
   <script src="/assets/md.js?v=7450a926"></script>
-  <script src="/assets/juego.js?v=2437c3ea"></script>
+  <script src="https://ottokols.es/js/agenda.js"></script>
+  <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8 });</script>
 </body>
 </html>

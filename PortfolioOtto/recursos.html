@@ -367,6 +367,10 @@
       </a>
     </div>
 
+    <!-- ── Calendario ── -->
+    <p class="resources-label">Próximas fechas</p>
+    <div id="agenda" style="margin-bottom:3.5rem;"></div>
+
     <!-- ── Herramientas interactivas ── -->
     <p class="resources-label">Herramientas interactivas</p>
     <div class="resources-grid">
@@ -627,6 +631,7 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/acceso.js" data-init="no"></script>
+  <script src="/js/agenda.js"></script>
   <script>
     var isPreview = !window.location.hostname.includes('ottokols');
 
@@ -647,6 +652,10 @@
       u.jwt().then(function (t) {
         return fetch('/.netlify/functions/fotos', { headers: { Authorization: 'Bearer ' + t } });
       }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        // Calendario: salidas y talleres, más el último día del reto
+        var extra = d && d.reto && !d.reto.bloqueado && d.reto.cierre ? [{ tipo: 'reto', titulo: 'Cierra el reto: ' + d.reto.titulo,
+          inicio: new Date(d.reto.cierre + 'T20:00:00').toISOString(), url: '/retos/' }] : [];
+        MDAgenda.pintar(document.getElementById('agenda'), { extra: extra });
         if (!d) return;
         var esc = function (s) { var e = document.createElement('i'); e.textContent = s || ''; return e.innerHTML; };
         if (d.reto && !d.reto.bloqueado) {
@@ -669,7 +678,7 @@
           document.getElementById('rbSalidas').hidden = false;
           if (d.salidas.length) document.getElementById('rbSalTxt').textContent = 'Tienes ' + (d.salidas.length === 1 ? 'una salida reciente' : d.salidas.length + ' salidas recientes') + ' para subir fotos.';
         }
-      }).catch(function () {});
+      }).catch(function () { MDAgenda.pintar(document.getElementById('agenda')); });
     })();
 
     document.getElementById('logoutBtn').addEventListener('click', () => {

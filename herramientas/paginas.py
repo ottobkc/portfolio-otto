@@ -612,6 +612,24 @@ def construir(g):
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
         'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: retos mensuales, prioridad en las salidas por Madrid, feedback de tus fotos y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
 
+    # ------------------------------------------------------------ AGENDA
+    cuerpo = """
+    <section class="portada">
+      <div class="envoltura">
+        <p class="antetitulo">Próximas fechas</p>
+        <h1>La <em>agenda.</em></h1>
+        <p class="entradilla">Salidas y talleres de fotografía callejera por Madrid. Suscríbete al calendario y las fechas nuevas te aparecerán solas en el móvil.</p>
+      </div>
+    </section>
+    <section class="seccion">
+      <div class="envoltura">
+        <div id="agenda"></div>
+      </div>
+    </section>"""
+    escribir('/agenda/', pagina('/agenda/', 'Agenda · Salidas y talleres de fotografía en Madrid · Mirar Despacio',
+        'Calendario de las próximas salidas y talleres de fotografía callejera de Mirar Despacio en Madrid. Suscríbete y las fechas nuevas aparecen solas en tu calendario.',
+        cuerpo, extra_pie=AGENDA_JS))
+
     # ------------------------------------------------------------ MURO
     cuerpo = """
     <section class="portada">
@@ -691,6 +709,9 @@ def construir(g):
 
 TALLERES_JS = '''
   <script src="/assets/talleres.js"></script>'''
+AGENDA_JS = '''
+  <script src="https://ottokols.es/js/agenda.js"></script>
+  <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8 });</script>'''
 MURO_JS = '''
   <script src="/assets/muro.js"></script>'''
 JUEGO_JS = '''
