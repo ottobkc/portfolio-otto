@@ -17,6 +17,13 @@
   node_bundler = "esbuild"
   external_node_modules = ["firebase-admin"]
 
+# Tareas semanales (lunes, hora UTC): limpieza de fotos antiguas y copia de seguridad del CRM
+[functions."limpieza-fotos"]
+  schedule = "0 4 * * 1"
+
+[functions."copia-seguridad"]
+  schedule = "0 6 * * 1"
+
 # -----------------------------------------------
 # HEADERS /members/ — sin indexar
 # -----------------------------------------------
@@ -34,6 +41,22 @@
   for = "/emails/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/retos/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/cuaderno/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/subir/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
 
 [[headers]]
   for = "/crm/*"
@@ -69,6 +92,35 @@
 [[redirects]]
   from   = "/recursos.html"
   to     = "/acceso.html"
+  status = 302
+  force  = true
+
+# Reto del mes: solo Mirar Despacio+ (también la suscripción online, sin salidas)
+[[redirects]]
+  from       = "/retos/*"
+  to         = "/retos/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["member", "admin"]}
+
+[[redirects]]
+  from   = "/retos/*"
+  to     = "/acceso.html?a=retos"
+  status = 302
+  force  = true
+
+# Fotos de las salidas: lo abren los miembros MD+ y también quien solo tiene acceso
+# "participante" (gente de las salidas que sube sus fotos sin ser MD+).
+[[redirects]]
+  from       = "/cuaderno/*"
+  to         = "/cuaderno/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["member", "participante", "admin"]}
+
+[[redirects]]
+  from   = "/cuaderno/*"
+  to     = "/acceso.html?a=cuaderno"
   status = 302
   force  = true
 

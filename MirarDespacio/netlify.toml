@@ -25,6 +25,13 @@
   to     = "/salidas/"
   status = 301
 
+# Calendario para suscribirse (Google/Apple): lo genera una función de ottokols.es
+[[redirects]]
+  from   = "/agenda.ics"
+  to     = "https://ottokols.es/.netlify/functions/agenda?formato=ics"
+  status = 200
+  force  = true
+
 [[headers]]
   for = "/assets/*"
   [headers.values]

@@ -452,7 +452,7 @@ def construir(g):
         <div class="rejilla-3">
           <div class="tarjeta"><span class="num">01</span><h3>Retos y guías cada mes</h3><p>Un PDF mensual con un reto fotográfico y guías prácticas: calle, noche, retrato urbano, luz difícil.</p></div>
           <div class="tarjeta"><span class="num">02</span><h3>Salidas incluidas</h3><p>Plaza reservada en todas las salidas, sin pagar nada en ellas, antes de que se anuncie la fecha en público.</p></div>
-          <div class="tarjeta"><span class="num">03</span><h3>Feedback de tus fotos</h3><p>Me mandas tus fotos y te digo lo que veo. Sin halagos de compromiso.</p></div>
+          <div class="tarjeta"><span class="num">03</span><h3>Feedback de tus fotos</h3><p>Subes tus fotos del reto y de las salidas y te comento cada una, sin halagos de compromiso. El reto lo haces vivas donde vivas; las mejores van al <a href="/muro/">muro</a>.</p></div>
           <div class="tarjeta"><span class="num">04</span><h3>Grupo privado</h3><p>Una comunidad de WhatsApp para compartir fotos y quedar. También si no vives en Madrid.</p></div>
           <div class="tarjeta"><span class="num">05</span><h3>Herramientas</h3><p>Calculadora de profundidad de campo, simulador visual, generador de retos y mapas de luz de Madrid.</p></div>
           <div class="tarjeta"><span class="num">06</span><h3>Tarjetas de misión</h3><p>Los packs de tarjetas de las salidas, para usarlos por tu cuenta.</p></div>
@@ -461,6 +461,56 @@ def construir(g):
     </section>'''
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
         'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: retos mensuales, prioridad en las salidas por Madrid, feedback de tus fotos y grupo privado.', cuerpo))
+
+    # ------------------------------------------------------------ AGENDA
+    cuerpo = """
+    <section class="portada">
+      <div class="envoltura">
+        <p class="antetitulo">Próximas fechas</p>
+        <h1>La <em>agenda.</em></h1>
+        <p class="entradilla">Las próximas salidas de fotografía callejera por Madrid. Suscríbete al calendario y las fechas nuevas te aparecerán solas en el móvil.</p>
+      </div>
+    </section>
+    <section class="seccion">
+      <div class="envoltura">
+        <div id="agenda"></div>
+      </div>
+    </section>"""
+    escribir('/agenda/', pagina('/agenda/', 'Agenda · Salidas de fotografía callejera en Madrid · Mirar Despacio',
+        'Calendario de las próximas salidas de fotografía callejera de Mirar Despacio en Madrid. Suscríbete y las fechas nuevas aparecen solas en tu calendario.',
+        cuerpo, extra_pie=AGENDA_JS))
+
+    # ------------------------------------------------------------ MURO
+    cuerpo = """
+    <section class="portada">
+      <div class="envoltura">
+        <p class="antetitulo">Fotos de la comunidad</p>
+        <h1>El <em>muro.</em></h1>
+        <p class="entradilla">Fotos de la gente que viene a las salidas por Madrid y de los retos mensuales de Mirar Despacio+, que se hacen desde cualquier sitio. Cada una con lo que vi en ella.</p>
+      </div>
+    </section>
+    <section class="seccion">
+      <div class="envoltura">
+        <div class="muro-filtros" id="muroFiltros" hidden>
+          <button type="button" data-f="" aria-pressed="true">Todas</button><button type="button" data-f="salida" aria-pressed="false">Salidas</button><button type="button" data-f="reto" aria-pressed="false">Retos del mes</button>
+        </div>
+        <div class="muro-destacadas" id="muroDestacadas" hidden>
+          <p class="antetitulo">Destacadas</p>
+          <div class="muro-grid"></div>
+        </div>
+        <div class="muro-grid" id="muro"><p class="aviso">Cargando…</p></div>
+      </div>
+    </section>
+    <section class="seccion papel">
+      <div class="envoltura estrecho">
+        <h2>¿Quieres que <em>comente las tuyas?</em></h2>
+        <p>Si vienes a una salida, después te mando un enlace para subir tus fotos favoritas y te digo lo que veo en cada una. Y si no vives en Madrid, con Mirar Despacio+ tienes un reto cada mes que puedes hacer desde donde estés.</p>
+        <div class="botones"><a class="boton color" href="/salidas/">Apuntarme a una salida</a><a class="boton claro" href="/mirar-despacio-plus/">Mirar Despacio+</a></div>
+      </div>
+    </section>"""
+    escribir('/muro/', pagina('/muro/', 'El muro · Fotos de la comunidad de Mirar Despacio',
+        'Fotos de calle de la gente que viene a las salidas de Mirar Despacio en Madrid y de los miembros de Mirar Despacio+, con los comentarios de Otto.',
+        cuerpo, extra_pie=MURO_JS))
 
     # ------------------------------------------------------------ JUEGO
     cuerpo = """
@@ -507,6 +557,11 @@ def construir(g):
     escribir('/404', pagina('/404', 'Página no encontrada · Mirar Despacio', 'Esta página no existe.', cuerpo))
 
 
+AGENDA_JS = '''
+  <script src="https://ottokols.es/js/agenda.js"></script>
+  <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8 });</script>'''
+MURO_JS = '''
+  <script src="/assets/muro.js"></script>'''
 JUEGO_JS = '''
   <script src="/assets/juego.js"></script>'''
 

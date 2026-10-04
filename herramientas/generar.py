@@ -26,7 +26,7 @@ def cld(url, t='f_auto,q_auto,w_900'):
 datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'salidas-data.json')))
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
-NAV = [('/podcast/', 'Podcast'), ('/salidas/', 'Salidas'), ('/tutorias/', 'Tutorías'),
+NAV = [('/podcast/', 'Podcast'), ('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/muro/', 'Muro'), ('/tutorias/', 'Tutorías'),
        ('/zine/', 'Zine'), ('/juego/', 'Juego'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 
 ORG = {
@@ -120,7 +120,7 @@ def escribir(ruta, contenido):
     if ruta == '/':
         destino = os.path.join(RAIZ, 'index.html')
     os.makedirs(os.path.dirname(destino), exist_ok=True)
-    for js in ('pegatinas.js', 'galerias.js', 'juego.js'):
+    for js in ('pegatinas.js', 'galerias.js', 'juego.js', 'muro.js'):
         contenido = contenido.replace('"/assets/' + js + '"', '"' + v(js) + '"')
     open(destino, 'w').write(contenido)
     print('✓', ruta)

@@ -299,6 +299,21 @@
     }
     .cheatlist-card:hover .launch-arrow { opacity: 1; transform: translateX(0); }
 
+    [hidden] { display: none !important; }
+    .reto-banner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1px; margin-bottom: 3.5rem; }
+    .reto-banner > a { padding: 1.9rem; display: block; position: relative; }
+    .reto-banner .rb-reto { background: var(--ink); color: var(--bg); }
+    .reto-banner .rb-reto::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); }
+    .reto-banner .rb-cuaderno { background: var(--bg2); }
+    .reto-banner .rb-salidas { grid-column: 1 / -1; padding: 1.2rem 1.9rem; }
+    .reto-banner .rb-salidas h3 { font-size: 1.15rem; }
+    .reto-banner small { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+    .reto-banner .rb-cuaderno small { color: var(--md-orange); }
+    .reto-banner h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.5rem; margin: .4rem 0 .5rem; }
+    .reto-banner p { font-size: .9rem; color: #b8b1a4; }
+    .reto-banner .rb-cuaderno p { color: var(--muted); }
+    .reto-banner .ir { display: inline-block; margin-top: 1rem; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; border-bottom: 1px solid currentColor; }
+    @media (max-width: 700px) { .reto-banner { grid-template-columns: 1fr; } }
     @media (max-width: 700px) {
       .cheatlists-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -329,6 +344,32 @@
   </div>
 
   <div class="content">
+
+    <!-- ── Reto del mes y cuaderno ── -->
+    <div class="reto-banner">
+      <a href="/retos/" class="rb-reto" id="rbReto">
+        <small id="rbEtiqueta">Reto del mes</small>
+        <h3 id="rbTitulo">Sube tus fotos y te las comento</h3>
+        <p id="rbTexto">Cada mes, un reto que puedes hacer vivas donde vivas. Mandas tu foto, te digo lo que veo y las mejores van al muro de Mirar Despacio.</p>
+        <span class="ir">Ir al reto →</span>
+      </a>
+      <a href="/retos/" class="rb-cuaderno" id="rbRacha">
+        <small>Tus retos</small>
+        <h3 id="rbCifras">Tus fotos, con mis comentarios</h3>
+        <p id="rbCuaderno">Todos tus retos, comentados, en un mismo sitio.</p>
+        <span class="ir">Ver tus retos →</span>
+      </a>
+      <a href="/cuaderno/" class="rb-cuaderno rb-salidas" id="rbSalidas" hidden>
+        <small>Salidas por Madrid</small>
+        <h3 id="rbSalTit">Fotos de las salidas</h3>
+        <p id="rbSalTxt">Sube tus fotos de las salidas a las que vienes y te las comento.</p>
+        <span class="ir">Subir fotos de salidas →</span>
+      </a>
+    </div>
+
+    <!-- ── Calendario ── -->
+    <p class="resources-label">Próximas fechas</p>
+    <div id="agenda" style="margin-bottom:3.5rem;"></div>
 
     <!-- ── Herramientas interactivas ── -->
     <p class="resources-label">Herramientas interactivas</p>
@@ -590,6 +631,7 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/acceso.js" data-init="no"></script>
+  <script src="/js/agenda.js"></script>
   <script>
     var isPreview = !window.location.hostname.includes('ottokols');
 
@@ -602,6 +644,42 @@
       }
     });
     netlifyIdentity.init();
+
+    // Reto del mes y resumen del cuaderno
+    (function cargarReto() {
+      var u = netlifyIdentity.currentUser();
+      if (!u) return setTimeout(cargarReto, 400);
+      u.jwt().then(function (t) {
+        return fetch('/.netlify/functions/fotos', { headers: { Authorization: 'Bearer ' + t } });
+      }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        // Calendario: salidas y talleres, más el último día del reto
+        var extra = d && d.reto && !d.reto.bloqueado && d.reto.cierre ? [{ tipo: 'reto', titulo: 'Cierra el reto: ' + d.reto.titulo,
+          inicio: new Date(d.reto.cierre + 'T20:00:00').toISOString(), url: '/retos/' }] : [];
+        MDAgenda.pintar(document.getElementById('agenda'), { extra: extra });
+        if (!d) return;
+        var esc = function (s) { var e = document.createElement('i'); e.textContent = s || ''; return e.innerHTML; };
+        if (d.reto && !d.reto.bloqueado) {
+          var mia = d.mias.some(function (f) { return f.tipo === 'reto' && f.refId === d.reto.id; });
+          var dias = d.reto.cierre ? Math.ceil((new Date(d.reto.cierre + 'T23:59:59') - Date.now()) / 864e5) : null;
+          document.getElementById('rbEtiqueta').textContent = 'Reto del mes' + (dias != null ? ' · ' + (dias <= 0 ? 'último día' : 'quedan ' + dias + ' días') : '');
+          document.getElementById('rbTitulo').textContent = d.reto.titulo;
+          document.getElementById('rbTexto').textContent = mia ? '✓ Ya has mandado tu foto. ' + d.reto.participantes + ' fotos enviadas este mes.' :
+            (d.reto.enunciado || '').slice(0, 160) + ((d.reto.enunciado || '').length > 160 ? '…' : '');
+        }
+        var retosMios = d.mias.filter(function (f) { return f.tipo === 'reto'; });
+        var com = retosMios.filter(function (f) { return f.estado === 'comentada'; }).length;
+        if (retosMios.length) {
+          document.getElementById('rbCifras').textContent = retosMios.length + (retosMios.length === 1 ? ' reto hecho' : ' retos hechos') + ' · ' + com + ' comentados';
+          document.getElementById('rbCuaderno').textContent = d.racha ? 'Llevas ' + d.racha + (d.racha === 1 ? ' reto' : ' retos seguidos') + '. No rompas la racha.' : 'Entra para ver mis comentarios.';
+        }
+        // Fotos de salidas: solo si viene a salidas (las online no lo ven)
+        var deSalidas = d.mias.filter(function (f) { return f.tipo !== 'reto'; }).length;
+        if (d.salidas.length || deSalidas) {
+          document.getElementById('rbSalidas').hidden = false;
+          if (d.salidas.length) document.getElementById('rbSalTxt').textContent = 'Tienes ' + (d.salidas.length === 1 ? 'una salida reciente' : d.salidas.length + ' salidas recientes') + ' para subir fotos.';
+        }
+      }).catch(function () { MDAgenda.pintar(document.getElementById('agenda')); });
+    })();
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
       netlifyIdentity.logout();

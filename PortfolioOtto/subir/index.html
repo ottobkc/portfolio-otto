@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Sube tus fotos · Mirar Despacio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&family=Caveat:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    /* Página pensada para que sea muy fácil: letra grande, botones grandes, pocos pasos. */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #f5f3ef; --bg2: #ebe7df; --ink: #1a1814; --muted: #5f5a52; --border: #cfc8bb; --ok: #3f7a45;
+      --naranja: #e8821a; --rosa: #e8347a; --grad: linear-gradient(90deg, var(--naranja), var(--rosa)); }
+    body { background: var(--bg); color: var(--ink); font-family: 'Jost', system-ui, sans-serif; font-size: 19px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    [hidden] { display: none !important; }
+    button, input, textarea { font: inherit; color: inherit; }
+    .barra-top { height: 6px; background: var(--grad); }
+    main { max-width: 640px; margin: 0 auto; padding: 28px 16px 80px; }
+    .logo { display: block; width: 170px; margin: 0 auto 24px; }
+    h1 { font-family: Georgia, serif; font-weight: 400; font-size: 1.9rem; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-family: Georgia, serif; font-weight: 400; font-size: 1.4rem; margin: 40px 0 14px; }
+    p { margin-bottom: 12px; }
+    .paso { background: #fff; border-radius: 14px; padding: 20px; margin-top: 18px; box-shadow: 0 2px 10px rgba(26,24,20,.06); }
+    .paso .num { display: inline-flex; width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: #fff; align-items: center; justify-content: center; font-weight: 500; margin-right: 10px; }
+    .paso h3 { font-size: 1.15rem; font-weight: 500; display: flex; align-items: center; margin-bottom: 12px; }
+    .opcion { display: flex; gap: 12px; align-items: center; padding: 14px; border: 2px solid var(--border); border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+    .opcion:has(input:checked) { border-color: var(--rosa); background: #fff5f9; }
+    .opcion input { width: 26px; height: 26px; accent-color: var(--rosa); flex: none; }
+    .opcion.desactivada { opacity: .5; }
+    .grande { display: block; width: 100%; min-height: 64px; border: 0; border-radius: 12px; background: var(--grad); color: #fff; font-size: 1.25rem; font-weight: 500; cursor: pointer; padding: 14px; text-align: center; }
+    .grande.oscuro { background: var(--ink); }
+    .grande:disabled { opacity: .55; cursor: wait; }
+    input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .previas { display: grid; gap: 14px; margin-top: 16px; }
+    .previa { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: start; }
+    .previa img { width: 110px; height: 110px; object-fit: cover; border-radius: 8px; background: var(--bg2); }
+    .previa textarea { width: 100%; min-height: 90px; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 1rem; }
+    .previa .est { font-size: 1rem; margin-top: 4px; }
+    .previa .quitar { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: .95rem; }
+    .ok { color: var(--ok); font-weight: 500; } .error { color: #b5463a; font-weight: 500; }
+    .aviso { background: var(--bg2); border-radius: 10px; padding: 14px 16px; color: var(--muted); font-size: 1rem; }
+    .mensaje { font-size: 1.15rem; margin-top: 14px; }
+    .fotos { display: grid; gap: 22px; }
+    .foto { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(26,24,20,.06); }
+    .foto img { width: 100%; display: block; background: var(--bg2); }
+    .foto .datos { padding: 14px 16px 18px; }
+    .etq { display: inline-block; font-size: .85rem; padding: 2px 10px; border-radius: 20px; background: var(--bg2); color: var(--muted); }
+    .etq.si { background: #e7f2e8; color: var(--ok); } .etq.muro { background: var(--grad); color: #fff; }
+    .comentario { font-family: 'Caveat', cursive; font-size: 1.65rem; line-height: 1.25; border-left: 4px solid var(--rosa); padding-left: 12px; margin-top: 12px; white-space: pre-line; }
+    .comentario small { display: block; font-family: 'Jost', sans-serif; font-size: .85rem; color: var(--muted); }
+    .check { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+    .check input { width: 26px; height: 26px; accent-color: var(--rosa); flex: none; margin-top: 2px; }
+    .boton-ig { display: block; width: 100%; margin-top: 14px; min-height: 52px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; font-size: 1.05rem; font-weight: 500; cursor: pointer; }
+    .link-hist { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: .95rem; margin-top: 8px; }
+    footer { text-align: center; color: var(--muted); font-size: .95rem; margin-top: 50px; }
+    footer a { color: inherit; }
+  </style>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+</head>
+<body>
+  <div class="barra-top"></div>
+  <main>
+    <img class="logo" src="https://res.cloudinary.com/dybxateci/image/upload/v1785276700/logoMD_gizjap.png" alt="Mirar Despacio">
+    <h1 id="hola">Un momento…</h1>
+    <p id="intro"></p>
+
+    <section id="zonaSubir" hidden>
+      <div class="paso" id="pasoSalida">
+        <h3><span class="num">1</span>¿De qué salida son?</h3>
+        <div id="salidas"></div>
+      </div>
+
+      <div class="paso">
+        <h3><span class="num" id="numFotos">2</span>Elige tus fotos</h3>
+        <p id="cupo" class="aviso"></p>
+        <label class="grande oscuro" for="archivos" id="botonElegir">📷 Elegir fotos</label>
+        <input type="file" id="archivos" accept="image/*" multiple>
+        <div class="previas" id="previas"></div>
+      </div>
+
+      <div class="paso" id="pasoEnviar" hidden>
+        <h3><span class="num" id="numEnviar">3</span>Enviar</h3>
+        <label class="check"><input type="checkbox" id="publicable">
+          <span>Si alguna me gusta mucho, puedo ponerla en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro de Mirar Despacio</a> con tu nombre. <small style="color:var(--muted)">(Puedes cambiarlo cuando quieras.)</small></span></label>
+        <button class="grande" id="enviar" type="button" style="margin-top:18px;">Enviar fotos</button>
+        <p class="mensaje" id="mensaje" role="status"></p>
+      </div>
+    </section>
+
+    <p class="aviso" id="sinSalidas" hidden style="margin-top:18px;">Ahora mismo no hay ninguna salida reciente para subir fotos. Después de la próxima salida, este mismo enlace te servirá.</p>
+
+    <section id="zonaMias" hidden>
+      <h2>Tus fotos</h2>
+      <div class="fotos" id="mias"></div>
+      <p class="aviso" id="notaGuardado" style="margin-top:18px;"></p>
+    </section>
+
+    <footer>
+      <p>¿Algún problema? Escríbeme a <a href="mailto:info@mirardespacio.es">info@mirardespacio.es</a></p>
+      <p><a href="https://mirardespacio.es/">mirardespacio.es</a></p>
+    </footer>
+  </main>
+
+  <script src="/js/tarjeta-ig.js"></script>
+  <script>
+  (function () {
+    var API = '/.netlify/functions/fotos';
+    var CLOUD = 'https://api.cloudinary.com/v1_1/dybxateci/image/upload';
+    var PRESET = 'cuaderno_fotos';
+    var LADO = 2000;
+    var clave = (location.search.match(/[?&]c=([A-Za-z0-9]+)/) || [])[1] || '';
+    var datos = null, elegidas = [];
+    var $ = function (id) { return document.getElementById(id); };
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var umami = function (e, d) { try { window.umami && window.umami.track(e, d); } catch (x) {} };
+
+    function api(metodo, cuerpo) {
+      var url = metodo === 'GET' ? API + '?c=' + encodeURIComponent(clave) : API;
+      return fetch(url, { method: metodo, headers: { 'Content-Type': 'application/json' },
+        body: cuerpo ? JSON.stringify(Object.assign({ clave: clave }, cuerpo)) : undefined })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.error || 'error'); throw e; } return j; }); });
+    }
+
+    function fechaBonita(iso) {
+      return new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+    function salidaElegida() {
+      var r = document.querySelector('input[name=salida]:checked');
+      return r ? datos.salidas.filter(function (s) { return s.id === r.value; })[0] : null;
+    }
+    function quedan(s) {
+      if (!s) return 0;
+      var n = datos.mias.filter(function (f) { return f.refId === s.id; }).length;
+      return Math.max(0, datos.limites.porSalida - n);
+    }
+
+    function pintarCupo() {
+      var s = salidaElegida(), q = quedan(s);
+      $('cupo').textContent = !s ? 'Primero elige la salida.' : q === 0 ? 'Ya has subido todas las fotos de esta salida. ¡Gracias!' :
+        'Puedes subir ' + (q === 1 ? '1 foto más' : 'hasta ' + q + ' fotos') + ' de esta salida. Elige tus favoritas.';
+      $('botonElegir').hidden = !s || q === 0;
+    }
+
+    function pintar() {
+      var d = datos;
+      $('hola').textContent = 'Hola, ' + (d.yo.nombreCorto || '') + ' 👋';
+      $('intro').textContent = 'Sube aquí tus fotos de las salidas y te digo lo que veo en cada una. Te aviso por email cuando las comente.';
+      // Salidas
+      if (!d.salidas.length) { $('zonaSubir').hidden = true; $('sinSalidas').hidden = false; }
+      else {
+        $('zonaSubir').hidden = false; $('sinSalidas').hidden = true;
+        var previa = (document.querySelector('input[name=salida]:checked') || {}).value;
+        $('salidas').innerHTML = d.salidas.map(function (s, i) {
+          return '<label class="opcion"><input type="radio" name="salida" value="' + s.id + '"' + ((previa ? previa === s.id : i === 0) ? ' checked' : '') + '>' +
+            '<span><strong>' + esc(fechaBonita(s.fecha)) + '</strong>' + (s.zona ? '<br>' + esc(s.zona) : '') + '</span></label>';
+        }).join('');
+        // Con una sola salida no hace falta preguntar
+        var una = d.salidas.length === 1;
+        $('pasoSalida').hidden = una;
+        $('numFotos').textContent = una ? '1' : '2'; $('numEnviar').textContent = una ? '2' : '3';
+        if (una) $('intro').textContent += ' Estas fotos son de la salida del ' + fechaBonita(d.salidas[0].fecha) + '.';
+        pintarCupo();
+      }
+      // Mis fotos
+      $('zonaMias').hidden = !d.mias.length;
+      $('mias').innerHTML = d.mias.map(function (f) {
+        var etq = f.enMuro ? '<span class="etq muro">En el muro' + (f.destacada ? ' ★' : '') + '</span>' :
+          f.estado === 'comentada' ? '<span class="etq si">Comentada</span>' : '<span class="etq">Pendiente de comentar</span>';
+        return '<article class="foto"><img src="' + esc(f.url) + '" alt="" loading="lazy"><div class="datos">' + etq +
+          '<p style="color:var(--muted);font-size:1rem;margin-top:8px;">' + esc(f.donde) + '</p>' +
+          (f.texto ? '<p style="font-style:italic">“' + esc(f.texto) + '”</p>' : '') +
+          (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' +
+            '<button class="boton-ig" type="button" data-ig="post" data-id="' + f.id + '">📲 Guardar para Instagram</button>' +
+            '<button class="link-hist" type="button" data-ig="historia" data-id="' + f.id + '">o en formato historia</button>' : '') +
+          '<label class="check" style="margin-top:14px;font-size:1rem;"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
+          (f.estado === 'pendiente' ? '<p style="margin-top:10px"><button class="quitar" style="background:none;border:0;text-decoration:underline;color:var(--muted);cursor:pointer" data-borrar="' + f.id + '">Borrar esta foto</button></p>' : '') +
+          '</div></article>';
+      }).join('');
+      $('notaGuardado').textContent = 'Tus fotos se guardan aquí ' + d.guardado.salidaDias + ' días después de cada salida. Si quieres conservar una con mi comentario, pulsa «Guardar para Instagram» y quedará en tu móvil.';
+    }
+
+    function cargar() {
+      if (!clave) { sinEnlace(); return Promise.resolve(); }
+      return api('GET').then(function (d) { datos = d; pintar(); }).catch(sinEnlace);
+    }
+    function sinEnlace() {
+      $('hola').textContent = 'Este enlace no funciona';
+      $('intro').innerHTML = 'Puede que esté incompleto. Abre el enlace directamente desde el email que te mandé o escríbeme a <a href="mailto:info@mirardespacio.es">info@mirardespacio.es</a> y te mando uno nuevo.';
+    }
+
+    function reducir(file) {
+      return new Promise(function (ok, ko) {
+        var img = new Image(), url = URL.createObjectURL(file);
+        img.onload = function () {
+          var k = Math.min(1, LADO / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement('canvas');
+          c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          c.toBlob(function (b) { b ? ok({ blob: b, ancho: c.width, alto: c.height }) : ko(new Error('formato')); }, 'image/jpeg', 0.86);
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); ko(new Error('formato')); };
+        img.src = url;
+      });
+    }
+
+    function pintarElegidas() {
+      $('previas').innerHTML = elegidas.map(function (e, i) {
+        return '<div class="previa"><img src="' + e.vista + '" alt="">' +
+          '<div>' + (e.estado ? '<p class="est ' + (e.estado.indexOf('✓') === 0 ? 'ok' : e.estado.indexOf('✗') === 0 ? 'error' : '') + '">' + esc(e.estado) + '</p>' :
+          '<textarea data-i="' + i + '" maxlength="600" placeholder="Algo que contarme (opcional)">' + esc(e.texto || '') + '</textarea>' +
+          '<button class="quitar" data-quitar="' + i + '" type="button">Quitar</button>') + '</div></div>';
+      }).join('');
+      var pendientes = elegidas.filter(function (e) { return !e.hecha; }).length;
+      $('pasoEnviar').hidden = !pendientes;
+      if (pendientes) $('enviar').hidden = false;
+      $('enviar').textContent = pendientes === 1 ? 'Enviar la foto' : 'Enviar las ' + pendientes + ' fotos';
+    }
+
+    $('salidas').addEventListener('change', function () { elegidas = []; pintarElegidas(); pintarCupo(); });
+
+    $('archivos').addEventListener('change', function () {
+      var files = Array.prototype.slice.call(this.files || []); this.value = '';
+      var hueco = quedan(salidaElegida()) - elegidas.filter(function (e) { return !e.hecha; }).length;
+      $('mensaje').textContent = '';
+      if (files.length > hueco) {
+        $('mensaje').textContent = 'Solo caben ' + hueco + ' más: he cogido las ' + hueco + ' primeras.';
+        $('mensaje').className = 'mensaje';
+        $('pasoEnviar').hidden = false;
+        files = files.slice(0, Math.max(0, hueco));
+      }
+      elegidas = elegidas.filter(function (e) { return !e.hecha; });
+      Promise.all(files.map(function (f) {
+        return reducir(f).then(function (r) { r.vista = URL.createObjectURL(r.blob); return r; }).catch(function () { return null; });
+      })).then(function (lista) {
+        var malas = lista.filter(function (x) { return !x; }).length;
+        elegidas = elegidas.concat(lista.filter(Boolean));
+        pintarElegidas();
+        if (malas) { $('mensaje').textContent = (malas === 1 ? 'Una foto' : malas + ' fotos') + ' no se ha podido abrir. Prueba a elegirla otra vez.'; $('mensaje').className = 'mensaje error'; $('pasoEnviar').hidden = false; }
+      });
+    });
+
+    $('previas').addEventListener('input', function (e) { if (e.target.dataset.i) elegidas[+e.target.dataset.i].texto = e.target.value; });
+    $('previas').addEventListener('click', function (e) {
+      if (e.target.dataset.quitar) { elegidas.splice(+e.target.dataset.quitar, 1); pintarElegidas(); }
+    });
+
+    function subirUna(e, s) {
+      var fd = new FormData(); fd.append('file', e.blob, 'foto.jpg'); fd.append('upload_preset', PRESET);
+      return fetch(CLOUD, { method: 'POST', body: fd }).then(function (r) { return r.json(); }).then(function (c) {
+        if (!c.secure_url) throw new Error('subida');
+        return api('POST', { accion: 'subir', tipo: 'salida', refId: s.id, url: c.secure_url, ancho: c.width, alto: c.height,
+          texto: e.texto || '', nombreMuro: datos.yo.nombre, publicable: $('publicable').checked });
+      });
+    }
+
+    $('enviar').addEventListener('click', function () {
+      var s = salidaElegida(); if (!s) return;
+      var cola = elegidas.filter(function (e) { return !e.hecha; });
+      if (!cola.length) return;
+      var b = this; b.disabled = true; b.textContent = 'Enviando…';
+      $('mensaje').textContent = ''; $('mensaje').className = 'mensaje';
+      var bien = 0, mal = 0;
+      cola.forEach(function (e) { e.estado = 'Esperando…'; });
+      pintarElegidas(); b.disabled = true; b.textContent = 'Enviando…';
+      cola.reduce(function (p, e) {
+        return p.then(function () {
+          e.estado = 'Enviando…'; pintarElegidas(); b.disabled = true; b.textContent = 'Enviando…';
+          return subirUna(e, s).then(function () { e.estado = '✓ Enviada'; e.hecha = true; bien++; })
+            .catch(function () { e.estado = '✗ No se ha podido enviar'; e.hecha = true; mal++; });
+        });
+      }, Promise.resolve()).then(function () {
+        umami('subir-fotos', { fotos: bien });
+        b.disabled = false;
+        pintarElegidas();
+        $('pasoEnviar').hidden = false;
+        $('enviar').hidden = true;
+        $('mensaje').innerHTML = bien ? '<span class="ok">¡Listo! ' + (bien === 1 ? 'Tu foto ha llegado' : 'Tus ' + bien + ' fotos han llegado') + '. Te aviso por email cuando las comente.</span>' : '';
+        if (mal) $('mensaje').innerHTML += '<br><span class="error">' + mal + ' no se ' + (mal === 1 ? 'ha' : 'han') + ' podido enviar. Vuelve a elegirlas para intentarlo otra vez.</span>';
+        return cargar();
+      }).then(function () {
+        var quedanPorEnviar = elegidas.some(function (e) { return !e.hecha; });
+        $('enviar').hidden = !quedanPorEnviar;
+        $('pasoEnviar').hidden = !quedanPorEnviar && !$('mensaje').textContent;
+      });
+    });
+
+    $('mias').addEventListener('change', function (e) {
+      if (e.target.dataset.publicable) api('POST', { accion: 'publicable', id: e.target.dataset.publicable, valor: e.target.checked }).then(cargar);
+    });
+    $('mias').addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.dataset.ig) {
+        var f = datos.mias.filter(function (x) { return x.id === t.dataset.id; })[0]; if (!f) return;
+        var txt = t.textContent; t.disabled = true; t.textContent = 'Preparando…';
+        TarjetaIG.compartir({ url: f.grande, comentario: f.comentario, nombre: datos.yo.nombre, donde: f.donde, formato: t.dataset.ig })
+          .catch(function () { alert('No se ha podido preparar la imagen. Prueba otra vez.'); })
+          .then(function () { t.disabled = false; t.textContent = txt; });
+        return;
+      }
+      if (e.target.dataset.borrar && confirm('¿Borrar esta foto?')) api('POST', { accion: 'borrar', id: e.target.dataset.borrar }).then(cargar);
+    });
+
+    cargar();
+  })();
+  </script>
+</body>
+</html>
