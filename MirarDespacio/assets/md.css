@@ -321,3 +321,9 @@ a.tarjeta:hover { border-color: var(--tinta); transform: translateY(-2px); }
 .texto-legal h2 { font-size: 1.35rem; margin: 2rem 0 .6rem; }
 .texto-legal ul { padding-left: 1.2rem; }
 .texto-legal li { margin-bottom: .7rem; }
+
+/* Juego: sorpresas y monturas, en la letra de mano rosa */
+.sorpresa { display: block; color: var(--rosa); font-size: 1.7rem; margin: 18px 0 -6px; transform: rotate(-1.5deg); transform-origin: left; }
+.jugador + .sorpresa + .juego { margin-top: 10px; }
+#juegoResumen .coleccion { display: block; margin-top: 12px; font-family: var(--f-mano); color: var(--rosa); font-size: 1.55rem; line-height: 1.2; }
+.juego-monturas .aviso { font-family: var(--f-mano); color: var(--rosa); font-size: 1.55rem; line-height: 1.2; }

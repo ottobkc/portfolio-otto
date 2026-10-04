@@ -715,8 +715,9 @@ def construir(g):
           <input type="text" id="jugadorNombre" maxlength="24" placeholder="@tu_usuario" autocomplete="nickname" autocapitalize="none" spellcheck="false">
           <span class="aviso" id="jugadorAviso" hidden>Escríbelo para poder jugar: tu puntuación se guarda sola al terminar.</span>
         </div>
+        <p class="nota sorpresa">Cada 5 niveles, una sorpresa… hay 20 por descubrir</p>
         <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
-        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición · Cada 5 niveles, una sorpresa</p>
+        <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición</p>
         <div class="rejilla-2" style="gap:40px;margin-top:20px;align-items:start;">
           <div>
             <p id="juegoResumen" style="min-height:1.6em;margin-top:0;"></p>
