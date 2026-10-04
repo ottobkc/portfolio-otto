@@ -30,7 +30,7 @@
       '<button type="button" data-i="' + i + '" aria-label="Ver la foto de ' + esc(f.nombre) + '">' +
       '<img src="' + esc(f.url) + '" alt="Foto de ' + esc(f.nombre) + '" loading="lazy"' +
       (f.ancho && f.alto ? ' width="' + f.ancho + '" height="' + f.alto + '"' : '') + '></button>' +
-      '<figcaption><span class="muro-autor">' + esc(f.nombre) + (window.MDMedallas ? MDMedallas.junto(f.retos, f.racha, 18) : '') + '</span>' + (f.donde ? '<span class="muro-donde">' + (f.tipo === 'reto' ? 'Reto del mes · ' : '') + esc(f.donde) + '</span>' : '') +
+      '<figcaption><span class="muro-autor">' + esc(f.nombre) + (window.MDMedallas ? MDMedallas.junto(f.retos, f.mejorRacha, 18) : '') + '</span>' + (f.donde ? '<span class="muro-donde">' + (f.tipo === 'reto' ? 'Reto del mes · ' : '') + esc(f.donde) + '</span>' : '') +
       (f.comentario ? '<span class="muro-comentario">' + esc(f.comentario) + '</span>' : '') + '</figcaption></figure>';
   }
 

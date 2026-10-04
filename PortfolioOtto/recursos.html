@@ -678,7 +678,7 @@
         var extra = d && d.reto && !d.reto.bloqueado && d.reto.cierre ? [{ tipo: 'reto', titulo: 'Cierra el reto: ' + d.reto.titulo,
           inicio: new Date(d.reto.cierre + 'T20:00:00').toISOString(), url: '/retos/' }] : [];
         MDAgenda.pintar(document.getElementById('agenda'), { extra: extra, anticipadas: true }).then(anticipada);
-        if (d) document.getElementById('welcomeUser').insertAdjacentHTML('afterend', MDMedallas.junto(d.total, d.racha, 20));
+        if (d) document.getElementById('welcomeUser').insertAdjacentHTML('afterend', MDMedallas.junto(d.total, d.mejorRacha, 20));
         if (!d) return;
         var esc = function (s) { var e = document.createElement('i'); e.textContent = s || ''; return e.innerHTML; };
         if (d.reto && !d.reto.bloqueado) {

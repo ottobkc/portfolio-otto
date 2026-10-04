@@ -91,28 +91,45 @@ async function salidasRecientes(fs) {
     .map((e) => ({ id: e.id, nombre: e.name || 'Salida', fecha: e.date, zona: e.location || '' }));
 }
 
-// Retos seguidos en los que ha participado (el reto abierto aún no rompe la racha)
-function calcularRacha(lista, mias) {
+// Retos seguidos en los que ha participado. No rompen la racha: el reto abierto y los retos que
+// cerraron mientras la persona estaba de baja de MD+ (pausas). mejorRacha es la mejor que ha tenido
+// nunca: las medallas de racha se quedan aunque luego la racha se corte.
+function calcularRacha(lista, mias, pausas = []) {
   const hechos = new Set(mias.filter((f) => f.tipo === 'reto').map((f) => f.refId));
+  const enPausa = (r) => { const fin = r.cierre || r.inicio; return pausas.some((p) => p.desde && p.desde <= fin && fin <= (p.hasta || '9999')); };
+  const validos = lista.filter((r) => r.inicio && r.inicio <= hoy());
   let racha = 0;
-  for (const r of lista) {
-    if (!r.inicio || r.inicio > hoy()) continue;
+  for (const r of validos) {
     if (hechos.has(r.id)) racha++;
-    else if (retoAbierto(r)) continue;
+    else if (retoAbierto(r) || enPausa(r)) continue;
     else break;
   }
-  return { racha, total: hechos.size };
+  let seguidos = 0, mejorRacha = 0;
+  for (const r of validos.slice().reverse()) {
+    if (hechos.has(r.id)) { seguidos++; mejorRacha = Math.max(mejorRacha, seguidos); }
+    else if (retoAbierto(r) || enPausa(r)) continue;
+    else seguidos = 0;
+  }
+  return { racha, total: hechos.size, mejorRacha };
+}
+
+// Pausas (bajas de MD+) de cada persona, por email
+async function pausasPorEmail(fs) {
+  const q = await fs.collection('people').get();
+  const res = {};
+  q.docs.forEach((d) => { const p = d.data(); if (p.email && Array.isArray(p.pausas) && p.pausas.length) res[String(p.email).toLowerCase()] = p.pausas; });
+  return res;
 }
 
 // Retos hechos y racha de cada persona (para las medallas junto al nombre)
 async function logros(fs, lista) {
-  const q = await fs.collection('fotos').where('tipo', '==', 'reto').get();
+  const [q, pausas] = await Promise.all([fs.collection('fotos').where('tipo', '==', 'reto').get(), pausasPorEmail(fs)]);
   const porEmail = {};
   q.docs.forEach((d) => { const f = d.data(); (porEmail[f.email] = porEmail[f.email] || []).push(f); });
   const res = {};
   Object.entries(porEmail).forEach(([email, fs2]) => {
-    const r = calcularRacha(lista, fs2);
-    res[email] = { retos: r.total, racha: r.racha, fotos: fs2 };
+    const r = calcularRacha(lista, fs2, pausas[email]);
+    res[email] = { retos: r.total, racha: r.racha, mejorRacha: r.mejorRacha, fotos: fs2 };
   });
   return res;
 }
@@ -127,7 +144,7 @@ async function galeria(fs, lista, yo, mapa) {
       .sort((a, b) => ms(a.creada) - ms(b.creada))
       .map((f) => ({ id: f.id, nombre: f.nombreMuro || 'Anónimo', url: mini(f.url, 700), grande: mini(f.url, 1800),
         comentario: f.comentario || '', texto: f.texto || '', mia: f.email === yo.email,
-        retos: (mapa[f.email] || {}).retos || 0, racha: (mapa[f.email] || {}).racha || 0 }));
+        retos: (mapa[f.email] || {}).retos || 0, racha: (mapa[f.email] || {}).racha || 0, mejorRacha: (mapa[f.email] || {}).mejorRacha || 0, mejorRacha: (mapa[f.email] || {}).mejorRacha || 0 }));
     return { reto: { id: r.id, titulo: r.titulo, inicio: r.inicio }, fotos };
   }));
 }
@@ -135,9 +152,9 @@ async function galeria(fs, lista, yo, mapa) {
 // Cuadro de constancia: cuántos retos ha hecho cada miembro (que acepta compartir) y su racha
 async function constancia(fs, lista, yo, mapa) {
   const filas = Object.entries(mapa).map(([email, x]) => {
-    const fs2 = x.fotos, r = { total: x.retos, racha: x.racha };
+    const fs2 = x.fotos, r = { total: x.retos, racha: x.racha, mejorRacha: x.mejorRacha };
     const ultima = fs2.slice().sort((a, b) => ms(b.creada) - ms(a.creada))[0];
-    return { nombre: (ultima && ultima.nombreMuro) || 'Anónimo', retos: r.total, racha: r.racha, yo: email === yo.email,
+    return { nombre: (ultima && ultima.nombreMuro) || 'Anónimo', retos: r.total, racha: r.racha, mejorRacha: r.mejorRacha, yo: email === yo.email,
       visible: fs2.some((f) => f.compartir) };
   }).filter((x) => x.visible || x.yo)
     .sort((a, b) => b.retos - a.retos || b.racha - a.racha || a.nombre.localeCompare(b.nombre, 'es'));
@@ -227,7 +244,7 @@ exports.handler = async (event, context) => {
           enMuro: !!f.enMuro, publicable: !!f.publicable, compartir: !!f.compartir, destacada: !!f.destacada,
           nombreMuro: f.nombreMuro || '', creada: ms(f.creada), comentadaEn: ms(f.comentadaEn),
         })),
-        ...(yo.plus ? calcularRacha(lista, mias) : {}),
+        ...(yo.plus ? calcularRacha(lista, mias, (await pausasPorEmail(fs))[yo.email]) : {}),
         limites: { porSalida: POR_SALIDA, pendientes: PENDIENTES_MAX, mb: MAX_BYTES / 1048576 },
       });
     }

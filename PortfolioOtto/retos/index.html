@@ -257,7 +257,7 @@
       var d = datos, r = d.reto && !d.reto.bloqueado ? d.reto : null;
       var mias = d.mias.filter(function (f) { return f.tipo === 'reto'; });
       if (!d.yo.plus) { location.replace('/cuaderno/'); return; }
-      $('saludo').innerHTML = 'Hola, ' + esc(d.yo.nombre || d.yo.email) + MDMedallas.junto(d.total, d.racha, 22) + '. Un tema nuevo cada mes, para salir a mirar vivas donde vivas.';
+      $('saludo').innerHTML = 'Hola, ' + esc(d.yo.nombre || d.yo.email) + MDMedallas.junto(d.total, d.mejorRacha, 22) + '. Un tema nuevo cada mes, para salir a mirar vivas donde vivas.';
       $('cRacha').textContent = d.racha || 0; $('cTotal').textContent = d.total || 0;
       $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length; $('cifras').hidden = false;
 
@@ -297,7 +297,7 @@
       $('notaGuardado').textContent = 'Las fotos de los ' + d.guardado.retos + ' últimos retos se guardan aquí; las más antiguas se archivan (el comentario y tu racha se conservan). Si quieres conservar una, guárdala con el botón de Instagram.';
 
       // Medallas: por constancia, nunca por calidad
-      $('insignias').innerHTML = MDMedallas.panel(d.total || 0, d.racha || 0, true);
+      $('insignias').innerHTML = MDMedallas.panel(d.total || 0, d.mejorRacha || 0, true);
       pintarMonturas(d.juego);
       $('avisosRetos').checked = d.avisosRetos !== false;
 
@@ -308,7 +308,7 @@
         return '<div class="galeria-reto"><h3>' + esc(g.reto.titulo) + ' <small style="font-size:.8rem;color:var(--muted)">' + mes(g.reto.inicio) + ' · ' + g.fotos.length + ' fotos</small></h3><div class="fotos">' +
           g.fotos.map(function (f) {
             return '<article class="foto"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
-              '<span class="donde">' + esc(f.nombre) + (f.mia ? ' · tú' : '') + MDMedallas.junto(f.retos, f.racha, 18) + '</span>' +
+              '<span class="donde">' + esc(f.nombre) + (f.mia ? ' · tú' : '') + MDMedallas.junto(f.retos, f.mejorRacha, 18) + '</span>' +
               (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') + '</div></article>';
           }).join('') + '</div></div>';
       }).join('');
@@ -317,7 +317,7 @@
       var cons = d.constancia || [];
       $('zonaConstancia').hidden = cons.filter(function (c) { return !c.yo; }).length < 2;
       $('constancia').innerHTML = cons.map(function (c) {
-        return '<div' + (c.yo ? ' class="yo"' : '') + '><span>' + esc(c.nombre) + MDMedallas.junto(c.retos, c.racha, 20) + (c.yo ? ' <small>(tú)</small>' : '') + '</span>' +
+        return '<div' + (c.yo ? ' class="yo"' : '') + '><span>' + esc(c.nombre) + MDMedallas.junto(c.retos, c.mejorRacha, 20) + (c.yo ? ' <small>(tú)</small>' : '') + '</span>' +
           '<span class="racha"><small>' + (c.racha > 1 ? c.racha + ' seguidos' : '') + '</small></span>' +
           '<span class="n">' + c.retos + ' <small>' + (c.retos === 1 ? 'reto' : 'retos') + '</small></span></div>';
       }).join('');

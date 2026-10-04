@@ -53,13 +53,18 @@ async function alta(context, ref, p, { meses = 1, nivel = 'salidas', desde } = {
     active: true, since: s.active && s.since ? s.since : (desde || hoy()), until: sumarMeses(base, Number(meses) || 1),
     nivel: nivel === 'online' ? 'online' : 'salidas', origen: 'crm',
   };
-  await ref.set({ subscription: sub, avisoCaducidad: null }, { merge: true });
+  // Si volvía de una baja, se cierra esa pausa (los retos de esos meses no le rompen la racha)
+  const pausas = (p.pausas || []).map((x) => (x.hasta ? x : { ...x, hasta: hoy() }));
+  await ref.set({ subscription: sub, avisoCaducidad: null, ...(p.pausas ? { pausas } : {}) }, { merge: true });
   return { sub, acceso: await aplicarAcceso(context, p.email, 'plus') };
 }
 
 async function baja(context, ref, p, { dejarFotos = true, motivo = 'manual' } = {}) {
   const s = p.subscription || {};
-  await ref.set({ subscription: { ...s, active: false, bajaEn: hoy(), motivoBaja: motivo }, trialStart: null }, { merge: true });
+  // La baja abre una pausa: se conserva todo (fotos, comentarios, medallas, monturas) y la racha queda congelada
+  const abierta = (p.pausas || []).some((x) => !x.hasta);
+  const pausas = abierta ? (p.pausas || []) : (p.pausas || []).concat({ desde: hoy() });
+  await ref.set({ subscription: { ...s, active: false, bajaEn: hoy(), motivoBaja: motivo }, trialStart: null, pausas }, { merge: true });
   return { acceso: await aplicarAcceso(context, p.email, dejarFotos ? 'fotos' : 'ninguno') };
 }
 
