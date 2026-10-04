@@ -51,22 +51,58 @@
       mejor.map(function (m) { return svg(m, tam || 20); }).join('') + '</span>';
   }
 
-  function panel(retos, racha) {
+  function panel(retos, racha, conCompartir) {
     return '<div class="md-panel-medallas">' + LISTA.map(function (m) {
       var ok = m.tipo === 'retos' ? (retos || 0) >= m.n : (racha || 0) >= m.n;
       var falta = m.n - (m.tipo === 'retos' ? (retos || 0) : (racha || 0));
       return '<div class="md-med' + (ok ? ' si' : '') + '">' + svg(m, 58, !ok) + '<b>' + m.nombre + '</b><small>' +
-        (ok ? m.desc : (falta === 1 ? 'Te falta 1' : 'Te faltan ' + falta)) + '</small></div>';
+        (ok ? m.desc : (falta === 1 ? 'Te falta 1' : 'Te faltan ' + falta)) + '</small>' +
+        (ok && conCompartir ? '<button type="button" class="md-compartir" data-medalla="' + m.id + '">📲 Compartir</button>' : '') + '</div>';
     }).join('') + '</div>';
+  }
+
+  // La misma medalla, dibujada en un lienzo (para la imagen de Instagram). Usa los mismos trazos que el SVG.
+  function dibujarCanvas(ctx, id, cx, cy, escala) {
+    var m = LISTA.filter(function (x) { return x.id === id; })[0], c = COLOR[id];
+    ctx.save(); ctx.translate(cx - 20 * escala, cy - 26 * escala); ctx.scale(escala, escala);
+    ctx.fillStyle = c[2]; ctx.fill(new Path2D('M11 0h8l4 14h-8z'));
+    ctx.globalAlpha = 0.8; ctx.fill(new Path2D('M29 0h-8l-4 14h8z')); ctx.globalAlpha = 1;
+    var g = ctx.createLinearGradient(3, 16, 37, 50); g.addColorStop(0, c[0]); g.addColorStop(1, c[1]);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(20, 33, 17, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(20, 33, 13.5, 0, 7); ctx.stroke();
+    ctx.textAlign = 'center';
+    if (m.tipo === 'racha') {
+      ctx.fillStyle = '#e8821a'; ctx.fill(new Path2D('M20 22c3 3 5 5.5 5 8.6 0 3.2-2.3 5.4-5 5.4s-5-2.2-5-5.4c0-1.8.9-3.2 2-4.2 0 1.5.6 2.6 1.6 3 .2-2.7.9-5 1.4-7.4z'));
+      ctx.fillStyle = '#f5f3ef'; ctx.font = '7.5px Georgia, serif'; ctx.fillText(m.n + '×', 20, 45);
+    } else {
+      ctx.fillStyle = '#fff'; ctx.font = 'bold ' + (m.n >= 10 ? 13 : 15) + 'px Georgia, serif'; ctx.fillText(String(m.n), 20, m.n >= 10 ? 37.5 : 38.5);
+      if (id === 'r12') { ctx.fillStyle = '#f6c76a'; ctx.fill(new Path2D('M20 20.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z')); }
+    }
+    ctx.restore();
+  }
+
+  // Imagen para Instagram de una medalla (necesita MDCompartir, de monturas.js)
+  function compartir(id, o) {
+    o = o || {};
+    var m = LISTA.filter(function (x) { return x.id === id; })[0];
+    return window.MDCompartir.tarjeta({
+      formato: o.formato, antetitulo: 'Medalla conseguida', titulo: m.nombre, subtitulo: m.desc + ' en Mirar Despacio+' + (o.nombre ? ' · ' + o.nombre : ''),
+      pie: 'Un reto de fotografía cada mes · mirardespacio.es',
+      dibujar: function (x, cx, cy) { dibujarCanvas(x, id, cx, cy, 11); },
+    }).then(function (b) {
+      try { window.umami && window.umami.track('compartir-medalla', { medalla: id }); } catch (e) {}
+      return window.MDCompartir.compartir(b, 'medalla-' + id + '.png', 'He conseguido la medalla «' + m.nombre + '» en Mirar Despacio+');
+    });
   }
 
   var css = '.md-medallas{display:inline-flex;gap:2px;vertical-align:-4px;margin-left:6px}.md-medalla{display:inline-block;flex:none}' +
     '.md-panel-medallas{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px}' +
     '.md-med{text-align:center;padding:14px 8px;border:1px solid #d8d4ce;background:#f5f3ef}.md-med b{display:block;font-family:Georgia,serif;font-weight:400;margin-top:8px;font-size:1rem;color:#7a756f}' +
-    '.md-med small{color:#7a756f;font-size:.8rem}.md-med:not(.si) svg{opacity:.35}.md-med.si{background:#fff;border-color:transparent;box-shadow:0 2px 10px rgba(26,24,20,.08)}.md-med.si b{color:#1a1814}';
+    '.md-med small{color:#7a756f;font-size:.8rem}.md-med:not(.si) svg{opacity:.35}.md-med.si{background:#fff;border-color:transparent;box-shadow:0 2px 10px rgba(26,24,20,.08)}.md-med.si b{color:#1a1814}' +
+    '.md-compartir{display:block;margin:8px auto 0;background:none;border:1px solid #d8d4ce;padding:3px 8px;font:inherit;font-size:.75rem;cursor:pointer;color:#4a4742}.md-compartir:hover{border-color:#1a1814}';
   if (!document.getElementById('md-medallas-css')) {
     var st = document.createElement('style'); st.id = 'md-medallas-css'; st.textContent = css; document.head.appendChild(st);
   }
 
-  window.MDMedallas = { lista: LISTA, svg: svg, ganadas: ganadas, junto: junto, panel: panel };
+  window.MDMedallas = { lista: LISTA, svg: svg, ganadas: ganadas, junto: junto, panel: panel, dibujarCanvas: dibujarCanvas, compartir: compartir };
 })();

@@ -121,7 +121,7 @@ def escribir(ruta, contenido):
     if ruta == '/':
         destino = os.path.join(RAIZ, 'index.html')
     os.makedirs(os.path.dirname(destino), exist_ok=True)
-    for js in ('pegatinas.js', 'galerias.js', 'juego.js', 'muro.js'):
+    for js in ('pegatinas.js', 'galerias.js', 'juego.js', 'muro.js', 'monturas.js'):
         contenido = contenido.replace('"/assets/' + js + '"', '"' + v(js) + '"')
     open(destino, 'w').write(contenido)
     print('✓', ruta)
@@ -146,6 +146,11 @@ PROXIMA_JS = '''
       });
     }).catch(function () {});
   </script>'''
+
+# monturas.js vive en PortfolioOtto/js (lo usa también la zona MD+): se copia aquí para el juego
+import shutil
+shutil.copyfile(os.path.join(os.path.dirname(__file__), '..', 'PortfolioOtto', 'js', 'monturas.js'),
+                os.path.join(RAIZ, 'assets', 'monturas.js'))
 
 from paginas import construir
 construir(globals())

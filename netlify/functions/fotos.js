@@ -36,6 +36,7 @@ const cab = (o) => ({
   'Content-Type': 'application/json',
   Vary: 'Origin',
 });
+const claveJugador = (n) => String(n || '').trim().replace(/^@+/, '').toLowerCase().replace(/[^\p{L}\p{N}._]+/gu, '_').slice(0, 40);
 const CLAVE_OK = /^[A-Za-z0-9]{16,40}$/;
 const res = (h, code, obj, extra) => ({ statusCode: code, headers: { ...h, ...(extra || {}) }, body: JSON.stringify(obj) });
 const ms = (t) => (t && t.toMillis ? t.toMillis() : t ? new Date(t).getTime() : 0);
@@ -207,7 +208,15 @@ exports.handler = async (event, context) => {
         salidas,
         hechos: Array.from(new Set(mias.filter((f) => f.tipo === 'reto').map((f) => f.refId))),
         guardado: { salidaDias: SALIDA_DIAS, retos: RETOS_GUARDADOS },
-        ...(yo.plus ? { avisosRetos: !((await fs.collection('preferencias').doc(yo.email).get()).data() || {}).sinAvisosRetos } : {}),
+        ...(yo.plus ? await (async () => {
+          const pref = (await fs.collection('preferencias').doc(yo.email).get()).data() || {};
+          let monturas = [];
+          if (pref.jugador) {
+            const j = await fs.collection('jugadores').doc(claveJugador(pref.jugador)).get();
+            monturas = (j.exists && j.data().monturas) || [];
+          }
+          return { avisosRetos: !pref.sinAvisosRetos, juego: { jugador: pref.jugador || '', monturas } };
+        })() : {}),
         ...(yo.plus && qs.vista === 'retos' ? await (async () => {
           const mapa = await logros(fs, lista);
           return { galeria: await galeria(fs, lista, yo, mapa), constancia: await constancia(fs, lista, yo, mapa) };
@@ -225,6 +234,15 @@ exports.handler = async (event, context) => {
     if (event.httpMethod !== 'POST') return res(h, 405, {});
 
     const b = cuerpo;
+
+    // Enlaza su nombre del juego del fotógrafo para ver aquí sus monturas
+    if (b.accion === 'jugador' && yo.plus) {
+      const nombre = String(b.nombre || '').trim().replace(/\s+/g, ' ');
+      if (nombre && !/^@?[\p{L}\p{N}._ ]{2,24}$/u.test(nombre)) return res(h, 400, { error: 'nombre' });
+      await fs.collection('preferencias').doc(yo.email).set({ jugador: nombre }, { merge: true });
+      const j = nombre ? await fs.collection('jugadores').doc(claveJugador(nombre)).get() : null;
+      return res(h, 200, { jugador: nombre, monturas: (j && j.exists && j.data().monturas) || [], existe: !!(j && j.exists) });
+    }
 
     if (b.accion === 'avisos' && yo.plus) {
       await fs.collection('preferencias').doc(yo.email).set({ sinAvisosRetos: !b.valor, cambiado: FieldValue.serverTimestamp() }, { merge: true });

@@ -118,6 +118,19 @@
     .galeria-reto .fotos { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
     .galeria-reto .foto img { aspect-ratio: 1; }
     .galeria-reto .comentario { font-size: 1.15rem; }
+    .monturas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 1rem; }
+    .montura { background: var(--bg2); text-align: center; padding: 6px 4px 10px; }
+    .montura canvas { width: 100%; height: auto; display: block; }
+    .montura span { font-size: .8rem; color: var(--ink); }
+    .montura.no span { color: var(--muted); }
+    .jugador-form { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-top: .6rem; }
+    .jugador-form input { border: 1px solid var(--border); background: var(--bg); padding: .55rem .7rem; font: inherit; min-width: 200px; }
+    .jugador-form button { border: 0; background: var(--ink); color: var(--bg); padding: .6rem 1rem; cursor: pointer; font-family: var(--font-sans); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+    .linkito { background: none; border: 0; padding: 0 .3rem; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; font-size: .85rem; }
+    .montura { position: relative; }
+    .montura .comp { display: block; margin: 6px auto 0; background: none; border: 1px solid var(--border); padding: 2px 8px; font-size: .72rem; cursor: pointer; }
+    .elegir-formato { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .4rem; }
+    .sub-rotulo { font-family: var(--font-serif); font-size: 1.2rem; margin: 2rem 0 .3rem; }
     .nota-guardado { font-size: .85rem; color: var(--muted); margin-top: .8rem; }
     @media (max-width: 640px) { .galeria-reto .fotos { grid-template-columns: 1fr 1fr; } .constancia div { grid-template-columns: 1fr auto; } .constancia .racha { display: none; } }
   </style>
@@ -166,7 +179,7 @@
         <input type="text" id="nombreMuro" maxlength="40" placeholder="Tu nombre o @usuario">
       </div>
       <label class="check"><input type="checkbox" id="publicable">
-        <span>Si te la comento, puede salir en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro público</a> de Mirar Despacio con tu firma y mi comentario. Puedes quitarla cuando quieras.</span></label>
+        <span>Puede salir en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro público</a> de Mirar Despacio con tu firma. Puedes quitarla cuando quieras.</span></label>
       <label class="check"><input type="checkbox" id="compartir">
         <span>Que la vean los demás miembros cuando cierre el reto (en la galería del reto y en el cuadro de constancia). Solo la ven miembros de Mirar Despacio+.</span></label>
       <div class="barra" hidden id="barra"><i></i></div>
@@ -179,9 +192,13 @@
     <p class="nota-guardado" id="notaGuardado"></p>
 
     <section id="zonaInsignias">
-      <p class="rotulo">Tus medallas</p>
+      <p class="rotulo">Tus logros</p>
+      <h3 class="sub-rotulo">Medallas de los retos</h3>
       <div id="insignias"></div>
       <p class="nota-guardado">Aquí no hay notas ni fotos mejores o peores: solo cuenta cuántos meses te has puesto a mirar.</p>
+      <h3 class="sub-rotulo">Monturas del juego del fotógrafo <small id="monturasN" style="font-family:var(--font-sans);font-size:.8rem;color:var(--muted)"></small></h3>
+      <div id="monturas"></div>
+      <div class="elegir-formato" id="formatoIG" hidden></div>
     </section>
 
     <section id="zonaGaleria" hidden>
@@ -206,6 +223,7 @@
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/tarjeta-ig.js"></script>
   <script src="/js/medallas.js"></script>
+  <script src="/js/monturas.js"></script>
   <script>
   (function () {
     var API = '/.netlify/functions/fotos';
@@ -239,7 +257,7 @@
       var d = datos, r = d.reto && !d.reto.bloqueado ? d.reto : null;
       var mias = d.mias.filter(function (f) { return f.tipo === 'reto'; });
       if (!d.yo.plus) { location.replace('/cuaderno/'); return; }
-      $('saludo').innerHTML = 'Hola, ' + esc(d.yo.nombre || d.yo.email) + MDMedallas.junto(d.total, d.racha, 22) + '. Un tema cada mes, lo resuelves donde vivas, me mandas tu foto y te digo lo que veo.';
+      $('saludo').innerHTML = 'Hola, ' + esc(d.yo.nombre || d.yo.email) + MDMedallas.junto(d.total, d.racha, 22) + '. Un tema nuevo cada mes, para salir a mirar vivas donde vivas.';
       $('cRacha').textContent = d.racha || 0; $('cTotal').textContent = d.total || 0;
       $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length; $('cifras').hidden = false;
 
@@ -279,7 +297,8 @@
       $('notaGuardado').textContent = 'Las fotos de los ' + d.guardado.retos + ' últimos retos se guardan aquí; las más antiguas se archivan (el comentario y tu racha se conservan). Si quieres conservar una, guárdala con el botón de Instagram.';
 
       // Medallas: por constancia, nunca por calidad
-      $('insignias').innerHTML = MDMedallas.panel(d.total || 0, d.racha || 0);
+      $('insignias').innerHTML = MDMedallas.panel(d.total || 0, d.racha || 0, true);
+      pintarMonturas(d.juego);
       $('avisosRetos').checked = d.avisosRetos !== false;
 
       // Galería de los últimos retos cerrados
@@ -303,6 +322,68 @@
           '<span class="n">' + c.retos + ' <small>' + (c.retos === 1 ? 'reto' : 'retos') + '</small></span></div>';
       }).join('');
     }
+
+    // Monturas del juego: las desbloqueadas se ven dibujadas (y se pueden compartir); las demás, en silueta
+    function pintarMonturas(juego) {
+      var caja = $('monturas');
+      if (!window.MDMonturas) { caja.innerHTML = ''; return; }
+      juego = juego || { jugador: '', monturas: [] };
+      var M = MDMonturas, tengo = juego.monturas || [];
+      $('monturasN').textContent = '· ' + tengo.length + ' de ' + M.CLAVES.length;
+      var form = '<form class="jugador-form" id="formJugador"><input name="nombre" maxlength="24" placeholder="Tu nombre o @ en el juego" value="' + esc(juego.jugador) + '"><button type="submit">Guardar</button>' +
+        '<span class="nota-guardado" id="msgJugador" style="margin:0"></span></form>';
+      caja.innerHTML = (juego.jugador
+        ? '<p class="nota-guardado">Juegas como <strong>' + esc(juego.jugador) + '</strong>. Cada 5 niveles sale una montura al azar. <a href="https://mirardespacio.es/juego/" target="_blank">Jugar →</a> <button class="linkito" type="button" id="cambiarJugador">cambiar nombre</button></p><div id="formJ" hidden>' + form + '</div>'
+        : '<p class="nota-guardado">¿Con qué nombre juegas al <a href="https://mirardespacio.es/juego/" target="_blank">juego del fotógrafo</a>? Ponlo aquí y verás las monturas que vas desbloqueando.</p>' + form) +
+        '<div class="monturas-grid" id="gridMonturas"></div>';
+      var grid = $('gridMonturas');
+      M.CLAVES.forEach(function (k) {
+        var si = tengo.indexOf(k) !== -1;
+        var div = document.createElement('div'); div.className = 'montura' + (si ? '' : ' no');
+        var cv = document.createElement('canvas'); cv.width = 260; cv.height = 250;
+        var cx = cv.getContext('2d'); cx.scale(1.6, 1.6);   // lienzo lógico de 162×156
+        var dib = M.crear(cx, { tinta: '#1a1814', naranja: '#e8821a', rosa: '#e8347a', crema: '#f5f3ef' });
+        if (si) dib.escena(k, 76, 146, 1.3); else { var r = dib.dibujar(k, 76, 146, 1.3); if (r.cupula) dib.cupula(76, 146, 1.3); }
+        if (!si) { cx.globalCompositeOperation = 'source-in'; cx.fillStyle = '#cfc9bf'; cx.fillRect(0, 0, 163, 157); cx.globalCompositeOperation = 'source-over'; }
+        cx.fillStyle = '#1a1814'; cx.fillRect(6, 146, 150, 1.5);
+        div.appendChild(cv);
+        div.insertAdjacentHTML('beforeend', '<span>' + (si ? esc(M.MONTURAS[k].nombre) : '???') + '</span>' +
+          (si ? '<button class="comp" type="button" data-montura="' + k + '">📲 Compartir</button>' : ''));
+        grid.appendChild(div);
+      });
+      var cambiar = $('cambiarJugador');
+      if (cambiar) cambiar.onclick = function () { $('formJ').hidden = false; cambiar.hidden = true; };
+      $('formJugador').addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var nombre = this.nombre.value.trim(), msg = $('msgJugador');
+        msg.textContent = 'Guardando…';
+        llamar('POST', { accion: 'jugador', nombre: nombre }).then(function (j) {
+          datos.juego = j; pintarMonturas(j);
+          if (!j.existe && j.jugador) $('monturas').insertAdjacentHTML('afterbegin', '<p class="nota-guardado" style="color:var(--md-pink)">Todavía no hay partidas con ese nombre. Juega una con ese mismo nombre y aparecerán aquí.</p>');
+        }).catch(function () { msg.textContent = 'Ese nombre no vale: entre 2 y 24 letras o números.'; });
+      });
+    }
+
+    // Compartir en Instagram (medallas y monturas): primero se elige post o historia
+    function elegirFormato(boton, hacer) {
+      var caja = $('formatoIG');
+      boton.insertAdjacentElement('afterend', caja);
+      caja.hidden = false;
+      caja.innerHTML = '<button class="linkito" type="button" data-f="post">Post</button><button class="linkito" type="button" data-f="historia">Historia</button>';
+      caja.querySelectorAll('button').forEach(function (b) {
+        b.onclick = function () {
+          b.textContent = 'Preparando…';
+          hacer(b.dataset.f).catch(function () { alert('No se ha podido preparar la imagen.'); }).then(function () { caja.hidden = true; });
+        };
+      });
+    }
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t.dataset && t.dataset.medalla) elegirFormato(t, function (f) { return MDMedallas.compartir(t.dataset.medalla, { formato: f, nombre: datos.yo.nombre }); });
+      if (t.dataset && t.dataset.montura) elegirFormato(t, function (f) {
+        return MDCompartir.montura(t.dataset.montura, { formato: f, cuantas: (datos.juego.monturas || []).length, jugador: datos.juego.jugador });
+      });
+    });
 
     function buscarFoto(id) {
       var todas = datos.mias.slice();

@@ -605,6 +605,7 @@ MURO_JS = '''
   <script src="https://ottokols.es/js/medallas.js"></script>
   <script src="/assets/muro.js"></script>'''
 JUEGO_JS = '''
+  <script src="/assets/monturas.js"></script>
   <script src="/assets/juego.js"></script>'''
 
 MAPA_JS = '''

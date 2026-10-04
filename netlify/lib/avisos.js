@@ -48,7 +48,7 @@ function correoReto(tipo, reto, m) {
       intro: ['Ya está abierto el reto de este mes. Lo puedes hacer donde vivas, con la cámara que tengas.'],
       filas: [['📷', esc(reto.titulo)], ...(reto.cierre ? [['⏳', 'Hasta el ' + esc(fechaCierre(reto.cierre).toLowerCase())]] : [])],
       boton: { url: RETOS, texto: 'Ver el reto', antes: reto.enunciado ? esc(reto.enunciado).replace(/\n/g, '<br>') : '' },
-      cuerpo: ['Mándame tu foto y te digo lo que veo.'],
+      cuerpo: ['Cuando cierre, podrás ver cómo lo han resuelto los demás.'],
     },
     recordatorio: {
       asunto: `Quedan 3 días para el reto: ${reto.titulo}`,
@@ -59,7 +59,7 @@ function correoReto(tipo, reto, m) {
     },
     galeria: {
       asunto: `Ya puedes ver las fotos del reto: ${reto.titulo}`,
-      intro: ['El reto ha cerrado y ya está abierta la galería con las fotos de los demás miembros y mis comentarios.'],
+      intro: ['El reto ha cerrado y ya puedes ver cómo lo han resuelto los demás miembros.'],
       filas: [['🖼️', esc(reto.titulo)], ...(reto.fotos ? [['👀', reto.fotos + ' fotos compartidas']] : [])],
       boton: { url: RETOS, texto: 'Ver la galería', antes: '' },
       cuerpo: [],
