@@ -1295,6 +1295,7 @@ window.createPersonDirect = async function() {
 };
 
 // ---------- PEOPLE VIEW ----------
+window.renderPeople = renderPeople; // lo usan el buscador y el filtro (oninput/onchange)
 function renderPeople() {
   const search = (document.getElementById('searchPeople')?.value || '').toLowerCase();
   const el = document.getElementById('peopleList');
