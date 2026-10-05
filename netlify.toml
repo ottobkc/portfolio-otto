@@ -30,6 +30,20 @@
 # -----------------------------------------------
 # HEADERS /members/ — sin indexar
 # -----------------------------------------------
+# -----------------------------------------------
+# SEGURIDAD — en todas las páginas
+# Que ninguna otra web pueda meter estas páginas en un marco, HTTPS siempre, etc.
+# -----------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    Content-Security-Policy = "frame-ancestors 'self'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=()"
+
 [[headers]]
   for = "/members/*"
   [headers.values]
@@ -69,8 +83,7 @@
 # -----------------------------------------------
 # ÁREA DE MIEMBROS — protección en el servidor
 # Solo entra quien tiene sesión de Netlify Identity con rol "member".
-# El rol se asigna solo al registrarse (netlify/functions/identity-signup.js);
-# a los miembros que ya existían hay que ponérselo a mano una vez.
+# El rol lo pone el CRM (o el pago) al invitar; quien se registre sin invitación entra sin acceso.
 # -----------------------------------------------
 [[redirects]]
   from       = "/members/*"

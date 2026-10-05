@@ -131,7 +131,7 @@ $('stickerForm').addEventListener('submit', async (e) => {
   const lat = parseFloat($('stickerLat').value), lng = parseFloat($('stickerLng').value);
   const msg = $('stickerMsg');
   if (isNaN(lat) || isNaN(lng)) { msg.textContent = 'Primero usa tu ubicación o toca el mapa para marcar dónde está.'; return; }
-  const name = $('stickerName').value.trim();
+  const name = $('stickerName').value.trim().slice(0, 60);
   if (!name) { msg.textContent = 'Pon tu nombre o tu @ de Instagram.'; $('stickerName').focus(); return; }
   const btn = e.target.querySelector('button[type=submit]');
   if (!fotoLista) { msg.textContent = 'Añade una foto de la pegatina.'; return; }

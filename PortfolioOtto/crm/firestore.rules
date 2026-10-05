@@ -7,6 +7,8 @@ service cloud.firestore {
     function esAdmin() {
       return request.auth != null
         && request.auth.token.email == 'ottobkc@gmail.com';
+      // Nadie más puede crearse una cuenta: en Firebase → Authentication → Settings → User actions
+      // está desactivado «Enable create (sign-up)». Así nadie puede registrarse con ningún email.
     }
 
     // Mapa de pegatinas de salidas.html: cualquiera puede verlo y añadir una.
@@ -17,6 +19,9 @@ service cloud.firestore {
       allow create: if request.resource.data.keys().hasOnly(['lat', 'lng', 'name', 'photo', 'fotoAprobada', 'createdAt'])
                     && request.resource.data.lat is number
                     && request.resource.data.lng is number
+                    && request.resource.data.lat >= -90 && request.resource.data.lat <= 90
+                    && request.resource.data.lng >= -180 && request.resource.data.lng <= 180
+                    && (!('name' in request.resource.data) || (request.resource.data.name is string && request.resource.data.name.size() <= 60))
                     && (!('fotoAprobada' in request.resource.data) || request.resource.data.fotoAprobada == false)
                     && (!('photo' in request.resource.data) || request.resource.data.photo == null
                         || (request.resource.data.photo is string

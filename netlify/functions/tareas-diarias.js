@@ -10,6 +10,7 @@ const { db, FieldValue } = require('../lib/firestore');
 const { enviar, esc, remitente } = require('../lib/correo');
 const { miembrosConAvisos, correoReto, enviarATodos } = require('../lib/avisos');
 const plus = require('../lib/plus');
+const limite = require('../lib/limite');
 
 const madrid = (offsetDias = 0) => new Date(Date.now() + offsetDias * 864e5).toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' }).slice(0, 10);
 
@@ -80,6 +81,8 @@ exports.handler = async (event, context) => {
   if (ampliados.length) informe.push('Prueba de MD+ alargada para que terminen el reto abierto (se quita sola después):\n- ' + ampliados.join('\n- '));
   if (pronto.length) informe.push('MD+ que termina en los próximos días:\n- ' + pronto.join('\n- '));
   if (revisar.length) informe.push('Revisa en el CRM (Personas → Mirar Despacio+) y ponles fecha:\n- ' + revisar.join('\n- '));
+
+  await limite.limpiar(fs).catch(() => 0);
 
   const para = process.env.AVISO_A || remitente();
   if (informe.length && para) {
