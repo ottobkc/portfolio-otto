@@ -1,7 +1,9 @@
 // Tareas de cada día (programada en netlify.toml, por la mañana):
 //  1. Reto: recordatorio 3 días antes del cierre a quien aún no ha mandado foto
 //  2. Reto: aviso «ya puedes ver la galería» el día después del cierre
-//  3. MD+: quita el acceso a quien ha caducado (3 días de margen) y avisa a Otto de lo que caduca pronto
+//  3. MD+: quita el acceso a quien ha caducado (3 días de margen) y avisa a Otto de lo que caduca pronto.
+//     Si una prueba gratis termina con un reto abierto, se alarga (una sola vez) hasta el día después
+//     del cierre, para que pueda mandar su foto y ver la galería.
 // Si en una ejecución programada no hubiera acceso a la administración de cuentas,
 // no se rompe nada: Otto recibe la lista para hacerlo a mano desde el CRM.
 const { db, FieldValue } = require('../lib/firestore');
@@ -52,12 +54,18 @@ exports.handler = async (event, context) => {
   }
 
   // 3. Caducidad de MD+
-  const quitados = [], pronto = [], revisar = [];
+  const quitados = [], pronto = [], revisar = [], ampliados = [];
+  const abierto = retos.filter((x) => x.activo && x.cierre && x.cierre >= madrid(0)).sort((a, b) => a.cierre.localeCompare(b.cierre))[0];
+  const diaDespues = (iso) => new Date(new Date(iso + 'T12:00:00Z').getTime() + 864e5).toISOString().slice(0, 10);
   for (const d of (await fs.collection('people').get()).docs) {
     const p = d.data();
     const e = plus.estado(p);
     const nombre = [p.name, p.apellidos].filter(Boolean).join(' ') || p.email;
-    if (e.caducada && (p.subscription && p.subscription.active || p.trialStart)) {
+    if (e.caducada && e.tipo === 'prueba' && abierto && !p.pruebaHasta) {
+      const hasta = diaDespues(abierto.cierre);
+      await d.ref.set({ pruebaHasta: hasta }, { merge: true });
+      ampliados.push(`${nombre}: hasta el ${hasta} (reto «${abierto.titulo}»)`);
+    } else if (e.caducada && (p.subscription && p.subscription.active || p.trialStart)) {
       const r = await plus.baja(context, d.ref, p, { dejarFotos: true, motivo: e.tipo === 'prueba' ? 'fin-prueba' : 'caducada' });
       quitados.push(`${nombre} (${e.tipo === 'prueba' ? 'fin de la prueba' : 'caducó el ' + e.hasta})${r.acceso === 'sin-identity' || r.acceso === 'error' ? ' — QUITA EL ACCESO A MANO en el CRM' : ''}`);
     } else if (e.activo && !e.revisar && e.hasta && e.hasta <= madrid(5) && p.avisoCaducidad !== e.hasta) {
@@ -69,6 +77,7 @@ exports.handler = async (event, context) => {
     }
   }
   if (quitados.length) informe.push('Se ha quitado MD+ (pueden seguir subiendo fotos de salidas):\n- ' + quitados.join('\n- '));
+  if (ampliados.length) informe.push('Prueba de MD+ alargada para que terminen el reto abierto (se quita sola después):\n- ' + ampliados.join('\n- '));
   if (pronto.length) informe.push('MD+ que termina en los próximos días:\n- ' + pronto.join('\n- '));
   if (revisar.length) informe.push('Revisa en el CRM (Personas → Mirar Despacio+) y ponles fecha:\n- ' + revisar.join('\n- '));
 

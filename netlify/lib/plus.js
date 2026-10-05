@@ -2,6 +2,7 @@
 // En la ficha de la persona (colección people):
 //   subscription: { active, since, until (AAAA-MM-DD), nivel: 'salidas' | 'online', bajaEn, motivoBaja }
 //   trialStart: ISO (prueba gratis de 30 días)
+//   pruebaHasta: AAAA-MM-DD (opcional) si la prueba se amplió para que termine el reto abierto
 // El acceso a la zona de miembros (rol 'member' en Netlify Identity) se pone y se quita a la vez.
 const { usuarioPorEmail, ponerRoles, rolesPara, invitarCon } = require('./identidad');
 
@@ -21,7 +22,8 @@ function estado(p) {
     return { activo: !caducada, tipo: 'suscripcion', hasta: s.until || null, nivel: s.nivel || 'salidas', caducada, revisar: !s.origen && !!vencida };
   }
   if (p && p.trialStart) {
-    const fin = new Date(new Date(p.trialStart).getTime() + PRUEBA_DIAS * DIA);
+    let fin = new Date(new Date(p.trialStart).getTime() + PRUEBA_DIAS * DIA);
+    if (p.pruebaHasta) { const amp = new Date(p.pruebaHasta + 'T23:59:59+01:00'); if (amp > fin) fin = amp; }
     return { activo: fin.getTime() > Date.now(), tipo: 'prueba', hasta: fin.toISOString().slice(0, 10), nivel: 'salidas', caducada: fin.getTime() <= Date.now() };
   }
   return { activo: false, tipo: 'ninguno' };
@@ -64,12 +66,12 @@ async function baja(context, ref, p, { dejarFotos = true, motivo = 'manual' } = 
   // La baja abre una pausa: se conserva todo (fotos, comentarios, medallas, monturas) y la racha queda congelada
   const abierta = (p.pausas || []).some((x) => !x.hasta);
   const pausas = abierta ? (p.pausas || []) : (p.pausas || []).concat({ desde: hoy() });
-  await ref.set({ subscription: { ...s, active: false, bajaEn: hoy(), motivoBaja: motivo }, trialStart: null, pausas }, { merge: true });
+  await ref.set({ subscription: { ...s, active: false, bajaEn: hoy(), motivoBaja: motivo }, trialStart: null, pruebaHasta: null, pausas }, { merge: true });
   return { acceso: await aplicarAcceso(context, p.email, dejarFotos ? 'fotos' : 'ninguno') };
 }
 
 async function prueba(context, ref, p) {
-  await ref.set({ trialStart: new Date().toISOString() }, { merge: true });
+  await ref.set({ trialStart: new Date().toISOString(), pruebaHasta: null }, { merge: true });
   return { acceso: await aplicarAcceso(context, p.email, 'plus') };
 }
 

@@ -56,6 +56,13 @@
     .reto .pista { font-family: var(--font-mano); font-size: 1.35rem; color: var(--accent); margin-top: .8rem; }
     .reto .pie { display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: center; margin-top: 1.4rem; font-size: .85rem; color: #b8b1a4; }
     .reto.bloqueado h2 { filter: none; }
+    .pausa-intro { max-width: 44em; margin-bottom: 1.2rem; }
+    .pausa-cifras { display: flex; flex-wrap: wrap; gap: 2rem; margin: 1rem 0 1.4rem; }
+    .pausa-cifras b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1; }
+    .pausa-cifras small { color: var(--muted); }
+    .pausa-volver { background: var(--ink); color: var(--bg); padding: 1.6rem 1.8rem; margin: 1.6rem 0; display: flex; flex-wrap: wrap; gap: 1rem 1.6rem; align-items: center; justify-content: space-between; }
+    .pausa-volver p { margin: 0; color: #cfc9bf; max-width: 34em; }
+    .pausa-volver strong { color: var(--bg); }
     .boton { display: inline-block; border: 0; cursor: pointer; padding: .8rem 1.4rem; background: var(--ink); color: var(--bg);
       font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; }
     .boton.color { background: var(--grad); color: #fff; }
@@ -162,6 +169,12 @@
     <div class="fotos" id="fotos"><p class="vacio">Cargando…</p></div>
     <p class="nota-guardado" id="notaGuardado"></p>
 
+    <section id="zonaPausa" hidden>
+      <p class="rotulo">Tus retos · en pausa</p>
+      <div id="pausa"></div>
+      <div class="fotos" id="fotosRetos"></div>
+    </section>
+
     <section id="zonaReto" hidden>
       <p class="rotulo">Reto del mes</p>
       <div class="reto bloqueado" id="reto"></div>
@@ -172,6 +185,7 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/tarjeta-ig.js"></script>
+  <script src="/js/medallas.js"></script>
   <script>
   (function () {
     var API = '/.netlify/functions/fotos';
@@ -221,7 +235,27 @@
 
       // Solo para quien no es MD+: el reto del mes se ve, pero bloqueado
       var r = d.reto;
-      $('zonaReto').hidden = !(r && r.bloqueado);
+      $('zonaReto').hidden = !(r && r.bloqueado) || !!d.exMiembro;
+
+      // Quien fue de MD+: sus retos, medallas y racha en solo lectura, y la puerta para volver
+      $('zonaPausa').hidden = !d.exMiembro;
+      if (d.exMiembro) {
+        var deRetos = d.mias.filter(function (f) { return f.tipo === 'reto'; });
+        $('pausa').innerHTML = '<p class="pausa-intro">Tu suscripción a Mirar Despacio+ ha terminado, pero no se ha perdido nada: tus fotos de los retos, los comentarios, tus medallas y tu racha siguen aquí, en pausa. Si vuelves, continúas donde lo dejaste.</p>' +
+          '<div class="pausa-cifras"><div><b>' + (d.total || 0) + '</b><small>' + ((d.total || 0) === 1 ? 'reto hecho' : 'retos hechos') + '</small></div>' +
+          '<div><b>' + (d.mejorRacha || 0) + '</b><small>tu mejor racha</small></div></div>' +
+          MDMedallas.panel(d.total || 0, d.mejorRacha || 0) +
+          '<div class="pausa-volver"><p>' + (r && r.titulo ? 'Este mes el reto es <strong>«' + esc(r.titulo) + '»</strong>. ' : '') + 'Vuelve a Mirar Despacio+ y sigue sumando retos a tu racha.</p>' +
+          '<a class="boton color" href="https://mirardespacio.es/mirar-despacio-plus/#niveles" data-umami-event="plus-reactivar">Reactiva tu suscripción</a></div>';
+        $('fotosRetos').innerHTML = deRetos.map(function (f) {
+          return '<article class="foto"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
+            '<span class="donde">Reto · ' + esc(f.donde) + '</span>' +
+            (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
+            (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
+            (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
+            '</div></article>';
+        }).join('');
+      }
       if (r && r.bloqueado) {
         $('reto').innerHTML = '<p class="etiqueta">Este mes, en Mirar Despacio+</p><h2>' + esc(r.titulo) + '</h2>' +
           '<p>Cada mes hay un reto para los miembros de Mirar Despacio+, vivan donde vivan: mandan su foto, se la comento y las mejores van al muro.</p>' +
@@ -332,7 +366,7 @@
       }).then(function () { $('enviar').disabled = false; $('barra').hidden = true; $('barra').firstChild.style.width = 0; });
     });
 
-    $('fotos').addEventListener('click', function (e) {
+    function alPulsar(e) {
       var t = e.target;
       if (t.dataset.ig) {
         var f = datos.mias.filter(function (x) { return x.id === t.dataset.id; })[0]; if (!f) return;
@@ -348,7 +382,9 @@
       } else if (t.dataset.grande) {
         $('visor').firstChild.src = t.dataset.grande; $('visor').hidden = false;
       }
-    });
+    }
+    $('fotos').addEventListener('click', alPulsar);
+    $('fotosRetos').addEventListener('click', alPulsar);
     $('fotos').addEventListener('change', function (e) {
       var t = e.target;
       if (t.dataset.publicable) llamar('POST', { accion: 'publicable', id: t.dataset.publicable, valor: t.checked }).then(cargar);

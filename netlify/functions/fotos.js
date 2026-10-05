@@ -244,7 +244,9 @@ exports.handler = async (event, context) => {
           enMuro: !!f.enMuro, publicable: !!f.publicable, compartir: !!f.compartir, destacada: !!f.destacada,
           nombreMuro: f.nombreMuro || '', creada: ms(f.creada), comentadaEn: ms(f.comentadaEn),
         })),
-        ...(yo.plus ? calcularRacha(lista, mias, (await pausasPorEmail(fs))[yo.email]) : {}),
+        // Quien fue de MD+ y ya no lo es: ve sus retos, medallas y racha en solo lectura (todo queda en pausa)
+        exMiembro: !yo.plus && mias.some((f) => f.tipo === 'reto'),
+        ...(yo.plus || mias.some((f) => f.tipo === 'reto') ? calcularRacha(lista, mias, (await pausasPorEmail(fs))[yo.email]) : {}),
         limites: { porSalida: POR_SALIDA, pendientes: PENDIENTES_MAX, mb: MAX_BYTES / 1048576 },
       });
     }
@@ -263,7 +265,7 @@ exports.handler = async (event, context) => {
 
     if (b.accion === 'avisos' && yo.plus) {
       await fs.collection('preferencias').doc(yo.email).set({ sinAvisosRetos: !b.valor, cambiado: FieldValue.serverTimestamp() }, { merge: true });
-      return res(200, { ok: true });
+      return res(h, 200, { ok: true });
     }
 
     if (b.accion === 'borrar' || b.accion === 'publicable' || b.accion === 'compartir') {
