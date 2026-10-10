@@ -75,6 +75,13 @@
     X-Robots-Tag = "noindex, nofollow"
     Referrer-Policy = "no-referrer"
 
+# Galerías privadas de clientes: sin indexar y sin pasar la URL (lleva el código) a otras webs
+[[headers]]
+  for = "/galeria/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
+
 [[headers]]
   for = "/crm/*"
   [headers.values]
