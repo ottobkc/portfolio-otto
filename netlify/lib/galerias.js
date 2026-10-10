@@ -35,14 +35,17 @@ const sha1 = (s) => crypto.createHash('sha1').update(s).digest();
 const secretoCld = () => process.env.CLOUDINARY_API_SECRET || '';
 const hayCloudinary = () => !!(process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
 
-// Parámetros firmados para que el navegador de Otto suba directamente a Cloudinary
-function firmaSubida(galeriaId) {
-  const params = { folder: `${CARPETA}/${galeriaId}`, timestamp: Math.floor(Date.now() / 1000), type: 'authenticated' };
-  const cadena = Object.keys(params).sort().map((k) => `${k}=${params[k]}`).join('&');
-  return {
-    url: `https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,
-    campos: { ...params, api_key: process.env.CLOUDINARY_API_KEY, signature: sha1(cadena + secretoCld()).toString('hex') },
-  };
+// Firmas para que el navegador de Otto suba directamente a Cloudinary: una por foto, cada una con su
+// public_id ya decidido (galerias/<id>/<aleatorio>). Así funciona igual con carpetas fijas o dinámicas
+// de Cloudinary, y la ruta de la foto siempre es la que esperan el resto de funciones.
+function firmaSubida(carpeta, n = 1) {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const firmas = Array.from({ length: Math.min(50, Math.max(1, n)) }, () => {
+    const params = { public_id: `${CARPETA}/${carpeta}/${crypto.randomBytes(8).toString('hex')}`, timestamp, type: 'authenticated' };
+    const cadena = Object.keys(params).sort().map((k) => `${k}=${params[k]}`).join('&');
+    return { ...params, api_key: process.env.CLOUDINARY_API_KEY, signature: sha1(cadena + secretoCld()).toString('hex') };
+  });
+  return { url: `https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, firmas };
 }
 
 // Marca de agua de texto, centrada y girada. Solo caracteres que no hay que codificar en la URL
@@ -136,6 +139,51 @@ async function borrarR2(clave) {
   return r.ok || r.status === 404;
 }
 
+// ---------- Borrado completo de una galería ----------
+async function borrarTodo(ref, g) {
+  await borrarPrevias(ref.id).catch((e) => console.error('borrar previas', e.message));
+  for (const f of g.finales || []) await borrarR2(f.clave).catch(() => {});
+  await ref.delete();
+}
+
+// ---------- Revisión diaria (la llama tareas-diarias) ----------
+// Devuelve líneas para el resumen del día. Lo único que borra son las galerías caducadas hace
+// más de DIAS_GRACIA días (los originales siguen en el ordenador y el NAS de Otto).
+const DIAS_GRACIA = 30;
+async function revisar(fs) {
+  const ahora = Date.now(), dia = 864e5;
+  const lineas = { empujar: [], editar: [], caducan: [], borradas: [] };
+  const fecha = (t) => new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' });
+  for (const d of (await fs.collection('galerias').get()).docs) {
+    const g = d.data();
+    const creada = ms(g.creada), enviada = ms(g.enviadaEn), caduca = ms(g.caduca);
+    const n = (g.seleccion || []).length;
+    if (g.estado === 'seleccion' && (g.fotos || []).length && creada && ahora - creada > 4 * dia && !g.avisoEmpujar) {
+      lineas.empujar.push(`${g.titulo}: ${g.vista ? `la abrieron pero llevan ${n} de ${g.max || 15}` : 'aún no han abierto la galería'} (código ${g.codigo})`);
+      await d.ref.update({ avisoEmpujar: true });
+    }
+    if (g.estado === 'enviada' && enviada && ahora - enviada > 7 * dia && !g.avisoEditar) {
+      lineas.editar.push(`${g.titulo}: enviaron ${n} fotos el ${fecha(enviada)} y aún no están entregadas`);
+      await d.ref.update({ avisoEditar: true });
+    }
+    if (g.estado === 'entregada' && caduca) {
+      if (caduca > ahora && caduca - ahora < 3 * dia && !g.avisoCaduca) {
+        lineas.caducan.push(`${g.titulo}: las descargas se cierran el ${fecha(caduca)}`);
+        await d.ref.update({ avisoCaduca: true });
+      } else if (ahora - caduca > DIAS_GRACIA * dia) {
+        await borrarTodo(d.ref, g);
+        lineas.borradas.push(`${g.titulo} (caducó el ${fecha(caduca)})`);
+      }
+    }
+  }
+  const informe = [];
+  if (lineas.empujar.length) informe.push('Galerías en las que aún no han elegido (quizá un mensaje para recordárselo):\n- ' + lineas.empujar.join('\n- '));
+  if (lineas.editar.length) informe.push('Selecciones recibidas hace más de una semana, pendientes de entregar:\n- ' + lineas.editar.join('\n- '));
+  if (lineas.caducan.length) informe.push('Galerías cuyas descargas caducan en menos de 3 días (en el panel puedes alargarlas 30 días más):\n- ' + lineas.caducan.join('\n- '));
+  if (lineas.borradas.length) informe.push(`Galerías borradas por llevar más de ${DIAS_GRACIA} días caducadas (los originales siguen en tu ordenador y el NAS):\n- ` + lineas.borradas.join('\n- '));
+  return informe;
+}
+
 // ---------- Utilidades ----------
 const limpio = (s, n) => String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, n);
 const ms = (t) => (t && t.toMillis ? t.toMillis() : t ? new Date(t).getTime() : 0);
@@ -147,5 +195,6 @@ module.exports = {
   nuevoCodigo, normalCodigo, CODIGO_OK,
   hayCloudinary, firmaSubida, urlPrevia, borrarPrevias, borrarPrevia,
   hayR2, urlR2, descargaR2, borrarR2,
+  borrarTodo, revisar, DIAS_GRACIA,
   limpio, ms, nombreArchivo, sinExtension,
 };

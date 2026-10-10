@@ -13,7 +13,9 @@ Otto lo gestiona todo desde **ottokols.es/crm/galerias.html** (misma cuenta que 
 4. **El cliente elige**. La selección se guarda sola mientras marca. Al pulsar «Enviar selección», a Otto le llega un email con los nombres de archivo listos para el filtro de texto de Lightroom. Desde el panel se puede reabrir si quieren cambiar algo.
 5. **Entrega**: arrastrar las fotos editadas al panel. Van directas del navegador a Cloudflare R2 **sin recomprimir ni reducir**, del tamaño que sean. Además se crea una miniatura en Cloudinary para que el cliente las vea. Si se vuelve a subir una foto con el mismo nombre, sustituye a la anterior.
 6. **Marcar como entregada**: se activan las descargas durante 30 días. El cliente descarga cada foto o todas en un ZIP (el ZIP se monta en su navegador; en el móvil es mejor una a una).
-7. **Limpieza**: «Borrar vistas previas» libera Cloudinary (la portada se queda). «Borrar galería entera» lo quita todo.
+7. **Alargar**: si a alguien se le pasa el plazo, en el panel hay un botón para alargar las descargas 30 días desde ese momento.
+8. **Resumen diario por email** (la tarea de cada mañana): galerías en las que llevan 4 días sin elegir, selecciones recibidas hace más de una semana sin entregar, descargas que caducan en 3 días. Las galerías que llevan **30 días caducadas se borran solas** (vistas previas y HD); los originales siguen en el ordenador y el NAS.
+9. **Limpieza**: «Borrar vistas previas» libera Cloudinary (la portada se queda). «Borrar galería entera» lo quita todo.
 
 ## Configuración (una sola vez)
 

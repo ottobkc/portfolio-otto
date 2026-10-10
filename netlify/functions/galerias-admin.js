@@ -5,7 +5,7 @@
 //  {accion:'ver', id}                                  -> una galería completa (fotos, selección, finales)
 //  {accion:'crear', titulo, subtitulo, max, codigo?}   -> nueva galería con su código de acceso
 //  {accion:'editar', id, titulo, subtitulo, max, codigo}
-//  {accion:'firmar', id, finales?}                     -> permiso para subir a Cloudinary desde el navegador
+//  {accion:'firmar', id, finales?, n}                  -> n permisos (uno por foto) para subir a Cloudinary desde el navegador
 //  {accion:'anadir', id, fotos:[{public_id, format, width, height, arch}]}
 //  {accion:'quitar', id, fotoId} / {accion:'portada', id, fotoId}
 //  {accion:'estado', id, estado}                       -> p. ej. reabrir la selección
@@ -106,7 +106,7 @@ exports.handler = async (event, context) => {
 
     if (b.accion === 'firmar') {
       if (!G.hayCloudinary()) return res(503, { error: 'sin-cloudinary' });
-      return res(200, G.firmaSubida(b.finales ? `${snap.id}/finales` : snap.id));
+      return res(200, G.firmaSubida(b.finales ? `${snap.id}/finales` : snap.id, Number(b.n) || 1));
     }
 
     if (b.accion === 'anadir') {
@@ -167,7 +167,7 @@ exports.handler = async (event, context) => {
       if (!cabeza.ok) return res(400, { error: 'no-subida' });
       const final = {
         clave, nombre: G.nombreArchivo(b.nombre) || 'foto.jpg', bytes: Number(cabeza.headers.get('content-length')) || Number(b.bytes) || 0,
-        previa: b.previa ? String(b.previa) : null, previaFormato: b.previaFormato ? String(b.previaFormato) : 'jpg',
+        previa: String(b.previa || '').startsWith(`${G.CARPETA}/${snap.id}/`) ? String(b.previa) : null, previaFormato: b.previaFormato ? String(b.previaFormato) : 'jpg',
       };
       const r = await fs.runTransaction(async (t) => {
         const d = (await t.get(ref)).data();
@@ -198,7 +198,8 @@ exports.handler = async (event, context) => {
     if (b.accion === 'entregar') {
       if (!(g.finales || []).length) return res(400, { error: 'sin-finales' });
       const dias = Math.min(365, Math.max(1, Number(b.dias) || G.DIAS_ENTREGA));
-      await ref.update({ estado: 'entregada', entregadaEn: FieldValue.serverTimestamp(), caduca: new Date(Date.now() + dias * 864e5) });
+      // También sirve para alargar una entrega ya hecha: la caducidad se cuenta desde hoy
+      await ref.update({ estado: 'entregada', ...(g.estado === 'entregada' ? {} : { entregadaEn: FieldValue.serverTimestamp() }), caduca: new Date(Date.now() + dias * 864e5), avisoCaduca: false });
       return res(200, { ok: true });
     }
 
@@ -210,9 +211,7 @@ exports.handler = async (event, context) => {
     }
 
     if (b.accion === 'borrar') {
-      await G.borrarPrevias(snap.id).catch((e) => console.error('borrar previas', e.message));
-      for (const f of g.finales || []) await G.borrarR2(f.clave).catch(() => {});
-      await ref.delete();
+      await G.borrarTodo(ref, g);
       return res(200, { ok: true });
     }
 

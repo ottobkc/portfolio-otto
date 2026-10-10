@@ -4,6 +4,7 @@
 //  3. MD+: quita el acceso a quien ha caducado (3 días de margen) y avisa a Otto de lo que caduca pronto.
 //     Si una prueba gratis termina con un reto abierto, se alarga (una sola vez) hasta el día después
 //     del cierre, para que pueda mandar su foto y ver la galería.
+//  4. Galerías de clientes: avisos de lo pendiente y borrado de las que llevan un mes caducadas.
 // Si en una ejecución programada no hubiera acceso a la administración de cuentas,
 // no se rompe nada: Otto recibe la lista para hacerlo a mano desde el CRM.
 const { db, FieldValue } = require('../lib/firestore');
@@ -11,6 +12,7 @@ const { enviar, esc, remitente } = require('../lib/correo');
 const { miembrosConAvisos, correoReto, enviarATodos } = require('../lib/avisos');
 const plus = require('../lib/plus');
 const limite = require('../lib/limite');
+const galerias = require('../lib/galerias');
 
 const madrid = (offsetDias = 0) => new Date(Date.now() + offsetDias * 864e5).toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' }).slice(0, 10);
 
@@ -82,12 +84,15 @@ exports.handler = async (event, context) => {
   if (pronto.length) informe.push('MD+ que termina en los próximos días:\n- ' + pronto.join('\n- '));
   if (revisar.length) informe.push('Revisa en el CRM (Personas → Mirar Despacio+) y ponles fecha:\n- ' + revisar.join('\n- '));
 
+  // 4. Galerías de clientes
+  try { informe.push(...(await galerias.revisar(fs))); } catch (e) { console.error('galerias', e.message); informe.push('No se han podido revisar las galerías de clientes: ' + e.message); }
+
   await limite.limpiar(fs).catch(() => 0);
 
   const para = process.env.AVISO_A || remitente();
   if (informe.length && para) {
-    await enviar({ para, asunto: '📋 Mirar Despacio: resumen del día', texto: informe.join('\n\n'),
-      html: informe.map((b) => `<p>${esc(b).replace(/\n/g, '<br>')}</p>`).join('') + '<p><a href="https://ottokols.es/crm/">Abrir el CRM</a></p>' }).catch(() => {});
+    await enviar({ para, asunto: '📋 Resumen del día · Mirar Despacio y galerías', texto: informe.join('\n\n'),
+      html: informe.map((b) => `<p>${esc(b).replace(/\n/g, '<br>')}</p>`).join('') + '<p><a href="https://ottokols.es/crm/">Abrir el CRM</a> · <a href="https://ottokols.es/crm/galerias.html">Galerías de clientes</a></p>' }).catch(() => {});
   }
   return { statusCode: 200, body: JSON.stringify({ informe }) };
 };

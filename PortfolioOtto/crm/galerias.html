@@ -340,7 +340,8 @@ function pintarDetalle() {
   $('#listaFinales').innerHTML = g.finales.map((f) => `<div class="final">${f.mini ? `<img src="${esc(f.mini)}" alt="">` : '<img alt="">'}
     <span class="n">${esc(f.nombre)}<br><span class="dim">${(f.bytes / 1048576).toFixed(1)} MB</span></span>
     <button type="button" class="small danger" data-quitar-final="${esc(f.clave)}">Quitar</button></div>`).join('');
-  $('#entregar').hidden = g.estado === 'entregada' || !g.finales.length;
+  $('#entregar').hidden = !g.finales.length;
+  $('#entregar').textContent = g.estado === 'entregada' ? 'Alargar las descargas 30 días desde hoy' : 'Marcar como entregada y activar descargas';
   $('#zonaFinales').hidden = !servicios.r2;
   $('#textoEntrega').textContent = !servicios.r2 ? 'Para subir las HD falta configurar Cloudflare R2 en Netlify.'
     : g.estado === 'entregada' ? `Entregada. Descargas activas hasta el ${fecha(g.caduca)}. Puedes seguir añadiendo o cambiando fotos.`
@@ -397,7 +398,23 @@ async function reducir(file, lado, calidad) {
   const ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bmp, 0, 0, w, h); bmp.close && bmp.close();
   return new Promise((ok, mal) => c.toBlob((b) => (b ? ok(b) : mal(new Error('jpg'))), 'image/jpeg', calidad));
 }
-// Sube a Cloudinary con la firma del servidor
+// Reserva de permisos de subida: el servidor firma de 20 en 20 (una firma por foto) y caducan a la hora
+function reservaFirmas(finales) {
+  let lista = [], pidiendo = null, desde = 0, url = '';
+  const pedir = async () => {
+    const j = await api({ accion: 'firmar', id: actual.id, finales, n: 20 });
+    url = j.url; lista = j.firmas; desde = Date.now();
+  };
+  return async () => {
+    while (!lista.length || Date.now() - desde > 40 * 60e3) {
+      if (Date.now() - desde > 40 * 60e3) lista = [];
+      pidiendo = pidiendo || pedir().finally(() => { pidiendo = null; });
+      await pidiendo;
+    }
+    return { url, campos: lista.shift() };
+  };
+}
+// Sube a Cloudinary con una firma del servidor
 async function aCloudinary(blob, firma) {
   const fd = new FormData();
   Object.entries(firma.campos).forEach(([k, v]) => fd.append(k, v));
@@ -420,22 +437,21 @@ async function subirPrevias(files) {
   const lista = Array.from(files).filter(esImagen);
   if (!lista.length || !actual) return;
   if (!servicios.cloudinary) { $('#estadoPrevias').textContent = textoError(new Error('sin-cloudinary')); return; }
-  let firma = await api({ accion: 'firmar', id: actual.id }), firmadaEn = Date.now();
+  const firma = reservaFirmas(false);
   let hechas = 0, fallos = [], lote = [];
   const guardarLote = async () => { if (!lote.length) return; const l = lote; lote = []; await api({ accion: 'anadir', id: actual.id, fotos: l }); };
   progreso('#barraPrevias', '#estadoPrevias', 0, lista.length, `Subiendo 0 de ${lista.length}…`);
   await enParalelo(lista, 3, async (f) => {
     try {
-      if (Date.now() - firmadaEn > 40 * 60e3) { firma = await api({ accion: 'firmar', id: actual.id }); firmadaEn = Date.now(); }
       const blob = await reducir(f, 2000, 0.82);
-      const r = await aCloudinary(blob, firma);
+      const r = await aCloudinary(blob, await firma());
       lote.push({ public_id: r.public_id, format: r.format, width: r.width, height: r.height, arch: f.name });
       if (lote.length >= 10) await guardarLote();
     } catch (e) { fallos.push(f.name); }
     hechas++; progreso('#barraPrevias', '#estadoPrevias', hechas, lista.length, `Subiendo ${hechas} de ${lista.length}…`);
   });
   await guardarLote();
-  $('#estadoPrevias').textContent = fallos.length ? `Subidas ${lista.length - fallos.length}. No se pudieron subir: ${fallos.join(', ')}. Vuelve a arrastrarlas.` : `Listo: ${lista.length} fotos subidas.`;
+  $('#estadoPrevias').textContent = fallos.length ? `Subidas ${lista.length - fallos.length}. No se pudieron subir: ${fallos.join(', ')}. Vuelve a arrastrarlas.` : `Listo: ${lista.length} ${lista.length === 1 ? 'foto subida' : 'fotos subidas'}.`;
   await recargar();
 }
 
@@ -454,7 +470,7 @@ async function subirFinales(files) {
   if (!lista.length || !actual) return;
   const total = lista.reduce((s, f) => s + f.size, 0); const avance = new Map();
   const pintar = (texto) => { const hecho = Array.from(avance.values()).reduce((s, x) => s + x, 0); progreso('#barraFinales', '#estadoFinales', hecho, total, texto); };
-  let firma = servicios.cloudinary ? await api({ accion: 'firmar', id: actual.id, finales: true }) : null;
+  const firma = servicios.cloudinary ? reservaFirmas(true) : null;
   let hechas = 0, fallos = [], reemplazadas = 0;
   pintar(`Subiendo 0 de ${lista.length}…`);
   await enParalelo(lista, 2, async (f) => {
@@ -464,14 +480,15 @@ async function subirFinales(files) {
       // Miniatura sin marca de agua para que la vean en la entrega (la HD no se toca)
       let previa = null, previaFormato = null;
       if (firma && /^image\/(jpeg|png|webp)$/.test(f.type)) {
-        try { const r = await aCloudinary(await reducir(f, 900, 0.8), firma); previa = r.public_id; previaFormato = r.format; } catch (e) { /* sin miniatura */ }
+        try { const r = await aCloudinary(await reducir(f, 900, 0.8), await firma()); previa = r.public_id; previaFormato = r.format; } catch (e) { /* sin miniatura */ }
       }
       const j = await api({ accion: 'confirmar-final', id: actual.id, clave, nombre: f.name, bytes: f.size, previa, previaFormato });
       if (j.reemplazada) reemplazadas++;
     } catch (e) { fallos.push(f.name); }
     avance.set(f, f.size); hechas++; pintar(`Subiendo ${hechas} de ${lista.length}…`);
   });
-  $('#estadoFinales').textContent = (fallos.length ? `No se pudieron subir: ${fallos.join(', ')}. Vuelve a arrastrarlas. ` : `Listo: ${lista.length} fotos en HD. `) + (reemplazadas ? `${reemplazadas} sustituyen a otras con el mismo nombre.` : '');
+  $('#barraFinales div').style.width = '100%';
+  $('#estadoFinales').textContent = (fallos.length ? `No se pudieron subir: ${fallos.join(', ')}. Vuelve a arrastrarlas. ` : `Listo: ${lista.length} ${lista.length === 1 ? 'foto' : 'fotos'} en HD. `) + (reemplazadas ? `${reemplazadas} sustituyen a otras con el mismo nombre.` : '');
   await recargar();
 }
 
