@@ -48,12 +48,13 @@ function firmaSubida(carpeta, n = 1) {
   return { url: `https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, firmas };
 }
 
-// Marca de agua de texto, centrada y girada. Solo caracteres que no hay que codificar en la URL
-// (así la firma no depende de cómo se escapen).
-const AGUA = 'l_text:Arial_70_bold:ottokols.es,co_rgb:FFFFFF,o_32,a_-28,fl_relative,w_0.55/fl_layer_apply,g_center';
+// Marca de agua en mosaico: «ottokols.es» repetido y girado por toda la foto, para que no sirva
+// recortar una captura. El tamaño va en proporción a cada versión (640 px y 1800 px).
+// Solo caracteres que no hay que codificar en la URL (así la firma no depende de cómo se escapen).
+const mosaico = (px) => `l_text:Arial_${px}_bold:ottokols.es,co_rgb:FFFFFF,o_35/c_lpad,w_1.4,h_2.2/a_-30/fl_layer_apply,fl_tiled`;
 const TRANSFORMACION = {
-  mini: `c_limit,w_640,h_640/${AGUA}/q_auto,f_auto`,
-  grande: `c_limit,w_1800,h_1800/${AGUA}/q_auto:good,f_auto`,
+  mini: `c_limit,w_640,h_640/${mosaico(14)}/q_auto,f_auto`,
+  grande: `c_limit,w_1800,h_1800/${mosaico(36)}/q_auto:good,f_auto`,
   // Miniatura de una foto ya entregada: sin marca de agua (la HD de verdad está en R2)
   final: 'c_limit,w_640,h_640/q_auto,f_auto',
 };

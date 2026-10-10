@@ -35,6 +35,8 @@ button,input{font:inherit;color:inherit}
 [hidden]{display:none!important}
 
 .cab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-block:18px 14px}
+.cab-der{display:flex;align-items:baseline;gap:14px;min-width:0}
+.salir{background:none;border:0;padding:8px 0;min-height:36px;font:12px var(--f-mono);color:var(--tinta);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .marca{font:400 1.55rem var(--f-disp);color:var(--tinta);text-decoration:none}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;width:100%;font:500 14px var(--f-mono);padding:13px 20px;border:1px solid var(--tinta);background:transparent;color:var(--tinta);cursor:pointer;text-decoration:none}
 .btn.lleno{background:var(--tinta);color:var(--papel)}
@@ -130,7 +132,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- SELECCIÓN -->
   <section id="seleccion" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="mono tituloG"></span></div>
+    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="intro">
       <span class="etq">Paso 1 de 2 · Selección</span>
       <h1>Elegid vuestras <em class="nMax">15</em> favoritas</h1>
@@ -162,7 +164,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- ENVIADA -->
   <section id="enviada" class="estrecho" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="mono tituloG"></span></div>
+    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="listo">
       <span class="etq">Paso 2 de 2 · Edición</span>
       <h1>Selección <em>recibida</em></h1>
@@ -174,11 +176,11 @@ button,input{font:inherit;color:inherit}
 
   <!-- ENTREGA -->
   <section id="entrega" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="mono tituloG"></span></div>
+    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="listo">
       <span class="etq">Entrega final</span>
       <h1>Vuestras fotos <em>ya están</em></h1>
-      <p><span id="nFinales">0</span> fotos editadas en alta resolución, sin marca de agua. Descargadlas todas juntas o una a una.</p>
+      <p><span id="nFinales">0 fotos editadas</span> en alta resolución, sin marca de agua. Descargadlas todas juntas o una a una.</p>
       <button class="btn lleno" type="button" id="zip">↓ Descargar todas (ZIP)</button>
       <span class="mono" id="zipEstado" aria-live="polite"></span>
       <p class="mono" id="caduca"></p>
@@ -193,7 +195,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- CADUCADA -->
   <section id="caducada" class="estrecho" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="mono tituloG"></span></div>
+    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="listo">
       <h1>Esta galería <em>ha caducado</em></h1>
       <p>Las descargas estaban disponibles hasta el <span id="caducoEl"></span>. Si necesitáis las fotos otra vez, escribidme y os las vuelvo a activar.</p>
@@ -222,6 +224,15 @@ button,input{font:inherit;color:inherit}
 
   function guardarCodigo(c) { try { localStorage.setItem('galeriaCodigo', c); } catch (e) {} }
   function leerCodigo() { try { return localStorage.getItem('galeriaCodigo') || ''; } catch (e) { return ''; } }
+  // Salir: olvida el código en este dispositivo y vuelve a la pantalla de acceso
+  function salir() {
+    try { localStorage.removeItem('galeriaCodigo'); } catch (e) {}
+    clearTimeout(tGuardar); g = null; codigo = ''; elegidas = [];
+    if (history.replaceState) history.replaceState(null, '', location.pathname);
+    document.title = 'Vuestra galería · Otto Kols';
+    $('#codigo').value = ''; errorAcceso(''); mostrar('acceso');
+  }
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-salir]')) salir(); });
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function mostrar(id) {
     ['cargando', 'acceso', 'seleccion', 'enviada', 'entrega', 'caducada'].forEach(function (s) { $('#' + s).hidden = s !== id; });
@@ -358,7 +369,7 @@ button,input{font:inherit;color:inherit}
   var ICONO = '<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></svg>';
   function pintarEntrega() {
     var fin = g.finales || [];
-    $('#nFinales').textContent = fin.length;
+    $('#nFinales').textContent = fin.length + (fin.length === 1 ? ' foto editada' : ' fotos editadas');
     $('#caduca').textContent = g.caduca ? 'Disponibles hasta el ' + g.caduca + '. Guardadlas en vuestro ordenador o en la nube.' : '';
     $('#rejillaFinal').innerHTML = fin.map(function (f) {
       return '<div class="final">' + (f.mini ? '<img src="' + esc(f.mini) + '" alt="" loading="lazy">' : '<div class="sin">' + esc(f.nombre) + '</div>') +
