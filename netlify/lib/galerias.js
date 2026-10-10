@@ -10,6 +10,7 @@
 // Variables de entorno en Netlify:
 //   CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET   (ya existen para la limpieza de fotos)
 //   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET   (fase de entrega)
+//   R2_JURISDICTION = eu  -> el bucket está en la jurisdicción europea (datos garantizados en la UE)
 const crypto = require('crypto');
 
 const CLOUD = 'dybxateci';
@@ -99,7 +100,9 @@ const enc = (s) => encodeURIComponent(s).replace(/[!'()*]/g, (c) => '%' + c.char
 
 // metodo: 'GET' | 'PUT' | 'DELETE'. extra: parámetros de consulta firmados (p. ej. la descarga con nombre).
 function urlR2(metodo, clave, segundos = 3600, extra = {}) {
-  const host = `${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+  // Los buckets con jurisdicción (p. ej. UE) tienen su propia dirección: <cuenta>.eu.r2.cloudflarestorage.com
+  const jur = String(process.env.R2_JURISDICTION || '').trim().toLowerCase().replace(/[^a-z]/g, '');
+  const host = `${process.env.R2_ACCOUNT_ID}${jur ? '.' + jur : ''}.r2.cloudflarestorage.com`;
   const ruta = '/' + [process.env.R2_BUCKET, ...clave.split('/')].map(enc).join('/');
   const ahora = new Date();
   const fecha = ahora.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); // 20261010T120000Z

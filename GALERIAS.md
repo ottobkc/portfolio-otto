@@ -21,7 +21,7 @@ Otto lo gestiona todo desde **ottokols.es/crm/galerias.html** (misma cuenta que 
 Ya están `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET` en Netlify (las usa la limpieza de fotos). No hay que tocar nada más.
 
 ### Cloudflare R2 (fotos HD)
-1. Cloudflare → R2 → crear un bucket, por ejemplo `ottokols-galerias`. Sin acceso público.
+1. Cloudflare → R2 → crear un bucket `ottokols-galerias-eu` con **Location → Specify jurisdiction → European Union (EU)**, para que las fotos de clientes estén garantizadas en la UE (RGPD). Sin acceso público. (La opción «location hint» no sirve para esto: es orientativa y no garantiza el sitio.)
 2. R2 → Manage API tokens → crear un token con permiso **Object Read & Write** solo para ese bucket. Apuntar el *Access Key ID* y el *Secret Access Key* (el secreto solo se ve una vez).
 3. En el bucket → Settings → **CORS policy**, pegar:
 
@@ -44,7 +44,8 @@ Ya están `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET` en Netlify (las usa la 
 | `R2_ACCOUNT_ID` | el Account ID de Cloudflare (sale en la página de R2) |
 | `R2_ACCESS_KEY_ID` | del token |
 | `R2_SECRET_ACCESS_KEY` | del token (marcar como secreta) |
-| `R2_BUCKET` | `ottokols-galerias` |
+| `R2_BUCKET` | `ottokols-galerias-eu` |
+| `R2_JURISDICTION` | `eu` |
 
 5. Opcional: `AVISO_GALERIAS` = email al que llegan los avisos de selección (si no, va al de siempre).
 
