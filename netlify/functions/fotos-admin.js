@@ -11,7 +11,7 @@
 //  POST {accion:'enlaces', eventId, reenviar} -> manda por email su enlace a la gente de esa salida
 //        (si en la salida hay alguien marcado como "asistió", solo a los que asistieron)
 const crypto = require('crypto');
-const { getAuth } = require('firebase-admin/auth');
+const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
 const { listarUsuarios, ponerRoles, rolesPara, invitarCon } = require('../lib/identidad');
 const { enviar, esc } = require('../lib/correo');
@@ -84,7 +84,7 @@ exports.handler = async (event, context) => {
     const fs = db(); // inicia firebase-admin
     const token = (event.headers.authorization || '').replace(/^Bearer\s+/i, '');
     let quien;
-    try { quien = await getAuth().verifyIdToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
+    try { quien = await verificarToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
     if ((quien.email || '').toLowerCase() !== ADMIN) return res(403, { error: 'no-admin' });
 
     const b = JSON.parse(event.body || '{}');
