@@ -75,6 +75,7 @@
       <div class="paso">
         <h3><span class="num" id="numFotos">2</span>Elige tus fotos</h3>
         <p id="cupo" class="aviso"></p>
+        <p class="aviso">Después, en el recuadro de cada foto, escribe <strong>qué reto era</strong> (el nivel y número de tu ficha, como «Medio 7», o el número de la tarjeta del relato, como «Relato 3»).</p>
         <label class="grande oscuro" for="archivos" id="botonElegir">📷 Elegir fotos</label>
         <input type="file" id="archivos" accept="image/*" multiple>
         <div class="previas" id="previas"></div>
@@ -211,7 +212,7 @@
       $('previas').innerHTML = elegidas.map(function (e, i) {
         return '<div class="previa"><img src="' + e.vista + '" alt="">' +
           '<div>' + (e.estado ? '<p class="est ' + (e.estado.indexOf('✓') === 0 ? 'ok' : e.estado.indexOf('✗') === 0 ? 'error' : '') + '">' + esc(e.estado) + '</p>' :
-          '<textarea data-i="' + i + '" maxlength="600" placeholder="Algo que contarme (opcional)">' + esc(e.texto || '') + '</textarea>' +
+          '<textarea data-i="' + i + '" maxlength="600" placeholder="Qué reto era, por ejemplo «Medio 7» o «Relato 3». Si quieres, cuéntame algo más.">' + esc(e.texto || '') + '</textarea>' +
           '<button class="quitar" data-quitar="' + i + '" type="button">Quitar</button>') + '</div></div>';
       }).join('');
       var pendientes = elegidas.filter(function (e) { return !e.hecha; }).length;
