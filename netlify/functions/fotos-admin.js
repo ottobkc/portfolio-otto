@@ -90,6 +90,26 @@ exports.handler = async (event, context) => {
 
     const b = JSON.parse(event.body || '{}');
 
+    if (b.accion === 'borrar-foto') {
+      const ref = fs.collection('fotos').doc(String(b.id || ''));
+      const snap = await ref.get();
+      if (!snap.exists) return res(404, { error: 'no-existe' });
+      const f = snap.data();
+      let cloudinary = 'no-aplica';
+      const m = String(f.url || '').match(/^https:\/\/res\.cloudinary\.com\/dybxateci\/image\/upload\/(?:[^/]+\/)*?(?:v\d+\/)?(.+)\.[a-z0-9]+$/i);
+      if (m && b.cloudinary !== false) {
+        const { CLOUDINARY_API_KEY: key, CLOUDINARY_API_SECRET: secret } = process.env;
+        if (!key || !secret) return res(500, { error: 'faltan-claves-cloudinary' });
+        const auth = 'Basic ' + Buffer.from(key + ':' + secret).toString('base64');
+        const r = await fetch('https://api.cloudinary.com/v1_1/dybxateci/resources/image/upload?public_ids[]=' + encodeURIComponent(decodeURIComponent(m[1])) + '&invalidate=true', { method: 'DELETE', headers: { Authorization: auth } });
+        if (!r.ok) return res(502, { error: 'cloudinary-' + r.status });
+        const j = await r.json();
+        cloudinary = Object.values(j.deleted || {})[0] || 'desconocido';
+      }
+      await ref.delete();
+      return res(200, { ok: true, cloudinary });
+    }
+
     if (b.accion === 'avisar') {
       const ref = fs.collection('fotos').doc(String(b.id || ''));
       const snap = await ref.get();

@@ -763,8 +763,12 @@ window.guardarComentario = async function(id, avisar) {
 };
 
 window.borrarFoto = async function(id) {
-  if (!confirm('¿Borrar esta foto del cuaderno? (La imagen sigue en Cloudinary, carpeta del cuaderno.)')) return;
-  await deleteDoc(doc(db, 'fotos', id));
+  if (!confirm('¿Borrar esta foto? Se elimina del CRM y también de Cloudinary (no se puede deshacer).')) return;
+  try {
+    setSyncStatus('Borrando…');
+    const r = await admin({ accion: 'borrar-foto', id });
+    setSyncStatus(r && r.cloudinary === 'not_found' ? 'Borrada (ya no estaba en Cloudinary) ✓' : 'Borrada del CRM y de Cloudinary ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 function renderRetos() {
