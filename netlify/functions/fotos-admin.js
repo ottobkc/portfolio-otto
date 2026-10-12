@@ -11,7 +11,7 @@
 //  POST {accion:'enlaces', eventId, reenviar} -> manda por email su enlace a la gente de esa salida
 //        (si en la salida hay alguien marcado como "asistió", solo a los que asistieron)
 const crypto = require('crypto');
-const { getAuth } = require('firebase-admin/auth');
+const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
 const { listarUsuarios, ponerRoles, rolesPara, invitarCon } = require('../lib/identidad');
 const { enviar, esc } = require('../lib/correo');
@@ -41,8 +41,9 @@ function correoEnlace(p, ev, url) {
     titulo: 'Sube tus fotos de la salida · Mirar Despacio',
     nombre: p.name || '',
     intro: [`Gracias por venir a la salida${fecha ? ' del ' + fecha : ''}${ev.location ? ' por ' + esc(ev.location) : ''}.`,
-      'Si te apetece, sube tus fotos favoritas (hasta 5) y te digo lo que veo en cada una. Es muy sencillo: pulsas el botón, eliges las fotos del móvil o del ordenador y listo.'],
-    filas: [['🔑', 'No necesitas contraseña: el enlace es solo tuyo.'], ['💬', 'Te aviso por email cuando las comente.']],
+      'Si te apetece, sube tus fotos favoritas (hasta 5) y te digo lo que veo en cada una. Es muy sencillo: pulsas el botón, eliges las fotos del móvil o del ordenador y listo.',
+      'Una cosa importante: <strong>en el recuadro de cada foto escribe qué reto era</strong> (el nivel y el número de tu ficha, por ejemplo «Medio 7», o el número de la tarjeta del relato, por ejemplo «Relato 3»). Así sé qué estabas buscando.'],
+    filas: [['🔑', 'No necesitas contraseña: el enlace es solo tuyo.'], ['🏷️', 'Escribe en cada foto qué reto era.'], ['💬', 'Te aviso por email cuando las comente.']],
     calendario: null,
     boton: { url, texto: '📷 Subir mis fotos', antes: '' },
     cuerpo: ['Guarda este email: el mismo enlace te sirve para las próximas salidas y para ver mis comentarios.',
@@ -84,7 +85,7 @@ exports.handler = async (event, context) => {
     const fs = db(); // inicia firebase-admin
     const token = (event.headers.authorization || '').replace(/^Bearer\s+/i, '');
     let quien;
-    try { quien = await getAuth().verifyIdToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
+    try { quien = await verificarToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
     if ((quien.email || '').toLowerCase() !== ADMIN) return res(403, { error: 'no-admin' });
 
     const b = JSON.parse(event.body || '{}');
