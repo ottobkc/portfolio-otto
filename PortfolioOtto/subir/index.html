@@ -177,6 +177,7 @@
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' +
             '<button class="boton-ig" type="button" data-ig="post" data-id="' + f.id + '">📲 Guardar para Instagram</button>' +
             '<button class="link-hist" type="button" data-ig="historia" data-id="' + f.id + '">o en formato historia</button>' : '') +
+          MDHilo.wa(f) +
           MDHilo.html(f) +
           '<label class="check" style="margin-top:14px;font-size:1rem;"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
           (f.estado === 'pendiente' ? '<p style="margin-top:10px"><button class="quitar" style="background:none;border:0;text-decoration:underline;color:var(--muted);cursor:pointer" data-borrar="' + f.id + '">Borrar esta foto</button></p>' : '') +

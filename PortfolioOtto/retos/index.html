@@ -286,6 +286,7 @@
           '<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
           '<label class="check" style="font-size:.85rem"><input type="checkbox" data-compartir="' + f.id + '"' + (f.compartir ? ' checked' : '') + '> La ven los miembros</label></div>' +
           (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
+          MDHilo.wa(f) +
           MDHilo.html(f) +
           '</div></article>';
       }).join('') : '<p class="vacio" style="grid-column:1/-1">Todavía no has hecho ningún reto. El de este mes es un buen comienzo.</p>';

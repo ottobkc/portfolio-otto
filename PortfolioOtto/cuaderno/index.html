@@ -254,6 +254,7 @@
             (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
             (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
             (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
+            MDHilo.wa(f) +
             '</div></article>';
         }).join('');
       }
@@ -291,6 +292,7 @@
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
           '<div class="acciones">' + acc.join('') + '</div>' +
           (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
+          MDHilo.wa(f) +
           MDHilo.html(f) +
           '</div></article>';
       }).join('');
