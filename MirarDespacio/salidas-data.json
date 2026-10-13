@@ -5,7 +5,7 @@
   },
   "proximas": [
     {
-      "fecha": "11 de Octubre",
+      "fecha": "Por determinar",
       "zona": "Huertas",
       "hora": "10:00",
       "activa": true,
@@ -17,6 +17,7 @@
       "titulo": "Huertas",
       "fecha": "Octubre 2026",
       "tag": "salida-4",
+      "fechaISO": "2026-10-11T10:00:00+02:00",
       "fotos": []
     },
     {
