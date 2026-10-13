@@ -80,6 +80,8 @@
     font-size: 16px;
     font-family: inherit;
   }
+  select { color-scheme: dark; }
+  option { background: var(--panel); color: var(--cream); }
   button {
     padding: 10px 14px;
     border-radius: 8px;
@@ -762,7 +764,7 @@ window.renderFotos = function() {
 const fechaHilo = ms => { const d = new Date(ms); return isNaN(d) ? '' : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); };
 function bloqueHilo(f) {
   if (!f.comentario) return '';
-  const msgs = (f.hilo || []).map(m => `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;white-space:pre-line;${m.de === 'otto' ? 'background:#fdecf3;border-left:3px solid #e8347a;' : 'background:#f0eee9;margin-left:24px;'}"><span class="person-meta">${m.de === 'otto' ? 'Tú' : escapeHtml(f.nombreCuenta || f.nombreMuro || 'Ella/él')} · ${fechaHilo(m.en)}${m.origen === 'correo' ? ' · por correo' : ''}</span><br>${escapeHtml(m.texto)}</div>`).join('');
+  const msgs = (f.hilo || []).map(m => `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;white-space:pre-line;color:#1a1814;${m.de === 'otto' ? 'background:#fdecf3;border-left:3px solid #e8347a;' : 'background:#f0eee9;margin-left:24px;'}"><span class="person-meta" style="color:#6b655a;">${m.de === 'otto' ? 'Tú' : escapeHtml(f.nombreCuenta || f.nombreMuro || 'Ella/él')} · ${fechaHilo(m.en)}${m.origen === 'correo' ? ' · por correo' : ''}</span><br>${escapeHtml(m.texto)}</div>`).join('');
   return `<div style="margin-top:10px;border-top:1px dashed #cfc9bd;padding-top:8px;">
     <div class="person-meta"><b>Hilo con ${escapeHtml((f.nombreCuenta || f.nombreMuro || 'esta persona').split(' ')[0])}</b> (solo lo veis vosotros dos)${f.sinLeer ? ` · <a href="#" onclick="marcarLeida('${f.id}');return false;">marcar como leída</a>` : ''}</div>
     ${msgs}
