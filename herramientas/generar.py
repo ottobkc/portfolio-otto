@@ -26,7 +26,7 @@ def cld(url, t='f_auto,q_auto,w_900'):
 datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'salidas-data.json')))
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
-NAV = [('/salidas/', 'Salidas'), ('/podcast/', 'Podcast'), ('/agenda/', 'Agenda'), ('/muro/', 'Muro'), ('/tutorias/', 'Tutorías'),
+NAV = [('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/podcast/', 'Podcast'), ('/muro/', 'Muro'), ('/tutorias/', 'Tutorías'),
        ('/zine/', 'Zine'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 
 ORG = {
