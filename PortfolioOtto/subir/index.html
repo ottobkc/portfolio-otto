@@ -106,6 +106,7 @@
   </main>
 
   <script src="/js/tarjeta-ig.js"></script>
+  <script src="/js/hilo.js"></script>
   <script>
   (function () {
     var API = '/.netlify/functions/fotos';
@@ -170,12 +171,13 @@
       $('mias').innerHTML = d.mias.map(function (f) {
         var etq = f.enMuro ? '<span class="etq muro">En el muro' + (f.destacada ? ' ★' : '') + '</span>' :
           f.estado === 'comentada' ? '<span class="etq si">Comentada</span>' : '<span class="etq">Pendiente de comentar</span>';
-        return '<article class="foto"><img src="' + esc(f.url) + '" alt="" loading="lazy"><div class="datos">' + etq +
+        return '<article class="foto" id="foto-' + f.id + '"><img src="' + esc(f.url) + '" alt="" loading="lazy"><div class="datos">' + etq +
           '<p style="color:var(--muted);font-size:1rem;margin-top:8px;">' + esc(f.donde) + '</p>' +
           (f.texto ? '<p style="font-style:italic">“' + esc(f.texto) + '”</p>' : '') +
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' +
             '<button class="boton-ig" type="button" data-ig="post" data-id="' + f.id + '">📲 Guardar para Instagram</button>' +
             '<button class="link-hist" type="button" data-ig="historia" data-id="' + f.id + '">o en formato historia</button>' : '') +
+          MDHilo.html(f) +
           '<label class="check" style="margin-top:14px;font-size:1rem;"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
           (f.estado === 'pendiente' ? '<p style="margin-top:10px"><button class="quitar" style="background:none;border:0;text-decoration:underline;color:var(--muted);cursor:pointer" data-borrar="' + f.id + '">Borrar esta foto</button></p>' : '') +
           '</div></article>';
@@ -185,7 +187,7 @@
 
     function cargar() {
       if (!clave) { sinEnlace(); return Promise.resolve(); }
-      return api('GET').then(function (d) { datos = d; pintar(); }).catch(sinEnlace);
+      return api('GET').then(function (d) { datos = d; pintar(); MDHilo.irA(); }).catch(sinEnlace);
     }
     function sinEnlace() {
       $('hola').textContent = 'Este enlace no funciona';
@@ -294,6 +296,7 @@
     });
     $('mias').addEventListener('click', function (e) {
       var t = e.target;
+      if (MDHilo.alPulsar(t, function (id, texto) { return api('POST', { accion: 'responder', id: id, texto: texto }).then(cargar); })) return;
       if (t.dataset.ig) {
         var f = datos.mias.filter(function (x) { return x.id === t.dataset.id; })[0]; if (!f) return;
         var txt = t.textContent; t.disabled = true; t.textContent = 'Preparando…';
