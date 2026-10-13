@@ -525,14 +525,14 @@ def construir(g):
 
     # ------------------------------------------------------------ MURO
     cuerpo = """
-    <section class="portada">
+    <section class="portada portada-muro">
       <div class="envoltura">
         <p class="antetitulo">Fotos de la comunidad</p>
         <h1>El <em>muro.</em></h1>
         <p class="entradilla">Fotos de la gente que viene a las salidas por Madrid y de los retos mensuales de Mirar Despacio+, que se hacen desde cualquier sitio. Cada una con lo que vi en ella.</p>
       </div>
     </section>
-    <section class="seccion">
+    <section class="seccion seccion-muro">
       <div class="envoltura">
         <div class="muro-filtros" id="muroFiltros" hidden>
           <button type="button" data-f="" aria-pressed="true">Todas</button><button type="button" data-f="salida" aria-pressed="false">Salidas</button><button type="button" data-f="reto" aria-pressed="false">Retos del mes</button>
