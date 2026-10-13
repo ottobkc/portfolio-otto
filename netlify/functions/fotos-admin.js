@@ -55,6 +55,25 @@ function correoEnlace(p, ev, url) {
 const res = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
 const accesoDe = (roles) => (roles.includes('admin') ? 'admin' : roles.includes('member') ? 'plus' : roles.includes('participante') ? 'fotos' : 'ninguno');
 
+// Enlace a la foto concreta (abre su hilo para responder)
+function enlaceFoto(f) {
+  const base = f.tipo === 'reto' ? RETOS : (f.enlace || CUADERNO);
+  return base + '#foto-' + f.id;
+}
+
+function correoRespuesta(f, texto) {
+  const html = tarjeta({
+    titulo: 'Te he respondido · Mirar Despacio',
+    nombre: (f.nombreCuenta || f.nombreMuro || '').split(' ')[0],
+    intro: [`Te he respondido en el hilo de tu foto${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''}.`],
+    filas: [['💬', esc(texto).replace(/\n/g, '<br>')]],
+    calendario: null,
+    boton: { url: enlaceFoto(f), texto: 'Ver y responder', antes: '' },
+    cuerpo: ['Puedes contestarme desde ese botón: la conversación solo la vemos tú y yo.'],
+  });
+  return { asunto: 'Te he respondido · Mirar Despacio', html, texto: aTexto(html) };
+}
+
 function correoComentario(f) {
   const enMuro = f.enMuro && f.publicable;
   const html = tarjeta({
@@ -65,9 +84,9 @@ function correoComentario(f) {
       : `He visto la foto que subiste${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''} y te he dejado un comentario.`],
     filas: [['💬', esc(f.comentario).replace(/\n/g, '<br>')]],
     calendario: null,
-    boton: f.tipo === 'reto' ? { url: RETOS, texto: 'Ver el comentario', antes: '' }
-      : { url: f.enlace || CUADERNO, texto: 'Ver el comentario', antes: '' },
+    boton: { url: enlaceFoto(f), texto: 'Ver y responder', antes: '' },
     cuerpo: [
+      'Si quieres contestarme o preguntarme algo, pulsa el botón y escríbelo en el hilo de la foto: solo lo vemos tú y yo.',
       enMuro
         ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde tu cuaderno.`
         : 'Sigue subiendo: cuantas más vea, mejor te puedo decir hacia dónde tirar.',
@@ -110,11 +129,30 @@ exports.handler = async (event, context) => {
       return res(200, { ok: true, cloudinary });
     }
 
+    if (b.accion === 'responder') {
+      const ref = fs.collection('fotos').doc(String(b.id || ''));
+      const snap = await ref.get();
+      if (!snap.exists) return res(404, { error: 'no-existe' });
+      const f = { ...snap.data(), id: snap.id };
+      const texto = String(b.texto || '').replace(/\r/g, '').trim().slice(0, 1500);
+      if (!texto || !f.email) return res(400, { error: 'vacio' });
+      if ((f.hilo || []).length >= 60) return res(400, { error: 'hilo-lleno' });
+      if (f.origen === 'enlace' && f.personaId) {
+        const pRef = fs.collection('people').doc(f.personaId);
+        const pSnap = await pRef.get();
+        if (pSnap.exists) f.enlace = SUBIR + (await claveDe(pRef, pSnap.data()));
+      }
+      await ref.update({ hilo: FieldValue.arrayUnion({ de: 'otto', texto, en: Date.now(), origen: 'crm' }), sinLeer: false });
+      const c = correoRespuesta(f, texto);
+      const ok = await enviar({ para: f.email, asunto: c.asunto, html: c.html, texto: c.texto }).catch((e) => { console.error('correo respuesta', e.message); return false; });
+      return res(200, { ok: true, enviado: !!ok });
+    }
+
     if (b.accion === 'avisar') {
       const ref = fs.collection('fotos').doc(String(b.id || ''));
       const snap = await ref.get();
       if (!snap.exists) return res(404, { error: 'no-existe' });
-      const f = snap.data();
+      const f = { ...snap.data(), id: snap.id };
       if (!f.comentario || !f.email) return res(400, { error: 'sin-comentario' });
       if (f.origen === 'enlace' && f.personaId) {
         const pRef = fs.collection('people').doc(f.personaId);

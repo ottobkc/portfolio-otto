@@ -38,6 +38,7 @@
     '.mda-acc{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:.85rem}.mda-acc a{color:inherit}' +
     '.mda-tipo{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mda-gris)}' +
     '.mda-solo{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;background:linear-gradient(90deg,#e8821a,#e8347a);color:#fff;padding:2px 7px;border-radius:20px;vertical-align:2px;margin-left:4px}' +
+    '.mda-pasada{background:var(--mda-linea)!important}.mda-ev.hecho{opacity:.75;border-left-color:var(--mda-linea)}.mda-sub{margin:10px 0 0;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mda-gris)}' +
     '.mda-vacio{padding:18px;background:var(--mda-papel);border-radius:10px;color:var(--mda-gris)}' +
     '.mda-suscribir{margin-top:16px;font-size:.88rem;color:var(--mda-gris)}.mda-suscribir a{color:inherit}' +
     '@media (max-width:760px){.mda-grid-wrap{grid-template-columns:1fr}}';
@@ -52,19 +53,21 @@
     estilos();
     el.classList.add('mda');
     el.innerHTML = '<p class="mda-vacio">Cargando calendario…</p>';
-    return fetch(API + (op.anticipadas ? '?anticipadas=1' : '')).then(function (r) { return r.json(); }).catch(function () { return []; }).then(function (lista) {
+    return fetch(API + (op.anticipadas || op.pasadas ? '?' : '') + (op.anticipadas ? 'anticipadas=1' : '') + (op.anticipadas && op.pasadas ? '&' : '') + (op.pasadas ? 'pasadas=1' : '')).then(function (r) { return r.json(); }).catch(function () { return []; }).then(function (lista) {
       var eventos = (Array.isArray(lista) ? lista : []).concat(op.extra || []).filter(function (e) { return e && e.inicio; })
         .sort(function (a, b) { return a.inicio.localeCompare(b.inicio); });
       var porDia = {};
       eventos.forEach(function (e) { (porDia[dia(e.inicio)] = porDia[dia(e.inicio)] || []).push(e); });
       var hoy = dia(new Date().toISOString());
       var actual = new Date(hoy + 'T12:00:00'); actual.setDate(1); // empieza en el mes actual
-      var ultimo = eventos.length ? new Date(dia(eventos[eventos.length - 1].inicio) + 'T12:00:00') : actual;
-      var primero = new Date(actual);
+      var futuros = eventos.filter(function (e) { return !e.pasada; }), hechos = eventos.filter(function (e) { return e.pasada; });
+      var ultimo = futuros.length ? new Date(dia(futuros[futuros.length - 1].inicio) + 'T12:00:00') : actual;
+      var primero = hechos.length ? new Date(dia(hechos[0].inicio).slice(0, 8) + '01T12:00:00') : new Date(actual);
 
       el.innerHTML = '<div class="mda-grid-wrap"><div><div class="mda-cab"><button type="button" data-m="-1" aria-label="Mes anterior">‹</button><h3></h3>' +
         '<button type="button" data-m="1" aria-label="Mes siguiente">›</button></div><div class="mda-mes"></div>' +
         '<div class="mda-leyenda"><span><i class="mda-punto mda-salida"></i>Salidas</span>' +
+        (hechos.length ? '<span><i class="mda-punto mda-pasada"></i>Ya hechas</span>' : '') +
         (eventos.some(function (e) { return e.tipo === 'taller'; }) ? '<span><i class="mda-punto mda-taller"></i>Talleres</span>' : '') +
         (eventos.some(function (e) { return e.tipo === 'reto'; }) ? '<span><i class="mda-punto mda-reto"></i>Reto del mes</span>' : '') + '</div></div>' +
         '<div><div class="mda-lista"></div><p class="mda-suscribir">📅 <a href="' + FEED + '">Suscríbete al calendario</a> y las fechas nuevas aparecerán solas en el tuyo · ' +
@@ -86,27 +89,31 @@
           var evs = porDia[k] || [];
           var cls = 'mda-d' + (d.getMonth() !== m ? ' fuera' : '') + (k === hoy ? ' hoy' : '') + (k < hoy ? ' pasado' : '') + (evs.length ? ' con' : '');
           html += (evs.length ? '<button type="button" class="' + cls + '" data-dia="' + k + '" title="' + esc(evs.map(function (e) { return e.titulo; }).join(' · ')) + '">' : '<span class="' + cls + '">') +
-            d.getDate() + (evs.length ? '<span class="mda-puntos">' + evs.map(function (e) { return '<i class="mda-punto mda-' + e.tipo + '"></i>'; }).join('') + '</span>' : '') +
+            d.getDate() + (evs.length ? '<span class="mda-puntos">' + evs.map(function (e) { return '<i class="mda-punto mda-' + (e.pasada ? 'pasada' : e.tipo) + '"></i>'; }).join('') + '</span>' : '') +
             (evs.length ? '</button>' : '</span>');
         }
         mesEl.innerHTML = html;
       }
       function pintarLista() {
         var cont = el.querySelector('.mda-lista');
-        var prox = eventos.slice(0, op.max || 6);
-        if (!prox.length) { cont.innerHTML = '<p class="mda-vacio">Ahora mismo no hay fechas cerradas. En cuanto haya una fecha nueva, aparecerá aquí.</p>'; return; }
-        cont.innerHTML = prox.map(function (e) {
+        var prox = futuros.slice(0, op.max || 6);
+        var antes = hechos.slice().reverse().slice(0, op.maxPasadas || 6);
+        var tarjeta = function (e) {
           var f = new Date(e.inicio);
           var sem = f.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'Europe/Madrid' });
           var mes = f.toLocaleDateString('es-ES', { month: 'short', timeZone: 'Europe/Madrid' });
           var cal = e.tipo === 'reto' ? '' : '<a href="' + CAL + '?inicio=' + encodeURIComponent(e.inicio) + '&fin=' + encodeURIComponent(e.fin || '') +
             '&zona=' + encodeURIComponent(e.zona || '') + '&titulo=' + encodeURIComponent('Mirar Despacio · ' + e.titulo) + '">+ A mi calendario</a>';
-          var ir = e.url ? '<a href="' + esc(e.url) + '"><strong>' + (e.tipo === 'salida' ? 'Apuntarme' : e.tipo === 'taller' ? 'Ver el taller' : 'Ir al reto') + ' →</strong></a>' : '';
-          return '<article class="mda-ev ' + e.tipo + '" data-dia="' + dia(e.inicio) + '"><div class="mda-fecha"><span>' + sem + '</span><b>' +
+          if (e.pasada) { cal = ''; }
+          var ir = e.pasada ? (e.url ? '<a href="' + esc(e.url) + '"><strong>Ver las fotos →</strong></a>' : '') : e.url ? '<a href="' + esc(e.url) + '"><strong>' + (e.tipo === 'salida' ? 'Apuntarme' : e.tipo === 'taller' ? 'Ver el taller' : 'Ir al reto') + ' →</strong></a>' : '';
+          return '<article class="mda-ev ' + e.tipo + (e.pasada ? ' hecho' : '') + '" data-dia="' + dia(e.inicio) + '"><div class="mda-fecha"><span>' + sem + '</span><b>' +
             Number(dia(e.inicio).slice(8)) + '</b><span>' + mes + '</span></div><div><span class="mda-tipo">' + (TIPOS[e.tipo] || '') + '</span>' +
-            '<h4>' + esc(e.titulo) + (e.anticipada ? ' <span class="mda-solo">Solo MD+ por ahora</span>' : '') + '</h4><p>' + (e.tipo === 'reto' ? 'Último día para mandar tu foto' : hora(e.inicio) + ' h' + (e.zona ? ' · ' + esc(e.zona) : '') +
-            (e.tipo === 'salida' ? ' · gratis' : e.precio ? ' · ' + e.precio + ' €' : '')) + '</p><div class="mda-acc">' + ir + cal + '</div></div></article>';
-        }).join('');
+            '<h4>' + esc(e.titulo) + (e.anticipada ? ' <span class="mda-solo">Solo MD+ por ahora</span>' : '') + '</h4><p>' + (e.pasada ? 'Ya hecha' : e.tipo === 'reto' ? 'Último día para mandar tu foto' : hora(e.inicio) + ' h' + (e.zona ? ' · ' + esc(e.zona) : '') +
+            (e.pasada ? '' : e.tipo === 'salida' ? ' · gratis' : e.precio ? ' · ' + e.precio + ' €' : '')) + '</p><div class="mda-acc">' + ir + cal + '</div></div></article>';
+        };
+        var html = prox.length ? prox.map(tarjeta).join('') : '<p class="mda-vacio">Ahora mismo no hay fechas cerradas. En cuanto haya una fecha nueva, aparecerá aquí.</p>';
+        if (antes.length) html += '<p class="mda-sub">Ya hechas</p>' + antes.map(tarjeta).join('');
+        cont.innerHTML = html;
       }
       el.addEventListener('click', function (ev) {
         var b = ev.target.closest('button'); if (!b || !el.contains(b)) return;

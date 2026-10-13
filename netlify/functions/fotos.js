@@ -248,6 +248,7 @@ exports.handler = async (event, context) => {
           grande: mini(f.url, 1800), texto: f.texto || '', estado: f.estado, comentario: f.comentario || '',
           enMuro: !!f.enMuro, publicable: !!f.publicable, compartir: !!f.compartir, destacada: !!f.destacada,
           nombreMuro: f.nombreMuro || '', creada: ms(f.creada), comentadaEn: ms(f.comentadaEn),
+          hilo: (f.hilo || []).map((m) => ({ de: m.de, texto: m.texto, en: m.en })),
         })),
         // Quien fue de MD+ y ya no lo es: ve sus retos, medallas y racha en solo lectura (todo queda en pausa)
         exMiembro: !yo.plus && mias.some((f) => f.tipo === 'reto'),
@@ -285,6 +286,31 @@ exports.handler = async (event, context) => {
       } else {
         const valor = !!b.valor;
         await ref.update({ publicable: valor, ...(valor ? {} : { enMuro: false }) });
+      }
+      return res(h, 200, { ok: true });
+    }
+
+    // Respuesta de la persona en el hilo de una de sus fotos comentadas (solo ella y Otto lo ven)
+    if (b.accion === 'responder') {
+      const ref = fs.collection('fotos').doc(String(b.id || ''));
+      const snap = await ref.get();
+      if (!snap.exists || snap.data().email !== yo.email) return res(h, 404, { error: 'no-existe' });
+      const f = snap.data();
+      if (!f.comentario) return res(h, 400, { error: 'sin-comentario' });
+      const texto = String(b.texto || '').replace(/\r/g, '').trim().slice(0, 1500);
+      if (!texto) return res(h, 400, { error: 'vacio' });
+      if ((f.hilo || []).length >= 60) return res(h, 400, { error: 'hilo-lleno' });
+      await ref.update({ hilo: FieldValue.arrayUnion({ de: 'persona', texto, en: Date.now(), origen: 'web' }), sinLeer: true, respondidoEn: FieldValue.serverTimestamp() });
+      const para = process.env.AVISO_A || remitente();
+      if (para) {
+        await conLimite(enviar({
+          para, asunto: `💬 Respuesta en una foto · ${f.nombreMuro || yo.nombre || yo.email}`,
+          html: `<p><strong>${esc(f.nombreMuro || yo.nombre || '')}</strong> (${esc(yo.email)}) ha respondido en el hilo de su foto${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''}:</p>
+            <blockquote style="border-left:3px solid #e8347a;margin:12px 0;padding-left:12px;">${esc(texto).replace(/\n/g, '<br>')}</blockquote>
+            <p><img src="${mini(f.url, 600)}" width="300" style="max-width:100%;height:auto;"></p>
+            <p>Contéstale desde el CRM, pestaña Fotos.</p>`,
+          texto: `${f.nombreMuro || yo.email} ha respondido en su foto: ${texto}\n\nContéstale desde el CRM, pestaña Fotos.`,
+        }).catch((e) => console.error('aviso respuesta', e.message)), 4000);
       }
       return res(h, 200, { ok: true });
     }

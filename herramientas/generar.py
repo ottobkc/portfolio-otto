@@ -26,7 +26,7 @@ def cld(url, t='f_auto,q_auto,w_900'):
 datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'salidas-data.json')))
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
-NAV = [('/podcast/', 'Podcast'), ('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/muro/', 'Muro'), ('/tutorias/', 'Tutorías'),
+NAV = [('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/podcast/', 'Podcast'), ('/muro/', 'Muro'), ('/tutorias/', 'Tutorías'),
        ('/zine/', 'Zine'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 
 ORG = {
@@ -37,11 +37,13 @@ ORG = {
     "areaServed": "Madrid",
 }
 
+PLUS = ' class="nav-plus"'
+
 def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra_head='', extra_pie=''):
     url = DOM + ruta
     ACT = ' aria-current="page"'
     nav = '\n'.join(
-        f'        <li><a href="{h}"{ACT if h == ruta else ""}>{t}</a></li>' for h, t in NAV)
+        f'        <li><a href="{h}"{PLUS if h == "/mirar-despacio-plus/" else ""}{ACT if h == ruta else ""}>{t}</a></li>' for h, t in NAV)
     graph = [ORG] + (schema or [])
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=1)
     return f'''<!doctype html>
@@ -95,7 +97,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
       <div>
         <h4>El proyecto</h4>
         <ul>
-{nav.replace('        <li>', '          <li>').replace(' aria-current="page"', '')}
+{nav.replace('        <li>', '          <li>').replace(' aria-current="page"', '').replace(' class="nav-plus"', '')}
         </ul>
       </div>
       <div>
@@ -153,4 +155,8 @@ shutil.copyfile(os.path.join(os.path.dirname(__file__), '..', 'PortfolioOtto', '
                 os.path.join(RAIZ, 'assets', 'monturas.js'))
 
 from paginas import construir
+if os.environ.get('SOLO_PODCAST'):
+    # Regenera solo /podcast/…: el resto de páginas tiene retoques a mano que no hay que pisar
+    _esc = escribir
+    escribir = lambda ruta, c: _esc(ruta, c) if ruta.startswith('/podcast') else None
 construir(globals())
