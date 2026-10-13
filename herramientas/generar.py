@@ -153,4 +153,8 @@ shutil.copyfile(os.path.join(os.path.dirname(__file__), '..', 'PortfolioOtto', '
                 os.path.join(RAIZ, 'assets', 'monturas.js'))
 
 from paginas import construir
+if os.environ.get('SOLO_PODCAST'):
+    # Regenera solo /podcast/…: el resto de páginas tiene retoques a mano que no hay que pisar
+    _esc = escribir
+    escribir = lambda ruta, c: _esc(ruta, c) if ruta.startswith('/podcast') else None
 construir(globals())

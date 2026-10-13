@@ -298,3 +298,16 @@ html.visor-abierto { overflow: hidden; }
 .jugador + .sorpresa + .juego { margin-top: 10px; }
 #juegoResumen .coleccion { display: block; margin-top: 12px; font-family: var(--f-mano); color: var(--rosa); font-size: 1.55rem; line-height: 1.2; }
 .juego-monturas .aviso { font-family: var(--f-mano); color: var(--rosa); font-size: 1.55rem; line-height: 1.2; }
+
+/* Páginas de episodio del podcast */
+.ep-meta { color: var(--gris); font-size: .95rem; margin: 0; }
+.ep-desc p, .ep-desc li { font-size: 1.05rem; }
+.ep-desc a { text-decoration: underline; }
+.ep-navs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ep-nav { display: block; padding: 14px 16px; border: 1px solid var(--linea); border-radius: 12px; text-decoration: none; color: inherit; }
+.ep-nav:hover { border-color: var(--naranja); }
+.ep-nav small { display: block; color: var(--naranja); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+.ep-nav span { font-size: .98rem; line-height: 1.3; }
+.ep-nav.sig { text-align: right; grid-column: 2; }
+.ep-nav.ant { grid-column: 1; }
+@media (max-width: 560px) { .ep-navs { grid-template-columns: 1fr; } .ep-nav.sig, .ep-nav.ant { grid-column: 1; text-align: left; } }
