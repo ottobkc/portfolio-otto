@@ -63,7 +63,7 @@ def limpiar(raw):
         return ''.join(f'<p>{html.escape(p.strip()).replace(chr(10), "<br>")}</p>' for p in re.split(r'\n\s*\n', raw) if p.strip())
     p = _Limpia()
     p.feed(raw)
-    return ''.join(p.out)
+    return re.sub(r'<p>(\s|<br>)*</p>', '', ''.join(p.out))
 
 
 def texto_plano(h):
