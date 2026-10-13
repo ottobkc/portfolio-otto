@@ -39,19 +39,26 @@
     pintar();
   }).catch(function () { cont.innerHTML = '<p class="aviso">No se ha podido cargar el muro. Prueba en un rato.</p>'; });
 
-  // Visor a pantalla completa con el comentario
+  // Visor a pantalla completa con el comentario (se puede desplazar si el texto es largo)
   var visor = document.createElement('div');
   visor.className = 'muro-visor'; visor.hidden = true;
+  visor.setAttribute('role', 'dialog'); visor.setAttribute('aria-modal', 'true'); visor.setAttribute('aria-label', 'Foto ampliada');
   document.body.appendChild(visor);
+  function cerrar() { visor.hidden = true; visor.innerHTML = ''; document.documentElement.classList.remove('visor-abierto'); }
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('.muro-foto button');
     if (b) {
       var f = fotos[+b.dataset.i];
-      visor.innerHTML = '<img src="' + esc(f.grande) + '" alt=""><div class="muro-visor-texto"><span class="muro-autor">' + esc(f.nombre) + '</span>' +
-        (f.donde ? ' · <span class="muro-donde">' + esc(f.donde) + '</span>' : '') + (f.comentario ? '<p class="muro-comentario">' + esc(f.comentario) + '</p>' : '') + '</div>';
-      visor.hidden = false;
+      visor.innerHTML = '<button type="button" class="muro-visor-cerrar" aria-label="Cerrar">&times;</button>' +
+        '<div class="muro-visor-caja"><img src="' + esc(f.grande) + '" alt="Foto de ' + esc(f.nombre) + '"><div class="muro-visor-texto"><span class="muro-autor">' + esc(f.nombre) + '</span>' +
+        (f.donde ? ' · <span class="muro-donde">' + esc(f.donde) + '</span>' : '') + (f.comentario ? '<p class="muro-comentario">' + esc(f.comentario) + '</p>' : '') + '</div></div>';
+      visor.hidden = false; visor.scrollTop = 0;
+      document.documentElement.classList.add('visor-abierto');
       try { window.umami && window.umami.track('muro-ver'); } catch (x) {}
-    } else if (!visor.hidden && visor.contains(e.target)) visor.hidden = true;
+    } else if (!visor.hidden && visor.contains(e.target)) {
+      // Se cierra con la ✕ o tocando fuera de la foto y del texto
+      if (e.target.closest('.muro-visor-cerrar') || e.target === visor || e.target.classList.contains('muro-visor-caja')) cerrar();
+    }
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') visor.hidden = true; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !visor.hidden) cerrar(); });
 })();
