@@ -161,9 +161,11 @@ async function constancia(fs, lista, yo, mapa) {
   return filas.map(({ visible, ...x }) => x).slice(0, 40);
 }
 
-const publica = (f, mapa = {}) => ({
-  retos: (mapa[f.email] || {}).retos || 0, racha: (mapa[f.email] || {}).racha || 0,
-  id: f.id, nombre: f.nombreMuro || 'Anónimo', url: mini(f.url, 1000), grande: mini(f.url, 1800),
+// Miniatura cuadrada para la cuadrícula del muro
+const cuadrada = (url, lado) => String(url || '').replace('/image/upload/', `/image/upload/c_fill,g_auto,w_${lado},h_${lado},q_auto,f_auto/`);
+
+const publica = (f) => ({
+  id: f.id, nombre: f.nombreMuro || 'Anónimo', url: cuadrada(f.url, 560), grande: mini(f.url, 1800),
   ancho: f.ancho || null, alto: f.alto || null, comentario: f.comentario || '', donde: f.refNombre || '',
   tipo: f.tipo, destacada: !!f.destacada, fecha: ms(f.comentadaEn),
 });
@@ -195,10 +197,13 @@ exports.handler = async (event, context) => {
       const lista = q.docs.map((d) => ({ id: d.id, ...d.data() }))
         .filter((f) => f.publicable)
         .sort((a, b) => (b.destacada - a.destacada) || (ms(b.comentadaEn) - ms(a.comentadaEn)))
-        .slice(0, 90);
-      const mapaMuro = await logros(fs, await retos(fs));
-      lista.splice(0, lista.length, ...lista.map((f) => publica(f, mapaMuro)));
-      return res(h, 200, lista, { 'Cache-Control': 'public, max-age=120' });
+        .slice(0, 90)
+        .map(publica);
+      // Datos públicos: sin Vary por origen y con caché en la CDN (5 min, y sirve la anterior mientras se refresca)
+      return res({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, 200, lista, {
+        'Cache-Control': 'public, max-age=60',
+        'Netlify-CDN-Cache-Control': 'public, s-maxage=300, stale-while-revalidate=86400',
+      });
     }
 
     let cuerpo = {};

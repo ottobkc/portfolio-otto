@@ -553,7 +553,8 @@ def construir(g):
     </section>"""
     escribir('/muro/', pagina('/muro/', 'El muro · Fotos de la comunidad de Mirar Despacio',
         'Fotos de calle de la gente que viene a las salidas de Mirar Despacio en Madrid y de los miembros de Mirar Despacio+, con los comentarios de Otto.',
-        cuerpo, extra_pie=MURO_JS))
+        cuerpo, extra_pie=MURO_JS,
+        extra_head='<link rel="preconnect" href="https://ottokols.es">\n  <link rel="preconnect" href="https://res.cloudinary.com">'))
 
     # ------------------------------------------------------------ JUEGO
     cuerpo = """
@@ -605,7 +606,6 @@ AGENDA_JS = '''
   <script src="https://ottokols.es/js/agenda.js"></script>
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8 });</script>'''
 MURO_JS = '''
-  <script src="https://ottokols.es/js/medallas.js"></script>
   <script src="/assets/muro.js"></script>'''
 JUEGO_JS = '''
   <script src="/assets/monturas.js"></script>
