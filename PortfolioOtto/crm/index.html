@@ -715,6 +715,10 @@ window.renderFotos = function() {
   if (tipo) lista = lista.filter(f => (f.tipo === 'reto') === (tipo === 'reto'));
   if (q) lista = lista.filter(f => [f.nombreMuro, f.nombreCuenta, f.email, f.refNombre].join(' ').toLowerCase().includes(q));
   lista.sort((a, b) => filtro === 'pendiente' ? fms(a.creada) - fms(b.creada) : fms(b.creada) - fms(a.creada));
+  // Lo que estás escribiendo o marcando (comentario, "Al muro", "Destacada") se conserva
+  // aunque la lista se redibuje porque llegue otra foto o se guarde otra.
+  const pendiente = {};
+  el.querySelectorAll('[id^="com-"],[id^="muro-"],[id^="dest-"]').forEach(x => { pendiente[x.id] = x.type === 'checkbox' ? x.checked : x.value; });
   el.innerHTML = lista.length ? '' : '<div class="empty">Nada por aquí</div>';
   lista.forEach(f => {
     const otras = fotos.filter(x => x.email === f.email).length;
@@ -744,6 +748,11 @@ window.renderFotos = function() {
       </div>`;
     el.appendChild(div);
   });
+  Object.entries(pendiente).forEach(([id, v]) => {
+    const x = document.getElementById(id);
+    if (!x) return;
+    if (x.type === 'checkbox') { if (!x.disabled) x.checked = v; } else x.value = v;
+  });
 };
 
 window.guardarComentario = async function(id, avisar) {
@@ -758,7 +767,8 @@ window.guardarComentario = async function(id, avisar) {
       ...(f.estado === 'pendiente' ? { comentadaEn: serverTimestamp() } : {}),
     });
     if (avisar) await admin({ accion: 'avisar', id });
-    setSyncStatus(avisar ? 'Guardado y avisado ✓' : 'Guardado ✓');
+    const mur = enMuro ? ' · en el muro' : (f.publicable ? ' · no está en el muro' : ' · no permite el muro');
+    setSyncStatus((avisar ? 'Guardado y avisado ✓' : 'Guardado ✓') + mur);
   } catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
