@@ -1,6 +1,7 @@
-// Lógica común de talleres, bonos regalo y Mirar Despacio+ (pagos por Ko-fi).
-// Lo usan las funciones kofi-webhook (pagos) y talleres (plazas, bonos, canje).
+// Lógica común de talleres, bonos regalo y Mirar Despacio+ (pagos por Stripe).
+// Lo usan las funciones stripe-webhook (pagos) y talleres (plazas, bonos, canje).
 const crypto = require('crypto');
+const { normalizarUrl } = require('./stripe');
 const { FieldValue } = require('./firestore');
 const { enviar, esc, remitente } = require('./correo');
 const { tarjeta, fechaLarga, enlacesCalendario, aTexto } = require('./plantillas-salida');
@@ -39,16 +40,47 @@ const edicion = (d, id) => (d.ediciones || []).find((e) => e.id === id);
 const eventoId = (edicionId) => 'taller-' + edicionId;
 const pasada = (ed) => ed.fechaISO && new Date(ed.fechaISO).getTime() < Date.now();
 
-// ¿A qué corresponde un código de producto de Ko-fi?
-function producto(d, codigo) {
-  if (!codigo) return null;
-  const ed = (d.ediciones || []).find((e) => e.kofi && e.kofi === codigo);
+// ¿A qué corresponde un pago de Stripe?
+// La web añade a cada enlace de pago ?client_reference_id=<tipo>_<id> (ver assets/talleres.js):
+//   edicion_<id edición> · bonotaller_<id taller> · bonoplus_<id regalo> · plus_sinSalidas / plus_conSalidas
+// Si el pago llega sin esa referencia (alguien abrió el enlace de Stripe directamente),
+// se busca por la URL del enlace de pago en talleres-data.json.
+function producto(d, ref, urlEnlace) {
+  const [tipo, ...resto] = String(ref || '').split('_');
+  const id = resto.join('_');
+  const porRef = {
+    edicion: () => { const ed = edicion(d, id); return ed && { tipo: 'taller', edicion: ed, taller: taller(d, ed.taller) }; },
+    bonotaller: () => { const t = taller(d, id); return t && { tipo: 'bono-taller', taller: t }; },
+    bonoplus: () => { const rp = (d.regalosPlus || []).find((x) => x.id === id); return rp && { tipo: 'bono-plus', regalo: rp }; },
+    plus: () => (d.plus && d.plus[id] ? { tipo: 'plus', nivel: id === 'conSalidas' ? 'con-salidas' : 'sin-salidas' } : null),
+  };
+  const r = porRef[tipo] && porRef[tipo]();
+  if (r) return r;
+
+  const u = normalizarUrl(urlEnlace);
+  if (!u) return null;
+  const igual = (x) => x && normalizarUrl(x) === u;
+  const ed = (d.ediciones || []).find((e) => igual(e.pago));
   if (ed) return { tipo: 'taller', edicion: ed, taller: taller(d, ed.taller) };
-  const t = (d.talleres || []).find((x) => x.bonoKofi && x.bonoKofi === codigo);
+  const t = (d.talleres || []).find((x) => igual(x.bonoPago));
   if (t) return { tipo: 'bono-taller', taller: t };
-  const rp = (d.regalosPlus || []).find((x) => x.kofi && x.kofi === codigo);
+  const rp = (d.regalosPlus || []).find((x) => igual(x.pago));
   if (rp) return { tipo: 'bono-plus', regalo: rp };
+  for (const k of ['sinSalidas', 'conSalidas']) {
+    if (d.plus && d.plus[k] && igual(d.plus[k].url)) return { tipo: 'plus', nivel: k === 'conSalidas' ? 'con-salidas' : 'sin-salidas' };
+  }
   return null;
+}
+
+// Si una edición se ha llenado, desactiva su enlace de pago en Stripe para que nadie
+// pague una plaza que ya no existe (la web ya muestra "Completo", esto es por si alguien
+// tiene el enlace abierto o guardado).
+async function cerrarSiCompleto(fs, d, ed) {
+  if (!ed || !ed.pago || !process.env.STRIPE_SECRET_KEY) return null;
+  const t = taller(d, ed.taller) || {};
+  const plazas = Number(ed.plazas || t.plazas) || 8;
+  if ((await ocupadas(fs, ed.id)) < plazas) return null;
+  return require('./stripe').desactivarEnlace(ed.pago).catch((e) => 'error: ' + e.message);
 }
 
 // Código de bono legible: MD-XXXX-XXXX (sin 0/O/1/I para que no haya confusiones)
@@ -107,7 +139,7 @@ async function ocupadas(fs, edicionId) {
 
 async function ingreso(fs, id, datosI) {
   await fs.collection('ingresos').doc(id).set({
-    tipo: 'ingreso', fecha: FieldValue.serverTimestamp(), metodo: 'kofi', origen: 'auto', ...datosI,
+    tipo: 'ingreso', fecha: FieldValue.serverTimestamp(), metodo: 'stripe', origen: 'auto', ...datosI,
   });
 }
 
@@ -163,7 +195,7 @@ async function correoBonoComprador({ email, nombre, codigo, titulo, caduca }) {
   return enviar({ para: email, asunto: 'Tu regalo de Mirar Despacio está listo', html, texto: aTexto(html) });
 }
 
-async function correoBienvenidaPlus({ email, nombre, hasta, regalo, nivel }) {
+async function correoBienvenidaPlus({ email, nombre, hasta, regalo, nivel, portal }) {
   const html = tarjeta({
     titulo: 'Bienvenida a Mirar Despacio+',
     nombre,
@@ -173,6 +205,7 @@ async function correoBienvenidaPlus({ email, nombre, hasta, regalo, nivel }) {
     cuerpo: [
       'En unos minutos te llegará otro correo para <strong>crear tu contraseña</strong> de la zona de miembros. Si ya tenías cuenta, entra directamente en ottokols.es/acceso.html.',
       nivel === 'con-salidas' ? 'Las salidas están incluidas: cuando te apuntes a una, tendrás plaza.' : '',
+      !regalo && portal ? `Sin permanencia: para cambiar la tarjeta, ver tus recibos o darte de baja, entra en <a href="${esc(portal)}">tu área de pagos</a> con este mismo email.` : '',
       'Si tienes cualquier duda, contesta a este correo.',
     ].filter(Boolean),
   });
@@ -201,8 +234,7 @@ function sumarMeses(base, meses) {
 }
 const fechaCorta = (d) => new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Madrid' }).format(d);
 
-// Da o amplía Mirar Despacio+ a una persona del CRM
-// Da o amplía Mirar Despacio+ (pagos de Ko-fi y regalos). Usa la misma ficha que las altas del CRM
+// Da o amplía Mirar Despacio+ (pagos de Stripe y regalos). Usa la misma ficha que las altas del CRM
 // (subscription), así la caducidad, las pausas y la plaza en salidas funcionan igual.
 async function darPlus(fs, persona, { meses, nivel, origen }) {
   const plus = require('./plus');
@@ -211,14 +243,14 @@ async function darPlus(fs, persona, { meses, nivel, origen }) {
   const until = plus.sumarMeses(base, Number(meses) || 1);
   const pausas = (persona.pausas || []).map((x) => (x.hasta ? x : { ...x, hasta: plus.hoy() }));
   await persona.ref.set({
-    subscription: { active: true, since: s.active && s.since ? s.since : plus.hoy(), until, nivel: nivel === 'sin-salidas' ? 'online' : 'salidas', origen: origen || 'kofi' },
+    subscription: { active: true, since: s.active && s.since ? s.since : plus.hoy(), until, nivel: nivel === 'sin-salidas' ? 'online' : 'salidas', origen: origen || 'stripe' },
     avisoCaducidad: null, ...(persona.pausas ? { pausas } : {}),
   }, { merge: true });
   return new Date(until + 'T12:00:00');
 }
 
 module.exports = {
-  cabeceras, limpio, emailValido, eur, datos, taller, edicion, eventoId, pasada, producto,
+  cabeceras, limpio, emailValido, eur, datos, taller, edicion, eventoId, pasada, producto, cerrarSiCompleto,
   nuevoCodigo, normalizarCodigo, personaPorEmail, eventoTaller, ocupadas, ingreso,
   correoPlazaTaller, correoBonoComprador, correoBienvenidaPlus, avisoOtto, invitarIdentity,
   darPlus, fechaCorta, VALIDEZ_BONO_DIAS,

@@ -32,8 +32,6 @@ PLATAFORMAS = [
     ("Apple Podcasts", "https://podcasts.apple.com/us/podcast/mirar-despacio/id1882729734?l=es-MX"),
     ("YouTube", "https://www.youtube.com/@mirardespaciopodcast"),
 ]
-# Enlace de pago de Mirar Despacio+ (Ko-fi). Vacío = el botón abre un email de "me interesa".
-PLUS_URL = ""
 # Fotos del zine (URLs de Cloudinary). Vacío = no se muestra ninguna.
 ZINE_FOTOS = []
 # Enlace de cada episodio (número: url). Los que falten se muestran sin enlace.
@@ -477,7 +475,7 @@ def construir(g):
         <p class="antetitulo">Preguntas</p>
         <h2>Antes de <em>reservar.</em></h2>
         <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, trae la cámara que quieras aprender a usar: réflex, mirrorless o compacta. Y para el de composición vale cualquier cosa, también el móvil.</p></details>
-        <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, por Ko-fi, con tarjeta o PayPal. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
+        <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, con tarjeta, en la página de pago segura de Stripe. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
         <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a> y lo hablamos.</p></details>
         <details class="faq"><summary>¿En qué se diferencian de las salidas?</summary><p>Las salidas son paseos en grupo con retos, gratuitos y con contribución libre al final. Los talleres son más cortos de grupo, con un tema concreto, explicación y práctica guiada, y te llevas material.</p></details>
       </div>
@@ -594,7 +592,7 @@ def construir(g):
             <ul class="lista" style="margin-top:14px;"><li>Todo lo anterior</li><li><strong>Plaza asegurada en todas las salidas</strong>, sin aportación</li><li>Te enteras de las fechas antes que nadie</li></ul>
             <a class="boton color" data-plus-url="conSalidas" data-umami-event="plus-interes" href="mailto:{EMAIL}?subject=Me%20interesa%20Mirar%20Despacio%2B%20con%20salidas">Me interesa</a></div>
         </div>
-        <p style="margin-top:22px;">Sin permanencia: te das de baja cuando quieras. ¿Es para otra persona? <a href="/regalo/">Regala Mirar Despacio+</a>.</p>
+        <p style="margin-top:22px;">Sin permanencia: te das de baja cuando quieras<a data-plus-portal hidden href="#">, tú mismo desde tu área de pagos</a>. ¿Es para otra persona? <a href="/regalo/">Regala Mirar Despacio+</a>.</p>
       </div>
     </section>
 

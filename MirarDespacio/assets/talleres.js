@@ -1,9 +1,8 @@
 /* Talleres, Mirar Despacio+ y regalos.
- * Lee talleres-data.json (precios, fechas, enlaces de Ko-fi) y pide a ottokols.es
+ * Lee talleres-data.json (precios, fechas, enlaces de pago de Stripe) y pide a ottokols.es
  * las plazas libres y los datos de los bonos regalo. */
 (function () {
   var API = 'https://ottokols.es/.netlify/functions/talleres';
-  var KOFI = 'https://ko-fi.com/s/';
   var EMAIL = 'info@mirardespacio.es';
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -12,12 +11,15 @@
   var esc = function (s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; };
   var track = function (n) { if (window.umami) window.umami.track(n); };
 
-  function enlaceKofi(a, codigo, evento) {
-    if (!codigo) return;
-    a.href = KOFI + codigo;
-    a.target = '_blank';
-    a.rel = 'noopener';
+  // Enlace de pago de Stripe. "ref" viaja como client_reference_id y le dice al
+  // servidor qué se ha pagado (edicion_<id>, bonotaller_<id>, bonoplus_<id>, plus_<nivel>).
+  function enlacePago(a, url, ref, evento) {
+    if (!url) return false;
+    a.href = url + (url.indexOf('?') < 0 ? '?' : '&') + 'client_reference_id=' + encodeURIComponent(ref);
+    a.removeAttribute('target');
+    a.removeAttribute('data-umami-event');
     a.addEventListener('click', function () { track(evento); });
+    return true;
   }
 
   fetch('/talleres-data.json').then(function (r) { return r.json(); }).then(function (d) {
@@ -25,11 +27,14 @@
     $$('[data-taller-precio]').forEach(function (e) { var t = buscar(d.talleres, e.dataset.tallerPrecio); if (t) e.textContent = t.precio + ' €'; });
     $$('[data-plus-precio]').forEach(function (e) { var p = d.plus && d.plus[e.dataset.plusPrecio]; if (p) e.textContent = p.precio + ' €'; });
     $$('[data-plus-url]').forEach(function (a) {
-      var p = d.plus && d.plus[a.dataset.plusUrl];
-      if (p && p.url) { a.href = p.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Unirme'; }
+      var k = a.dataset.plusUrl, p = d.plus && d.plus[k];
+      if (p && enlacePago(a, p.url, 'plus_' + k, 'plus-unirme')) a.textContent = 'Unirme';
     });
-    $$('[data-bono]').forEach(function (a) { var t = buscar(d.talleres, a.dataset.bono); if (t) enlaceKofi(a, t.bonoKofi, 'regalo-taller-comprar'); });
-    $$('[data-regalo-plus]').forEach(function (a) { var r = buscar(d.regalosPlus, a.dataset.regaloPlus); if (r) enlaceKofi(a, r.kofi, 'regalo-plus-comprar'); });
+    $$('[data-plus-portal]').forEach(function (a) {
+      if (d.plus && d.plus.portal) { a.href = d.plus.portal; a.hidden = false; }
+    });
+    $$('[data-bono]').forEach(function (a) { var t = buscar(d.talleres, a.dataset.bono); if (t) enlacePago(a, t.bonoPago, 'bonotaller_' + t.id, 'regalo-taller-comprar'); });
+    $$('[data-regalo-plus]').forEach(function (a) { var r = buscar(d.regalosPlus, a.dataset.regaloPlus); if (r) enlacePago(a, r.pago, 'bonoplus_' + r.id, 'regalo-plus-comprar'); });
     $$('[data-regalo-plus-precio]').forEach(function (e) { var r = buscar(d.regalosPlus, e.dataset.regaloPlusPrecio); if (r) e.textContent = r.precio + ' €'; });
 
     var cajas = $$('[data-ediciones]');
@@ -66,8 +71,7 @@
       fila.innerHTML = txt + boton;
       var a = $('[data-reservar]', fila);
       if (a) {
-        if (e.kofi) enlaceKofi(a, e.kofi, 'taller-reservar');
-        else a.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('Reserva · ' + (t ? t.titulo : '') + ' ' + e.fecha);
+        if (!enlacePago(a, e.pago, 'edicion_' + e.id, 'taller-reservar')) a.href = 'mailto:' + EMAIL + '?subject=' + encodeURIComponent('Reserva · ' + (t ? t.titulo : '') + ' ' + e.fecha);
       }
       caja.appendChild(fila);
     });

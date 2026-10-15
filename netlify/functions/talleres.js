@@ -86,10 +86,12 @@ exports.handler = async (event, context) => {
       });
       if (r !== 'ok') return json(h, 409, { error: r });
       await T.correoPlazaTaller({ d, ed, nombre: datosP.nombre, email: datosP.email, regalo: true }).catch(() => {});
+      // El canje ocupa una plaza que Stripe no ve: si con ella se llena, se cierra el enlace de pago
+      const cierre = await T.cerrarSiCompleto(fs, d, ed);
       await T.avisoOtto(`Regalo canjeado: ${datosP.nombre} ${datosP.apellidos} · Taller ${t.titulo}`, [
         ['Edición', `${ed.fecha} · ${ed.zona || ''}`], ['Persona', `${datosP.nombre} ${datosP.apellidos} <${datosP.email}>`],
         ['Teléfono', datosP.telefono || '—'], ['Bono', codigo], ['Regalado por', `${bono.compradorNombre || ''} <${bono.compradorEmail || ''}>`],
-        ['⚠️ Ko-fi', 'Baja 1 el stock de esta edición en Ko-fi para que no se vendan plazas de más'],
+        ...(cierre ? [['Enlace de pago', cierre === 'desactivado' ? 'Completo: he desactivado el enlace en Stripe' : 'Completo, pero no he podido desactivar el enlace (' + cierre + '): hazlo a mano en Stripe']] : []),
       ], datosP.email).catch(() => {});
       return json(h, 200, { ok: true, tipo: 'taller', titulo: t.titulo, fecha: ed.fecha, zona: ed.zona || '' });
     }

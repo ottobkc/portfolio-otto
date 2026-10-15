@@ -1,12 +1,11 @@
 {
   "_ayuda": {
-    "general": "Precios, talleres, fechas y enlaces de Ko-fi. Lo lee la web (página de talleres, Mirar Despacio+ y regalos) y también la función que recibe los pagos de Ko-fi.",
-    "kofi": "Cada producto de la tienda de Ko-fi tiene un enlace tipo https://ko-fi.com/s/abc123def4 : copia solo el código final (abc123def4) en el campo 'kofi'. Así la web sabe a qué corresponde cada pago.",
-    "ediciones": "Una edición = un taller con fecha. Crea en Ko-fi un producto por edición con stock = plazas, pon aquí su código y 'activa': true. Cuando pase, pon 'activa': false.",
-    "regalos": "Los bonos regalo son productos de Ko-fi sin fecha (stock ilimitado). Quien lo recibe elige luego la edición en mirardespacio.es/regalo/.",
-    "plus": "Mirar Despacio+: los dos niveles son membresías de Ko-fi (Memberships). 'url' es el enlace a tu página de membresías; 'tier' es el nombre EXACTO del nivel en Ko-fi."
+    "general": "Precios, talleres, fechas y enlaces de pago de Stripe. Lo lee la web (página de talleres, Mirar Despacio+ y regalos) y también la función que recibe los pagos de Stripe.",
+    "stripe": "En Stripe → Enlaces de pago, crea un enlace por cada cosa que se vende y copia aquí su URL completa (https://buy.stripe.com/...). En modo de prueba empiezan por https://buy.stripe.com/test_... : cuando pases a real, cambia cada enlace por el real. Marca en cada enlace 'Recoger el nombre del cliente' para que el nombre llegue al CRM. Vacío = el botón abre un email.",
+    "ediciones": "Una edición = un taller con fecha. Crea en Stripe un enlace de pago por edición (precio único) y, en sus opciones, 'Limitar el número de pagos' = plazas. Pon aquí su URL en 'pago' y 'activa': true. Cuando se llena, la web lo cierra sola. Cuando pase, pon 'activa': false.",
+    "regalos": "Los bonos regalo son enlaces de pago de Stripe sin límite (precio único). Quien lo recibe elige luego la edición en mirardespacio.es/regalo/.",
+    "plus": "Mirar Despacio+: los dos niveles son enlaces de pago de Stripe con precio RECURRENTE mensual. 'url' es la URL de cada enlace. 'portal' es el enlace al portal de clientes de Stripe (Configuración → Facturación → Portal de clientes → Activar enlace): ahí cada socio cambia la tarjeta, ve sus recibos o se da de baja."
   },
-  "kofiPagina": "",
   "talleres": [
     {
       "id": "nocturna",
@@ -31,7 +30,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoKofi": ""
+      "bonoPago": ""
     },
     {
       "id": "atardecer",
@@ -56,7 +55,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoKofi": ""
+      "bonoPago": ""
     },
     {
       "id": "iniciacion",
@@ -80,7 +79,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoKofi": ""
+      "bonoPago": ""
     },
     {
       "id": "composicion",
@@ -105,7 +104,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoKofi": ""
+      "bonoPago": ""
     }
   ],
   "ediciones": [
@@ -115,21 +114,20 @@
       "fecha": "Sábado 21 de noviembre",
       "fechaISO": "2026-11-21T20:30:00+01:00",
       "zona": "Centro",
-      "kofi": "",
+      "pago": "",
       "activa": false
     }
   ],
   "plus": {
     "sinSalidas": {
       "precio": 20,
-      "tier": "Mirar Despacio+",
       "url": ""
     },
     "conSalidas": {
       "precio": 30,
-      "tier": "Mirar Despacio+ con salidas",
       "url": ""
-    }
+    },
+    "portal": ""
   },
   "regalosPlus": [
     {
@@ -137,14 +135,14 @@
       "meses": 1,
       "nivel": "con-salidas",
       "precio": 30,
-      "kofi": ""
+      "pago": ""
     },
     {
       "id": "plus-3",
       "meses": 3,
       "nivel": "con-salidas",
       "precio": 85,
-      "kofi": ""
+      "pago": ""
     }
   ]
 }
