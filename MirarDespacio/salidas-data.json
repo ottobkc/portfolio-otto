@@ -5,11 +5,11 @@
   },
   "proximas": [
     {
-      "fecha": "Por determinar",
-      "zona": "Huertas",
+      "fecha": "15 de Noviembre",
+      "zona": "Monocalle Gran Vía",
       "hora": "10:00",
       "activa": true,
-      "fechaISO": "2026-10-11T10:00:00+02:00"
+      "fechaISO": "2026-11-15T10:00:00+01:00"
     }
   ],
   "salidas": [
