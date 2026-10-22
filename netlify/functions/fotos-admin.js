@@ -8,6 +8,7 @@
 //  POST {accion:'enlace', personId}           -> enlace personal para subir fotos sin cuenta (para copiar a WhatsApp)
 //  POST {accion:'plus-alta', personId, meses, nivel, desde} / {accion:'plus-baja', personId, dejarFotos} / {accion:'plus-prueba', personId}
 //  POST {accion:'avisar-reto', retoId}       -> email «nuevo reto» a los miembros MD+
+//  POST {accion:'confirmacion', signupId}     -> le manda el mismo correo que la web (plaza / lista de espera / sin fecha)
 //  POST {accion:'enlaces', eventId, reenviar} -> manda por email su enlace a la gente de esa salida
 //        (si en la salida hay alguien marcado como "asistió", solo a los que asistieron)
 const crypto = require('crypto');
@@ -16,6 +17,7 @@ const { db, FieldValue } = require('../lib/firestore');
 const { listarUsuarios, ponerRoles, rolesPara, invitarCon } = require('../lib/identidad');
 const { enviar, esc } = require('../lib/correo');
 const { tarjeta, aTexto } = require('../lib/plantillas-salida');
+const inscripcion = require('./inscripcion');
 const { miembrosConAvisos, correoReto, enviarATodos } = require('../lib/avisos');
 const plus = require('../lib/plus');
 const { SALIDA_DIAS, RETOS_GUARDADOS } = require('../lib/fotos-config');
@@ -203,6 +205,32 @@ exports.handler = async (event, context) => {
       if (!snap.exists) return res(404, { error: 'no-existe' });
       if (!snap.data().email) return res(400, { error: 'sin-email' });
       return res(200, { url: SUBIR + (await claveDe(ref, snap.data())) });
+    }
+
+    // El mismo correo que manda la web al apuntarse, para quien se añade o se mueve desde el CRM
+    if (b.accion === 'confirmacion') {
+      const sRef = fs.collection('signups').doc(String(b.signupId || ''));
+      const sSnap = await sRef.get();
+      if (!sSnap.exists) return res(404, { error: 'no-existe' });
+      const su = sSnap.data();
+      const pSnap = await fs.collection('people').doc(su.personId).get();
+      const p = pSnap.exists ? pSnap.data() : null;
+      if (!p || !p.email) return res(400, { error: 'sin-email' });
+      const evSnap = await fs.collection('events').doc(su.eventId).get();
+      const ev = evSnap.exists ? evSnap.data() : {};
+      const salida = await inscripcion._salidaDeEvento(su.eventId, ev);
+      let posicion = 0;
+      if (su.status === 'espera') {
+        const q = await fs.collection('signups').where('eventId', '==', su.eventId).where('status', '==', 'espera').get();
+        const orden = q.docs.map((d) => ({ id: d.id, t: (d.data().createdAt && d.data().createdAt.toMillis) ? d.data().createdAt.toMillis() : 0 })).sort((a, z) => a.t - z.t);
+        posicion = orden.findIndex((x) => x.id === sSnap.id) + 1;
+      }
+      const r = { status: su.status === 'espera' ? 'espera' : 'confirmado', yaEstaba: false, posicion, plazas: Number(ev.plazas) || inscripcion._PLAZAS };
+      const c = inscripcion._correoPersona({ nombre: p.name || '' }, salida, r);
+      const ok = await enviar({ para: p.email, asunto: c.asunto, html: c.html, texto: aTexto(c.html) });
+      if (!ok) return res(502, { error: 'correo' });
+      await sRef.update({ confirmacionEnviadaEn: FieldValue.serverTimestamp() });
+      return res(200, { ok: true, email: p.email, asunto: c.asunto });
     }
 
     if (b.accion === 'enlaces') {

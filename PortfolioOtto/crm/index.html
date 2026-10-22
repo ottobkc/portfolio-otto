@@ -906,6 +906,62 @@ window.enviarEnlacesFotos = async function(reenviar) {
     est.textContent = `Enviados: ${r.enviados}` + (r.saltados ? ` · ya lo tenían: ${r.saltados}` : '') + (r.sinEmail ? ` · sin email: ${r.sinEmail}` : '');
   } catch (e) { est.textContent = 'Error: ' + e.message; }
 };
+// Le manda el mismo correo que la web (para quien se añade o se mueve desde el CRM)
+window.enviarConfirmacion = async function(signupId) {
+  const s = signups.find(x => x.id === signupId);
+  const p = s && people.find(x => x.id === s.personId);
+  if (!s || !p || !p.email) return;
+  const tipo = s.status === 'espera' ? 'de lista de espera' : (s.eventId === 'web-sin-fecha' ? 'de plaza (aún sin fecha)' : 'de plaza');
+  const aviso = s.confirmacionEnviadaEn ? '\n\nOjo: ya se le mandó una vez.' : '';
+  if (!confirm(`¿Mandar a ${nombreCompleto(p)} (${p.email}) el correo ${tipo}?${aviso}`)) return;
+  setSyncStatus('Enviando…');
+  try {
+    await admin({ accion: 'confirmacion', signupId });
+    setSyncStatus('Correo enviado ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
+// Fichas con el mismo email (pasa cuando alguien se equivoca al escribirlo y luego se corrige a mano)
+const emailNorm = e => String(e || '').trim().toLowerCase();
+function duplicadosDe(p) {
+  const e = emailNorm(p.email);
+  return e ? people.filter(o => o.id !== p.id && emailNorm(o.email) === e) : [];
+}
+
+// Junta «quitar» dentro de «quedar»: rellena los datos que falten, pasa sus inscripciones y borra la ficha sobrante
+window.fusionarPersonas = async function(quedarId, quitarId) {
+  const a = people.find(x => x.id === quedarId);
+  const b = people.find(x => x.id === quitarId);
+  if (!a || !b) return;
+  if (!confirm(`Se queda la ficha «${nombreCompleto(a)}» y se borra «${nombreCompleto(b)}».\n\nLos datos que falten se copian, y sus inscripciones pasan a la ficha que se queda. ¿Seguimos?`)) return;
+  setSyncStatus('Fusionando…');
+  try {
+    const cambios = {};
+    for (const k of ['name', 'apellidos', 'telefono', 'instagram', 'claveFotos']) if (!a[k] && b[k]) cambios[k] = b[k];
+    if (b.name && a.name && b.name.length > a.name.length && b.name.toLowerCase().startsWith(a.name.toLowerCase())) cambios.name = b.name;
+    if (!a.consentImagen && b.consentImagen) cambios.consentImagen = true;
+    if (!a.aceptaNovedades && b.aceptaNovedades) { cambios.aceptaNovedades = true; if (b.novedadesDesde) cambios.novedadesDesde = b.novedadesDesde; }
+    if (!a.plusHasta && b.plusHasta) { for (const k of ['plusHasta', 'plusNivel', 'subscription']) if (b[k] !== undefined) cambios[k] = b[k]; }
+    if (Object.keys(cambios).length) await setDoc(doc(db, 'people', a.id), cambios, { merge: true });
+    // Inscripciones: si ya estaban las dos en la misma salida, se queda la mejor (confirmado > pendiente > espera; asistió gana)
+    const rango = st => ({ confirmado: 3, pendiente: 2, espera: 1 }[st] || 0);
+    for (const sb of signups.filter(x => x.personId === b.id)) {
+      const sa = signups.find(x => x.personId === a.id && x.eventId === sb.eventId);
+      if (!sa) { await updateDoc(doc(db, 'signups', sb.id), { personId: a.id }); continue; }
+      const mejor = { status: rango(sb.status) > rango(sa.status) ? sb.status : sa.status, attended: !!(sa.attended || sb.attended) };
+      await updateDoc(doc(db, 'signups', sa.id), mejor);
+      await deleteDoc(doc(db, 'signups', sb.id));
+    }
+    // Fotos subidas con la ficha sobrante
+    try {
+      const fq = await getDocs(query(collection(db, 'fotos'), where('personaId', '==', b.id)));
+      for (const f of fq.docs) await updateDoc(f.ref, { personaId: a.id });
+    } catch (e) { console.warn('fotos al fusionar:', e); }
+    await deleteDoc(doc(db, 'people', b.id));
+    setSyncStatus('Fichas fusionadas ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
 window.copiarEnlaceFotos = async function(personId) {
   try {
     const r = await admin({ accion: 'enlace', personId });
@@ -1356,6 +1412,7 @@ function renderRoster() {
           <option value="confirmado" ${s.status==='confirmado'?'selected':''}>Confirmado</option>
           <option value="espera" ${s.status==='espera'?'selected':''}>Espera</option>
         </select>
+        ${person.email ? `<button class="small secondary" title="${s.confirmacionEnviadaEn ? 'Confirmación ya enviada. Pulsa para reenviarla' : 'Enviarle el mismo correo que manda la web (plaza, lista de espera o sin fecha)'}" onclick="enviarConfirmacion('${s.id}')">${s.confirmacionEnviadaEn ? '✉️✓' : '✉️'}</button>` : ''}
         ${person.email ? `<button class="small secondary" title="Copiar su enlace para subir fotos (para mandarlo por WhatsApp)" onclick="copiarEnlaceFotos('${person.id}')">📷</button>` : ''}
         <button class="small danger" onclick="removeSignup('${s.id}')">✕</button>
       `;
@@ -1453,6 +1510,10 @@ function renderPeople() {
         </div>
         <button class="small danger" onclick="deletePerson('${p.id}')">✕</button>
       </div>
+      ${duplicadosDe(p).map(o => `<div class="person-meta" style="margin-top:6px;padding:8px 10px;border-radius:8px;background:rgba(232,130,26,.12);">
+        ⚠️ Hay otra ficha con el mismo email: <strong>${escapeHtml(nombreCompleto(o))}</strong> (${signups.filter(s => s.personId === o.id).length} salida(s)).
+        <button class="small secondary" style="margin-left:6px;" onclick="fusionarPersonas('${p.id}','${o.id}')">Quedarme con esta y fusionar la otra</button>
+      </div>`).join('')}
       <details class="datos-persona" ${datosAbiertos.has(p.id) ? 'open' : ''} ontoggle="this.open ? datosAbiertos.add('${p.id}') : datosAbiertos.delete('${p.id}')">
         <summary class="person-meta" style="cursor:pointer;">Editar datos</summary>
         <input type="text" placeholder="Nombre" value="${escapeAttr(p.name)}" onchange="guardarDato('${p.id}','name',this.value)">
