@@ -76,7 +76,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
   <script type="application/ld+json">
 {ld}
   </script>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}"></script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
 </head>
 <body>
   <a class="oculto" href="#contenido">Saltar al contenido</a>
