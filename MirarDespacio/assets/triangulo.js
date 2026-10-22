@@ -1,68 +1,35 @@
-// Practica con el triángulo · mirardespacio.es/juegos/triangulo/
-// Simulador del triángulo de exposición: ISO, velocidad y diafragma. Todo se calcula en el navegador.
+// Practica con el triángulo · mirardespacio.es/juegos/triangulo/ (y la versión MD+ en ottokols.es/members/triangulo.html)
+// Simulador del triángulo de exposición: ISO, velocidad y diafragma. Todo se calcula en el navegador;
+// la física y la puntuación están en triangulo-nucleo.js (las comparte con el servidor).
+// Si la página define window.TRIANGULO_PLUS antes de cargar este archivo, se añaden los retos de MD+.
 (function(){
-const SH=[1/4000,1/2000,1/1000,1/500,1/250,1/125,1/60,1/30,1/15,1/8,1/4,1/2,1];
-const AP=[1.4,2,2.8,4,5.6,8,11,16];
-const ISO=[100,200,400,800,1600,3200,6400,12800];
-const fmtSh=t=>t>=1?`${t} s`:`1/${Math.round(1/t)}`;
+const N=window.TrianguloNucleo;
+const {SH,AP,ISO,fmtSh,LOCKED,SUBJ_OF,AF_OF,rng,calc,score,solve,generate,estrellas}=N;
+const PLUS=window.TRIANGULO_PLUS||null;
+const LEVELS=N.LEVELS.concat(PLUS&&PLUS.levels?PLUS.levels:[]);
 const W=720,H=450;
-
-/* ---------- retos fijos ---------- */
-const LEVELS=[
- {scene:"l1",kick:"Reto 1 · Interior",title:"Retrato junto a la ventana",
-  text:"Tarde de octubre en un piso de Lavapiés. El muñeco de estudio está quieto junto a la ventana y quieres que la estantería del fondo se funda en manchas suaves.",
-  goals:["85 mm a pulso","Fondo separado","Poca luz"],
-  ev:7,focal:85,speed:20,lim:4,isoTol:1600,dofMin:6,dofMax:99,apMin:0,isoMax:7,
-  note:"Aquí lo que manda es el diafragma. Ábrelo primero y luego ajusta las otras dos.",start:[5,3,1]},
- {scene:"l2",kick:"Reto 2 · Movimiento",title:"Perro a la carrera",
-  text:"Últimas luces en el Retiro. Un golden cruza el camino a toda velocidad y lo sigues con el tele. Quieres al perro congelado, con cada pelo nítido.",
-  goals:["200 mm","Sujeto muy rápido","Buena luz"],
-  ev:13,focal:200,speed:2200,lim:4,isoTol:1600,dofMin:1.5,dofMax:99,apMin:0,isoMax:7,
-  note:"Con un perro corriendo empieza por la velocidad: 1/1000 como mínimo. Lo demás se adapta.",start:[5,4,0]},
- {scene:"l3",kick:"Reto 3 · Noche",title:"Gran Vía, 22:40",
-  text:"Calle de noche, cámara en mano, sin trípode. Un peatón cruza bajo los neones. Quieres al peatón definido y que se lea la calle de fondo.",
-  goals:["35 mm a pulso","Muy poca luz","Que se lea la calle"],
-  ev:4,focal:35,speed:260,lim:5,isoTol:3200,dofMin:0,dofMax:5,apMin:0,isoMax:7,
-  note:"De noche toca negociar: algo de ruido es aceptable, una foto movida no.",start:[4,5,2]},
-];
-const LOCKED=["Concierto en sala","Larga exposición","Teatro sin flash"]; // llegarán con Mirar Despacio+
-
-/* ---------- definición de escenas para el generador ---------- */
-const SCENES_DEF={
- l1:{kick:"Interior",subj:"El muñeco",af:[.64,.36],fRef:85,kRef:14,lim:4,
-   evR:[5,9],focals:[35,50,85,135],isoTols:[1600,3200],
-   title:ev=>ev<=5?"Retrato con la última luz":ev<=7?"Retrato junto a la ventana":"Retrato a pleno día",
-   light:ev=>ev<=5?"Casi de noche: solo entra un resto de luz azul por la ventana.":ev<=7?"Tarde nublada, luz suave de ventana.":"Mediodía, con el sol rebotando en la pared.",
-   speed:r=>r()<.65?[8+r()*15,"El muñeco está quieto en su peana."]:[40+r()*50,"El muñeco gira despacio sobre una peana giratoria."],
-   dof:{min:"Quieres que la estantería se funda en manchas.",max:"Quieres que se reconozca la habitación entera."},
-   chip:{min:"Fondo separado",max:"Habitación nítida"},minR:[5,8],maxR:[2.5,3.5]},
- l2:{kick:"Movimiento",subj:"El perro",af:[.5,.68],fRef:200,kRef:10,lim:4,
-   evR:[10,15],focals:[85,135,200,300],isoTols:[1600,3200],
-   title:ev=>ev<=11?"Perro al anochecer":ev<=13?"Perro a la carrera":"Perro a mediodía",
-   light:ev=>ev<=11?"El sol ya se ha puesto en el Retiro.":ev<=13?"Últimas luces de la tarde en el Retiro.":"Sol de mediodía en el Retiro, sin una nube.",
-   speed:r=>r()<.6?[1700+r()*1300,"Un golden cruza el camino a toda velocidad."]:[600+r()*500,"Un perro trota tranquilo por el camino."],
-   dof:{min:"Quieres al perro despegado del fondo.",max:"Quieres el parque entero nítido, árboles incluidos."},
-   chip:{min:"Fondo separado",max:"Todo nítido"},minR:[1.5,4],maxR:[1.5,2.2]},
- l3:{kick:"Noche",subj:"El peatón",af:[.42,.5],fRef:35,kRef:8,lim:5,
-   evR:[2,6],focals:[24,35,50],isoTols:[3200,6400],
-   title:ev=>ev<=3?"Callejón con una farola":ev<=5?"Gran Vía de noche":"Callao con las pantallas",
-   light:ev=>ev<=3?"Callejón con una sola farola, cámara en mano.":ev<=5?"Gran Vía con los neones encendidos, cámara en mano.":"Plaza del Callao con las pantallas a tope, cámara en mano.",
-   speed:r=>r()<.5?[280+r()*150,"Alguien cruza con prisa."]:[120+r()*80,"Un peatón pasea sin prisa."],
-   dof:{min:"Quieres los neones convertidos en bolas de luz.",max:"Quieres que se lea la calle de fondo."},
-   chip:{min:"Neones en bokeh",max:"Que se lea la calle"},minR:[5,8],maxR:[3,6]},
-};
-const SUBJ_OF={l1:"El muñeco",l2:"El perro",l3:"El peatón"};
-const AF_OF={l1:[.64,.36],l2:[.5,.68],l3:[.42,.5]};
-const KREF={l1:[85,14],l2:[200,10],l3:[35,8]};
-const kOf=(scene,focal)=>KREF[scene][1]*Math.pow(focal/KREF[scene][0],2);
-
-/* ---------- utilidades ---------- */
-function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const pick=(r,a)=>a[(r()*a.length)|0];
+const pick=N.pick;
 function mk(w=W,h=H){const c=document.createElement("canvas");c.width=w;c.height=h;return c}
 const testCtx=mk(2,2).getContext("2d");
 const hasFilter=(()=>{try{testCtx.filter="blur(2px)";return testCtx.filter==="blur(2px)"}catch(e){return false}})();
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- registro de partidas (anónimo; en MD+ va con la sesión del miembro) ---------- */
+const ENDPOINT=PLUS?"/.netlify/functions/triangulo":"https://ottokols.es/.netlify/functions/triangulo";
+function idAnonimo(){
+  let id=store.get("triangulo-id",null);
+  if(!id||!/^[a-z0-9]{20}$/.test(id)){id="";const a="abcdefghijklmnopqrstuvwxyz0123456789";for(let i=0;i<20;i++)id+=a[(Math.random()*36)|0];store.set("triangulo-id",id)}
+  return id;
+}
+async function registrar(datos){
+  try{if(window.umami)window.umami.track("triangulo-disparo",{modo:datos.modo,reto:datos.reto})}catch(e){}
+  if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname))return;
+  try{
+    const h={"Content-Type":"application/json"};
+    if(PLUS&&PLUS.token){const t=await PLUS.token();if(t)h.Authorization="Bearer "+t}
+    fetch(ENDPOINT,{method:"POST",keepalive:true,headers:h,body:JSON.stringify(Object.assign({accion:"jugada",anon:idAnonimo()},datos))}).catch(()=>{});
+  }catch(e){}
+}
 
 /* ---------- escenas ---------- */
 function bgInterior(c){
@@ -170,72 +137,6 @@ function blurred(src,r){
   x.imageSmoothingQuality="high";x.drawImage(small,0,0,sw,sh,0,0,W,H);return o
 }
 
-/* ---------- física y puntuación ---------- */
-function calc(L,si,ai,ii){
-  const t=SH[si],N=AP[ai],iso=ISO[ii];
-  const camEV=Math.log2(N*N/t)-Math.log2(iso/100);
-  const delta=L.ev-camEV;
-  const motion=L.speed*t;
-  const shake=Math.min(18,Math.max(0,t*L.focal-1)*3);
-  const bg=kOf(L.scene,L.focal)/N;
-  const sigma=1.1*Math.pow(iso/100,.55);
-  return {si,ai,ii,t,N,iso,delta,motion,shake,bg,sigma}
-}
-function score(L,p){
-  const exp=Math.max(0,100-45*Math.max(0,Math.abs(p.delta)-.25));
-  const blur=p.motion+p.shake;
-  const sharp=blur<=L.lim?100:Math.max(0,100-(blur-L.lim)*9);
-  const over=Math.log2(p.iso/L.isoTol);
-  const noise=over<=0?100:Math.max(0,100-35*over);
-  const dof=p.bg<L.dofMin?Math.max(0,100-(L.dofMin-p.bg)*18):p.bg>L.dofMax?Math.max(0,100-(p.bg-L.dofMax)*18):100;
-  const total=Math.round(exp*.35+sharp*.3+noise*.15+dof*.2);
-  return {exp,sharp,noise,dof,total}
-}
-function solve(L){
-  let best=null;
-  for(let si=0;si<SH.length;si++)for(let ai=L.apMin;ai<AP.length;ai++)for(let ii=0;ii<=L.isoMax;ii++){
-    const p=calc(L,si,ai,ii),s=score(L,p);
-    // a igualdad de puntos, prefiere ISO bajo
-    if(!best||s.total>best.s.total||(s.total===best.s.total&&ii<best.p.ii))best={p,s};
-  }
-  return best
-}
-
-/* ---------- generador de escenas ---------- */
-function generate(r,kickPrefix){
-  for(let tries=0;tries<80;tries++){
-    const scene=pick(r,["l1","l2","l3"]),D=SCENES_DEF[scene];
-    const ev=D.evR[0]+((r()*(D.evR[1]-D.evR[0]+1))|0);
-    const focal=pick(r,D.focals);
-    const [speed,subjLine]=D.speed(r);
-    const dofType=r()<.6?"min":"max";
-    const dofMin=dofType==="min"?D.minR[0]+r()*(D.minR[1]-D.minR[0]):0;
-    const dofMax=dofType==="max"?D.maxR[0]+r()*(D.maxR[1]-D.maxR[0]):99;
-    let apMin=0,isoMax=7,rule=null;
-    const rr=r();
-    if(rr<.25){isoMax=3+((r()*3)|0);rule=`Tu cámara no pasa de ISO ${ISO[isoMax]}`}
-    else if(rr<.5){apMin=2+((r()*2)|0);rule=`Tu objetivo más luminoso es f/${AP[apMin]}`}
-    const isoTol=pick(r,D.isoTols);
-    const L={scene,kick:`${kickPrefix} · ${D.kick}`,title:D.title(ev),
-      text:`${D.light(ev)} ${subjLine} ${D.dof[dofType]}`,
-      goals:[`${focal} mm a pulso`,D.chip[dofType]],rule,
-      ev,focal,speed,lim:D.lim,isoTol,dofMin,dofMax,apMin,isoMax};
-    const sol=solve(L);
-    if(sol.s.total<85)continue;
-    // no queremos retos triviales: la posición inicial no debe ser ya buena
-    L.start=[5,Math.max(apMin,3),Math.min(isoMax,2)];
-    if(score(L,calc(L,...L.start)).total>=70){L.start=[pick(r,[2,8]),Math.max(apMin,pick(r,[1,6])),Math.min(isoMax,pick(r,[0,5]))]}
-    const lowLight=ev<=(scene==="l3"?3:scene==="l1"?5:11);
-    L.note=speed>1000?"Con un sujeto tan rápido, la velocidad no se negocia. Fíjala primero y busca la luz en las otras dos.":
-      dofType==="min"?"Empieza por el diafragma, que es lo que decide el fondo. Luego cuadra la luz con velocidad e ISO.":
-      lowLight?"Con tan poca luz toca repartir el sacrificio: un poco de ruido antes que una foto movida.":
-      "Cuando quieres todo nítido, cierra el diafragma y compensa la luz con la velocidad mientras puedas.";
-    L.solution=sol;
-    return L;
-  }
-  return Object.assign({},LEVELS[0]);
-}
-
 /* ---------- render ---------- */
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d",{willReadFrequently:true});
 const frame=mk(),acc=mk();
@@ -245,6 +146,14 @@ function render(L,p){
   const fx=frame.getContext("2d"),ax=acc.getContext("2d");
   const n=Math.min(28,Math.max(1,Math.ceil(p.motion/1.6)));
   ax.globalAlpha=1;ax.clearRect(0,0,W,H);
+  if(L.wantBlur){
+    // Larga exposición: las luces que se mueven se suman y dibujan estelas sobre el fondo quieto
+    const largo=Math.min(p.motion,700);
+    ax.drawImage(bgB,0,0);ax.globalCompositeOperation="lighter";
+    const m=Math.min(60,Math.max(1,Math.ceil(largo/6)));
+    for(let i=0;i<m;i++){const dx=m===1?0:(i/(m-1)-.5)*largo;ax.globalAlpha=Math.min(1,1.3/Math.sqrt(m));ax.drawImage(s,dx,0)}
+    ax.globalCompositeOperation="source-over";ax.globalAlpha=1;
+  }else
   for(let i=0;i<n;i++){
     const dx=n===1?0:(i/(n-1)-.5)*Math.min(p.motion,220);
     fx.clearRect(0,0,W,H);fx.drawImage(bgB,0,0);fx.drawImage(s,dx,0);
@@ -269,6 +178,9 @@ function render(L,p){
   ctx.putImageData(im,0,0);
 }
 
+// Escenas de MD+
+if(PLUS&&PLUS.scenes)for(const id in PLUS.scenes){SCENES[id]=PLUS.scenes[id].draw;N.registrarEscena(id,PLUS.scenes[id])}
+
 /* ---------- interfaz ---------- */
 const $=id=>document.getElementById(id);
 const dSh=$("d-sh"),dAp=$("d-ap"),dIso=$("d-iso");
@@ -280,7 +192,8 @@ let best=store.get("triangulo",{});
 
 function setTicks(el,labels){el.innerHTML=labels.map(t=>`<span>${t}</span>`).join("")}
 function applyLimits(){
-  dSh.min=0;dSh.max=SH.length-1;setTicks($("t-sh"),["1/4000","1/250","1/15","1 s"]);
+  const shM=N.shMax(L);
+  dSh.min=0;dSh.max=shM;setTicks($("t-sh"),shM>N.SH_NORMAL?["1/4000","1/15","1 s",fmtSh(SH[shM])]:["1/4000","1/250","1/15","1 s"]);
   dAp.min=L.apMin;dAp.max=AP.length-1;
   const apL=[L.apMin,Math.round((L.apMin+7)/2),7].map(i=>"f/"+AP[i]);setTicks($("t-ap"),apL);
   dIso.min=0;dIso.max=L.isoMax;
@@ -289,7 +202,7 @@ function applyLimits(){
 
 /* reto del día */
 const today=new Date();
-const dayKey=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
+const dayKey=N.claveDia(today.getFullYear(),today.getMonth()+1,today.getDate());
 const dayLabel=today.toLocaleDateString("es-ES",{day:"numeric",month:"long"});
 function dailyDone(){const d=store.get("triangulo-dia",null);return d&&d.key===dayKey?d:null}
 function countdown(){const n=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);const ms=n-new Date();const h=Math.floor(ms/3.6e6),m=Math.floor(ms%3.6e6/6e4);return `${h} h ${m} min`}
@@ -300,8 +213,9 @@ function drawLevels(){
   if(mode!=="retos")return;
   LEVELS.forEach((lv,i)=>{const b=document.createElement("button");b.className="lvl";b.setAttribute("aria-pressed",i===cur);
     const st=best["l"+i]?"★".repeat(best["l"+i]):"";
-    b.innerHTML=`${i+1}. ${lv.title}${st?` <span class="st">${st}</span>`:""}`;b.onclick=()=>loadLevel(i);nav.appendChild(b)});
-  LOCKED.forEach((t,i)=>{const b=document.createElement("button");b.className="lvl locked";b.disabled=true;b.innerHTML=`${LEVELS.length+i+1}. ${t} <span class="tag">Pronto en MD+</span>`;nav.appendChild(b)});
+    b.innerHTML=`${i+1}. ${lv.title}${lv.plus?` <span class="tag">MD+</span>`:""}${st?` <span class="st">${st}</span>`:""}`;b.onclick=()=>loadLevel(i);nav.appendChild(b)});
+  if(!PLUS)LOCKED.forEach((t,i)=>{const b=document.createElement("button");b.className="lvl locked";b.title="Solo para miembros de Mirar Despacio+";
+    b.innerHTML=`${LEVELS.length+i+1}. ${t} <span class="tag">MD+</span>`;b.onclick=()=>{location.href="https://ottokols.es/members/triangulo.html"};nav.appendChild(b)});
 }
 function setMode(m){
   mode=m;
@@ -309,7 +223,7 @@ function setMode(m){
   $("reroll").hidden=m!=="azar";
   const info=$("modeinfo");
   if(m==="azar"){info.hidden=false;info.innerHTML="Escenas sorteadas: cambia la luz, el objetivo, el sujeto y a veces tu equipo. <b>Siempre hay al menos una combinación de tres estrellas.</b>";loadRandom()}
-  else if(m==="dia"){info.hidden=false;info.innerHTML=`Reto del ${dayLabel}. <b>El mismo para todos y un solo disparo.</b> Piénsalo antes de apretar.`;loadDaily()}
+  else if(m==="dia"){info.hidden=false;info.innerHTML=`Reto del ${dayLabel}. <b>El mismo para todos y un solo disparo.</b> Piénsalo antes de apretar.${PLUS?" Tu disparo entra en el ranking de miembros.":""}`;loadDaily()}
   else{info.hidden=true;loadLevel(cur)}
   drawLevels();
 }
@@ -327,7 +241,7 @@ function prepare(lv){
 function loadLevel(i){cur=i;prepare(Object.assign({},LEVELS[i],{key:"l"+i}));drawLevels()}
 function loadRandom(){prepare(generate(rng((Math.random()*2**31)|0),"Aleatorio"))}
 function loadDaily(){
-  prepare(generate(rng(dayKey*7919),`Reto del ${dayLabel}`));
+  prepare(N.retoDelDia(dayKey,dayLabel));
   const d=dailyDone();
   if(d){[dSh.value,dAp.value,dIso.value]=d.settings;update();shoot(true)}
 }
@@ -345,21 +259,24 @@ function update(){
 function stopsTxt(x){const a=Math.round(Math.abs(x));return a===1?"un paso":`${a} pasos`}
 const DOF_LOW={l1:"El fondo compite con el muñeco. Abre el diafragma para que la estantería se convierta en manchas.",l2:"El perro se pierde entre los árboles. Abre el diafragma para despegarlo del fondo.",l3:"Los neones siguen siendo letreros. Abre el diafragma para convertirlos en bolas de luz."};
 const DOF_HIGH={l1:"La habitación se ha deshecho en manchas. Cierra el diafragma para que se reconozca.",l2:"El parque se ha difuminado. Cierra el diafragma para dejarlo nítido.",l3:"La calle se ha deshecho y pierdes el contexto. Cierra el diafragma un paso o dos."};
+if(PLUS&&PLUS.scenes)for(const id in PLUS.scenes){DOF_LOW[id]=PLUS.scenes[id].dofLow;DOF_HIGH[id]=PLUS.scenes[id].dofHigh}
 const squares=v=>v>=85?"🟩":v>=55?"🟨":"🟥";
 
 function shoot(fromStore){
   const p=update(),s=score(L,p);
   if(!fromStore){const f=$("flash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go")}
-  const stars=s.total>=85?3:s.total>=65?2:s.total>=40?1:0;
+  const stars=estrellas(s.total);
   if(mode==="retos"&&stars>(best[L.key]||0)){best[L.key]=stars;store.set("triangulo",best)}
   $("r-score").innerHTML=`${s.total}<small> / 100</small>`;
   $("r-stars").innerHTML=[0,1,2].map(i=>`<span class="${i<stars?"":"off"}">★</span>`).join("");
   const col=v=>v>=85?"var(--ok)":v>=55?"var(--warn)":"var(--bad)";
-  const parts=[["Exposición",s.exp],["Nitidez",s.sharp],["Ruido",s.noise],["Fondo",s.dof]];
+  const parts=[["Exposición",s.exp],[L.wantBlur?"Estelas":"Nitidez",s.sharp],["Ruido",s.noise],["Fondo",s.dof]];
   $("r-bars").innerHTML=parts.map(([n,v])=>`<span>${n}</span><div class="bar"><span style="width:${Math.round(v)}%;background:${col(v)}"></span></div><span class="n">${Math.round(v)}</span>`).join("");
   const msgs=[],subj=SUBJ_OF[L.scene];
   if(Math.abs(p.delta)>=.5)msgs.push(p.delta>0?`Sale ${stopsTxt(p.delta)} sobreexpuesta. Sobra luz: velocidad más rápida, diafragma más cerrado o ISO más bajo.`:`Sale ${stopsTxt(p.delta)} subexpuesta. Falta luz: abre el diafragma, alarga la velocidad o sube el ISO.`);
-  if(p.motion>L.lim){const need=SH.filter(t=>L.speed*t<=L.lim).pop();msgs.push(`${subj} sale movido (${Math.round(p.motion)} px de barrido). Necesitas ${fmtSh(need)} o más rápido.`)}
+  if(L.wantBlur){
+    if(p.motion<L.wantBlur*.85){const need=SH.find(t=>L.speed*t>=L.wantBlur)||SH[N.shMax(L)];msgs.push(`${subj} no llegan a dibujar estelas. Con trípode puedes alargar: ${fmtSh(need)} o más.`)}
+  }else if(p.motion>L.lim){const need=SH.filter(t=>L.speed*t<=L.lim).pop();msgs.push(`${subj} sale movido (${Math.round(p.motion)} px de barrido). Necesitas ${fmtSh(need)} o más rápido.`)}
   if(p.shake>1.2)msgs.push(`Toda la foto tiembla. Con ${L.focal} mm a pulso, no bajes de 1/${L.focal}.`);
   if(p.iso>L.isoTol)msgs.push(`ISO ${p.iso} deja demasiado ruido para esta escena. Busca la luz en las otras dos ruedas.`);
   if(p.bg<L.dofMin)msgs.push(DOF_LOW[L.scene]);
@@ -382,6 +299,12 @@ function shoot(fromStore){
     lastShot=`Practica con el triángulo · Reto del ${dayLabel}\n${s.total}/100 ${"★".repeat(stars)}${"☆".repeat(3-stars)}\n${parts.map(([,v])=>squares(v)).join("")}\nmirardespacio.es/juegos/triangulo/`;
   }
   $("result").hidden=false;drawLevels();
+  if(!fromStore){
+    const reto=mode==="retos"?L.key:mode==="dia"?"dia":"azar";
+    registrar({modo:mode,reto,puntos:s.total,estrellas:stars,dia:mode==="dia"?dayKey:undefined});
+    if(mode==="dia"&&PLUS&&PLUS.disparoDelDia)PLUS.disparoDelDia([p.si,p.ai,p.ii],dayKey);
+  }
+  if(fromStore&&mode==="dia"&&PLUS&&PLUS.verRanking)PLUS.verRanking();
 }
 [dSh,dAp,dIso].forEach(e=>e.addEventListener("input",()=>{$("result").hidden=true;update()}));
 $("shoot").onclick=()=>shoot(false);
@@ -393,5 +316,5 @@ $("share").onclick=()=>{
   try{navigator.clipboard.writeText(lastShot).then(()=>{$("share").textContent="Copiado"},showBox)}catch(e){showBox()}
 };
 document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
-setMode("retos");
+setMode(PLUS&&PLUS.empezarEn!=null?(cur=PLUS.empezarEn,"retos"):"retos");
 })();

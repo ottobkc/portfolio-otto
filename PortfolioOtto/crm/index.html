@@ -466,6 +466,23 @@
     <div class="card-title" style="margin-top:18px;">Jugadores (los últimos primero)</div>
     <input type="text" id="buscarJugador" placeholder="Buscar jugador…" oninput="renderJugadores()">
     <div id="jugadoresCRM"></div>
+
+    <!-- Practica con el triángulo (mirardespacio.es/juegos/triangulo y la versión MD+) -->
+    <div class="card-title" style="margin-top:28px;">Practica con el triángulo</div>
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="triJugadores">0</div><div class="stat-label">jugadores</div></div>
+        <div class="stat-box"><div class="stat-num" id="triMiembros">0</div><div class="stat-label">de MD+</div></div>
+        <div class="stat-box"><div class="stat-num" id="triHoy">0</div><div class="stat-label">jugaron hoy</div></div>
+        <div class="stat-box"><div class="stat-num" id="triSemana">0</div><div class="stat-label">últimos 7 días</div></div>
+      </div>
+      <div class="person-meta" id="triRetos" style="margin-top:10px;"></div>
+      <div class="person-meta" style="margin-top:6px;">Quien juega en mirardespacio.es sin cuenta es anónimo (solo se sabe que es el mismo navegador). Los de MD+ salen con su nombre.</div>
+    </div>
+    <div class="card-title">Ranking de miembros · reto de hoy</div>
+    <div id="triRanking"></div>
+    <div class="card-title" style="margin-top:18px;">Miembros que juegan (los últimos primero)</div>
+    <div id="triMiembrosCRM"></div>
   </div>
 
   <!-- EXPORTAR VIEW -->
@@ -588,6 +605,14 @@ function attachListeners() {
   unsubAccesos = onSnapshot(query(collection(db, 'accesos'), orderBy('fecha', 'desc'), limit(300)), (snap) => {
     accesos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderAccesos();
+  }, () => {});
+  onSnapshot(query(collection(db, 'triangulo_jugadores'), orderBy('ultimaVez', 'desc'), limit(1000)), (snap) => {
+    triJugadores = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTriangulo();
+  }, () => {});
+  onSnapshot(query(collection(db, 'triangulo_ranking'), where('dia', '==', claveHoyMadrid())), (snap) => {
+    triRanking = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTriangulo();
   }, () => {});
   onSnapshot(collection(db, 'jugadores'), (snap) => {
     jugadores = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1040,6 +1065,57 @@ window.renderJugadores = function() {
     </div>`;
     el.appendChild(div);
   });
+};
+
+// ---------- PRACTICA CON EL TRIÁNGULO ----------
+let triJugadores = [], triRanking = [];
+const RETOS_TRI = { l0: 'Ventana', l1: 'Perro', l2: 'Gran Vía', l3: 'Concierto (MD+)', l4: 'Puente (MD+)', l5: 'Teatro (MD+)' };
+function claveHoyMadrid() {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .formatToParts(new Date()).filter(x => x.type !== 'literal').map(x => [x.type, +x.value]));
+  return p.year * 10000 + p.month * 100 + p.day;
+}
+function renderTriangulo() {
+  const el = document.getElementById('triMiembrosCRM');
+  if (!el) return;
+  const ahora = Date.now(), dia = 864e5;
+  const f = j => fechaDe(j.ultimaVez) || new Date(0);
+  const miembros = triJugadores.filter(j => j.miembro);
+  document.getElementById('triJugadores').textContent = triJugadores.length;
+  document.getElementById('triMiembros').textContent = miembros.length;
+  document.getElementById('triHoy').textContent = triJugadores.filter(j => f(j).toDateString() === new Date().toDateString()).length;
+  document.getElementById('triSemana').textContent = triJugadores.filter(j => ahora - f(j) < 7 * dia).length;
+  // Por reto: cuántos lo han jugado y cuántos lo han resuelto con 3 estrellas (85 o más)
+  document.getElementById('triRetos').innerHTML = Object.entries(RETOS_TRI).map(([k, n]) => {
+    const jug = triJugadores.filter(j => j.mejor && j.mejor[k] != null);
+    return jug.length ? `<b>${n}</b>: ${jug.length} (${jug.filter(j => j.mejor[k] >= 85).length} con ★★★)` : '';
+  }).filter(Boolean).join(' · ') || 'Todavía no hay partidas.';
+  // Ranking de hoy
+  const rk = document.getElementById('triRanking');
+  const filas = triRanking.slice().sort((a, b) => b.puntos - a.puntos || fms(a.en) - fms(b.en));
+  rk.innerHTML = filas.length ? '' : '<div class="empty">Hoy no ha disparado ningún miembro</div>';
+  filas.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main"><div class="person-name">${i + 1}. ${escapeHtml(r.nombre || r.email)} · ${r.puntos} puntos</div>
+      <div class="person-meta">${escapeHtml(r.email || '')}</div></div>
+      <button class="small danger" title="Quitar del ranking de hoy" onclick="borrarRankingTri('${r.id}')">✕</button>`;
+    rk.appendChild(div);
+  });
+  // Miembros que juegan
+  el.innerHTML = miembros.length ? '' : '<div class="empty">Ningún miembro ha jugado todavía</div>';
+  miembros.sort((a, b) => f(b) - f(a)).forEach(j => {
+    const tres = Object.values(j.mejor || {}).filter(v => v >= 85).length;
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main"><div class="person-name">${escapeHtml(j.nombre || j.email)}</div>
+      <div class="person-meta">${j.partidas || 0} disparo(s) · ${tres} reto(s) con ★★★ · ${j.diasDelReto || 0} reto(s) del día · última vez ${fechaTxt(fechaDe(j.ultimaVez))}</div></div>`;
+    el.appendChild(div);
+  });
+}
+window.borrarRankingTri = async function(id) {
+  if (!confirm('¿Quitar este disparo del ranking de hoy?')) return;
+  try { await deleteDoc(doc(db, 'triangulo_ranking', id)); setSyncStatus('Quitado'); } catch (err) { setSyncStatus('Error: ' + err.message, true); }
 };
 
 window.borrarRanking = async function(id) {
@@ -1784,7 +1860,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso'];
+const COLECCIONES = ['events', 'people', 'signups', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);

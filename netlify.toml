@@ -3,8 +3,9 @@
 # -----------------------------------------------
 [build]
   publish = "PortfolioOtto"
-  # Solo construye si cambia algo de ottokols.es (los cambios de MirarDespacio/ no gastan build aquí)
-  ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- PortfolioOtto netlify netlify.toml package.json package-lock.json"
+  # Solo construye si cambia algo de ottokols.es (los cambios de MirarDespacio/ no gastan build aquí,
+  # salvo el núcleo del juego del triángulo, que también usa la función del servidor)
+  ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- PortfolioOtto netlify netlify.toml package.json package-lock.json MirarDespacio/assets/triangulo-nucleo.js"
 
 # La clave web de Firebase (AIza…) es pública por diseño: va en el navegador y la
 # protegen las reglas de Firestore. El escáner de secretos de Netlify (plan Pro) la

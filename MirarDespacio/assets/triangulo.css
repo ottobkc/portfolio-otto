@@ -23,8 +23,9 @@
 .tri .lvl:hover { border-color: var(--tinta); }
 .tri .lvl[aria-pressed="true"] { background: var(--tinta); color: var(--crema); border-color: var(--tinta); }
 .tri .lvl .st { color: var(--naranja); letter-spacing: 1px; font-size: .8rem; }
-.tri .lvl.locked { color: var(--gris); border-style: dashed; cursor: not-allowed; }
-.tri .lvl.locked .tag { font-size: .7rem; font-weight: 500; color: var(--rosa); letter-spacing: .04em; }
+.tri .lvl.locked { color: var(--gris); border-style: dashed; cursor: pointer; }
+.tri .lvl .tag { font-size: .7rem; font-weight: 500; color: var(--rosa); letter-spacing: .04em; }
+.tri .lvl[aria-pressed="true"] .tag { color: inherit; }
 .tri-modeinfo { margin: 0; color: var(--tinta-suave); font-size: .95rem; max-width: 70ch; }
 .tri-modeinfo b { color: var(--tinta); font-weight: 500; }
 
