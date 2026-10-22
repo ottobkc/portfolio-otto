@@ -27,7 +27,7 @@ async function registrar(datos){
   try{
     const h={"Content-Type":"application/json"};
     if(PLUS&&PLUS.token){const t=await PLUS.token();if(t)h.Authorization="Bearer "+t}
-    fetch(ENDPOINT,{method:"POST",keepalive:true,headers:h,body:JSON.stringify(Object.assign({accion:"jugada",anon:idAnonimo()},datos))}).catch(()=>{});
+    fetch(ENDPOINT,{method:"POST",headers:h,body:JSON.stringify(Object.assign({accion:"jugada",anon:idAnonimo()},datos))}).catch(()=>{});
   }catch(e){}
 }
 
