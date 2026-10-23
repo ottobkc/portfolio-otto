@@ -475,8 +475,9 @@ def construir(g):
         <p class="antetitulo">Preguntas</p>
         <h2>Antes de <em>reservar.</em></h2>
         <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, trae la cámara que quieras aprender a usar: réflex, mirrorless o compacta. Y para el de composición vale cualquier cosa, también el móvil.</p></details>
-        <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, con tarjeta, en la página de pago segura de Stripe. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
-        <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a> y lo hablamos.</p></details>
+        <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, con tarjeta, en la página de pago segura de Stripe. Los precios llevan el IVA incluido. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
+        <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a>. Si avisas con al menos 7 días de antelación, te devuelvo el importe entero o te paso la plaza a otra fecha, lo que prefieras. Con menos de 7 días ya tengo el material y el sitio preparados para ti, así que no hay devolución, pero puedes pasar la plaza a otra fecha o regalársela a otra persona.</p></details>
+        <details class="faq"><summary>¿Y si no se apunta suficiente gente?</summary><p>Cada taller necesita un mínimo de {min(t.get('minimo', 4) for t in td['talleres'])} personas para que funcione como grupo. Si 72 horas antes no se llega, te escribo y eliges: pasar tu plaza a la siguiente fecha de ese taller o la devolución íntegra de lo que pagaste.</p></details>
         <details class="faq"><summary>¿En qué se diferencian de las salidas?</summary><p>Las salidas son paseos en grupo con retos, gratuitos y con contribución libre al final. Los talleres son más cortos de grupo, con un tema concreto, explicación y práctica guiada, y te llevas material.</p></details>
       </div>
     </section>"""

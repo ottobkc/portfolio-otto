@@ -2,7 +2,7 @@
   "_ayuda": {
     "general": "Precios, talleres, fechas y enlaces de pago de Stripe. Lo lee la web (página de talleres, Mirar Despacio+ y regalos) y también la función que recibe los pagos de Stripe.",
     "stripe": "En Stripe → Enlaces de pago, crea un enlace por cada cosa que se vende y copia aquí su URL completa (https://buy.stripe.com/...). En modo de prueba empiezan por https://buy.stripe.com/test_... : cuando pases a real, cambia cada enlace por el real. Marca en cada enlace 'Recoger el nombre del cliente' para que el nombre llegue al CRM. Vacío = el botón abre un email.",
-    "ediciones": "Una edición = un taller con fecha. Crea en Stripe un enlace de pago por edición (precio único) y, en sus opciones, 'Limitar el número de pagos' = plazas. Pon aquí su URL en 'pago' y 'activa': true. Cuando se llena, la web lo cierra sola. Cuando pase, pon 'activa': false.",
+    "ediciones": "Una edición = un taller con fecha. Crea en Stripe un enlace de pago por edición (precio único) y, en sus opciones, 'Limitar el número de pagos' = plazas. Pon aquí su URL en 'pago' y 'activa': true. Cuando se llena, la web lo cierra sola. Cuando pase, pon 'activa': false. 'hora' de la edición manda sobre la del taller (el atardecer cambia de hora según la época del año). 'minimo' (en el taller) es el número mínimo de plazas para hacerlo: se decide 72 horas antes.",
     "regalos": "Los bonos regalo son enlaces de pago de Stripe sin límite (precio único). Quien lo recibe elige luego la edición en mirardespacio.es/regalo/.",
     "plus": "Mirar Despacio+: los dos niveles son enlaces de pago de Stripe con precio RECURRENTE mensual. 'url' es la URL de cada enlace. 'portal' es el enlace al portal de clientes de Stripe (Configuración → Facturación → Portal de clientes → Activar enlace): ahí cada socio cambia la tarjeta, ve sus recibos o se da de baja."
   },
@@ -12,8 +12,8 @@
       "titulo": "Callejera nocturna",
       "subtitulo": "Madrid cuando se encienden las luces",
       "precio": 55,
-      "duracion": "3,5 a 4 horas",
-      "hora": "20:30",
+      "duracion": "3,5 horas",
+      "hora": "19:00",
       "plazas": 8,
       "nivel": "Para quien ya dispara y quiere perderle el miedo a la noche",
       "descripcion": "Escaparates, farolas, neones, siluetas y gente que pasa. Aprendemos a leer la luz artificial y a disparar con poca luz sin que todo salga movido o ruidoso, y lo practicamos en la calle desde el primer minuto.",
@@ -26,11 +26,12 @@
       ],
       "incluye": [
         "Manual impreso de fotografía nocturna",
-        "Dos consumiciones (refresco o cerveza)",
+        "Dos consumiciones al terminar",
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": ""
+      "bonoPago": "",
+      "minimo": 4
     },
     {
       "id": "atardecer",
@@ -38,7 +39,7 @@
       "subtitulo": "La hora en que la calle se vuelve dorada",
       "precio": 45,
       "duracion": "3 a 3,5 horas",
-      "hora": "18:00",
+      "hora": "16:30",
       "plazas": 8,
       "nivel": "Para quien ya dispara y quiere aprovechar la mejor luz del día",
       "descripcion": "Del sol rasante a la hora azul. Sombras largas, contraluces, caras iluminadas de lado y el momento exacto en que la ciudad cambia de color. Mucha práctica y poca teoría.",
@@ -55,7 +56,8 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": ""
+      "bonoPago": "",
+      "minimo": 4
     },
     {
       "id": "iniciacion",
@@ -79,7 +81,8 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": ""
+      "bonoPago": "",
+      "minimo": 4
     },
     {
       "id": "composicion",
@@ -104,15 +107,51 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": ""
+      "bonoPago": "",
+      "minimo": 4
     }
   ],
   "ediciones": [
     {
-      "id": "nocturna-ejemplo",
+      "id": "atardecer-2026-11-28",
+      "taller": "atardecer",
+      "fecha": "Sábado 28 de noviembre",
+      "hora": "16:30",
+      "fechaISO": "2026-11-28T16:30:00+01:00",
+      "fechaFinISO": "2026-11-28T19:30:00+01:00",
+      "zona": "Centro",
+      "pago": "",
+      "activa": false
+    },
+    {
+      "id": "nocturna-2026-12-12",
       "taller": "nocturna",
-      "fecha": "Sábado 21 de noviembre",
-      "fechaISO": "2026-11-21T20:30:00+01:00",
+      "fecha": "Sábado 12 de diciembre",
+      "hora": "19:00",
+      "fechaISO": "2026-12-12T19:00:00+01:00",
+      "fechaFinISO": "2026-12-12T22:30:00+01:00",
+      "zona": "Centro",
+      "pago": "",
+      "activa": false
+    },
+    {
+      "id": "iniciacion-2027-01-16",
+      "taller": "iniciacion",
+      "fecha": "Sábado 16 de enero",
+      "hora": "10:00",
+      "fechaISO": "2027-01-16T10:00:00+01:00",
+      "fechaFinISO": "2027-01-16T13:30:00+01:00",
+      "zona": "Centro",
+      "pago": "",
+      "activa": false
+    },
+    {
+      "id": "composicion-2027-01-30",
+      "taller": "composicion",
+      "fecha": "Sábado 30 de enero",
+      "hora": "10:00",
+      "fechaISO": "2027-01-30T10:00:00+01:00",
+      "fechaFinISO": "2027-01-30T13:00:00+01:00",
       "zona": "Centro",
       "pago": "",
       "activa": false

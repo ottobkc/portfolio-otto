@@ -172,7 +172,8 @@ async function correoPlazaTaller({ d, ed, nombre, email, regalo }) {
     cuerpo: [
       'El punto de encuentro exacto y lo que conviene llevar te los mando en un mail unos días antes.',
       'Incluye: ' + esc((t.incluye || []).join(', ').toLowerCase()) + '.',
-      'Si por lo que sea ese día no puedes, avísame cuanto antes y lo hablamos.',
+      'Si por lo que sea ese día no puedes, avísame cuanto antes: con 7 días o más de antelación te devuelvo el importe o te cambio la fecha; con menos, puedes pasar la plaza a otra fecha o a otra persona.',
+      'El taller necesita un mínimo de ' + (Number(t.minimo) || 4) + ' personas. Si 72 horas antes no se llega, te escribo para que elijas entre otra fecha o la devolución íntegra.',
     ],
   });
   return enviar({ para: email, asunto: `Tienes plaza · Taller ${t.titulo || ''}, ${fechaLarga(ed.fechaISO, ed.fecha).toLowerCase()}`, html, texto: aTexto(html) });
