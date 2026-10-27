@@ -160,12 +160,22 @@ async function inscribir(fs, eventRef, persona, datos, salida) {
     const plazas = Number(ev.plazas) || PLAZAS;
     const previa = lista.docs.find((d) => d.data().personId === persona.id);
     const enEspera = (docs) => docs.filter((d) => d.data().status === 'espera');
+    // Estados que no ocupan plaza: lista de espera, baja (avisó que no venía) y no presentado
+    const ocupa = (d) => !['espera', 'baja', 'no-presentado'].includes(d.data().status);
+    // Si se había dado de baja y vuelve a apuntarse, recupera la inscripción (con plaza o en espera)
+    if (previa && previa.data().status === 'baja') {
+      const ocupadasB = lista.docs.filter(ocupa).length;
+      const hayPlazaB = !salida.conFecha || esMiembro(persona) || ocupadasB < plazas;
+      const statusB = hayPlazaB ? 'confirmado' : 'espera';
+      tx.update(previa.ref, { status: statusB, vuelveEn: FieldValue.serverTimestamp() });
+      return { status: statusB, yaEstaba: false, posicion: hayPlazaB ? 0 : enEspera(lista.docs).length + 1, plazas };
+    }
     if (previa) {
       const st = previa.data().status;
       const pos = st === 'espera' ? enEspera(lista.docs).findIndex((d) => d.id === previa.id) + 1 : 0;
       return { status: st, yaEstaba: true, posicion: pos, plazas };
     }
-    const ocupadas = lista.docs.filter((d) => d.data().status !== 'espera').length;
+    const ocupadas = lista.docs.filter(ocupa).length;
     const hayPlaza = !salida.conFecha || esMiembro(persona) || ocupadas < plazas;
     const status = hayPlaza ? 'confirmado' : 'espera';
     tx.set(fs.collection('signups').doc(), {

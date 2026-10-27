@@ -125,7 +125,21 @@
   .person-row.confirmado { border-left: 3px solid var(--ok); }
   .person-row.pendiente { border-left: 3px solid var(--gold); }
   .person-row.espera { border-left: 3px solid var(--danger); }
+  .person-row.baja, .person-row.no-presentado { border-left: 3px solid #4a4640; opacity: .6; }
+  .person-row.baja .person-name, .person-row.no-presentado .person-name { text-decoration: line-through; text-decoration-color: rgba(245,243,239,.35); }
   .person-main { flex: 1; min-width: 0; }
+  .juegos-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .juego-col { background: rgba(245,243,239,.03); border: 1px solid rgba(245,243,239,.08); border-radius: 12px; padding: 14px; min-width: 0; }
+  .juego-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .juego-cab h3 { margin: 0; font-size: 18px; font-weight: 400; }
+  .juego-cab a { color: var(--gold); font-size: 12px; text-decoration: none; }
+  .stat-grid.mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+  .stat-grid.mini .stat-box { padding: 8px 4px; }
+  .stat-grid.mini .stat-num { font-size: 20px; }
+  .juego-lista { max-height: 380px; overflow-y: auto; }
+  .juego-mas { margin-top: 14px; }
+  .juego-mas summary { cursor: pointer; }
+  @media (max-width: 860px) { .juegos-cols { grid-template-columns: 1fr; } .juego-lista { max-height: 300px; } }
   .persona { background: var(--panel); border-radius: 8px; margin-bottom: 4px; }
   .persona.abierta { outline: 1px solid rgba(200,169,122,.35); }
   .persona-linea { display: grid; grid-template-columns: minmax(120px, 1.2fr) minmax(0, 1.4fr) auto minmax(0, 1fr) 14px; gap: 10px; align-items: center; padding: 8px 12px; cursor: pointer; font-size: 13px; }
@@ -304,6 +318,8 @@
         <div class="stat-box"><div class="stat-num" id="statPendientes">0</div><div class="stat-label">pendientes</div></div>
         <div class="stat-box"><div class="stat-num" id="statEspera">0</div><div class="stat-label">lista espera</div></div>
         <div class="stat-box"><div class="stat-num" id="statAsistieron">0</div><div class="stat-label">asistieron</div></div>
+        <div class="stat-box"><div class="stat-num" id="statBajas">0</div><div class="stat-label">bajas avisadas</div></div>
+        <div class="stat-box"><div class="stat-num" id="statNoPresentados">0</div><div class="stat-label">no presentados</div></div>
       </div>
       <div class="row" style="align-items:center;margin-top:12px;">
         <label class="person-meta" for="eventPlazas" style="white-space:nowrap;">Plazas (las inscripciones de la web pasan a lista de espera al llenarse)</label>
@@ -506,37 +522,45 @@
 
   <!-- JUEGO VIEW (mirardespacio.es/juego) -->
   <div class="view" id="view-juego">
-    <div class="card">
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="juegoJugadores">0</div><div class="stat-label">jugadores</div></div>
-        <div class="stat-box"><div class="stat-num" id="juegoPartidas">0</div><div class="stat-label">partidas</div></div>
-        <div class="stat-box"><div class="stat-num" id="juegoHoy">0</div><div class="stat-label">jugaron hoy</div></div>
-        <div class="stat-box"><div class="stat-num" id="juegoSemana">0</div><div class="stat-label">últimos 7 días</div></div>
-      </div>
-    </div>
-    <div class="card-title">Ranking (top 30)</div>
-    <div class="person-meta" style="margin-bottom:8px;">Si alguien pone un nombre ofensivo o una puntuación sospechosa, bórrala del ranking.</div>
-    <div id="rankingCRM"></div>
-    <div class="card-title" style="margin-top:18px;">Jugadores (los últimos primero)</div>
-    <input type="text" id="buscarJugador" placeholder="Buscar jugador…" oninput="renderJugadores()">
-    <div id="jugadoresCRM"></div>
+    <div class="juegos-cols">
+      <!-- Juego del fotógrafo (mirardespacio.es/juego) -->
+      <section class="juego-col">
+        <div class="juego-cab"><h3>Juego del fotógrafo</h3><a href="https://mirardespacio.es/juego/" target="_blank" rel="noopener">abrir ↗</a></div>
+        <div class="stat-grid mini">
+          <div class="stat-box"><div class="stat-num" id="juegoJugadores">0</div><div class="stat-label">jugadores</div></div>
+          <div class="stat-box"><div class="stat-num" id="juegoPartidas">0</div><div class="stat-label">partidas</div></div>
+          <div class="stat-box"><div class="stat-num" id="juegoHoy">0</div><div class="stat-label">hoy</div></div>
+          <div class="stat-box"><div class="stat-num" id="juegoSemana">0</div><div class="stat-label">7 días</div></div>
+        </div>
+        <div class="card-title">Ranking (top 30)</div>
+        <div class="person-meta" style="margin-bottom:6px;">Si alguien pone un nombre ofensivo o una puntuación sospechosa, bórrala del ranking.</div>
+        <div id="rankingCRM" class="juego-lista"></div>
+        <details class="juego-mas">
+          <summary class="card-title">Jugadores (los últimos primero)</summary>
+          <input type="text" id="buscarJugador" placeholder="Buscar jugador…" oninput="renderJugadores()">
+          <div id="jugadoresCRM" class="juego-lista"></div>
+        </details>
+      </section>
 
-    <!-- Practica con el triángulo (mirardespacio.es/juegos/triangulo y la versión MD+) -->
-    <div class="card-title" style="margin-top:28px;">Practica con el triángulo</div>
-    <div class="card">
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="triJugadores">0</div><div class="stat-label">jugadores</div></div>
-        <div class="stat-box"><div class="stat-num" id="triMiembros">0</div><div class="stat-label">de MD+</div></div>
-        <div class="stat-box"><div class="stat-num" id="triHoy">0</div><div class="stat-label">jugaron hoy</div></div>
-        <div class="stat-box"><div class="stat-num" id="triSemana">0</div><div class="stat-label">últimos 7 días</div></div>
-      </div>
-      <div class="person-meta" id="triRetos" style="margin-top:10px;"></div>
-      <div class="person-meta" style="margin-top:6px;">Quien juega en mirardespacio.es sin cuenta es anónimo (solo se sabe que es el mismo navegador). Los de MD+ salen con su nombre.</div>
+      <!-- Practica con el triángulo (mirardespacio.es/juegos/triangulo y la versión MD+) -->
+      <section class="juego-col">
+        <div class="juego-cab"><h3>Practica con el triángulo</h3><a href="https://mirardespacio.es/juegos/triangulo/" target="_blank" rel="noopener">abrir ↗</a></div>
+        <div class="stat-grid mini">
+          <div class="stat-box"><div class="stat-num" id="triJugadores">0</div><div class="stat-label">jugadores</div></div>
+          <div class="stat-box"><div class="stat-num" id="triMiembros">0</div><div class="stat-label">de MD+</div></div>
+          <div class="stat-box"><div class="stat-num" id="triHoy">0</div><div class="stat-label">hoy</div></div>
+          <div class="stat-box"><div class="stat-num" id="triSemana">0</div><div class="stat-label">7 días</div></div>
+        </div>
+        <div class="person-meta" id="triRetos" style="margin:4px 0 8px;"></div>
+        <div class="card-title">Ranking de miembros · reto de hoy</div>
+        <div id="triRanking" class="juego-lista"></div>
+        <details class="juego-mas">
+          <summary class="card-title">Miembros que juegan (los últimos primero)</summary>
+          <div class="person-meta" style="margin-bottom:6px;">Quien juega en mirardespacio.es sin cuenta es anónimo (solo se sabe que es el mismo navegador). Los de MD+ salen con su nombre.</div>
+          <div id="triMiembrosCRM" class="juego-lista"></div>
+        </details>
+      </section>
     </div>
-    <div class="card-title">Ranking de miembros · reto de hoy</div>
-    <div id="triRanking"></div>
-    <div class="card-title" style="margin-top:18px;">Miembros que juegan (los últimos primero)</div>
-    <div id="triMiembrosCRM"></div>
   </div>
 
   <!-- EXPORTAR VIEW -->
@@ -1037,7 +1061,7 @@ window.fusionarPersonas = async function(quedarId, quitarId) {
     if (!a.plusHasta && b.plusHasta) { for (const k of ['plusHasta', 'plusNivel', 'subscription']) if (b[k] !== undefined) cambios[k] = b[k]; }
     if (Object.keys(cambios).length) await setDoc(doc(db, 'people', a.id), cambios, { merge: true });
     // Inscripciones: si ya estaban las dos en la misma salida, se queda la mejor (confirmado > pendiente > espera; asistió gana)
-    const rango = st => ({ confirmado: 3, pendiente: 2, espera: 1 }[st] || 0);
+    const rango = st => ({ confirmado: 5, pendiente: 4, espera: 3, 'no-presentado': 2, baja: 1 }[st] || 0);
     for (const sb of signups.filter(x => x.personId === b.id)) {
       const sa = signups.find(x => x.personId === a.id && x.eventId === sb.eventId);
       if (!sa) { await updateDoc(doc(db, 'signups', sb.id), { personId: a.id }); continue; }
@@ -1443,7 +1467,7 @@ function renderEvents() {
   }
   const sorted = [...events].sort((a,b) => (b.date||'').localeCompare(a.date||''));
   sorted.forEach(ev => {
-    const count = signups.filter(s => s.eventId === ev.id && s.status !== 'espera').length;
+    const count = signups.filter(s => s.eventId === ev.id && !['espera', 'baja', 'no-presentado'].includes(s.status)).length;
     const div = document.createElement('div');
     div.className = 'event-item';
     div.onclick = () => openEvent(ev.id);
@@ -1605,6 +1629,8 @@ function renderRoster() {
           <option value="pendiente" ${s.status==='pendiente'?'selected':''}>Pendiente</option>
           <option value="confirmado" ${s.status==='confirmado'?'selected':''}>Confirmado</option>
           <option value="espera" ${s.status==='espera'?'selected':''}>Espera</option>
+          <option value="baja" ${s.status==='baja'?'selected':''}>Baja (avisó)</option>
+          <option value="no-presentado" ${s.status==='no-presentado'?'selected':''}>No presentado</option>
         </select>
         ${person.email ? `<button class="small secondary" title="${s.confirmacionEnviadaEn ? 'Confirmación ya enviada. Pulsa para reenviarla' : 'Enviarle el mismo correo que manda la web (plaza, lista de espera o sin fecha)'}" onclick="enviarConfirmacion('${s.id}')">${s.confirmacionEnviadaEn ? '✉️✓' : '✉️'}</button>` : ''}
         ${person.email ? `<button class="small secondary" title="Copiar su enlace para subir fotos (para mandarlo por WhatsApp)" onclick="copiarEnlaceFotos('${person.id}')">📷</button>` : ''}
@@ -1617,22 +1643,43 @@ function renderRoster() {
   document.getElementById('statPendientes').textContent = list.filter(s => s.status === 'pendiente').length;
   document.getElementById('statEspera').textContent = list.filter(s => s.status === 'espera').length;
   document.getElementById('statAsistieron').textContent = list.filter(s => s.attended).length;
+  document.getElementById('statBajas').textContent = list.filter(s => s.status === 'baja').length;
+  document.getElementById('statNoPresentados').textContent = list.filter(s => s.status === 'no-presentado').length;
 }
 
+// Solo se guardan los campos que cambian (nunca la inscripción entera)
 window.toggleAttended = async function(signupId) {
   const s = signups.find(s => s.id === signupId);
   if (!s) return;
+  const vino = !s.attended;
+  const cambios = { attended: vino };
+  // Si vino, no puede ser baja ni no presentado
+  if (vino && ['baja', 'no-presentado', 'espera'].includes(s.status)) cambios.status = 'confirmado';
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'signups', signupId), { ...s, attended: !s.attended });
-  setSyncStatus('Guardado ✓');
+  try { await updateDoc(doc(db, 'signups', signupId), cambios); setSyncStatus('Guardado ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 window.changeStatus = async function(signupId, status) {
   const s = signups.find(s => s.id === signupId);
   if (!s) return;
+  const cambios = { status, estadoCambiadoEn: serverTimestamp() };
+  if (status === 'baja' || status === 'no-presentado') cambios.attended = false;
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'signups', signupId), { ...s, status });
-  setSyncStatus('Guardado ✓');
+  try { await updateDoc(doc(db, 'signups', signupId), cambios); setSyncStatus('Guardado ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); return; }
+  // Si alguien se da de baja y hay lista de espera, ofrece pasar al primero a confirmado
+  const ev = events.find(e => e.id === s.eventId) || {};
+  const futura = !ev.date || ev.date >= new Date().toISOString().slice(0, 10);
+  if (status === 'baja' && s.status !== 'espera' && futura) {
+    const espera = signups.filter(x => x.eventId === s.eventId && x.status === 'espera')
+      .sort((a, b) => msDe(a.createdAt) - msDe(b.createdAt));
+    const primero = espera[0] && people.find(p => p.id === espera[0].personId);
+    if (primero && confirm(`Se ha liberado una plaza. ¿Pasar a ${nombreCompleto(primero)} (primera de la lista de espera) a confirmado?\n\nDespués podrás mandarle el correo de plaza con el botón ✉️.`)) {
+      try { await updateDoc(doc(db, 'signups', espera[0].id), { status: 'confirmado', desdeEsperaEn: serverTimestamp() }); setSyncStatus(`${nombreCompleto(primero)} pasa a confirmado ✓`); }
+      catch (e) { setSyncStatus('Error: ' + e.message, true); }
+    }
+  }
 };
 
 window.removeSignup = async function(signupId) {
@@ -1685,7 +1732,7 @@ function fichaPersona(p, psignups) {
   const salidas = psignups.map(s => ({ s, ev: events.find(x => x.id === s.eventId) || {} }))
     .sort((a, b) => String(b.ev.date || '').localeCompare(String(a.ev.date || '')));
   const lineaSalida = ({ s, ev }) => `<div class="person-meta" style="padding:3px 0;">${ev.date ? fechaCorta(ev.date) : 'sin fecha'} · ${escapeHtml(ev.name || 'Salida')}${ev.location ? ' · ' + escapeHtml(ev.location) : ''} —
-    ${s.attended ? '<b style="color:var(--ok);">vino</b>' : s.status === 'espera' ? 'lista de espera' : s.status === 'cancelado' ? 'canceló' : ev.date && ev.date < new Date().toISOString().slice(0, 10) ? '<span style="color:var(--danger);">no consta que viniera</span>' : 'apuntada'}</div>`;
+    ${s.attended ? '<b style="color:var(--ok);">vino</b>' : s.status === 'espera' ? 'lista de espera' : s.status === 'baja' || s.status === 'cancelado' ? 'se dio de baja (avisó)' : s.status === 'no-presentado' ? '<span style="color:var(--danger);">no se presentó</span>' : ev.date && ev.date < new Date().toISOString().slice(0, 10) ? '<span style="color:var(--danger);">no consta que viniera</span>' : 'apuntada'}</div>`;
   return `
     <div class="ficha-persona">
       ${duplicadosDe(p).map(o => `<div class="person-meta" style="margin:0 0 8px;padding:8px 10px;border-radius:8px;background:rgba(232,130,26,.12);">
@@ -1723,7 +1770,7 @@ function renderPeople() {
   if (!cuentasCargadas) cargarCuentasPersonas();
   const conteo = (p) => {
     const ps = signups.filter(s => s.personId === p.id);
-    return { ps, apuntadas: ps.filter(s => s.status !== 'espera' && s.status !== 'cancelado').length, vino: ps.filter(s => s.attended).length };
+    return { ps, apuntadas: ps.filter(s => !['espera', 'cancelado', 'baja'].includes(s.status)).length, vino: ps.filter(s => s.attended).length, falto: ps.filter(s => s.status === 'no-presentado').length };
   };
   let filtered = people.filter(p =>
     [p.name, p.apellidos, p.email, p.telefono, p.instagram].some(v => (v || '').toLowerCase().includes(search))
@@ -1758,14 +1805,14 @@ function renderPeople() {
   if (cuenta) cuenta.textContent = filtered.length + ' de ' + people.length + (filtro.startsWith('acc-') && !cuentasCargadas ? ' · cargando cuentas…' : '');
   if (filtered.length === 0) { el.innerHTML = '<div class="empty">Sin resultados</div>'; return; }
   el.innerHTML = filtered.map(p => {
-    const { ps, apuntadas, vino } = datos.get(p.id);
+    const { ps, apuntadas, vino, falto } = datos.get(p.id);
     const abierta = personasAbiertas.has(p.id);
     const e = estadoPlus(p), c = accesoCuenta(p);
     return `<div class="persona ${abierta ? 'abierta' : ''}">
       <div class="persona-linea" onclick="togglePersona('${p.id}')">
         <span class="persona-nombre">${escapeHtml(nombreCompleto(p) || p.email || 'Sin nombre')}</span>
         <span class="persona-chips">${chipsPersona(p, e, c)}${p.aceptaNovedades ? ' <span title="Acepta novedades por email">✉️</span>' : ''}</span>
-        <span class="persona-salidas" title="${apuntadas} inscripciones (sin contar lista de espera ni cancelaciones) · ha venido a ${vino}">${apuntadas ? `${apuntadas} apuntada${apuntadas > 1 ? 's' : ''} · vino a ${vino}` : '—'}</span>
+        <span class="persona-salidas" title="${apuntadas} inscripciones (sin contar lista de espera ni cancelaciones) · ha venido a ${vino}">${apuntadas ? `${apuntadas} apuntada${apuntadas > 1 ? 's' : ''} · vino a ${vino}${falto ? ` · <span style="color:var(--danger);">faltó a ${falto}</span>` : ''}` : '—'}</span>
         <span class="persona-email">${escapeHtml(p.email || '')}</span>
         <span class="persona-flecha">${abierta ? '▾' : '▸'}</span>
       </div>

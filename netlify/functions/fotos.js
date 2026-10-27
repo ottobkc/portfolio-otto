@@ -92,7 +92,9 @@ async function salidasDe(fs, yo) {
   const [todas, q] = await Promise.all([
     salidasRecientes(fs), fs.collection('signups').where('personId', '==', personaId).get(),
   ]);
-  const suyas = new Set(q.docs.map((d) => d.data()).filter((x) => x.status !== 'espera').map((x) => x.eventId));
+  // Fotos de una salida: solo quien no estaba en espera ni se dio de baja (un no presentado puede tener
+  // el estado mal puesto; si sube fotos es que vino, así que se le deja)
+  const suyas = new Set(q.docs.map((d) => d.data()).filter((x) => x.status !== 'espera' && x.status !== 'baja').map((x) => x.eventId));
   return todas.filter((s) => suyas.has(s.id));
 }
 

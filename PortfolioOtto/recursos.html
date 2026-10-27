@@ -407,6 +407,12 @@
     <div id="agenda"></div>
       </div>
     </details>
+    <details class="bloque" name="bloques" id="b-manuales" hidden>
+      <summary><span class="b-tit">Manuales de los talleres</span><span class="b-desc" id="bManualesDesc">Teoría, ajustes y retos para casa</span><span class="b-n" id="bManualesN"></span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+<div class="resources-grid" id="listaManuales"></div>
+      </div>
+    </details>
     <details class="bloque" name="bloques" id="b-herr">
       <summary><span class="b-tit">Herramientas</span><span class="b-desc">Calculadoras, simuladores y ejercicios</span><span class="b-n">7</span><span class="b-flecha" aria-hidden="true"></span></summary>
       <div class="b-cuerpo">
@@ -667,12 +673,39 @@
   <script>
     var isPreview = !window.location.hostname.includes('ottokols');
 
+    // Manuales de los talleres: cada persona ve los suyos (rol "taller-<id>"); el admin, todos
+    var MANUALES = [
+      { id: 'atardecer', titulo: 'Callejera al atardecer', icono: '☼', texto: 'Leer la luz que baja, medir cuando cambia cada minuto, siluetas y la hora azul.' },
+      { id: 'nocturna', titulo: 'Callejera nocturna', icono: '✦', texto: 'Las luces de la ciudad, ISO alto sin miedo, escaparates, reflejos y movimiento.' },
+      { id: 'composicion', titulo: 'Composición en la calle', icono: '⊞', texto: 'Encuadre, líneas, capas, vacío y romper reglas a propósito. Vale con el móvil.' },
+      { id: 'iniciacion', titulo: 'Primeros pasos', icono: '◎', texto: 'Los botones que importan y el triángulo de exposición, con simulador.' },
+    ];
+    function pintarManuales(roles) {
+      var admin = roles.indexOf('admin') !== -1;
+      var mios = MANUALES.filter(function (m) { return admin || roles.indexOf('taller-' + m.id) !== -1; });
+      var bloque = document.getElementById('b-manuales');
+      if (!mios.length) { bloque.hidden = true; return; }
+      document.getElementById('bManualesN').textContent = mios.length;
+      if (admin) document.getElementById('bManualesDesc').textContent = 'Como admin ves todos';
+      document.getElementById('listaManuales').innerHTML = mios.map(function (m) {
+        return '<a href="/manuales/' + m.id + '/" class="tool-card"><div class="tool-icon">' + m.icono + '</div><div class="resource-body">' +
+          '<h3>' + m.titulo + '</h3><p>' + m.texto + '</p><span class="tool-tag">Manual del taller · retos para casa</span></div><span class="launch-arrow">→</span></a>';
+      }).join('');
+      bloque.hidden = false;
+    }
+    function rolesDe(token) {
+      try { var p = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); return (p.app_metadata && p.app_metadata.roles) || []; }
+      catch (e) { return []; }
+    }
+
     netlifyIdentity.on('init', function(user) {
       if (!user && !isPreview) {
         window.location.replace('/acceso.html');
       } else if (user) {
         document.getElementById('welcomeUser').textContent =
           user.user_metadata?.full_name || user.email;
+        pintarManuales((user.app_metadata && user.app_metadata.roles) || []);
+        user.jwt().then(function (t) { pintarManuales(rolesDe(t)); }).catch(function () {});
       }
     });
     netlifyIdentity.init();

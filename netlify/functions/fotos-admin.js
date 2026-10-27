@@ -240,7 +240,8 @@ exports.handler = async (event, context) => {
       if (!evSnap.exists) return res(404, { error: 'no-existe' });
       const ev = evSnap.data();
       const q = await fs.collection('signups').where('eventId', '==', evSnap.id).get();
-      let lista = q.docs.filter((d) => d.data().status !== 'espera');
+      // Ni lista de espera, ni bajas, ni no presentados
+      let lista = q.docs.filter((d) => !['espera', 'baja', 'no-presentado'].includes(d.data().status));
       if (lista.some((d) => d.data().attended)) lista = lista.filter((d) => d.data().attended);
       let enviados = 0, saltados = 0, sinEmail = 0;
       for (const s of lista) {
