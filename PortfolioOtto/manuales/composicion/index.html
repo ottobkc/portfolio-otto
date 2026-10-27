@@ -100,6 +100,21 @@
     footer .mano { font-size: 26px; }
     @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   
+    /* Retos para después y autores */
+    .reto-casa { border: 1.5px solid var(--tinta); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; background: #fff; }
+    .reto-casa .num { display: block; font: 300 34px/1 var(--serif); color: var(--naranja); margin: 0 0 6px; }
+    .reto-casa h3 { margin: 0 0 6px; }
+    .reto-casa p:last-child { margin-bottom: 0; }
+    .enviar { background: var(--tinta); color: var(--papel); border-radius: 14px; padding: 22px 20px; margin: 22px 0; }
+    .enviar h3 { margin: 0 0 8px; color: var(--papel); }
+    .enviar ul { padding-left: 18px; margin: 0 0 16px; }
+    .enviar li { margin-bottom: 6px; }
+    .enviar a.boton { display: inline-block; background: var(--naranja); color: #fff; text-decoration: none; font: 600 16px/1 var(--sans); padding: 14px 20px; border-radius: 999px; }
+    .enviar small { display: block; margin-top: 12px; opacity: .75; font-size: 13px; }
+    .autor { border-top: 1px solid var(--linea); padding: 16px 0 4px; }
+    .autor h3 { margin: 0 0 4px; }
+    .autor .que { font: 600 20px/1.2 var(--mano); color: var(--rosa); margin: 0 0 6px; }
+
     /* Esquemas de composición */
     .esquema { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin: 18px 0; }
     .esquema svg { width: 96px; height: 72px; background: #fff; border: 1px solid var(--linea); border-radius: 6px; }
@@ -149,6 +164,8 @@
       <li><a href="#romper">Romper reglas</a></li>
       <li><a href="#ejercicios">Ejercicios</a></li>
       <li><a href="#errores">Errores</a></li>
+      <li><a href="#retos">Retos para casa</a></li>
+      <li><a href="#autores">Autores</a></li>
       <li><a href="#despues">Después</a></li>
     </ul>
   </nav>
@@ -219,6 +236,7 @@
         <li><strong>Las sombras son formas.</strong> Una sombra proyectada en una pared o en el suelo puede ser el sujeto de la foto.</li>
         <li><strong>El contraste guía la mirada:</strong> lo primero que se ve en una foto es lo más claro y lo que más contrasta. Coloca ahí lo importante.</li>
         <li><strong>Con el móvil:</strong> toca la zona clara de la pantalla y baja la exposición deslizando el dedo. Así mides para la luz.</li>
+        <li><strong>Con cámara, en manual:</strong> sube la velocidad (o baja el ISO) hasta que la marca del exposímetro quede en −1 o −1,5. Con ISO automático, gira la compensación a esos mismos valores.</li>
       </ul>
     </section>
 
@@ -301,6 +319,59 @@
         <dt>Con el móvil, todo parece lejos y deformado</dt>
         <dd>El gran angular del móvil aleja y estira los bordes. Acércate más de lo que crees y deja a la gente lejos de las esquinas.</dd>
       </dl>
+    </section>
+
+    <section id="retos">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Tres retos <em>para casa.</em></h2>
+      <p class="entradilla">Lo que aprendes en una tarde se olvida en una semana si no lo repites. Estos tres retos son para hacerlos tú solo, sin prisa, en los días siguientes. Y no se quedan en tu móvil: me los mandas y te los comento uno a uno.</p>
+      <div class="reto-casa">
+        <span class="num">1</span>
+        <h3>Un sitio, cinco encuadres</h3>
+        <p>Elige un sitio y hazle al menos cinco fotos distintas sin irte: más cerca, desde abajo, desde arriba, con otro fondo, en vertical. Sube la mejor y cuéntame en el texto qué cambiaste para llegar a ella.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">2</span>
+        <h3>Tres capas</h3>
+        <p>Una foto con algo delante, algo en medio y algo al fondo. Dispara a través de algo: un cristal, un hueco, el hombro de alguien.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">3</span>
+        <h3>Rompe una regla</h3>
+        <p>Una foto que rompa una regla de composición a propósito: horizonte muy torcido, persona pegada al borde, todo en el centro… En el texto dime cuál has roto y por qué.</p>
+      </div>
+      <div class="enviar">
+        <h3>Cómo enviármelos</h3>
+        <ul>
+          <li>Tienes <strong>30 días desde el taller</strong> y hasta <strong>5 fotos</strong>.</li>
+          <li>Súbelas en tu cuaderno de fotos, en el apartado del taller. Si no tienes cuenta, usa el enlace personal que te mando por email después del taller: no necesita contraseña.</li>
+          <li>En el texto de cada foto escribe <strong>qué reto es y los ajustes que usaste</strong> (diafragma, velocidad, ISO).</li>
+          <li>Te comento cada foto: qué herramientas has usado, si la foto tiene una idea clara y qué quitaría o movería. Te aviso por email cuando estén.</li>
+        </ul>
+        <a class="boton" href="/cuaderno/">Subir mis fotos</a>
+        <small>Si quieres, al subirlas puedes dejar que salgan en el muro de Mirar Despacio. Tú decides.</small>
+      </div>
+    </section>
+
+    <section id="autores">
+      <p class="antetitulo">Para mirar despacio</p>
+      <h2>Tres fotógrafos <em>que mirar.</em></h2>
+      <p>Busca su trabajo con calma, en libros o en internet. No para copiarlo: para fijarte en una sola cosa de cada uno y llevártela a la calle.</p>
+      <div class="autor">
+        <h3>Henri Cartier-Bresson</h3>
+        <p class="que">la geometría</p>
+        <p>Antes de disparar, buscaba un escenario con buenas líneas y formas, y esperaba a que la persona adecuada entrara en el sitio exacto. Fíjate en las líneas y las formas que hay debajo de cada foto.</p>
+      </div>
+      <div class="autor">
+        <h3>Alex Webb</h3>
+        <p class="que">las capas</p>
+        <p>Sus fotos tienen gente y color en varios planos a la vez, cada uno con algo pasando. Fíjate en cómo ordena delante, en medio y detrás sin que la foto se convierta en un caos.</p>
+      </div>
+      <div class="autor">
+        <h3>Saul Leiter</h3>
+        <p class="que">tapar y dejar ver</p>
+        <p>Fotografiaba Nueva York a través de cristales empañados, entre toldos y huecos, dejando grandes zonas oscuras o vacías. Fíjate en cuánto espacio deja sin "nada" y en cómo eso hace mirar lo poco que se ve.</p>
+      </div>
     </section>
 
     <section id="despues">

@@ -100,6 +100,21 @@
     footer .mano { font-size: 26px; }
     @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   
+    /* Retos para después y autores */
+    .reto-casa { border: 1.5px solid var(--tinta); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; background: #fff; }
+    .reto-casa .num { display: block; font: 300 34px/1 var(--serif); color: var(--naranja); margin: 0 0 6px; }
+    .reto-casa h3 { margin: 0 0 6px; }
+    .reto-casa p:last-child { margin-bottom: 0; }
+    .enviar { background: var(--tinta); color: var(--papel); border-radius: 14px; padding: 22px 20px; margin: 22px 0; }
+    .enviar h3 { margin: 0 0 8px; color: var(--papel); }
+    .enviar ul { padding-left: 18px; margin: 0 0 16px; }
+    .enviar li { margin-bottom: 6px; }
+    .enviar a.boton { display: inline-block; background: var(--naranja); color: #fff; text-decoration: none; font: 600 16px/1 var(--sans); padding: 14px 20px; border-radius: 999px; }
+    .enviar small { display: block; margin-top: 12px; opacity: .75; font-size: 13px; }
+    .autor { border-top: 1px solid var(--linea); padding: 16px 0 4px; }
+    .autor h3 { margin: 0 0 4px; }
+    .autor .que { font: 600 20px/1.2 var(--mano); color: var(--rosa); margin: 0 0 6px; }
+
     /* Esquemas de composición */
     .esquema { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin: 18px 0; }
     .esquema svg { width: 96px; height: 72px; background: #fff; border: 1px solid var(--linea); border-radius: 6px; }
@@ -144,6 +159,8 @@
       <li><a href="#calle">La calle</a></li>
       <li><a href="#ejercicios">Ejercicios</a></li>
       <li><a href="#errores">Errores</a></li>
+      <li><a href="#retos">Retos para casa</a></li>
+      <li><a href="#autores">Autores</a></li>
       <li><a href="#despues">Después</a></li>
     </ul>
   </nav>
@@ -178,6 +195,16 @@
         <li><strong>S o Tv (prioridad a la velocidad):</strong> tú eliges la velocidad y la cámara el diafragma. Útil para congelar o mover a propósito.</li>
         <li><strong>M (manual):</strong> eliges todo. Lo probaremos al final del taller, para entender cómo encaja todo.</li>
       </ul>
+
+      <h3>El ISO, a mano</h3>
+      <p>En el taller vamos a poner el ISO nosotros, no en automático, para entender qué hace. Un punto de partida según la luz:</p>
+      <ul class="lista">
+        <li><strong>100–200</strong> a pleno sol.</li>
+        <li><strong>400–800</strong> a la sombra o en un día nublado.</li>
+        <li><strong>1600–3200</strong> dentro de un bar, una estación o un museo.</li>
+        <li><strong>3200–6400</strong> en la calle de noche.</li>
+      </ul>
+      <p>Si la velocidad baja demasiado, sube el ISO un paso. Cuando lo domines, el ISO automático te puede ahorrar trabajo: te lo explico más abajo, en la exposición.</p>
 
       <h3>El enfoque</h3>
       <ul class="lista">
@@ -247,6 +274,10 @@
       </ul>
       <h3>La compensación de exposición (+/−)</h3>
       <p>Es la rueda o el botón con el símbolo ±. Le dice a la cámara "hazla más clara" o "más oscura" sin salir de prioridad a la apertura. La cámara se equivoca sobre todo con escenas muy claras (nieve, cielo, pared blanca: compensa a +) y muy oscuras (noche, fondo negro: compensa a −).</p>
+      <h3>En manual: la marca del exposímetro</h3>
+      <p>En M no hay compensación: mandas tú. En el visor o en la pantalla hay una escala con una marca que indica si la foto saldrá clara u oscura. Mueve diafragma, velocidad o ISO hasta dejar la marca donde quieras: en el cero para una escena normal, a la derecha para una escena muy clara, a la izquierda para una oscura.</p>
+      <h3>Cuando ya lo domines: ISO automático</h3>
+      <p>Con el ISO en automático, tú eliges diafragma y velocidad y la cámara pone el ISO. Es muy cómodo en la calle, sobre todo con luz que cambia. Corriges con la compensación (±). Úsalo cuando ya entiendas qué hace el ISO, no antes: si no, vuelves a dejar que la cámara decida por ti.</p>
     </section>
 
     <section id="luz">
@@ -334,8 +365,61 @@
         <dt>Todo sale oscuro de noche o en interiores</dt>
         <dd>Sube el ISO. 3200 o 6400 están bien.</dd>
         <dt>Vuelvo al automático en cuanto me agobio</dt>
-        <dd>Normal. Deja la cámara en A con ISO automático: es casi tan cómodo y sigues decidiendo tú.</dd>
+        <dd>Normal. Deja la cámara en A con el ISO fijo según la luz (400 si dudas): solo tienes que pensar en el diafragma. Si aun así te agobias, el ISO automático con compensación es un buen término medio.</dd>
       </dl>
+    </section>
+
+    <section id="retos">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Tres retos <em>para casa.</em></h2>
+      <p class="entradilla">Lo que aprendes en una tarde se olvida en una semana si no lo repites. Estos tres retos son para hacerlos tú solo, sin prisa, en los días siguientes. Y no se quedan en tu móvil: me los mandas y te los comento uno a uno.</p>
+      <div class="reto-casa">
+        <span class="num">1</span>
+        <h3>Tres diafragmas</h3>
+        <p>La misma escena con el diafragma más abierto que tengas, a f/8 y al más cerrado. Sube la que prefieras y cuéntame en el texto por qué.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">2</span>
+        <h3>Congelado o movido</h3>
+        <p>Alguien que pasa, dos veces: una a 1/500 y otra a 1/15. Sube la que te guste más. Las dos valen si son a propósito.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">3</span>
+        <h3>Media hora sin automático</h3>
+        <p>Sal media hora con la cámara en A o en M y el ISO a mano, sin tocar el automático. Sube tu foto favorita con los tres datos en el texto: diafragma, velocidad e ISO.</p>
+      </div>
+      <div class="enviar">
+        <h3>Cómo enviármelos</h3>
+        <ul>
+          <li>Tienes <strong>30 días desde el taller</strong> y hasta <strong>5 fotos</strong>.</li>
+          <li>Súbelas en tu cuaderno de fotos, en el apartado del taller. Si no tienes cuenta, usa el enlace personal que te mando por email después del taller: no necesita contraseña.</li>
+          <li>En el texto de cada foto escribe <strong>qué reto es y los ajustes que usaste</strong> (diafragma, velocidad, ISO).</li>
+          <li>Te comento cada foto: si la exposición y el enfoque están donde querías, y un consejo concreto para la siguiente. Te aviso por email cuando estén.</li>
+        </ul>
+        <a class="boton" href="/cuaderno/">Subir mis fotos</a>
+        <small>Si quieres, al subirlas puedes dejar que salgan en el muro de Mirar Despacio. Tú decides.</small>
+      </div>
+    </section>
+
+    <section id="autores">
+      <p class="antetitulo">Para mirar despacio</p>
+      <h2>Tres fotógrafos <em>que mirar.</em></h2>
+      <p>Busca su trabajo con calma, en libros o en internet. No para copiarlo: para fijarte en una sola cosa de cada uno y llevártela a la calle.</p>
+      <div class="autor">
+        <h3>Vivian Maier</h3>
+        <p class="que">mirar con lo que tienes</p>
+        <p>Trabajaba de niñera y fotografió durante décadas las calles de Chicago y Nueva York, sin enseñarle sus fotos a nadie. Fíjate en sus autorretratos con su propia sombra o en reflejos: un buen ejercicio para empezar sin vergüenza.</p>
+      </div>
+      <div class="autor">
+        <h3>Helen Levitt</h3>
+        <p class="que">cercanía</p>
+        <p>Fotografió a la gente de su barrio de Nueva York, sobre todo niños jugando en la calle. Fíjate en lo cerca que está y en la naturalidad: la gente no parece posar.</p>
+      </div>
+      <div class="autor">
+        <h3>Elliott Erwitt</h3>
+        <p class="que">el humor</p>
+        <p>Muchas de sus fotos más conocidas son situaciones cotidianas con un punto de humor: perros, paraguas, gente que coincide. Fíjate en que no hace falta un gran escenario: hace falta estar atento.</p>
+      </div>
     </section>
 
     <section id="despues">

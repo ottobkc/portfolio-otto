@@ -98,6 +98,21 @@
 
     footer { margin-top: 48px; padding: 30px 0 48px; border-top: 1px solid var(--linea); color: var(--gris); font-size: 14px; }
     footer .mano { font-size: 26px; }
+
+    /* Retos para después y autores */
+    .reto-casa { border: 1.5px solid var(--tinta); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; background: #fff; }
+    .reto-casa .num { display: block; font: 300 34px/1 var(--serif); color: var(--naranja); margin: 0 0 6px; }
+    .reto-casa h3 { margin: 0 0 6px; }
+    .reto-casa p:last-child { margin-bottom: 0; }
+    .enviar { background: var(--tinta); color: var(--papel); border-radius: 14px; padding: 22px 20px; margin: 22px 0; }
+    .enviar h3 { margin: 0 0 8px; color: var(--papel); }
+    .enviar ul { padding-left: 18px; margin: 0 0 16px; }
+    .enviar li { margin-bottom: 6px; }
+    .enviar a.boton { display: inline-block; background: var(--naranja); color: #fff; text-decoration: none; font: 600 16px/1 var(--sans); padding: 14px 20px; border-radius: 999px; }
+    .enviar small { display: block; margin-top: 12px; opacity: .75; font-size: 13px; }
+    .autor { border-top: 1px solid var(--linea); padding: 16px 0 4px; }
+    .autor h3 { margin: 0 0 4px; }
+    .autor .que { font: 600 20px/1.2 var(--mano); color: var(--rosa); margin: 0 0 6px; }
     @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
 </head>
@@ -122,6 +137,8 @@
       <li><a href="#azul">Hora azul</a></li>
       <li><a href="#ejercicios">Ejercicios</a></li>
       <li><a href="#errores">Errores</a></li>
+      <li><a href="#retos">Retos para casa</a></li>
+      <li><a href="#autores">Autores</a></li>
       <li><a href="#despues">Después</a></li>
     </ul>
   </nav>
@@ -205,8 +222,12 @@
       <h2>Cuando la luz cambia <em>cada minuto.</em></h2>
       <p>Al atardecer la cantidad de luz baja muy deprisa: de la hora dorada a la hora azul puedes perder cinco o seis pasos de luz, que es como pasar de 1/1000 a 1/30 con el mismo diafragma y el mismo ISO. Lo que estaba bien hace diez minutos ya no lo está.</p>
 
-      <h3>El modo que te recomiendo</h3>
-      <p><strong>Prioridad a la apertura (A o Av) con la compensación de exposición a mano.</strong> Eliges el diafragma, la cámara ajusta la velocidad según baja la luz, y tú solo corriges con la ruedecita de compensación (+/−). Si prefieres manual, usa manual con ISO automático: fijas apertura y velocidad y la cámara sube el ISO sola.</p>
+      <h3>El modo que te recomiendo: manual, con el ISO a mano</h3>
+      <p>Pon la cámara en M y elige tú los tres valores: el diafragma según lo que quieras nítido, una velocidad que congele (1/250 si hay gente andando) y el ISO que pida la luz. Luego mira el exposímetro (la escala con una marca que se mueve, en el visor o en la pantalla) y deja la marca donde dice la tabla de abajo.</p>
+      <p>Al atardecer la luz baja de forma previsible, así que la rutina es sencilla: cuando la marca se vaya hacia el menos, <strong>sube el ISO un paso</strong> (200 → 400 → 800…) y deja diafragma y velocidad como estaban. Así decides tú qué cambia y cuándo.</p>
+      <h3>La alternativa cómoda: ISO automático y compensación</h3>
+      <p>Si con tanto cambio de luz te agobias, deja el ISO en automático: tú fijas diafragma y velocidad, la cámara pone el ISO y tú corriges con la rueda de compensación (±), con los mismos valores de la tabla. Algunas cámaras sencillas no dejan compensar en manual con ISO automático; en ese caso usa prioridad a la apertura (A o Av) con una velocidad mínima de 1/250 en el menú de ISO automático.</p>
+      <p class="aparte">En este manual, <strong>"compensa −1"</strong> significa: en manual, deja la marca del exposímetro en −1; con ISO automático, gira la compensación a −1.</p>
       <p>Vigila la velocidad: cuando baje de 1/125, la gente andando empezará a salir movida. Cuando pase, sube el ISO sin miedo. Una foto con grano se aprovecha; una movida, no.</p>
 
       <h3>Por qué la cámara se equivoca</h3>
@@ -223,14 +244,14 @@
       <p>El balance automático intenta "corregir" el naranja del atardecer y te deja una foto sosa. Ponlo en <strong>Luz de día / Sol</strong> (unos 5200–5600 K) para ver el color como es, o en <strong>Nublado / Sombra</strong> si lo quieres más cálido todavía. Aunque dispares en RAW, fíjalo: así ves en la pantalla lo que de verdad hay.</p>
 
       <table class="ajustes">
-        <thead><tr><th>Situación</th><th>Diafragma</th><th>Velocidad</th><th>ISO</th><th>Compensación</th></tr></thead>
+        <thead><tr><th>Situación</th><th>Diafragma</th><th>Velocidad</th><th>ISO</th><th>Exposímetro / ±</th></tr></thead>
         <tbody>
-          <tr><td>Luz rasante en la calle</td><td data-t="Diafragma">f/5,6–f/8</td><td data-t="Velocidad">1/250 o más</td><td data-t="ISO">200–400</td><td data-t="Compensación">0 a −0,3</td></tr>
-          <tr><td>Contraluz, silueta</td><td data-t="Diafragma">f/8–f/11</td><td data-t="Velocidad">lo que salga</td><td data-t="ISO">100–200</td><td data-t="Compensación">−1 a −2 (mide en el cielo)</td></tr>
-          <tr><td>Contraluz, ver a la persona</td><td data-t="Diafragma">f/2,8–f/4</td><td data-t="Velocidad">1/250 o más</td><td data-t="ISO">200–400</td><td data-t="Compensación">+1 a +1,7</td></tr>
-          <tr><td>Sol en estrella</td><td data-t="Diafragma">f/11–f/16</td><td data-t="Velocidad">lo que salga</td><td data-t="ISO">100</td><td data-t="Compensación">−0,7 a −1</td></tr>
-          <tr><td>Hora azul con gente</td><td data-t="Diafragma">f/2,8–f/4</td><td data-t="Velocidad">1/60–1/125</td><td data-t="ISO">1600–6400</td><td data-t="Compensación">−0,3 a −0,7</td></tr>
-          <tr><td>Hora azul, barridos</td><td data-t="Diafragma">f/8</td><td data-t="Velocidad">1/15–1/30</td><td data-t="ISO">400–800</td><td data-t="Compensación">−0,3</td></tr>
+          <tr><td>Luz rasante en la calle</td><td data-t="Diafragma">f/5,6–f/8</td><td data-t="Velocidad">1/250 o más</td><td data-t="ISO">200–400</td><td data-t="Exposímetro / ±">0 a −0,3</td></tr>
+          <tr><td>Contraluz, silueta</td><td data-t="Diafragma">f/8–f/11</td><td data-t="Velocidad">lo que salga</td><td data-t="ISO">100–200</td><td data-t="Exposímetro / ±">−1 a −2 (mide en el cielo)</td></tr>
+          <tr><td>Contraluz, ver a la persona</td><td data-t="Diafragma">f/2,8–f/4</td><td data-t="Velocidad">1/250 o más</td><td data-t="ISO">200–400</td><td data-t="Exposímetro / ±">+1 a +1,7</td></tr>
+          <tr><td>Sol en estrella</td><td data-t="Diafragma">f/11–f/16</td><td data-t="Velocidad">lo que salga</td><td data-t="ISO">100</td><td data-t="Exposímetro / ±">−0,7 a −1</td></tr>
+          <tr><td>Hora azul con gente</td><td data-t="Diafragma">f/2,8–f/4</td><td data-t="Velocidad">1/60–1/125</td><td data-t="ISO">1600–6400</td><td data-t="Exposímetro / ±">−0,3 a −0,7</td></tr>
+          <tr><td>Hora azul, barridos</td><td data-t="Diafragma">f/8</td><td data-t="Velocidad">1/15–1/30</td><td data-t="ISO">400–800</td><td data-t="Exposímetro / ±">−0,3</td></tr>
         </tbody>
       </table>
       <p class="mano">son puntos de partida, no recetas: mira la pantalla y corrige</p>
@@ -325,6 +346,59 @@
         <dt>Manchas de luz y fotos lavadas a contraluz</dt>
         <dd>Limpia el objetivo, pon el parasol y tapa el sol con algún elemento del encuadre. O hazlo a propósito, pero que se note que es a propósito.</dd>
       </dl>
+    </section>
+
+    <section id="retos">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Tres retos <em>para casa.</em></h2>
+      <p class="entradilla">Lo que aprendes en una tarde se olvida en una semana si no lo repites. Estos tres retos son para hacerlos tú solo, sin prisa, en los días siguientes. Y no se quedan en tu móvil: me los mandas y te los comento uno a uno.</p>
+      <div class="reto-casa">
+        <span class="num">1</span>
+        <h3>Tu esquina, tres luces</h3>
+        <p>Elige una esquina de tu barrio y vuelve a ella tres veces la misma tarde: en la hora dorada, justo después de la puesta y en la hora azul. Mismo encuadre. Sube la que mejor cuente el cambio, o las tres si quieres que las veamos juntas.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">2</span>
+        <h3>Una silueta con historia</h3>
+        <p>Una silueta contra el cielo o una pared iluminada que se entienda sola: de perfil, en mitad del paso, con algún objeto que cuente algo. Pesca: fondo primero, persona después.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">3</span>
+        <h3>Cruzar la luz</h3>
+        <p>Busca una franja de sol entre sombras y espera a que alguien la cruce. Expón para la luz (−1 o −1,5) y deja que todo lo demás se vaya a negro.</p>
+      </div>
+      <div class="enviar">
+        <h3>Cómo enviármelos</h3>
+        <ul>
+          <li>Tienes <strong>30 días desde el taller</strong> y hasta <strong>5 fotos</strong>.</li>
+          <li>Súbelas en tu cuaderno de fotos, en el apartado del taller. Si no tienes cuenta, usa el enlace personal que te mando por email después del taller: no necesita contraseña.</li>
+          <li>En el texto de cada foto escribe <strong>qué reto es y los ajustes que usaste</strong> (diafragma, velocidad, ISO).</li>
+          <li>Te comento cada foto: si la luz está bien leída, si la exposición protege lo importante y qué cambiaría del encuadre. Te aviso por email cuando estén.</li>
+        </ul>
+        <a class="boton" href="/cuaderno/">Subir mis fotos</a>
+        <small>Si quieres, al subirlas puedes dejar que salgan en el muro de Mirar Despacio. Tú decides.</small>
+      </div>
+    </section>
+
+    <section id="autores">
+      <p class="antetitulo">Para mirar despacio</p>
+      <h2>Tres fotógrafos <em>que mirar.</em></h2>
+      <p>Busca su trabajo con calma, en libros o en internet. No para copiarlo: para fijarte en una sola cosa de cada uno y llevártela a la calle.</p>
+      <div class="autor">
+        <h3>Fan Ho</h3>
+        <p class="que">la luz como foco</p>
+        <p>Fotografió el Hong Kong de los años cincuenta y sesenta. Los haces de sol entre edificios, el humo y las sombras largas convierten a una persona cualquiera en protagonista. Fíjate en cómo expone para la luz y deja que la sombra se coma el resto.</p>
+      </div>
+      <div class="autor">
+        <h3>Alex Webb</h3>
+        <p class="que">sombras duras y color</p>
+        <p>Trabaja con la luz más dura del día y con sombras muy negras, llenas de capas de gente y color. Fíjate en cómo las sombras dividen el encuadre en zonas.</p>
+      </div>
+      <div class="autor">
+        <h3>Joel Meyerowitz</h3>
+        <p class="que">la luz del final del día</p>
+        <p>En «Cape Light» fotografía la luz suave del final del día y de la primera hora de la noche, con mucha calma. Fíjate en cómo cambia el color de una misma escena según la hora.</p>
+      </div>
     </section>
 
     <section id="despues">
