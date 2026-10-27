@@ -100,6 +100,21 @@
     footer .mano { font-size: 26px; }
     @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   
+    /* Retos para después y autores */
+    .reto-casa { border: 1.5px solid var(--tinta); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; background: #fff; }
+    .reto-casa .num { display: block; font: 300 34px/1 var(--serif); color: var(--naranja); margin: 0 0 6px; }
+    .reto-casa h3 { margin: 0 0 6px; }
+    .reto-casa p:last-child { margin-bottom: 0; }
+    .enviar { background: var(--tinta); color: var(--papel); border-radius: 14px; padding: 22px 20px; margin: 22px 0; }
+    .enviar h3 { margin: 0 0 8px; color: var(--papel); }
+    .enviar ul { padding-left: 18px; margin: 0 0 16px; }
+    .enviar li { margin-bottom: 6px; }
+    .enviar a.boton { display: inline-block; background: var(--naranja); color: #fff; text-decoration: none; font: 600 16px/1 var(--sans); padding: 14px 20px; border-radius: 999px; }
+    .enviar small { display: block; margin-top: 12px; opacity: .75; font-size: 13px; }
+    .autor { border-top: 1px solid var(--linea); padding: 16px 0 4px; }
+    .autor h3 { margin: 0 0 4px; }
+    .autor .que { font: 600 20px/1.2 var(--mano); color: var(--rosa); margin: 0 0 6px; }
+
     /* Esquemas de composición */
     .esquema { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin: 18px 0; }
     .esquema svg { width: 96px; height: 72px; background: #fff; border: 1px solid var(--linea); border-radius: 6px; }
@@ -143,6 +158,8 @@
       <li><a href="#movimiento">Movimiento</a></li>
       <li><a href="#ejercicios">Ejercicios</a></li>
       <li><a href="#errores">Errores</a></li>
+      <li><a href="#retos">Retos para casa</a></li>
+      <li><a href="#autores">Autores</a></li>
       <li><a href="#despues">Después</a></li>
     </ul>
   </nav>
@@ -211,8 +228,12 @@
         <li><strong>El ISO que haga falta.</strong> 3200, 6400 y más. Una foto con grano se aprovecha; una movida, no. Las cámaras de los últimos diez años aguantan mucho más de lo que crees.</li>
       </ol>
 
-      <h3>El modo que te recomiendo</h3>
-      <p><strong>Manual con ISO automático.</strong> Fijas la apertura (abierta) y la velocidad (1/125), y la cámara sube o baja el ISO según la luz de cada calle. Corriges con la compensación de exposición. Si tu cámara no deja compensar en manual con ISO automático, usa prioridad a la apertura y ponle una velocidad mínima de 1/125 en el menú de ISO automático.</p>
+      <h3>El modo que te recomiendo: manual, con el ISO a mano</h3>
+      <p>Pon la cámara en M y fija los tres valores tú: <strong>diafragma abierto, 1/125 e ISO 3200</strong> como punto de partida. Luego mira el exposímetro (la escala con una marca que se mueve, en el visor o en la pantalla): de noche la marca tiene que quedar <strong>entre −0,7 y −1,3</strong>, no en el cero.</p>
+      <p>Cuando cambies de calle, <strong>toca solo el ISO</strong>: 1600 en una calle muy iluminada o con escaparates grandes, 6400 en una calle oscura. Diafragma y velocidad se quedan quietos. Así siempre sabes qué estás sacrificando y nada cambia sin que tú lo decidas.</p>
+      <h3>La alternativa cómoda: ISO automático y compensación</h3>
+      <p>Si prefieres no estar pendiente del ISO, déjalo en automático: tú fijas diafragma y velocidad, la cámara pone el ISO de cada calle y tú corriges con la rueda de compensación (±), con los mismos valores. Algunas cámaras sencillas no dejan compensar en manual con ISO automático; en ese caso usa prioridad a la apertura (A o Av) con una velocidad mínima de 1/125 en el menú de ISO automático.</p>
+      <p class="aparte">En este manual, <strong>"compensa −1"</strong> significa: en manual, deja la marca del exposímetro en −1; con ISO automático, gira la compensación a −1.</p>
 
       <h3>Por qué la cámara se equivoca de noche</h3>
       <p>El fotómetro quiere que todo salga gris medio, y la noche no es gris: es oscura. Si le dejas, aclara la escena, quema las luces y te da una noche que parece una tarde nublada. Compensa a negativo, de <strong>−0,7 a −1,3</strong>. Las sombras tienen que ser oscuras.</p>
@@ -233,15 +254,15 @@
       </ul>
 
       <table class="ajustes">
-        <thead><tr><th>Situación</th><th>Diafragma</th><th>Velocidad</th><th>ISO</th><th>Compensación</th></tr></thead>
+        <thead><tr><th>Situación</th><th>Diafragma</th><th>Velocidad</th><th>ISO</th><th>Exposímetro / ±</th></tr></thead>
         <tbody>
-          <tr><td>Calle con escaparates y gente</td><td data-t="Diafragma">f/1,8–f/2,8</td><td data-t="Velocidad">1/125–1/250</td><td data-t="ISO">3200–6400</td><td data-t="Compensación">−0,7</td></tr>
-          <tr><td>Cara iluminada por un escaparate</td><td data-t="Diafragma">f/2–f/2,8</td><td data-t="Velocidad">1/125</td><td data-t="ISO">1600–3200</td><td data-t="Compensación">−0,7 a −1</td></tr>
-          <tr><td>Silueta contra una luz</td><td data-t="Diafragma">f/2,8–f/4</td><td data-t="Velocidad">1/250</td><td data-t="ISO">1600</td><td data-t="Compensación">−1,3 a −2</td></tr>
-          <tr><td>Reflejos en charcos y cristales</td><td data-t="Diafragma">f/4–f/5,6</td><td data-t="Velocidad">1/60–1/125</td><td data-t="ISO">3200–6400</td><td data-t="Compensación">−0,7</td></tr>
-          <tr><td>Barrido de alguien que pasa</td><td data-t="Diafragma">f/8</td><td data-t="Velocidad">1/15–1/30</td><td data-t="ISO">400–1600</td><td data-t="Compensación">−0,3</td></tr>
-          <tr><td>Estelas de coches (cámara apoyada)</td><td data-t="Diafragma">f/8–f/11</td><td data-t="Velocidad">1/2–2 s</td><td data-t="ISO">100–200</td><td data-t="Compensación">0 a −0,3</td></tr>
-          <tr><td>Luces de Navidad desenfocadas</td><td data-t="Diafragma">f/1,8–f/2,8</td><td data-t="Velocidad">1/125</td><td data-t="ISO">1600–3200</td><td data-t="Compensación">−0,7</td></tr>
+          <tr><td>Calle con escaparates y gente</td><td data-t="Diafragma">f/1,8–f/2,8</td><td data-t="Velocidad">1/125–1/250</td><td data-t="ISO">3200–6400</td><td data-t="Exposímetro / ±">−0,7</td></tr>
+          <tr><td>Cara iluminada por un escaparate</td><td data-t="Diafragma">f/2–f/2,8</td><td data-t="Velocidad">1/125</td><td data-t="ISO">1600–3200</td><td data-t="Exposímetro / ±">−0,7 a −1</td></tr>
+          <tr><td>Silueta contra una luz</td><td data-t="Diafragma">f/2,8–f/4</td><td data-t="Velocidad">1/250</td><td data-t="ISO">1600</td><td data-t="Exposímetro / ±">−1,3 a −2</td></tr>
+          <tr><td>Reflejos en charcos y cristales</td><td data-t="Diafragma">f/4–f/5,6</td><td data-t="Velocidad">1/60–1/125</td><td data-t="ISO">3200–6400</td><td data-t="Exposímetro / ±">−0,7</td></tr>
+          <tr><td>Barrido de alguien que pasa</td><td data-t="Diafragma">f/8</td><td data-t="Velocidad">1/15–1/30</td><td data-t="ISO">400–1600</td><td data-t="Exposímetro / ±">−0,3</td></tr>
+          <tr><td>Estelas de coches (cámara apoyada)</td><td data-t="Diafragma">f/8–f/11</td><td data-t="Velocidad">1/2–2 s</td><td data-t="ISO">100–200</td><td data-t="Exposímetro / ±">0 a −0,3</td></tr>
+          <tr><td>Luces de Navidad desenfocadas</td><td data-t="Diafragma">f/1,8–f/2,8</td><td data-t="Velocidad">1/125</td><td data-t="ISO">1600–3200</td><td data-t="Exposímetro / ±">−0,7</td></tr>
         </tbody>
       </table>
       <p class="mano">con el objetivo del kit (f/3,5–5,6), sube un paso o dos el ISO</p>
@@ -334,6 +355,59 @@
         <dt>Colores raros, mitad naranja mitad verde</dt>
         <dd>El balance automático no sabe qué hacer con tantas luces. Fíjalo en Luz de día o en 3500–4000 K y no lo toques.</dd>
       </dl>
+    </section>
+
+    <section id="retos">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Tres retos <em>para casa.</em></h2>
+      <p class="entradilla">Lo que aprendes en una tarde se olvida en una semana si no lo repites. Estos tres retos son para hacerlos tú solo, sin prisa, en los días siguientes. Y no se quedan en tu móvil: me los mandas y te los comento uno a uno.</p>
+      <div class="reto-casa">
+        <span class="num">1</span>
+        <h3>Tu calle, de noche</h3>
+        <p>Fotografía la calle donde vives (o una que conozcas bien) de noche, con gente, a mano alzada y sin flash. Busca la luz que más te guste de esa calle y construye la foto alrededor de ella.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">2</span>
+        <h3>Retrato de escaparate</h3>
+        <p>Una persona iluminada por un escaparate, con el fondo oscuro. Mide para la cara. Si te da corte, empieza por alguien que conozcas.</p>
+      </div>
+      <div class="reto-casa">
+        <span class="num">3</span>
+        <h3>Movimiento a propósito</h3>
+        <p>Un barrido de alguien que pasa, o una calle de "fantasmas" con la cámara apoyada. Haz muchos intentos y sube el mejor. Que se note que es a propósito.</p>
+      </div>
+      <div class="enviar">
+        <h3>Cómo enviármelos</h3>
+        <ul>
+          <li>Tienes <strong>30 días desde el taller</strong> y hasta <strong>5 fotos</strong>.</li>
+          <li>Súbelas en tu cuaderno de fotos, en el apartado del taller. Si no tienes cuenta, usa el enlace personal que te mando por email después del taller: no necesita contraseña.</li>
+          <li>En el texto de cada foto escribe <strong>qué reto es y los ajustes que usaste</strong> (diafragma, velocidad, ISO).</li>
+          <li>Te comento cada foto: si la exposición deja la noche oscura sin quemar las luces, si el ruido o el movimiento están bien usados y qué cambiaría del encuadre. Te aviso por email cuando estén.</li>
+        </ul>
+        <a class="boton" href="/cuaderno/">Subir mis fotos</a>
+        <small>Si quieres, al subirlas puedes dejar que salgan en el muro de Mirar Despacio. Tú decides.</small>
+      </div>
+    </section>
+
+    <section id="autores">
+      <p class="antetitulo">Para mirar despacio</p>
+      <h2>Tres fotógrafos <em>que mirar.</em></h2>
+      <p>Busca su trabajo con calma, en libros o en internet. No para copiarlo: para fijarte en una sola cosa de cada uno y llevártela a la calle.</p>
+      <div class="autor">
+        <h3>Brassaï</h3>
+        <p class="que">la noche como escenario</p>
+        <p>En «París de noche» (1932) fotografió calles con niebla, farolas y personajes nocturnos cuando casi nadie lo hacía. Fíjate en cómo las farolas crean islas de luz y todo lo demás es negro.</p>
+      </div>
+      <div class="autor">
+        <h3>Daido Moriyama</h3>
+        <p class="que">grano sin miedo</p>
+        <p>Sus fotos de Tokio son granuladas, contrastadas y a veces movidas, y eso es parte de su fuerza. Fíjate en que la técnica perfecta no es lo que importa: importa la sensación.</p>
+      </div>
+      <div class="autor">
+        <h3>Greg Girard</h3>
+        <p class="que">neón y fluorescente</p>
+        <p>Fotografió durante décadas las noches de Hong Kong y Kowloon, con su mezcla de neones, fluorescentes y luz de sodio. Fíjate en cómo deja convivir colores de luz distintos en la misma foto.</p>
+      </div>
     </section>
 
     <section id="despues">
