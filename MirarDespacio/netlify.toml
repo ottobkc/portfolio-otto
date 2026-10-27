@@ -38,15 +38,6 @@
   status = 200
   force  = true
 
-# Zona de socios: las páginas llaman a las funciones de ottokols.es por la misma web
-# (mirardespacio.es/api/f/fotos -> ottokols.es/.netlify/functions/fotos), sin CORS.
-# La protección de /socios/, /retos/, /cuaderno/ y /manuales/ está en la función edge «socios».
-[[redirects]]
-  from   = "/api/f/*"
-  to     = "https://ottokols.es/.netlify/functions/:splat"
-  status = 200
-  force  = true
-
 # Calendario para suscribirse (Google/Apple): lo genera una función de ottokols.es
 [[redirects]]
   from   = "/agenda.ics"
@@ -75,23 +66,5 @@
 
 [[headers]]
   for = "/salidas-data.json"
-  [headers.values]
-    Cache-Control = "public, max-age=300"
-
-# Zona de socios: nunca en Google ni en cachés compartidas (la función edge también lo pone)
-[[headers]]
-  for = "/acceso/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-    Cache-Control = "no-store"
-
-[[headers]]
-  for = "/subir/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-    Referrer-Policy = "no-referrer"
-
-[[headers]]
-  for = "/js/*"
   [headers.values]
     Cache-Control = "public, max-age=300"

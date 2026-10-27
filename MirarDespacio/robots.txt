@@ -1,10 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /acceso/
-Disallow: /socios/
-Disallow: /cuaderno/
-Disallow: /retos/
-Disallow: /manuales/
-Disallow: /subir/
 
 Sitemap: https://mirardespacio.es/sitemap.xml
