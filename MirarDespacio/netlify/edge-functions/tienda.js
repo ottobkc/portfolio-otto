@@ -5,7 +5,7 @@
 //
 // Los productos los da la función "tienda" de ottokols.es (lee Firestore). Si falla, la página
 // sale tal cual (con el bloque fijo del zine) y el navegador lo vuelve a intentar.
-import { tarjeta, schemaProducto, esc, img, eur, TIPOS, urlProducto } from '../../assets/tienda-tarjeta.mjs';
+import { tarjeta, schemaProducto, esc, img, precioTexto, TIPOS, urlProducto } from '../../assets/tienda-tarjeta.mjs';
 
 const DOM = 'https://mirardespacio.es';
 const API = 'https://ottokols.es/.netlify/functions/tienda';
@@ -42,7 +42,7 @@ function paginaLista(html, l) {
 function paginaProducto(html, p) {
   const url = DOM + urlProducto(p);
   const titulo = `${p.nombre} · Tienda Mirar Despacio`;
-  const desc = ((p.descripcion || '').replace(/\s+/g, ' ').trim() || `${TIPOS[p.tipo] || 'Producto'} de Mirar Despacio`).slice(0, 150) + ` · ${eur(p.precio)}`;
+  const desc = ((p.descripcion || '').replace(/\s+/g, ' ').trim() || `${TIPOS[p.tipo] || 'Producto'} de Mirar Despacio`).slice(0, 150) + ` · ${precioTexto(p)}`;
   html = meta(html, /(<title>)[^<]*(<\/title>)/, titulo);
   html = meta(html, /(<meta name="description" content=")[^"]*(")/, desc);
   html = meta(html, /(<link rel="canonical" href=")[^"]*(")/, url);

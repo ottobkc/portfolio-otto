@@ -333,6 +333,8 @@ html.visor-abierto { overflow: hidden; }
 .producto-tallas label { cursor: pointer; }
 .producto-tallas input { position: absolute; opacity: 0; pointer-events: none; }
 .producto-tallas span { display: inline-block; min-width: 46px; padding: 8px 12px; text-align: center; border: 1px solid var(--linea); font-size: .95rem; }
+.producto-tallas span small { display: block; font-size: .78rem; color: var(--gris); margin-top: 1px; }
+.producto-tallas input:checked + span small { color: inherit; opacity: .8; }
 .producto-tallas input:checked + span { border-color: var(--tinta); background: var(--tinta); color: var(--crema); }
 .producto-tallas input:focus-visible + span { outline: 2px solid var(--naranja); outline-offset: 2px; }
 .producto-tallas label.sin span { color: var(--gris); text-decoration: line-through; cursor: default; }

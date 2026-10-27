@@ -1,7 +1,12 @@
 // Tienda del CRM: productos (zine, baraja, camisetas…) con fotos, tallas y stock, y los pedidos.
 //
 // Colecciones de Firestore:
-//   productos   nombre, tipo, descripción, precio con IVA, IVA, envío, estado, fotos, variantes [{nombre, stock}]
+//   productos   nombre, tipo, descripción, precio con IVA, IVA, envío, estado, fotos, bajoPedido, plazo,
+//               variantes [{nombre, stock, precio, envio}]
+//               · precio y envio de la variante son opcionales (null = los del producto). Sirven para los
+//                 prints (A4, A3… cada tamaño con su precio). El "precio" del producto es el más bajo ("desde").
+//               · bajoPedido: no lleva stock, nunca se agota y los pedidos no descuentan nada (las líneas
+//                 del pedido se guardan con bajoPedido: true para que al cancelar tampoco se devuelva).
 //   pedidos     número P-0001, cliente, líneas, envío, total, pago, estado, seguimiento, factura
 //   contadores  "pedidos": último número de pedido
 //
@@ -25,7 +30,8 @@ const fechaES = (iso) => iso ? new Date(iso + 'T12:00:00').toLocaleDateString('e
 const normal = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const mini = (url, w) => String(url || '').replace('/image/upload/', `/image/upload/c_limit,w_${w},q_auto,f_auto/`);
 
-const TIPOS = { zine: 'Zine', baraja: 'Baraja', camiseta: 'Camiseta', lamina: 'Lámina', otro: 'Otro' };
+const TIPOS = { zine: 'Zine', baraja: 'Baraja', print: 'Print', camiseta: 'Camiseta', lamina: 'Lámina', otro: 'Otro' };
+const TAMANOS_PRINT = ['A4', 'A3'];
 const ESTADOS_P = { venta: ['A la venta', 't-plus'], borrador: ['Borrador', 't-off'], agotado: ['Agotado', 't-man'], retirado: ['Retirado', 't-dup'] };
 const ESTADOS_PED = {
   nuevo: ['Nuevo', 't-man'], preparando: ['Preparando', 't-fotos'], enviado: ['Enviado', 't-fotos'], entregado: ['Entregado', 't-plus'], cancelado: ['Cancelado', 't-dup'],
@@ -44,6 +50,15 @@ let nuevoPedido = null;    // líneas del pedido que se está creando
 
 const stockDe = (p) => (p.variantes || []).reduce((n, v) => n + (Number(v.stock) || 0), 0);
 const conTallas = (p) => (p.variantes || []).some((v) => v.nombre);
+const bajo = (p) => !!(p && p.bajoPedido);
+// Precio y envío de una variante: los suyos si los tiene; si no, los del producto
+const tiene = (x) => x != null && x !== '' && isFinite(Number(x));
+const precioDe = (p, v) => (v && tiene(v.precio) && Number(v.precio) > 0 ? Number(v.precio) : num(p.precio));
+const envioDe = (p, v) => (v && tiene(v.envio) ? Number(v.envio) : num(p.envio));
+const varDe = (p, nombre) => (p.variantes || []).find((v) => (v.nombre || '') === (nombre || '')) || (p.variantes || [])[0];
+const precios = (p) => { const l = (p.variantes || []).map((v) => precioDe(p, v)).filter((n) => n > 0); return l.length ? l : [num(p.precio)]; };
+// "25 €" o "desde 25 €" si cada tamaño tiene su precio
+const precioTxt = (p) => { const l = precios(p), min = Math.min(...l); return (Math.max(...l) > min ? 'desde ' : '') + eur(min); };
 
 export function iniciar() {
   detener();
@@ -87,7 +102,7 @@ function pintarStats() {
   const delMes = pedidos.filter((p) => p.estado !== 'cancelado' && String(p.fecha).slice(0, 7) === mes);
   const uds = delMes.reduce((n, p) => n + (p.lineas || []).reduce((m, l) => m + (Number(l.cantidad) || 0), 0), 0);
   const porHacer = pedidos.filter((p) => p.estado === 'nuevo' || p.estado === 'preparando').length;
-  const pocos = productos.filter((p) => p.estado === 'venta' && stockDe(p) <= POCO).length;
+  const pocos = productos.filter((p) => p.estado === 'venta' && !bajo(p) && stockDe(p) <= POCO).length;
   $('tdStats').innerHTML = `<div class="stat-box"><div class="stat-num">${porHacer}</div><div class="stat-label">por preparar</div></div>
     <div class="stat-box"><div class="stat-num">${eur(delMes.reduce((n, p) => n + num(p.total), 0))}</div><div class="stat-label">vendido este mes</div></div>
     <div class="stat-box"><div class="stat-num">${uds}</div><div class="stat-label">unidades este mes</div></div>
@@ -110,16 +125,16 @@ function pintarProductos() {
     return `<div class="td-prod" onclick="td.editarProducto('${p.id}')">
       <div class="td-foto">${foto ? `<img src="${esc(mini(foto.url, 400))}" alt="" loading="lazy">` : '<span>sin foto</span>'}</div>
       <div class="td-info"><b>${esc(p.nombre)}</b>
-        <div class="person-meta">${esc(TIPOS[p.tipo] || '')} · ${eur(p.precio)}</div>
-        <div style="margin-top:6px;"><span class="tag ${cl}">${et}</span><span class="tag ${s === 0 ? 't-dup' : s <= POCO ? 't-man' : 't-off'}">${s} en stock</span></div>
-        ${conTallas(p) ? `<div class="person-meta" style="margin-top:4px;">${(p.variantes || []).map((v) => `${esc(v.nombre)}: ${Number(v.stock) || 0}`).join(' · ')}</div>` : ''}
+        <div class="person-meta">${esc(TIPOS[p.tipo] || '')} · ${precioTxt(p)}</div>
+        <div style="margin-top:6px;"><span class="tag ${cl}">${et}</span>${bajo(p) ? '<span class="tag t-fotos">bajo pedido</span>' : `<span class="tag ${s === 0 ? 't-dup' : s <= POCO ? 't-man' : 't-off'}">${s} en stock</span>`}</div>
+        ${conTallas(p) ? `<div class="person-meta" style="margin-top:4px;">${(p.variantes || []).map((v) => `${esc(v.nombre)}: ${bajo(p) ? eur(precioDe(p, v)) : (Number(v.stock) || 0) + (tiene(v.precio) ? ' · ' + eur(precioDe(p, v)) : '')}`).join(' · ')}</div>` : ''}
       </div></div>`;
   }).join('') || '<div class="empty" style="padding:16px;">Aún no hay productos. Empieza por el zine o la baraja.</div>';
   if (prodEditando && !$('tdEditor').innerHTML) pintarEditorProducto();
 }
 function editarProducto(id) {
   const p = id ? productos.find((x) => x.id === id) : null;
-  prodEditando = p ? JSON.parse(JSON.stringify(p)) : { id: null, nombre: '', tipo: 'zine', descripcion: '', precio: '', iva: 21, envio: '', estado: 'borrador', fotos: [], variantes: [{ nombre: '', stock: 0 }], sku: '', enlacePago: '' };
+  prodEditando = p ? JSON.parse(JSON.stringify(p)) : { id: null, nombre: '', tipo: 'zine', descripcion: '', precio: '', iva: 21, envio: '', estado: 'borrador', fotos: [], variantes: [{ nombre: '', stock: 0, precio: null, envio: null }], sku: '', enlacePago: '', bajoPedido: false, plazo: '' };
   ver('productos');
   pintarEditorProducto();
   $('tdEditor').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -127,12 +142,22 @@ function editarProducto(id) {
 function leerProducto() {
   const p = prodEditando; if (!p || !$('tpNombre')) return;
   p.nombre = $('tpNombre').value.trim(); p.tipo = $('tpTipo').value; p.descripcion = $('tpDesc').value.trim();
-  p.precio = num($('tpPrecio').value); p.iva = Number($('tpIva').value); p.envio = num($('tpEnvio').value);
+  // Vacío se queda vacío (para que no aparezca un 0 al repintar el formulario)
+  const vacio = (id) => ($(id).value.trim() === '' ? '' : num($(id).value));
+  p.precio = vacio('tpPrecio'); p.iva = Number($('tpIva').value); p.envio = vacio('tpEnvio');
   p.estado = $('tpEstado').value; p.sku = $('tpSku').value.trim(); p.enlacePago = $('tpEnlace').value.trim();
-  p.variantes = [...document.querySelectorAll('#tpVariantes .td-var')].map((el) => ({ nombre: el.querySelector('[data-k=nombre]').value.trim(), stock: Math.max(0, Math.round(num(el.querySelector('[data-k=stock]').value))) }));
-  if (!p.variantes.length) p.variantes = [{ nombre: '', stock: 0 }];
+  p.bajoPedido = $('tpBajo').checked; p.plazo = $('tpPlazo') ? $('tpPlazo').value.trim() : (p.plazo || '');
+  const opc = (el, k) => { const t = el.querySelector(`[data-k=${k}]`).value.trim(); return t === '' ? null : Math.max(0, r2(num(t))); };
+  p.variantes = [...document.querySelectorAll('#tpVariantes .td-var')].map((el) => ({
+    nombre: el.querySelector('[data-k=nombre]').value.trim(), stock: Math.max(0, Math.round(num(el.querySelector('[data-k=stock]').value))),
+    precio: opc(el, 'precio'), envio: opc(el, 'envio'),
+  }));
+  if (!p.variantes.length) p.variantes = [{ nombre: '', stock: 0, precio: null, envio: null }];
 }
-const varHtml = (v) => `<div class="td-var"><input data-k="nombre" placeholder="Talla o versión (vacío si no tiene)" value="${esc(v.nombre)}"><input data-k="stock" type="number" min="0" step="1" value="${Number(v.stock) || 0}" title="Unidades"><button class="small danger" type="button" onclick="this.parentNode.remove()">✕</button></div>`;
+const varHtml = (v, sinStock) => `<div class="td-var${sinStock ? ' sin-stock' : ''}"><input data-k="nombre" placeholder="Talla, tamaño o versión (vacío si no tiene)" value="${esc(v.nombre)}">
+  <input data-k="precio" inputmode="decimal" placeholder="Precio €" value="${tiene(v.precio) ? esc(coma(v.precio)) : ''}" title="Precio con IVA de esta variante. Vacío = el precio del producto">
+  <input data-k="envio" inputmode="decimal" placeholder="Envío €" value="${tiene(v.envio) ? esc(coma(v.envio)) : ''}" title="Envío de esta variante (p. ej. el A3 va en tubo). Vacío = el envío del producto">
+  <input data-k="stock" type="number" min="0" step="1" value="${Number(v.stock) || 0}" title="Unidades en stock"><button class="small danger" type="button" onclick="this.parentNode.remove()">✕</button></div>`;
 function pintarEditorProducto() {
   const p = prodEditando, el = $('tdEditor');
   if (!p) { el.innerHTML = ''; return; }
@@ -143,10 +168,10 @@ function pintarEditorProducto() {
     <div class="cx-dos" style="margin-top:12px;">
       <div>
         <input id="tpNombre" data-vivo placeholder="Nombre (p. ej. Zine Mirar Despacio nº 1)" value="${esc(p.nombre)}">
-        <div class="row"><select id="tpTipo">${Object.entries(TIPOS).map(([k, t]) => `<option value="${k}" ${p.tipo === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        <div class="row"><select id="tpTipo" onchange="td.refrescar()">${Object.entries(TIPOS).map(([k, t]) => `<option value="${k}" ${p.tipo === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
           <select id="tpEstado">${Object.entries(ESTADOS_P).map(([k, [t]]) => `<option value="${k}" ${p.estado === k ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
         <textarea id="tpDesc" data-vivo rows="4" placeholder="Descripción para la tienda (tamaño, papel, páginas…)">${esc(p.descripcion)}</textarea>
-        <div class="row"><input id="tpPrecio" data-vivo inputmode="decimal" placeholder="Precio con IVA €" value="${esc(coma(p.precio))}" title="Precio con IVA incluido">
+        <div class="row"><input id="tpPrecio" data-vivo inputmode="decimal" placeholder="Precio con IVA €" value="${esc(coma(p.precio))}" title="Precio con IVA incluido. Si cada tamaño tiene su precio, se pone solo el más bajo al guardar">
           <select id="tpIva" title="IVA">${[[21, 'IVA 21 %'], [10, 'IVA 10 %'], [4, 'IVA 4 %'], [0, 'Exento']].map(([k, t]) => `<option value="${k}" ${Number(p.iva) === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
           <input id="tpEnvio" data-vivo inputmode="decimal" placeholder="Envío €" value="${esc(coma(p.envio))}" title="Gastos de envío"></div>
         ${p.slug ? `<div class="person-meta" style="margin-bottom:8px;">En la web: <a href="https://mirardespacio.es/tienda/${esc(p.slug)}/" target="_blank" rel="noopener">mirardespacio.es/tienda/${esc(p.slug)}/</a>${p.estado === 'venta' || p.estado === 'agotado' ? '' : ' (no se ve hasta que lo pongas a la venta)'}</div>` : ''}
@@ -157,10 +182,13 @@ function pintarEditorProducto() {
         <div class="td-fotos">${(p.fotos || []).map((f, i) => `<div class="td-mini"><img src="${esc(mini(f.url, 240))}" alt="">
           <div>${i ? `<button class="small secondary" type="button" onclick="td.moverFoto(${i},-1)" title="Antes">←</button>` : ''}${i < p.fotos.length - 1 ? `<button class="small secondary" type="button" onclick="td.moverFoto(${i},1)" title="Después">→</button>` : ''}<button class="small danger" type="button" onclick="td.quitarFoto(${i})" title="Quitar">✕</button></div></div>`).join('')}</div>
         <input type="file" id="tpFotos" accept="image/*" multiple onchange="td.subirFotos()">
-        <div class="cx-etq">Stock</div>
-        <div id="tpVariantes">${(p.variantes || []).map(varHtml).join('')}</div>
-        <div class="row" style="flex-wrap:wrap;"><button class="small secondary" type="button" onclick="td.masVariante()">+ Talla o versión</button>
-          <button class="small secondary" type="button" onclick="td.tallasCamiseta()">Tallas S a XXL</button></div>
+        <label class="consent-toggle" style="margin-top:4px;"><input type="checkbox" id="tpBajo" ${bajo(p) ? 'checked' : ''} onchange="td.refrescar()"> Bajo pedido: sin stock, nunca se agota (se prepara cuando alguien lo compra)</label>
+        ${bajo(p) ? `<input id="tpPlazo" data-vivo placeholder="Plazo para la web (p. ej. Se imprime y te llega en 7-10 días)" value="${esc(p.plazo || '')}" style="margin-top:6px;">` : ''}
+        <div class="cx-etq">${bajo(p) ? 'Tamaños o versiones' : 'Stock'} <span class="person-meta">(precio y envío vacíos = los del producto)</span></div>
+        <div class="td-var td-var-cab${bajo(p) ? ' sin-stock' : ''}"><span>Variante</span><span>Precio</span><span>Envío</span><span>${bajo(p) ? '' : 'Stock'}</span><span></span></div>
+        <div id="tpVariantes">${(p.variantes || []).map((v) => varHtml(v, bajo(p))).join('')}</div>
+        <div class="row" style="flex-wrap:wrap;"><button class="small secondary" type="button" onclick="td.masVariante()">+ Talla, tamaño o versión</button>
+          ${p.tipo === 'print' || p.tipo === 'lamina' ? `<button class="small secondary" type="button" onclick="td.tamanosPrint()">Tamaños ${TAMANOS_PRINT.join(' y ')}</button>` : `<button class="small secondary" type="button" onclick="td.tallasCamiseta()">Tallas S a XXL</button>`}</div>
       </div>
     </div>
     <div class="row" style="margin-top:12px;flex-wrap:wrap;">
@@ -170,13 +198,16 @@ function pintarEditorProducto() {
   </div>`;
 }
 function cerrarProducto() { prodEditando = null; $('tdEditor').innerHTML = ''; }
-function masVariante() { leerProducto(); prodEditando.variantes.push({ nombre: '', stock: 0 }); pintarEditorProducto(); }
-function tallasCamiseta() {
+function refrescar() { leerProducto(); pintarEditorProducto(); }
+function masVariante() { leerProducto(); prodEditando.variantes.push({ nombre: '', stock: 0, precio: null, envio: null }); pintarEditorProducto(); }
+function ponerVariantes(nombres) {
   leerProducto();
-  const ya = Object.fromEntries(prodEditando.variantes.filter((v) => v.nombre).map((v) => [v.nombre, v.stock]));
-  prodEditando.variantes = ['S', 'M', 'L', 'XL', 'XXL'].map((t) => ({ nombre: t, stock: ya[t] || 0 }));
+  const ya = Object.fromEntries(prodEditando.variantes.filter((v) => v.nombre).map((v) => [v.nombre, v]));
+  prodEditando.variantes = nombres.map((t) => ya[t] || { nombre: t, stock: 0, precio: null, envio: null });
   pintarEditorProducto();
 }
+const tallasCamiseta = () => ponerVariantes(['S', 'M', 'L', 'XL', 'XXL']);
+const tamanosPrint = () => ponerVariantes(TAMANOS_PRINT);
 function moverFoto(i, d) { leerProducto(); const f = prodEditando.fotos; [f[i], f[i + d]] = [f[i + d], f[i]]; pintarEditorProducto(); }
 let fotosQuitadas = [];
 function quitarFoto(i) { leerProducto(); fotosQuitadas.push(prodEditando.fotos[i]); prodEditando.fotos.splice(i, 1); pintarEditorProducto(); }
@@ -215,11 +246,14 @@ async function guardarProducto() {
   leerProducto();
   const p = prodEditando;
   if (!p.nombre) return C.aviso('Ponle un nombre', true);
-  if (!(p.precio > 0)) return C.aviso('Pon el precio', true);
   const nombres = p.variantes.map((v) => v.nombre);
-  if (p.variantes.length > 1 && nombres.some((n) => !n)) return C.aviso('Si tiene varias tallas, cada una necesita su nombre', true);
-  if (new Set(nombres).size !== nombres.length) return C.aviso('Hay dos tallas con el mismo nombre', true);
-  if (p.estado === 'venta' && !stockDe(p)) p.estado = 'agotado';
+  if (p.variantes.length > 1 && nombres.some((n) => !n)) return C.aviso('Si tiene varias tallas o tamaños, cada uno necesita su nombre', true);
+  if (new Set(nombres).size !== nombres.length) return C.aviso('Hay dos variantes con el mismo nombre', true);
+  // Cada variante necesita un precio (el suyo o el del producto). El del producto queda como el más bajo ("desde").
+  if (p.variantes.some((v) => !(precioDe(p, v) > 0))) return C.aviso('Pon el precio (en el producto o en cada tamaño)', true);
+  p.precio = Math.min(...precios(p));
+  p.envio = num(p.envio);
+  if (p.bajoPedido) { if (p.estado === 'agotado') p.estado = 'venta'; } else if (p.estado === 'venta' && !stockDe(p)) p.estado = 'agotado';
   const id = p.id || 'p-' + C.uid();
   // Dirección en la web (mirardespacio.es/tienda/<slug>/): se fija la primera vez y no cambia
   // aunque cambies el nombre, para no romper enlaces ni lo que ya ha indexado Google
@@ -289,8 +323,8 @@ function empezarPedido() {
 function lineaPedidoHtml(l, i) {
   const p = productos.find((x) => x.id === l.productoId);
   return `<div class="td-lped">
-    <select data-k="producto" onchange="td.cambiarLinea(${i})"><option value="">Elige un producto</option>${vendibles().map((x) => `<option value="${x.id}" ${x.id === l.productoId ? 'selected' : ''}>${esc(x.nombre)} · ${eur(x.precio)}${x.estado !== 'venta' ? ' (' + ESTADOS_P[x.estado][0].toLowerCase() + ')' : ''}</option>`).join('')}</select>
-    ${p && conTallas(p) ? `<select data-k="variante" onchange="td.leerNuevo();td.totalNuevo()">${p.variantes.map((v) => `<option value="${esc(v.nombre)}" ${v.nombre === l.variante ? 'selected' : ''}>${esc(v.nombre)} (${Number(v.stock) || 0})</option>`).join('')}</select>` : `<span class="person-meta td-stock">${p ? stockDe(p) + ' en stock' : ''}</span>`}
+    <select data-k="producto" onchange="td.cambiarLinea(${i})"><option value="">Elige un producto</option>${vendibles().map((x) => `<option value="${x.id}" ${x.id === l.productoId ? 'selected' : ''}>${esc(x.nombre)} · ${precioTxt(x)}${x.estado !== 'venta' ? ' (' + ESTADOS_P[x.estado][0].toLowerCase() + ')' : ''}</option>`).join('')}</select>
+    ${p && conTallas(p) ? `<select data-k="variante" onchange="td.leerNuevo();td.proponerEnvio();td.totalNuevo()">${p.variantes.map((v) => `<option value="${esc(v.nombre)}" ${v.nombre === l.variante ? 'selected' : ''}>${esc(v.nombre)} · ${eur(precioDe(p, v))} (${bajo(p) ? 'bajo pedido' : Number(v.stock) || 0})</option>`).join('')}</select>` : `<span class="person-meta td-stock">${p ? (bajo(p) ? 'bajo pedido' : stockDe(p) + ' en stock') : ''}</span>`}
     <input data-k="cantidad" type="number" min="1" step="1" value="${Number(l.cantidad) || 1}" oninput="td.leerNuevo();td.totalNuevo()">
     <button class="small danger" type="button" onclick="td.quitarLinea(${i})">✕</button>
   </div>`;
@@ -307,14 +341,14 @@ function pintarNuevo() {
         <input id="tnNombre" data-vivo list="tnPersonas" placeholder="Nombre de quien compra" oninput="td.elegirComprador()" value="${esc(n.nombre || '')}">
         <datalist id="tnPersonas">${personas.map((p) => `<option value="${esc([p.name, p.apellidos].filter(Boolean).join(' '))}">${esc(p.email || '')}</option>`).join('')}</datalist>
         <div class="row"><input id="tnEmail" data-vivo type="email" placeholder="Email" value="${esc(n.email || '')}"><input id="tnTel" data-vivo placeholder="Teléfono" value="${esc(n.telefono || '')}"></div>
-        <select id="tnEntrega" onchange="td.leerNuevo();td.pintarNuevo()">${Object.entries(ENTREGAS).map(([k, t]) => `<option value="${k}" ${(n.entrega || 'mano') === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        <select id="tnEntrega" onchange="td.leerNuevo();td.proponerEnvio();td.pintarNuevo()">${Object.entries(ENTREGAS).map(([k, t]) => `<option value="${k}" ${(n.entrega || 'mano') === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
         ${(n.entrega || 'mano') === 'envio' ? `<textarea id="tnDir" data-vivo rows="3" placeholder="Dirección de envío completa">${esc(n.direccion || '')}</textarea>` : ''}
       </div>
       <div>
         <div class="cx-etq">Productos</div>
         <div id="tnLineas">${n.lineas.map(lineaPedidoHtml).join('')}</div>
         <button class="small secondary" type="button" onclick="td.masLineaPedido()">+ Otro producto</button>
-        <div class="row" style="margin-top:10px;"><input id="tnEnvio" data-vivo inputmode="decimal" placeholder="Envío €" value="${esc(coma(n.envio != null ? n.envio : ''))}" oninput="td.leerNuevo();td.totalNuevo()" title="Gastos de envío que paga el cliente">
+        <div class="row" style="margin-top:10px;"><input id="tnEnvio" data-vivo inputmode="decimal" placeholder="Envío €" value="${esc(coma(n.envio != null ? n.envio : ''))}" oninput="td.envioAMano();td.leerNuevo();td.totalNuevo()" title="Gastos de envío que paga el cliente. Se propone el de la variante más cara de enviar (todo va en el mismo paquete)">
           <select id="tnMetodo">${Object.entries(METODOS).map(([k, t]) => `<option value="${k}" ${(n.metodo || 'bizum') === k ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
         <label class="consent-toggle"><input type="checkbox" id="tnPagado" ${n.pagado !== false ? 'checked' : ''}> Ya está pagado (se apunta el cobro)</label>
         <input id="tnNotas" data-vivo placeholder="Notas (dedicatoria, cuándo se entrega…)" value="${esc(n.notas || '')}" style="margin-top:8px;">
@@ -322,7 +356,7 @@ function pintarNuevo() {
       </div>
     </div>
     <button onclick="td.crearPedido()">Crear pedido</button>
-    <div class="person-meta" style="margin-top:6px;">Al crearlo se descuenta el stock. Si lo cancelas, vuelve.</div>
+    <div class="person-meta" style="margin-top:6px;">Al crearlo se descuenta el stock (los productos bajo pedido no lo tienen). Si lo cancelas, vuelve.</div>
   </div>`;
   totalNuevo();
 }
@@ -340,7 +374,8 @@ function leerNuevo() {
 function lineasPedido(n) {
   return n.lineas.filter((l) => l.productoId).map((l) => {
     const p = productos.find((x) => x.id === l.productoId) || {};
-    return { productoId: l.productoId, nombre: p.nombre || '', tipo: p.tipo || 'otro', variante: l.variante || '', cantidad: l.cantidad, precio: num(p.precio), iva: Number(p.iva != null ? p.iva : 21) };
+    const v = varDe(p, l.variante);
+    return { productoId: l.productoId, nombre: p.nombre || '', tipo: p.tipo || 'otro', variante: l.variante || '', cantidad: l.cantidad, precio: precioDe(p, v), iva: Number(p.iva != null ? p.iva : 21), ...(bajo(p) ? { bajoPedido: true } : {}) };
   });
 }
 function totalNuevo() {
@@ -352,14 +387,21 @@ function totalNuevo() {
 function cambiarLinea(i) {
   leerNuevo();
   const l = nuevoPedido.lineas[i], p = productos.find((x) => x.id === l.productoId);
-  l.variante = p && conTallas(p) ? (p.variantes.find((v) => Number(v.stock) > 0) || p.variantes[0]).nombre : '';
-  // El envío se propone con el del producto más caro de enviar
-  const envios = nuevoPedido.lineas.map((x) => num((productos.find((y) => y.id === x.productoId) || {}).envio));
-  if (nuevoPedido.entrega === 'envio' && !num($('tnEnvio').value)) nuevoPedido.envio = Math.max(0, ...envios);
+  l.variante = p && conTallas(p) ? ((!bajo(p) && p.variantes.find((v) => Number(v.stock) > 0)) || p.variantes[0]).nombre : '';
+  proponerEnvio();
   pintarNuevo();
 }
+// Envío propuesto: el de la variante más cara de enviar (va todo en el mismo paquete), solo si es por correo.
+// Si Otto escribe el envío a mano, se respeta.
+function envioAMano() { if (nuevoPedido) nuevoPedido.envioManual = true; }
+function proponerEnvio() {
+  const n = nuevoPedido; if (!n || n.envioManual) return;
+  const envios = n.lineas.filter((x) => x.productoId).map((x) => { const p = productos.find((y) => y.id === x.productoId) || {}; return envioDe(p, varDe(p, x.variante)); });
+  n.envio = (n.entrega || 'mano') === 'envio' ? Math.max(0, ...envios) : 0;
+  if ($('tnEnvio')) $('tnEnvio').value = n.envio ? coma(n.envio) : '';
+}
 function masLineaPedido() { leerNuevo(); nuevoPedido.lineas.push({ productoId: '', variante: '', cantidad: 1 }); pintarNuevo(); }
-function quitarLinea(i) { leerNuevo(); nuevoPedido.lineas.splice(i, 1); if (!nuevoPedido.lineas.length) nuevoPedido.lineas.push({ productoId: '', variante: '', cantidad: 1 }); pintarNuevo(); }
+function quitarLinea(i) { leerNuevo(); nuevoPedido.lineas.splice(i, 1); if (!nuevoPedido.lineas.length) nuevoPedido.lineas.push({ productoId: '', variante: '', cantidad: 1 }); proponerEnvio(); pintarNuevo(); }
 function cancelarNuevo() { nuevoPedido = null; $('tdNuevo').innerHTML = ''; }
 function elegirComprador() {
   const nombre = normal($('tnNombre').value);
@@ -385,12 +427,16 @@ async function crearPedido() {
       const cont = await tx.get(doc(db, 'contadores', 'pedidos'));
       const variantes = {};
       ids.forEach((pid) => { if (!snaps[pid].exists()) throw new Error('Un producto ya no existe'); variantes[pid] = JSON.parse(JSON.stringify(snaps[pid].data().variantes || [])); });
+      // Lo que manda es cómo está el producto ahora en la base de datos (bajo pedido o con stock)
+      const sinStock = (pid) => !!snaps[pid].data().bajoPedido;
       lineas.forEach((l) => {
+        if (sinStock(l.productoId)) { l.bajoPedido = true; return; } // bajo pedido: no se descuenta nada
+        delete l.bajoPedido;
         const v = variantes[l.productoId].find((x) => (x.nombre || '') === (l.variante || '')) || variantes[l.productoId][0];
         if (!v || (Number(v.stock) || 0) < l.cantidad) throw new Error(`No hay stock suficiente de ${l.nombre}${l.variante ? ' (' + l.variante + ')' : ''}`);
         v.stock = (Number(v.stock) || 0) - l.cantidad;
       });
-      ids.forEach((pid) => {
+      ids.filter((pid) => !sinStock(pid)).forEach((pid) => {
         const cambios = { variantes: variantes[pid] };
         if (snaps[pid].data().estado === 'venta' && !variantes[pid].some((v) => Number(v.stock) > 0)) cambios.estado = 'agotado';
         tx.update(doc(db, 'productos', pid), cambios);
@@ -440,7 +486,7 @@ function pintarPedido() {
     <div style="margin:6px 0 10px;"><span class="tag ${cl}">${et}</span>${p.estado !== 'cancelado' ? (p.pagado ? `<span class="tag t-plus">pagado ${fechaES(p.fechaPago)}</span>` : '<span class="tag t-man">sin pagar</span>') : ''}</div>
     <div class="cx-dos">
       <div>
-        ${(p.lineas || []).map((l) => `<div class="cx-linea"><span>${l.cantidad} × ${esc(l.nombre)}${l.variante ? ' (' + esc(l.variante) + ')' : ''}</span><span>${eur(l.cantidad * l.precio)}</span></div>`).join('')}
+        ${(p.lineas || []).map((l) => `<div class="cx-linea"><span>${l.cantidad} × ${esc(l.nombre)}${l.variante ? ' (' + esc(l.variante) + ')' : ''}${l.bajoPedido ? ' <span class="tag t-fotos">bajo pedido</span>' : ''}</span><span>${eur(l.cantidad * l.precio)}</span></div>`).join('')}
         ${num(p.envio) ? `<div class="cx-linea"><span>Envío</span><span>${eur(p.envio)}</span></div>` : ''}
         <div class="cx-linea cx-total"><span>Total</span><span>${eur(p.total)}</span></div>
         ${p.notas ? `<div class="person-meta" style="margin-top:8px;">${esc(p.notas)}</div>` : ''}
@@ -492,18 +538,19 @@ async function cancelar(id) {
       const ref = doc(db, 'pedidos', id);
       const snap = await tx.get(ref);
       const d = snap.data();
-      const ids = d.stockDescontado ? [...new Set((d.lineas || []).map((l) => l.productoId))] : [];
+      // Las líneas bajo pedido no descontaron stock: no se devuelve nada de ellas
+      const ids = d.stockDescontado ? [...new Set((d.lineas || []).filter((l) => !l.bajoPedido).map((l) => l.productoId))] : [];
       const prods = {};
       for (const pid of ids) prods[pid] = await tx.get(doc(db, 'productos', pid));
       ids.forEach((pid) => {
         if (!prods[pid].exists()) return;
         const vs = JSON.parse(JSON.stringify(prods[pid].data().variantes || []));
-        d.lineas.filter((l) => l.productoId === pid).forEach((l) => {
+        d.lineas.filter((l) => l.productoId === pid && !l.bajoPedido).forEach((l) => {
           const v = vs.find((x) => (x.nombre || '') === (l.variante || '')) || vs[0];
           if (v) v.stock = (Number(v.stock) || 0) + Number(l.cantidad);
         });
         const cambios = { variantes: vs };
-        if (prods[pid].data().estado === 'agotado') cambios.estado = 'venta';
+        if (prods[pid].data().estado === 'agotado' && vs.some((v) => Number(v.stock) > 0)) cambios.estado = 'venta';
         tx.update(doc(db, 'productos', pid), cambios);
       });
       tx.update(ref, { estado: 'cancelado', stockDescontado: false, fecha_cancelado: hoyISO() });
@@ -518,7 +565,7 @@ function copiarDireccion(id) {
 }
 
 window.td = {
-  ver, pintar, editarProducto, cerrarProducto, masVariante, tallasCamiseta, moverFoto, quitarFoto, subirFotos, guardarProducto, borrarProducto,
-  empezarPedido, pintarNuevo, leerNuevo, totalNuevo, cambiarLinea, masLineaPedido, quitarLinea, cancelarNuevo, elegirComprador, crearPedido,
+  ver, pintar, editarProducto, cerrarProducto, refrescar, masVariante, tallasCamiseta, tamanosPrint, moverFoto, quitarFoto, subirFotos, guardarProducto, borrarProducto,
+  empezarPedido, pintarNuevo, leerNuevo, totalNuevo, cambiarLinea, proponerEnvio, envioAMano, masLineaPedido, quitarLinea, cancelarNuevo, elegirComprador, crearPedido,
   abrirPedido, cerrarPedido, estado, guardarSeguimiento, marcarPagado, hacerFactura, cancelar, copiarDireccion,
 };
