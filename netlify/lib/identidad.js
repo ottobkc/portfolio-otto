@@ -22,6 +22,8 @@ function usuarioDe(context) {
     roles,
     plus: roles.includes('member') || roles.includes('admin'),
     fotos: roles.some((r) => ['member', 'participante', 'admin'].includes(r)),
+    admin: roles.includes('admin'),
+    manuales: (roles || []).filter((r) => /^taller-/.test(r)).map((r) => r.slice(7)),
   };
 }
 

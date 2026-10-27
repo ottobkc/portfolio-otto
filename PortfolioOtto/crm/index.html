@@ -416,6 +416,7 @@
         <option value="">Retos y salidas</option>
         <option value="reto">Solo retos (MD+)</option>
         <option value="salida">Solo salidas</option>
+        <option value="taller">Solo talleres</option>
       </select>
       <input type="text" id="fotosBuscar" placeholder="Buscar persona o salida…" oninput="renderFotos()">
     </div>
@@ -729,7 +730,7 @@ window.renderFotos = function() {
   const q = (document.getElementById('fotosBuscar').value || '').toLowerCase();
   let lista = fotos.filter(f => filtro === 'todas' ? true : filtro === 'muro' ? f.enMuro : f.estado === filtro);
   const tipo = document.getElementById('fotosTipo').value;
-  if (tipo) lista = lista.filter(f => (f.tipo === 'reto') === (tipo === 'reto'));
+  if (tipo) lista = lista.filter(f => (f.tipo || 'salida') === tipo);
   if (q) lista = lista.filter(f => [f.nombreMuro, f.nombreCuenta, f.email, f.refNombre].join(' ').toLowerCase().includes(q));
   lista.sort((a, b) => filtro === 'pendiente' ? fms(a.creada) - fms(b.creada) : fms(b.creada) - fms(a.creada));
   el.innerHTML = lista.length ? '' : '<div class="empty">Nada por aquí</div>';
@@ -741,7 +742,7 @@ window.renderFotos = function() {
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;" class="foto-crm">
         ${f.archivada ? '<div class="empty">Imagen archivada (limpieza automática)</div>' : `<a href="${escapeHtml(f.url)}" target="_blank"><img src="${escapeHtml(mini(f.url, 700))}" style="width:100%;display:block;border-radius:6px;" loading="lazy"></a>`}
         <div>
-          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''}</div>
+          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : f.tipo === 'taller' ? '<span class="badge" style="background:#e8821a;">taller</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''}</div>
           <div class="person-meta">${escapeHtml(f.refNombre || '')} · ${fechaTxt(fechaDe(f.creada))} · ${otras} foto(s) suyas · ${f.origen === 'enlace' ? 'por enlace' : 'con cuenta'}</div>
           <div class="person-meta">Firma en el muro: ${escapeHtml(f.nombreMuro || '')} · ${f.publicable ? 'permite el muro' : '<b>no quiere salir en el muro</b>'}${f.tipo === 'reto' ? ' · ' + (f.compartir ? 'la ven los miembros' : 'no la comparte con los miembros') : ''}</div>
           ${f.texto ? `<p style="font-style:italic;margin:8px 0;">“${escapeHtml(f.texto)}”</p>` : ''}
