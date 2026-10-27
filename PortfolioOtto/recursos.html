@@ -705,7 +705,8 @@
         document.getElementById('welcomeUser').textContent =
           user.user_metadata?.full_name || user.email;
         pintarManuales((user.app_metadata && user.app_metadata.roles) || []);
-        user.jwt().then(function (t) { pintarManuales(rolesDe(t)); }).catch(function () {});
+        // jwt(true) pide un pase nuevo: así se ven los manuales recién dados sin cerrar sesión
+        user.jwt(true).then(function (t) { pintarManuales(rolesDe(t)); }).catch(function () {});
       }
     });
     netlifyIdentity.init();

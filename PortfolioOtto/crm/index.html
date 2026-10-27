@@ -1138,7 +1138,7 @@ const MANUALES_CRM = { atardecer: 'Callejera al atardecer', nocturna: 'Callejera
 let manualesDatos = [];
 (function () {
   const sel = document.getElementById('manualTaller');
-  if (sel) sel.innerHTML = Object.entries(MANUALES_CRM).map(([id, t]) => `<option value="${id}">${escapeHtml(t)}</option>`).join('');
+  if (sel) sel.innerHTML = Object.entries(MANUALES_CRM).map(([id, t]) => `<option value="${id}">${escapeHtml(t)}</option>`).join('') + '<option value="todos">Todos los manuales</option>';
 })();
 async function adminManuales(cuerpo) {
   const token = await auth.currentUser.getIdToken();
@@ -1169,8 +1169,11 @@ window.darManualCRM = async function() {
   const est = document.getElementById('manualesEstado');
   if (!email) return;
   try {
-    const r = await adminManuales({ accion: 'dar', email, taller });
-    est.textContent = { invitado: 'Acceso dado ✓ (no tenía cuenta: le llega la invitación)', 'ya-existe': 'Acceso dado ✓ a su cuenta', 'ya-tenia': 'Ya tenía acceso a ese manual' }[r.estado] || ('Resultado: ' + r.estado);
+    const ids = taller === 'todos' ? Object.keys(MANUALES_CRM) : [taller];
+    let r;
+    for (const t of ids) { est.textContent = 'Dando acceso a ' + MANUALES_CRM[t] + '…'; r = await adminManuales({ accion: 'dar', email, taller: t }); }
+    est.textContent = (ids.length > 1 ? 'Acceso a los ' + ids.length + ' manuales ✓' : ({ invitado: 'Acceso dado ✓ (no tenía cuenta: le llega la invitación)', 'ya-existe': 'Acceso dado ✓ a su cuenta', 'ya-tenia': 'Ya tenía acceso a ese manual' }[r.estado] || ('Resultado: ' + r.estado)))
+      + ' · si tiene la sesión abierta, verá los manuales al recargar su página de MD+';
     document.getElementById('manualEmail').value = '';
     if (manualesDatos.length) cargarManuales();
   } catch (e) { est.textContent = 'Error: ' + e.message; }

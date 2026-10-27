@@ -6,7 +6,8 @@
 //  POST {accion:'quitar', id, taller}    -> quita el acceso a ese manual (la cuenta y lo demás se quedan)
 //
 // El acceso es el rol "taller-<id>" de Netlify Identity (ver netlify/lib/manuales.js y netlify.toml).
-const { getAuth } = require('firebase-admin/auth');
+// La sesión se comprueba con sesion-firebase (firebase-admin/auth no carga en las funciones de Netlify)
+const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
 const { listarUsuarios, manualesDe, darManual, quitarManual } = require('../lib/identidad');
 const { MANUALES } = require('../lib/manuales');
@@ -20,7 +21,7 @@ exports.handler = async (event, context) => {
     const fs = db(); // inicia firebase-admin
     const token = (event.headers.authorization || '').replace(/^Bearer\s+/i, '');
     let quien;
-    try { quien = await getAuth().verifyIdToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
+    try { quien = await verificarToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
     if ((quien.email || '').toLowerCase() !== ADMIN) return res(403, { error: 'no-admin' });
 
     const b = JSON.parse(event.body || '{}');
