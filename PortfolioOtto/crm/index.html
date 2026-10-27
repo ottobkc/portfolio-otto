@@ -377,6 +377,18 @@
       <div class="person-meta" id="cuentasEstado"></div>
       <div id="cuentasList"></div>
     </div>
+    <div class="card">
+      <div class="card-title">Manuales de talleres</div>
+      <div class="person-meta">Cada manual solo lo abre quien tiene acceso a ese manual. Se da solo al pagar una plaza o canjear un bono de ese taller; aquí puedes dárselo a mano (acompañantes, invitados…). No depende de MD+: aunque se le acabe el mes, el manual se queda. Si la persona no tiene cuenta, le llega la invitación para crear su contraseña.</div>
+      <div class="row" style="margin-top:8px;">
+        <input type="email" id="manualEmail" placeholder="Email">
+        <select id="manualTaller"></select>
+        <button onclick="darManualCRM()">Dar acceso</button>
+      </div>
+      <div class="row" style="margin-top:8px;"><button class="secondary" onclick="cargarManuales()">Ver quién tiene acceso</button></div>
+      <div class="person-meta" id="manualesEstado"></div>
+      <div id="manualesList"></div>
+    </div>
     <div class="card-title">Miembros (toca uno para ver su historial)</div>
     <div id="miembrosList"></div>
     <div class="card-title" style="margin-top:18px;">Últimos movimientos</div>
@@ -959,6 +971,56 @@ window.invitarCuenta = async function() {
     if (cuentas.length) cargarCuentas();
   } catch (e) { document.getElementById('cuentasEstado').textContent = 'Error: ' + e.message; }
 };
+
+// Manuales de talleres (acceso por taller, función manuales-admin)
+const MANUALES_CRM = { atardecer: 'Callejera al atardecer', nocturna: 'Callejera nocturna', iniciacion: 'Primeros pasos', composicion: 'Composición en la calle' };
+let manualesDatos = [];
+(function () {
+  const sel = document.getElementById('manualTaller');
+  if (sel) sel.innerHTML = Object.entries(MANUALES_CRM).map(([id, t]) => `<option value="${id}">${escapeHtml(t)}</option>`).join('');
+})();
+async function adminManuales(cuerpo) {
+  const token = await auth.currentUser.getIdToken();
+  const r = await fetch('/.netlify/functions/manuales-admin', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(cuerpo),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('error ' + r.status));
+  return j;
+}
+window.cargarManuales = async function() {
+  const est = document.getElementById('manualesEstado');
+  est.textContent = 'Cargando…';
+  try { manualesDatos = (await adminManuales({ accion: 'lista' })).manuales || []; est.textContent = ''; pintarManuales(); }
+  catch (e) { est.textContent = 'Error: ' + e.message; }
+};
+window.pintarManuales = function() {
+  const el = document.getElementById('manualesList');
+  el.innerHTML = manualesDatos.map(m => `<div class="card-title" style="margin-top:12px;">${escapeHtml(m.titulo)} · ${m.personas.length} ${m.listo ? '' : '<span class="badge" style="background:#7a756f;">manual aún sin publicar</span>'}</div>` +
+    (m.personas.length ? m.personas.map(p => `<div class="person-row"><div class="person-main">
+        <div class="person-name">${escapeHtml(p.nombre || p.email)} ${p.confirmada ? '' : '<span class="badge" style="background:#7a756f;">invitación sin aceptar</span>'}</div>
+        <div class="person-meta">${escapeHtml(p.email)}</div></div>
+        <button class="secondary" onclick="quitarManualCRM('${m.id}', '${p.id}')">Quitar</button></div>`).join('') : '<div class="person-meta">Nadie todavía</div>')).join('');
+};
+window.darManualCRM = async function() {
+  const email = document.getElementById('manualEmail').value.trim();
+  const taller = document.getElementById('manualTaller').value;
+  const est = document.getElementById('manualesEstado');
+  if (!email) return;
+  try {
+    const r = await adminManuales({ accion: 'dar', email, taller });
+    est.textContent = { invitado: 'Acceso dado ✓ (no tenía cuenta: le llega la invitación)', 'ya-existe': 'Acceso dado ✓ a su cuenta', 'ya-tenia': 'Ya tenía acceso a ese manual' }[r.estado] || ('Resultado: ' + r.estado);
+    document.getElementById('manualEmail').value = '';
+    if (manualesDatos.length) cargarManuales();
+  } catch (e) { est.textContent = 'Error: ' + e.message; }
+};
+window.quitarManualCRM = async function(taller, id) {
+  const m = manualesDatos.find(x => x.id === taller); const p = m && m.personas.find(x => x.id === id);
+  if (!confirm(`¿Quitar a ${p ? p.email : 'esta persona'} el acceso al manual «${MANUALES_CRM[taller]}»? Su cuenta y lo demás se quedan.`)) return;
+  try { await adminManuales({ accion: 'quitar', id, taller }); cargarManuales(); setSyncStatus('Acceso al manual quitado ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
 
 // ---------- PEGATINAS ----------
 let jugadores = [];
