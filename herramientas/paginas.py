@@ -448,7 +448,7 @@ def construir(g):
     </section>'''
     escribir('/tienda/', pagina('/tienda/', 'Tienda · Zine y baraja de fotografía callejera · Mirar Despacio',
         'Tienda de Mirar Despacio: el zine impreso de fotografía callejera, la baraja de retos y otras cosas para mirar despacio. Hecho en Madrid.', cuerpo,
-        extra_pie=f'\n  <script src="{g["v"]("tienda.js")}" defer></script>'))
+        extra_pie=f'\n  <script type="module" src="{g["v"]("tienda.js")}"></script>'))
 
     # ------------------------------------------------------------ MIRAR DESPACIO+
     cuerpo = f'''

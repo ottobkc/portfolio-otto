@@ -1,11 +1,13 @@
 // Tienda pública de mirardespacio.es: los productos que Otto tiene "a la venta" o "agotados"
 // en el CRM (colección productos). En cuanto creas o cambias un producto en el CRM, aparece aquí.
-//  GET -> [{ id, nombre, tipo, descripcion, precio, envio, estado, fotos:[url], variantes:[{nombre, disponible, pocas}], enlacePago }]
+//  GET -> [{ id, slug, nombre, tipo, descripcion, precio, envio, estado, fotos:[url], variantes:[{nombre, disponible, pocas}], enlacePago }]
 // mirardespacio.es/api/tienda apunta aquí (mismo origen para la web). No se publica el stock exacto.
 const { db } = require('../lib/firestore');
 
 const ORIGENES = /^https:\/\/((www\.)?mirardespacio\.es|([a-z0-9-]+--)?mirar-despacio\.netlify\.app|(www\.)?ottokols\.es)$/;
 const POCAS = 3;
+// Dirección del producto: la que guarda el CRM, o la que sale del nombre
+const slugDe = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'producto';
 let cache = null;
 
 async function productos() {
@@ -16,7 +18,7 @@ async function productos() {
     const vs = (p.variantes || []).map((v) => ({ nombre: String(v.nombre || ''), disponible: (Number(v.stock) || 0) > 0, pocas: (Number(v.stock) || 0) > 0 && (Number(v.stock) || 0) <= POCAS }));
     const hay = vs.some((v) => v.disponible);
     return {
-      id: d.id, nombre: p.nombre || '', tipo: p.tipo || 'otro', descripcion: p.descripcion || '',
+      id: d.id, slug: p.slug || slugDe(p.nombre), nombre: p.nombre || '', tipo: p.tipo || 'otro', descripcion: p.descripcion || '',
       precio: Number(p.precio) || 0, envio: Number(p.envio) || 0,
       estado: p.estado === 'venta' && hay ? 'venta' : 'agotado',
       fotos: (p.fotos || []).map((f) => f.url).filter(Boolean),

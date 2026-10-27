@@ -149,6 +149,7 @@ function pintarEditorProducto() {
         <div class="row"><input id="tpPrecio" data-vivo inputmode="decimal" placeholder="Precio con IVA €" value="${esc(coma(p.precio))}" title="Precio con IVA incluido">
           <select id="tpIva" title="IVA">${[[21, 'IVA 21 %'], [10, 'IVA 10 %'], [4, 'IVA 4 %'], [0, 'Exento']].map(([k, t]) => `<option value="${k}" ${Number(p.iva) === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
           <input id="tpEnvio" data-vivo inputmode="decimal" placeholder="Envío €" value="${esc(coma(p.envio))}" title="Gastos de envío"></div>
+        ${p.slug ? `<div class="person-meta" style="margin-bottom:8px;">En la web: <a href="https://mirardespacio.es/tienda/${esc(p.slug)}/" target="_blank" rel="noopener">mirardespacio.es/tienda/${esc(p.slug)}/</a>${p.estado === 'venta' || p.estado === 'agotado' ? '' : ' (no se ve hasta que lo pongas a la venta)'}</div>` : ''}
         <div class="row"><input id="tpSku" data-vivo placeholder="Referencia (opcional)" value="${esc(p.sku)}"><input id="tpEnlace" data-vivo placeholder="Enlace de pago de Stripe (cuando lo haya)" value="${esc(p.enlacePago)}"></div>
       </div>
       <div>
@@ -220,6 +221,14 @@ async function guardarProducto() {
   if (new Set(nombres).size !== nombres.length) return C.aviso('Hay dos tallas con el mismo nombre', true);
   if (p.estado === 'venta' && !stockDe(p)) p.estado = 'agotado';
   const id = p.id || 'p-' + C.uid();
+  // Dirección en la web (mirardespacio.es/tienda/<slug>/): se fija la primera vez y no cambia
+  // aunque cambies el nombre, para no romper enlaces ni lo que ya ha indexado Google
+  if (!p.slug) {
+    const base = normal(p.nombre).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'producto';
+    let slug = base, n = 2;
+    while (productos.some((x) => x.id !== p.id && x.slug === slug)) slug = base + '-' + n++;
+    p.slug = slug;
+  }
   const { id: _, ...datos } = p;
   try {
     await setDoc(doc(db, 'productos', id), { ...datos, actualizado: serverTimestamp(), creado: p.creado || serverTimestamp() });
