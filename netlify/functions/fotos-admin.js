@@ -14,7 +14,8 @@
 const crypto = require('crypto');
 const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
-const { listarUsuarios, ponerRoles, rolesPara, invitarCon } = require('../lib/identidad');
+const cuentas = require('../lib/cuentas');
+const { rolesPara, invitarCon, accesoDe } = cuentas;
 const { enviar, esc } = require('../lib/correo');
 const { tarjeta, aTexto } = require('../lib/plantillas-salida');
 const inscripcion = require('./inscripcion');
@@ -55,7 +56,6 @@ function correoEnlace(p, ev, url) {
 }
 
 const res = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
-const accesoDe = (roles) => (roles.includes('admin') ? 'admin' : roles.includes('member') ? 'plus' : roles.includes('participante') ? 'fotos' : 'ninguno');
 
 // Enlace a la foto concreta (abre su hilo para responder)
 function enlaceFoto(f) {
@@ -169,24 +169,21 @@ exports.handler = async (event, context) => {
     }
 
     if (b.accion === 'cuentas') {
-      const lista = await listarUsuarios(context);
-      return res(200, lista.map((u) => {
-        const roles = (u.app_metadata && u.app_metadata.roles) || [];
-        return {
-          id: u.id, email: u.email, nombre: (u.user_metadata && u.user_metadata.full_name) || '',
-          acceso: accesoDe(roles), manuales: roles.filter((r) => /^taller-/.test(r)).map((r) => r.slice(7)),
-          confirmada: !!u.confirmed_at, creada: u.created_at, ultimoLogin: u.last_sign_in_at || null,
-        };
-      }));
+      const lista = await cuentas.listar(context);
+      return res(200, lista.map((u) => ({
+        id: u.id, email: u.email, nombre: u.nombre,
+        acceso: accesoDe(u.roles), manuales: cuentas.manualesDe(u.roles),
+        confirmada: u.confirmada, creada: u.creada, ultimoLogin: u.ultimoLogin,
+      })));
     }
 
     if (b.accion === 'acceso') {
       if (!['plus', 'fotos', 'ninguno'].includes(b.acceso)) return res(400, { error: 'acceso' });
-      const u = (await listarUsuarios(context)).find((x) => x.id === b.id);
+      const u = await cuentas.porId(context, String(b.id || ''));
       if (!u) return res(404, { error: 'no-existe' });
-      const actuales = (u.app_metadata && u.app_metadata.roles) || [];
+      const actuales = u.roles;
       if (actuales.includes('admin')) return res(400, { error: 'es-admin' });
-      await ponerRoles(context, u.id, rolesPara(actuales, b.acceso));
+      await cuentas.ponerRoles(context, u, rolesPara(actuales, b.acceso));
       await fs.collection('cambios_acceso').add({
         userId: u.id, email: u.email, antes: accesoDe(actuales), ahora: b.acceso, fecha: FieldValue.serverTimestamp(),
       });

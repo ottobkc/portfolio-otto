@@ -5,11 +5,11 @@
 //  POST {accion:'dar', email, taller}    -> da acceso (si no tiene cuenta, la invita solo con ese manual)
 //  POST {accion:'quitar', id, taller}    -> quita el acceso a ese manual (la cuenta y lo demás se quedan)
 //
-// El acceso es el rol "taller-<id>" de Netlify Identity (ver netlify/lib/manuales.js y netlify.toml).
+// El acceso es el rol "taller-<id>" de la cuenta (netlify/lib/cuentas.js).
 // La sesión se comprueba con sesion-firebase (firebase-admin/auth no carga en las funciones de Netlify)
 const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
-const { listarUsuarios, manualesDe, darManual, quitarManual } = require('../lib/identidad');
+const { listar, manualesDe, darManual, quitarManual } = require('../lib/cuentas');
 const { MANUALES } = require('../lib/manuales');
 
 const ADMIN = (process.env.CRM_ADMIN || 'ottobkc@gmail.com').toLowerCase();
@@ -29,11 +29,11 @@ exports.handler = async (event, context) => {
     const registro = (datos) => fs.collection('cambios_acceso').add({ tipo: 'manual', taller, fecha: FieldValue.serverTimestamp(), ...datos });
 
     if (b.accion === 'lista') {
-      const usuarios = await listarUsuarios(context);
+      const usuarios = await listar(context);
       const manuales = Object.entries(MANUALES).map(([id, m]) => ({
         id, titulo: m.titulo, listo: m.listo,
-        personas: usuarios.filter((u) => manualesDe((u.app_metadata && u.app_metadata.roles) || []).includes(id))
-          .map((u) => ({ id: u.id, email: u.email, nombre: (u.user_metadata && u.user_metadata.full_name) || '', confirmada: !!u.confirmed_at }))
+        personas: usuarios.filter((u) => manualesDe(u.roles).includes(id))
+          .map((u) => ({ id: u.id, email: u.email, nombre: u.nombre, confirmada: u.confirmada }))
           .sort((x, y) => String(x.email).localeCompare(y.email)),
       }));
       return res(200, { manuales });

@@ -14,14 +14,14 @@
 // Las fotos se suben directamente del navegador a Cloudinary (ya reducidas a 2000 px);
 // aquí se comprueba de verdad lo que ocupan antes de guardarlas.
 // Quién entra:
-//  - con sesión de Netlify Identity: rol member (MD+), participante (solo fotos) o admin
+//  - con sesión (Firebase; durante la migración también Netlify Identity): rol member (MD+), participante (solo fotos) o admin
 //  - SIN cuenta, con su enlace personal ottokols.es/subir/?c=<clave> (lo manda Otto desde el CRM
 //    a la gente de cada salida). Es la forma fácil: sin contraseñas. Solo fotos de salidas.
 //  - con sesión y solo el manual de un taller (rol "taller-<id>"): únicamente las fotos de los
 //    ejercicios de después de ESE taller (tipo 'taller', refId '<id>-<n>'), desde la página del manual.
 // Las fotos de cada persona se reconocen por su email, entre por donde entre.
 const { db, FieldValue, conLimite } = require('../lib/firestore');
-const { usuarioDe } = require('../lib/identidad');
+const { usuarioDe } = require('../lib/cuentas');
 const { enviar, esc, remitente } = require('../lib/correo');
 const { SALIDA_DIAS, RETOS_GUARDADOS } = require('../lib/fotos-config');
 const { MANUALES, urlManual } = require('../lib/manuales');
@@ -224,7 +224,7 @@ exports.handler = async (event, context) => {
 
     let cuerpo = {};
     if (event.httpMethod === 'POST') cuerpo = JSON.parse(event.body || '{}');
-    const yo = usuarioDe(context) || (await porClave(fs, qs.c || cuerpo.clave));
+    const yo = (await usuarioDe(event, context)) || (await porClave(fs, qs.c || cuerpo.clave));
     if (!yo || !yo.email || !(yo.fotos || (yo.manuales || []).length)) return res(h, 401, { error: 'sesion' });
     // Quien solo tiene el manual de un taller entra aquí únicamente para sus ejercicios de después
     const soloManual = !yo.fotos;

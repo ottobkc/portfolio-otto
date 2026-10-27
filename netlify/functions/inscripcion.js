@@ -283,10 +283,10 @@ exports.handler = async (event, context) => {
   if (b.web) return { statusCode: 200, headers: h, body: JSON.stringify({ estado: 'plaza' }) };
 
   // Inscripción anticipada desde la zona MD+: solo con sesión de miembro, y el email es el de su cuenta
-  const usuario = context && context.clientContext && context.clientContext.user;
-  const roles = (usuario && usuario.app_metadata && usuario.app_metadata.roles) || [];
   const anticipada = b.anticipada === 'si' || b.anticipada === true;
-  if (anticipada && !(roles.includes('member') || roles.includes('admin'))) {
+  // Sesión de Firebase o, durante la migración, de Netlify Identity (lib/cuentas.js)
+  const usuario = anticipada ? await require('../lib/cuentas').usuarioDe(event, context).catch(() => null) : null;
+  if (anticipada && !(usuario && usuario.plus)) {
     return { statusCode: 403, headers: h, body: '{"error":"solo-miembros"}' };
   }
   if (anticipada) b.email = usuario.email;

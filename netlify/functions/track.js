@@ -1,14 +1,16 @@
 // Recibe desde las páginas de miembros: página vista, salida y cierre de sesión.
-// Solo acepta peticiones con el token de Netlify Identity (Authorization: Bearer ...),
-// así nadie puede inventarse accesos de otra persona.
+// Solo acepta peticiones con la sesión del socio (Authorization: Bearer ...: Firebase o, durante la
+// migración, Netlify Identity), así nadie puede inventarse accesos de otra persona.
 const { registrar, conLimite } = require('../lib/firestore');
+const { usuarioDe } = require('../lib/cuentas');
 
 const TIPOS = new Set(['pagina', 'salida', 'logout']);
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: '' };
-  const user = context.clientContext && context.clientContext.user;
-  if (!user) return { statusCode: 401, body: '' };
+  const u = await usuarioDe(event, context).catch(() => null);
+  if (!u) return { statusCode: 401, body: '' };
+  const user = { id: u.id, email: u.email, user_metadata: { full_name: u.nombre } };
 
   let tipo, ruta;
   try {

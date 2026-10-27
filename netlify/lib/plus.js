@@ -3,8 +3,8 @@
 //   subscription: { active, since, until (AAAA-MM-DD), nivel: 'salidas' | 'online', bajaEn, motivoBaja }
 //   trialStart: ISO (prueba gratis de 30 días)
 //   pruebaHasta: AAAA-MM-DD (opcional) si la prueba se amplió para que termine el reto abierto
-// El acceso a la zona de miembros (rol 'member' en Netlify Identity) se pone y se quita a la vez.
-const { usuarioPorEmail, ponerRoles, rolesPara, invitarCon } = require('./identidad');
+// El acceso a la zona de miembros (rol 'member' de la cuenta, ver lib/cuentas.js) se pone y se quita a la vez.
+const { porEmail, ponerRoles, rolesPara, invitarCon } = require('./cuentas');
 
 const DIA = 864e5;
 const GRACIA_DIAS = 3;
@@ -37,11 +37,10 @@ async function aplicarAcceso(context, email, acceso) {
   if (!email) return 'sin-email';
   try {
     if (acceso === 'plus') return await invitarCon(context, email, 'plus');
-    const u = await usuarioPorEmail(context, email);
+    const u = await porEmail(context, email);
     if (!u) return 'sin-cuenta';
-    const actuales = (u.app_metadata && u.app_metadata.roles) || [];
-    if (actuales.includes('admin')) return 'admin';
-    await ponerRoles(context, u.id, rolesPara(actuales, acceso));
+    if (u.roles.includes('admin')) return 'admin';
+    await ponerRoles(context, u, rolesPara(u.roles, acceso));
     return 'hecho';
   } catch (e) {
     return e.message === 'sin-identity' ? 'sin-identity' : 'error';

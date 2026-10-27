@@ -546,6 +546,18 @@
       <div class="person-meta" id="cuentasEstado"></div>
       <div id="cuentasList"></div>
     </div>
+    <div class="card" id="migracionCard">
+      <div class="card-title">Paso a Firebase (migración de las cuentas)</div>
+      <div class="person-meta">Copia las cuentas de Netlify Identity a Firebase sin tocar nada de Identity: la gente sigue entrando como siempre.
+        Se puede repetir las veces que quieras. Empieza siempre por «Descargar respaldo».</div>
+      <div class="row" style="margin-top:8px;flex-wrap:wrap;">
+        <button class="secondary" onclick="migracion('respaldo')">1 · Descargar respaldo</button>
+        <button class="secondary" onclick="migracion('informe')">2 · Ver informe</button>
+        <button onclick="migracion('migrar')">3 · Copiar a Firebase</button>
+      </div>
+      <div class="person-meta" id="migracionEstado" style="margin-top:6px;"></div>
+      <div id="migracionInforme"></div>
+    </div>
     </div>
 
     <div class="subvista" id="sub-manuales">
@@ -829,7 +841,8 @@ function attachListeners() {
     if (currentEventId) renderRoster();
   });
   unsubMiembros = onSnapshot(collection(db, 'miembros_actividad'), (snap) => {
-    miembrosAct = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Las de la cuenta antigua de Identity ya unidas a la nueva de Firebase no se cuentan dos veces
+    miembrosAct = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(m => !m.unidaA);
     renderAccesos();
   }, () => {});
   unsubAccesos = onSnapshot(query(collection(db, 'accesos'), orderBy('fecha', 'desc'), limit(300)), (snap) => {
@@ -1302,6 +1315,52 @@ window.invitarCuenta = async function() {
     document.getElementById('invitarEmail').value = '';
     if (cuentas.length) cargarCuentas();
   } catch (e) { document.getElementById('cuentasEstado').textContent = 'Error: ' + e.message; }
+};
+
+// Migración de las cuentas de Identity a Firebase (función migrar-cuentas)
+async function adminMigracion(cuerpo) {
+  const token = await auth.currentUser.getIdToken();
+  const r = await fetch('/.netlify/functions/migrar-cuentas', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(cuerpo),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('error ' + r.status));
+  return j;
+}
+const NOMBRE_ROL = r => r === 'member' ? 'MD+' : r === 'participante' ? 'Solo fotos' : r === 'admin' ? 'Admin' : /^taller-/.test(r) ? 'Manual ' + (MANUALES_CRM[r.slice(7)] || r.slice(7)) : r;
+window.migracion = async function(accion) {
+  const est = document.getElementById('migracionEstado'), caja = document.getElementById('migracionInforme');
+  try {
+    if (accion === 'respaldo') {
+      est.textContent = 'Haciendo el respaldo…';
+      const r = await adminMigracion({ accion: 'respaldo' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' }));
+      a.download = 'respaldo-identity-' + r.fecha.slice(0, 10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      est.textContent = `Respaldo hecho: ${r.total} cuentas (descargado y guardado también en Firestore, colección respaldo_identity) ✓`;
+      return;
+    }
+    if (accion === 'migrar') {
+      if (!confirm('¿Copiar las cuentas de Identity a Firebase? No cambia nada para la gente: siguen entrando como siempre.')) return;
+      let desde = 0, fallos = [], total = 0;
+      while (desde !== null) {
+        est.textContent = `Copiando… ${desde}${total ? ' de ' + total : ''}`;
+        const r = await adminMigracion({ accion: 'migrar', desde, cuantos: 10 });
+        total = r.total; fallos = fallos.concat(r.hechos.filter(h => !h.ok)); desde = r.siguiente;
+      }
+      est.textContent = fallos.length ? `Copiadas con ${fallos.length} fallos: ${fallos.map(f => f.email + ' (' + f.error + ')').join(', ')}` : `Copiadas ${total} cuentas ✓`;
+    }
+    est.textContent = (accion === 'informe' ? '' : est.textContent + ' · ') + 'Cargando informe…';
+    const r = await adminMigracion({ accion: 'informe' });
+    est.textContent = est.textContent.replace(/ ?·? ?Cargando informe…$/, '');
+    const marca = { copiada: '<span class="tag t-plus">copiada</span>', 'roles-distintos': '<span class="tag t-man">roles distintos</span>', pendiente: '<span class="tag t-off">pendiente</span>' };
+    caja.innerHTML = `<div class="person-meta" style="margin:8px 0;"><b>${r.total}</b> cuentas en Identity · <b>${r.conAcceso}</b> con algún acceso · <b>${r.copiadas}</b> ya copiadas a Firebase
+        ${r.sinCrm ? ` · <b>${r.sinCrm}</b> con acceso pero sin ficha en Personas (revisa que el email sea el mismo)` : ''}
+        ${r.repetidos.length ? `<br><b style="color:var(--warn)">Emails repetidos en Identity: ${r.repetidos.map(escapeHtml).join(', ')}</b>` : ''}</div>` +
+      r.filas.map(f => `<div class="person-row"><div class="person-main"><div class="person-name">${escapeHtml(f.nombre || f.email)} ${marca[f.firebase] || ''}${f.enCrm ? '' : ' <span class="tag t-dup">sin ficha</span>'}</div>
+        <div class="person-meta">${escapeHtml(f.email)} · ${f.roles.length ? f.roles.map(NOMBRE_ROL).map(escapeHtml).join(', ') : 'sin acceso'}${f.confirmada ? '' : ' · invitación sin aceptar'}</div></div></div>`).join('');
+  } catch (e) { est.textContent = 'Error: ' + e.message; }
 };
 
 // Manuales de talleres (acceso por taller, función manuales-admin)
@@ -2335,7 +2394,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias'];
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);

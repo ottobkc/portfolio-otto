@@ -36,11 +36,11 @@ function diaValido(dia) {
   return ok.includes(Number(dia)) ? Number(dia) : ok[1];
 }
 
-function miembro(context) {
-  const u = context && context.clientContext && context.clientContext.user;
+// Sesión de Firebase (web nueva) o, durante la migración, de Netlify Identity (lib/cuentas.js)
+async function miembro(event, context) {
+  const u = await require('../lib/cuentas').usuarioDe(event, context);
   if (!u || !u.email) return null;
-  const roles = (u.app_metadata && u.app_metadata.roles) || [];
-  return { email: u.email.toLowerCase(), roles, esMiembro: roles.includes('member') || roles.includes('admin'), meta: u.user_metadata || {} };
+  return { email: u.email, roles: u.roles, esMiembro: u.plus, meta: { full_name: u.nombre } };
 }
 
 // Nombre para el ranking y el CRM: el de su ficha del CRM, si no el de su cuenta, si no el principio del email
@@ -77,7 +77,7 @@ exports.handler = async (event, context) => {
 
   let b;
   try { b = JSON.parse(event.body || '{}'); } catch (e) { return res(400, { error: 'datos' }); }
-  const m = miembro(context);
+  const m = await miembro(event, context).catch(() => null);
 
   try {
     const fs = db();
