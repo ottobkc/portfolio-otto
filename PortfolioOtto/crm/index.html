@@ -7,258 +7,229 @@
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1a1814">
+<meta name="theme-color" content="#e8821a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Tema: 'claro' | 'oscuro' | sin guardar = automático (sigue al sistema). Se aplica antes de pintar.
+  (function () { try { var t = localStorage.getItem('crm-tema'); if (t === 'claro' || t === 'oscuro') document.documentElement.setAttribute('data-tema', t); } catch (e) {} })();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MD CRM">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
 <style>
+  /* ===== Temas =====
+     Claro «Hora dorada»: menú con el degradado de la marca, contenido sobre blanco.
+     Oscuro «Cuarto oscuro»: ciruela oscuro con el naranja de la luz de laboratorio.
+     El botón del menú alterna claro / oscuro / automático (sigue al sistema). */
   :root {
-    --ink: #1a1814;
-    --panel: #23201b;
-    --cream: #f5f3ef;
-    --gold: #c8a97a;
-    --dim: #a8a49c;
-    --danger: #b5654f;
-    --ok: #7a9e7e;
+    --sb-bg: linear-gradient(185deg, #ef9a2c 0%, #e8821a 38%, #e8347a 100%);
+    --sb-fg: rgba(255,255,255,.88); --sb-dim: rgba(255,255,255,.66); --sb-act-bg: #fff; --sb-act-fg: #c2451f; --sb-mark: transparent; --sb-badge: rgba(255,255,255,.22);
+    --bg: #ffffff; --surface: #ffffff; --surface-2: #fafaf9; --text: #1a1814; --muted: #77716a; --line: #ececea; --line-2: #dedcd8; --hover: #fff7f0;
+    --acc: #e8347a; --acc-ink: #ffffff; --acc-soft: rgba(232,52,122,.10); --acc2: #e8821a;
+    --ok: #2f7d4f; --ok-soft: #e5f3ea; --warn: #b88a1e; --warn-soft: #fbf3dc; --danger: #c8432c; --danger-soft: #fdeae6;
+    --input-bg: #ffffff; --shadow: 0 1px 2px rgba(26,24,20,.04); --fotos: #5a45a8; --fotos-soft: #f1ecff;
+    --head-font: 'Fraunces', Georgia, serif;
+    color-scheme: light;
   }
+  :root[data-tema="oscuro"] {
+    --sb-bg: #1b1320; --sb-fg: #d5c7ce; --sb-dim: #8f7d89; --sb-act-bg: rgba(255,106,61,.15); --sb-act-fg: #ffb59c; --sb-mark: #ff6a3d; --sb-badge: rgba(255,255,255,.12);
+    --bg: #231a27; --surface: #2c2131; --surface-2: #33273a; --text: #f3e9e4; --muted: #b09fa9; --line: #3b2e40; --line-2: #4a3b50; --hover: #33273a;
+    --acc: #ff6a3d; --acc-ink: #1b1320; --acc-soft: rgba(255,106,61,.14); --acc2: #f2b46b;
+    --ok: #8fcf9f; --ok-soft: rgba(143,207,159,.14); --warn: #f2c486; --warn-soft: rgba(242,180,107,.14); --danger: #ff8a73; --danger-soft: rgba(255,106,61,.14);
+    --input-bg: #2a1f2e; --shadow: none; --fotos: #b9c0ff; --fotos-soft: rgba(160,170,255,.14);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema]) {
+      --sb-bg: #1b1320; --sb-fg: #d5c7ce; --sb-dim: #8f7d89; --sb-act-bg: rgba(255,106,61,.15); --sb-act-fg: #ffb59c; --sb-mark: #ff6a3d; --sb-badge: rgba(255,255,255,.12);
+      --bg: #231a27; --surface: #2c2131; --surface-2: #33273a; --text: #f3e9e4; --muted: #b09fa9; --line: #3b2e40; --line-2: #4a3b50; --hover: #33273a;
+      --acc: #ff6a3d; --acc-ink: #1b1320; --acc-soft: rgba(255,106,61,.14); --acc2: #f2b46b;
+      --ok: #8fcf9f; --ok-soft: rgba(143,207,159,.14); --warn: #f2c486; --warn-soft: rgba(242,180,107,.14); --danger: #ff8a73; --danger-soft: rgba(255,106,61,.14);
+      --input-bg: #2a1f2e; --shadow: none; --fotos: #b9c0ff; --fotos-soft: rgba(160,170,255,.14);
+      color-scheme: dark;
+    }
+  }
+  /* Nombres antiguos que siguen usando algunas partes del código */
+  :root, :root[data-tema] { --ink: var(--bg); --panel: var(--surface); --cream: var(--text); --gold: var(--acc); --dim: var(--muted); }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0;
-    background: var(--ink);
-    color: var(--cream);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px;
-  }
-  body { padding: 20px 14px 60px; padding-top: calc(20px + env(safe-area-inset-top)); }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 400 14px/1.45 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--acc); }
+  h1 { font: 300 32px/1.05 var(--head-font); letter-spacing: -.01em; margin: 0; }
 
-  h1 {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 24px;
-    font-weight: 400;
-    margin: 0 0 2px;
-  }
-  .subtitle { color: var(--dim); font-size: 13px; margin-bottom: 18px; }
-
-  .tabs {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 18px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    overflow-x: auto;
-  }
-  .tab {
-    padding: 10px 14px;
-    color: var(--dim);
-    font-size: 14px;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-  }
-  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  /* ===== Estructura: menú lateral + contenido ===== */
+  #app { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+  .sb { background: var(--sb-bg); color: var(--sb-fg); padding: 22px 14px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 2px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sb .logo { display: block; width: 132px; margin: 0 8px 24px; }
+  .sb .item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 8px; color: var(--sb-fg); font-size: 14px; cursor: pointer; position: relative; text-decoration: none; border: 0; background: none; text-align: left; width: 100%; font-family: inherit; }
+  .sb .item:hover { background: rgba(255,255,255,.08); }
+  .sb .item .ico { width: 18px; text-align: center; opacity: .85; flex: none; }
+  .sb .item.active { background: var(--sb-act-bg); color: var(--sb-act-fg); font-weight: 600; }
+  .sb .item.active::before { content: ''; position: absolute; left: -14px; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--sb-mark); }
+  .sb .item .badge { margin: 0 0 0 auto; background: var(--sb-badge); color: inherit; font-size: 11px; padding: 1px 7px; }
+  .sb .item.prox { color: var(--sb-dim); cursor: default; }
+  .sb .item.prox:hover { background: none; }
+  .sb .item.prox .b { margin-left: auto; font-size: 11px; padding: 0 7px; border-radius: 10px; border: 1px solid currentColor; }
+  .sb .sep { height: 1px; background: currentColor; opacity: .14; margin: 10px 8px; }
+  .sb .pie { margin-top: auto; padding: 10px 12px 0; display: grid; gap: 8px; }
+  .sb .tema { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--sb-fg); font: 500 13px 'Inter', sans-serif; cursor: pointer; }
+  .sb .salir { color: var(--sb-dim); font-size: 12px; background: none; border: 0; text-align: left; padding: 4px 12px; cursor: pointer; font-family: inherit; }
+  main.contenido { padding: 26px 36px 60px; min-width: 0; }
+  .cabecera { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 20px; min-height: 40px; }
+  .cabecera .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .m-top, .m-bar { display: none; }
 
   .view { display: none; }
   .view.active { display: block; }
 
-  .card {
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 14px;
-  }
-  .card-title { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin-bottom: 10px; }
+  /* ===== Piezas ===== */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card-title { font: 500 17px/1.2 var(--head-font); color: var(--text); margin: 0 0 10px; }
+  details.card > summary { list-style: none; }
+  details.card > summary::-webkit-details-marker { display: none; }
 
-  input, select, textarea {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.05);
-    color: var(--cream);
-    font-size: 16px;
-    font-family: inherit;
-  }
-  select { color-scheme: dark; }
-  option { background: var(--panel); color: var(--cream); }
-  button {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: none;
-    background: var(--gold);
-    color: var(--ink);
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  button.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--cream); }
-  button.danger { background: transparent; border: 1px solid rgba(181,101,79,0.4); color: var(--danger); }
-  button.small { padding: 6px 10px; font-size: 12px; }
+  input, select, textarea { width: 100%; padding: 9px 12px; margin-bottom: 8px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--input-bg); color: var(--text); font: 15px 'Inter', sans-serif; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--acc-soft); border-color: var(--acc); }
+  input[type="checkbox"], input[type="radio"] { width: auto; margin: 0; accent-color: var(--acc); }
+  option, optgroup { background: var(--surface); color: var(--text); }
+  button { padding: 9px 15px; border-radius: 10px; border: 1px solid transparent; background: var(--acc); color: var(--acc-ink); font: 600 13px 'Inter', sans-serif; cursor: pointer; }
+  button:hover { filter: brightness(1.05); }
+  button:focus-visible, .sb .item:focus-visible { outline: 2px solid var(--acc2); outline-offset: 2px; }
+  button.secondary { background: transparent; border-color: var(--line-2); color: var(--text); }
+  button.secondary:hover { background: var(--surface-2); filter: none; }
+  button.danger { background: transparent; border-color: var(--danger-soft); color: var(--danger); }
+  button.small { padding: 5px 10px; font-size: 12px; }
+  button[disabled] { opacity: .5; cursor: default; }
 
   .row { display: flex; gap: 8px; }
   .row > * { flex: 1; }
 
-  .event-item {
-    background: var(--panel);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .event-name { font-weight: 500; }
-  .event-meta { font-size: 12px; color: var(--dim); margin-top: 2px; }
-  .event-count { color: var(--gold); font-size: 13px; }
+  .event-item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .event-item:hover { background: var(--hover); }
+  .event-name { font-weight: 600; }
+  .event-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .event-count { color: var(--acc); font-size: 13px; font-weight: 600; }
 
-  .person-row {
-    background: var(--panel);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .person-row { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
   .person-row.confirmado { border-left: 3px solid var(--ok); }
-  .person-row.pendiente { border-left: 3px solid var(--gold); }
+  .person-row.pendiente { border-left: 3px solid var(--warn); }
   .person-row.espera { border-left: 3px solid var(--danger); }
-  .person-row.baja, .person-row.no-presentado { border-left: 3px solid #4a4640; opacity: .6; }
-  .person-row.baja .person-name, .person-row.no-presentado .person-name { text-decoration: line-through; text-decoration-color: rgba(245,243,239,.35); }
+  .person-row.baja, .person-row.no-presentado { border-left: 3px solid var(--line-2); opacity: .6; }
+  .person-row.baja .person-name, .person-row.no-presentado .person-name { text-decoration: line-through; text-decoration-color: var(--muted); }
   .person-main { flex: 1; min-width: 0; }
+  .person-name { font-size: 14px; font-weight: 600; }
+  .person-meta { font-size: 12px; color: var(--muted); }
+  .tag { font-size: 12px; padding: 2px 9px; border-radius: 20px; display: inline-block; margin-right: 4px; white-space: nowrap; }
+  .t-plus { background: var(--ok-soft); color: var(--ok); } .t-fotos { background: var(--fotos-soft); color: var(--fotos); }
+  .t-man { background: var(--warn-soft); color: var(--warn); } .t-off { background: var(--surface-2); color: var(--muted); } .t-dup { background: var(--danger-soft); color: var(--danger); }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--acc-soft); color: var(--acc); display: inline-block; margin-right: 4px; font-weight: 500; }
+  .badge[style*="background"] { color: #fff; }
+  .attend-check { width: 24px; height: 24px; border-radius: 7px; border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 13px; }
+  .attend-check.checked { background: var(--ok); border-color: var(--ok); color: var(--bg); }
+
+  .empty { color: var(--muted); padding: 12px 0; font-size: 13px; }
+  .back-link { color: var(--acc); font-size: 13px; margin-bottom: 12px; cursor: pointer; display: inline-block; font-weight: 500; }
+
+  .stat-grid { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat-box { flex: 1; min-width: 96px; background: var(--surface-2); border-radius: 12px; padding: 12px; text-align: center; }
+  .stat-num { font: 500 26px/1.1 var(--head-font); color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .status-select { width: auto; padding: 6px 8px; font-size: 13px; margin-bottom: 0; }
+
+  .trial-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .trial-badge { font-size: 11px; padding: 3px 9px; border-radius: 10px; display: inline-block; font-weight: 600; }
+  .trial-badge.active { background: var(--ok-soft); color: var(--ok); }
+  .trial-badge.soon { background: var(--warn-soft); color: var(--warn); }
+  .trial-badge.expired { background: var(--danger-soft); color: var(--danger); }
+  .trial-btn { font-size: 12px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: transparent; color: var(--text); cursor: pointer; font-weight: 500; }
+  .trial-btn:hover { background: var(--surface-2); filter: none; }
+
+  .datos-persona { margin: 8px 0 4px; }
+  .datos-persona input { margin-top: 6px; }
+  .consent-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; margin-top: 6px; }
+  .consent-toggle input { width: auto; margin: 0; }
+  .sub-panel { margin-top: 8px; padding: 12px; background: var(--surface-2); border-radius: 10px; }
+  .sub-panel input[type="date"] { font-size: 12px; padding: 6px 8px; }
+  .sub-panel-row { display: flex; gap: 6px; align-items: center; }
+  textarea.export-box { min-height: 90px; font-size: 13px; }
+  .copy-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* Juegos */
   .juegos-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-  .juego-col { background: rgba(245,243,239,.03); border: 1px solid rgba(245,243,239,.08); border-radius: 12px; padding: 14px; min-width: 0; }
+  .juego-col { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; }
   .juego-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-  .juego-cab h3 { margin: 0; font-size: 18px; font-weight: 400; }
-  .juego-cab a { color: var(--gold); font-size: 12px; text-decoration: none; }
+  .juego-cab h3 { margin: 0; font: 500 19px var(--head-font); }
+  .juego-cab a { font-size: 12px; text-decoration: none; }
   .stat-grid.mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
-  .stat-grid.mini .stat-box { padding: 8px 4px; }
+  .stat-grid.mini .stat-box { padding: 8px 4px; min-width: 0; }
   .stat-grid.mini .stat-num { font-size: 20px; }
   .juego-lista { max-height: 380px; overflow-y: auto; }
   .juego-mas { margin-top: 14px; }
   .juego-mas summary { cursor: pointer; }
-  @media (max-width: 860px) { .juegos-cols { grid-template-columns: 1fr; } .juego-lista { max-height: 300px; } }
-  .persona { background: var(--panel); border-radius: 8px; margin-bottom: 4px; }
-  .persona.abierta { outline: 1px solid rgba(200,169,122,.35); }
-  .persona-linea { display: grid; grid-template-columns: minmax(120px, 1.2fr) minmax(0, 1.4fr) auto minmax(0, 1fr) 14px; gap: 10px; align-items: center; padding: 8px 12px; cursor: pointer; font-size: 13px; }
-  .persona-linea:hover { background: rgba(245,243,239,.04); }
-  .persona-nombre { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 1000px) { .juegos-cols { grid-template-columns: 1fr; } .juego-lista { max-height: 300px; } }
+
+  /* Personas en una línea */
+  .persona { background: var(--surface); border-bottom: 1px solid var(--line); }
+  #peopleList, #suscripcionesList { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  #peopleList .persona:last-child, #suscripcionesList .persona:last-child { border-bottom: 0; }
+  #peopleList:empty, #suscripcionesList:empty { display: none; }
+  .persona.abierta { background: var(--hover); }
+  .persona-linea { display: grid; grid-template-columns: minmax(150px, 1.15fr) minmax(0, 1.4fr) auto minmax(0, 1fr) 14px; gap: 12px; align-items: center; padding: 11px 16px; cursor: pointer; font-size: 13px; }
+  .persona-linea:hover { background: var(--hover); }
+  .persona-nombre { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .persona-chips { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .persona-salidas { font-size: 11px; color: var(--dim); white-space: nowrap; }
-  .persona-email { font-size: 11px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .persona-flecha { color: var(--dim); }
-  .ficha-persona { padding: 4px 12px 12px; border-top: 1px solid rgba(245,243,239,.08); }
-  .ficha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
-  .ficha-titulo { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin: 4px 0 6px; }
-  @media (max-width: 640px) {
-    .persona-linea { grid-template-columns: 1fr auto 14px; }
-    .persona-chips { grid-column: 1 / -1; grid-row: 2; }
-    .persona-email { display: none; }
-    .ficha-grid { grid-template-columns: 1fr; }
-  }
-  .person-name { font-size: 14px; font-weight: 500; }
-  .person-meta { font-size: 11px; color: var(--dim); }
-  .badge {
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: rgba(200,169,122,0.15);
-    color: var(--gold);
-    display: inline-block;
-    margin-right: 4px;
-  }
-  .attend-check {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    font-size: 13px;
-  }
-  .attend-check.checked { background: var(--ok); border-color: var(--ok); color: var(--ink); }
+  .persona-salidas { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .persona-email { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-flecha { color: var(--muted); }
+  .ficha-persona { padding: 4px 16px 18px; }
+  .ficha-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 28px; margin-top: 8px; }
+  .ficha-titulo { font: 500 16px var(--head-font); color: var(--text); margin: 8px 0 8px; }
 
-  .empty { color: var(--dim); font-style: italic; padding: 10px 0; font-size: 13px; }
-  .back-link { color: var(--gold); font-size: 13px; margin-bottom: 12px; cursor: pointer; display: inline-block; }
+  /* Sub-pestañas (Accesos y MD+) */
+  .subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .subtab { padding: 7px 14px; border-radius: 20px; background: var(--surface-2); color: var(--text); font: 500 13px 'Inter', sans-serif; border: 0; cursor: pointer; }
+  .subtab.on { background: var(--text); color: var(--bg); }
+  .subvista { display: none; }
+  .subvista.on { display: block; }
 
-  .stat-grid { display: flex; gap: 10px; margin-bottom: 14px; }
-  .stat-box { flex: 1; background: var(--panel); border-radius: 10px; padding: 12px; text-align: center; }
-  .stat-num { font-size: 22px; color: var(--gold); font-weight: 600; }
-  .stat-label { font-size: 11px; color: var(--dim); margin-top: 2px; }
-
-  .status-select { width: auto; padding: 6px 8px; font-size: 12px; margin-bottom: 0; }
-
-  .trial-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
-  .trial-badge {
-    font-size: 11px;
-    padding: 3px 9px;
-    border-radius: 10px;
-    display: inline-block;
-    font-weight: 600;
-  }
-  .trial-badge.active { background: rgba(122,158,126,0.18); color: var(--ok); }
-  .trial-badge.soon { background: rgba(200,169,122,0.2); color: var(--gold); }
-  .trial-badge.expired { background: rgba(181,101,79,0.18); color: var(--danger); }
-  .trial-btn {
-    font-size: 11px;
-    padding: 4px 9px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: transparent;
-    color: var(--dim);
-    cursor: pointer;
-  }
-
-  .datos-persona { margin: 8px 0 4px; }
-  .datos-persona input { margin-top: 6px; }
-  .consent-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: var(--dim);
-    cursor: pointer;
-  }
-  .consent-toggle input { width: auto; margin: 0; }
-
-  .sub-panel {
-    margin-top: 8px;
-    padding: 10px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-  }
-  .sub-panel input[type="date"] { font-size: 12px; padding: 6px 8px; }
-  .sub-panel-row { display: flex; gap: 6px; align-items: center; }
-
-  textarea.export-box { min-height: 90px; font-size: 13px; }
-  .copy-hint { font-size: 12px; color: var(--dim); margin-top: 4px; }
-
-  /* Login screen */
-  #loginScreen {
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  #loginScreen img { width: 140px; margin-bottom: 24px; }
+  /* Login */
+  #loginScreen { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; background: var(--sb-bg); }
+  #loginScreen .logo-login { width: 160px; margin-bottom: 24px; }
   #loginScreen .card { width: 100%; max-width: 340px; }
   #loginError { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 16px; }
-  #syncStatus {
-    position: fixed;
-    top: calc(8px + env(safe-area-inset-top));
-    right: 14px;
-    font-size: 11px;
-    color: var(--dim);
-    z-index: 50;
+  #syncStatus { position: fixed; top: calc(10px + env(safe-area-inset-top)); right: 16px; font-size: 12px; color: var(--muted); z-index: 50; background: var(--surface); padding: 2px 8px; border-radius: 10px; }
+  #syncStatus:empty { display: none; }
+
+  /* ===== Móvil ===== */
+  @media (max-width: 820px) {
+    #app { grid-template-columns: 1fr; }
+    .sb { position: fixed; inset: 0 auto 0 0; width: 260px; z-index: 60; transform: translateX(-105%); transition: transform .2s ease; }
+    .sb.abierto { transform: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); }
+    .m-top { display: flex; align-items: center; gap: 12px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; background: var(--sb-bg); position: sticky; top: 0; z-index: 40; }
+    .m-top img { width: 104px; }
+    .m-top button { margin-left: auto; background: transparent; color: var(--sb-fg); font-size: 20px; padding: 4px 8px; }
+    main.contenido { padding: 18px 14px calc(90px + env(safe-area-inset-bottom)); }
+    .cabecera { margin-bottom: 14px; } h1 { font-size: 27px; }
+    .m-bar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; justify-content: space-around; padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
+    .m-bar button { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; color: var(--muted); font: 500 11px 'Inter', sans-serif; padding: 4px 6px; position: relative; }
+    .m-bar button b { font-size: 18px; font-weight: 400; }
+    .m-bar button.active { color: var(--acc); }
+    .m-bar .badge { position: absolute; top: 0; right: 0; font-size: 10px; padding: 0 5px; }
+    #syncStatus { top: auto; bottom: calc(76px + env(safe-area-inset-bottom)); right: 12px; }
+    .persona-linea { grid-template-columns: 1fr auto 14px; padding: 11px 14px; }
+    .persona-chips { grid-column: 1 / -1; grid-row: 2; }
+    .persona-email { display: none; }
+    .ficha-grid { grid-template-columns: 1fr; gap: 8px; }
+    .foto-crm { grid-template-columns: 1fr !important; }
+    .row { flex-wrap: wrap; }
+    .row > select, .row > input { flex: 1 1 140px; }
+    .stat-box { min-width: calc(50% - 5px); }
+    .stat-grid.mini .stat-box { min-width: 0; }
   }
-  @media (max-width: 640px) { .foto-crm { grid-template-columns: 1fr !important; } }
 </style>
 </head>
 <body>
@@ -267,9 +238,10 @@
 
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
+  <img class="logo-login" src="/assets/logo-md-blanco.png" alt="Mirar Despacio">
   <div class="card">
-    <h1 style="text-align:center;">Mirar Despacio</h1>
-    <div class="subtitle" style="text-align:center;">CRM privado</div>
+    <h1 style="text-align:center;font-size:26px;">CRM</h1>
+    <div class="person-meta" style="text-align:center;margin:6px 0 14px;">Solo para Otto</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="username">
     <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
     <button style="width:100%;" onclick="doLogin()">Entrar</button>
@@ -277,22 +249,40 @@
   </div>
 </div>
 
+<!-- MÓVIL: barra superior (abre el menú) y barra inferior con lo más usado -->
+<div class="m-top" id="mTop" style="display:none"><img src="/assets/logo-md-blanco.png" alt="Mirar Despacio"><button type="button" aria-label="Abrir el menú" onclick="abrirMenu()">☰</button></div>
+<nav class="m-bar" id="mBar" style="display:none" aria-label="Accesos rápidos">
+  <button type="button" data-tab="salidas" class="active"><b>◷</b>Salidas</button>
+  <button type="button" data-tab="personas"><b>◍</b>Personas</button>
+  <button type="button" data-tab="fotos"><b>▣</b>Fotos<span id="fotosPendientesM" class="badge" style="display:none"></span></button>
+  <button type="button" data-tab="accesos"><b>⚿</b>Accesos</button>
+  <button type="button" onclick="abrirMenu()"><b>☰</b>Más</button>
+</nav>
+
 <!-- MAIN APP (hidden until logged in) -->
 <div id="app" style="display:none;">
 
-  <h1>Mirar Despacio</h1>
-  <div class="subtitle">Control de salidas y personas</div>
+  <nav class="sb" id="menu" aria-label="Secciones del CRM">
+    <img class="logo" src="/assets/logo-md-blanco.png" alt="Mirar Despacio">
+    <button class="item active" data-tab="salidas"><span class="ico">◷</span>Salidas</button>
+    <button class="item" data-tab="personas"><span class="ico">◍</span>Personas</button>
+    <button class="item" data-tab="fotos"><span class="ico">▣</span>Fotos <span id="fotosPendientes" class="badge" style="display:none"></span></button>
+    <button class="item" data-tab="accesos"><span class="ico">⚿</span>Accesos y MD+</button>
+    <button class="item" data-tab="juego"><span class="ico">◇</span>Juegos</button>
+    <button class="item" data-tab="pegatinas"><span class="ico">⌖</span>Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></button>
+    <a class="item" href="galerias.html"><span class="ico">▤</span>Galerías de clientes</a>
+    <button class="item" data-tab="exportar"><span class="ico">⇩</span>Exportar</button>
+    <div class="sep"></div>
+    <span class="item prox"><span class="ico">€</span>Contabilidad<span class="b">pronto</span></span>
+    <span class="item prox"><span class="ico">◫</span>Tienda<span class="b">pronto</span></span>
+    <div class="pie">
+      <button class="tema" id="botonTema" type="button" onclick="cambiarTema()"></button>
+      <button class="salir" type="button" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
 
-  <div class="tabs">
-    <div class="tab active" data-tab="salidas">Salidas</div>
-    <div class="tab" data-tab="personas">Personas</div>
-    <div class="tab" data-tab="accesos">Accesos</div>
-    <div class="tab" data-tab="fotos">Fotos <span id="fotosPendientes" class="badge" style="display:none"></span></div>
-    <div class="tab" data-tab="pegatinas">Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></div>
-    <div class="tab" data-tab="juego">Juego</div>
-    <div class="tab" data-tab="exportar">Exportar</div>
-    <a href="galerias.html" style="padding:10px 14px;color:var(--gold);font-size:14px;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent">Galerías de clientes ↗</a>
-  </div>
+  <main class="contenido">
+  <div class="cabecera"><div><h1 id="tituloVista">Salidas</h1><div class="sub" id="subVista"></div></div></div>
 
   <!-- SALIDAS LIST VIEW -->
   <div class="view active" id="view-salidas">
@@ -342,8 +332,9 @@
       </div>
       <div class="person-meta" id="enlacesEstado"></div>
     </div>
-    <div class="card">
-      <div class="card-title">Añadir persona a esta salida</div>
+    <details class="card">
+      <summary class="card-title" style="cursor:pointer;margin:0;">+ Añadir persona a esta salida</summary>
+      <div style="margin-top:10px;">
       <input type="text" id="rosterName" placeholder="Nombre">
       <input type="text" id="rosterApellidos" placeholder="Apellidos (opcional)">
       <input type="text" id="rosterEmail" placeholder="Email (opcional)">
@@ -354,7 +345,8 @@
         <option value="espera">Lista de espera</option>
       </select>
       <button onclick="addToRoster()">Añadir</button>
-    </div>
+      </div>
+    </details>
     <div class="card-title">Lista (toca el check para pasar lista el día del evento)</div>
     <div id="rosterList"></div>
   </div>
@@ -407,16 +399,39 @@
     <div id="peopleList"></div>
   </div>
 
-  <!-- ACCESOS VIEW (área de miembros Mirar Despacio+) -->
+  <!-- ACCESOS Y MD+ : cuentas, suscripciones, manuales, retos del mes y actividad en un solo sitio -->
   <div class="view" id="view-accesos">
-    <div class="card">
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="accHoy">0</div><div class="stat-label">entran hoy</div></div>
-        <div class="stat-box"><div class="stat-num" id="acc7">0</div><div class="stat-label">últimos 7 días</div></div>
-        <div class="stat-box"><div class="stat-num" id="acc30">0</div><div class="stat-label">últimos 30 días</div></div>
-        <div class="stat-box"><div class="stat-num" id="accInactivos">0</div><div class="stat-label">sin entrar +30 días</div></div>
-      </div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="mdActivos">0</div><div class="stat-label">MD+ activos</div></div>
+      <div class="stat-box"><div class="stat-num" id="mdPrueba">0</div><div class="stat-label">en prueba</div></div>
+      <div class="stat-box"><div class="stat-num" id="mdPronto">0</div><div class="stat-label">terminan esta semana</div></div>
+      <div class="stat-box"><div class="stat-num" id="mdRevisar">0</div><div class="stat-label">por revisar</div></div>
     </div>
+    <div class="subtabs" role="tablist">
+      <button class="subtab on" data-sub="md" onclick="verSub('md')">Mirar Despacio+</button>
+      <button class="subtab" data-sub="cuentas" onclick="verSub('cuentas')">Cuentas</button>
+      <button class="subtab" data-sub="manuales" onclick="verSub('manuales')">Manuales de talleres</button>
+      <button class="subtab" data-sub="retos" onclick="verSub('retos')">Retos del mes</button>
+      <button class="subtab" data-sub="actividad" onclick="verSub('actividad')">Actividad</button>
+    </div>
+
+    <div class="subvista on" id="sub-md">
+      <div class="row" style="align-items:center;margin-bottom:10px;">
+        <select id="filtroMD" onchange="renderSuscripciones()" style="max-width:280px;margin:0;">
+          <option value="activos">Activos (suscripción y prueba)</option>
+          <option value="pronto">Terminan esta semana</option>
+          <option value="revisar">Por revisar (puestos a mano)</option>
+          <option value="prueba">En prueba</option>
+          <option value="bajas">Bajas y caducados</option>
+          <option value="todos">Todos los que han tenido MD+</option>
+        </select>
+        <span class="person-meta" id="cuentaMD"></span>
+      </div>
+      <div class="person-meta" style="margin-bottom:10px;">Pincha en una persona para renovar, dar de baja o ver su acceso. Para dar de alta a alguien nuevo, búscalo en Personas o invítalo desde Cuentas.</div>
+      <div id="suscripcionesList"></div>
+    </div>
+
+    <div class="subvista" id="sub-cuentas">
     <div class="card">
       <div class="card-title">Cuentas y acceso</div>
       <div class="person-meta">Quitar el acceso no borra nada: la cuenta, sus fotos y sus comentarios se quedan, y puedes devolvérselo cuando quieras.
@@ -433,6 +448,9 @@
       <div class="person-meta" id="cuentasEstado"></div>
       <div id="cuentasList"></div>
     </div>
+    </div>
+
+    <div class="subvista" id="sub-manuales">
     <div class="card">
       <div class="card-title">Manuales de talleres</div>
       <div class="person-meta">Cada manual solo lo abre quien tiene acceso a ese manual. Se da solo al pagar una plaza o canjear un bono de ese taller; aquí puedes dárselo a mano (acompañantes, invitados…). No depende de MD+: aunque se le acabe el mes, el manual se queda. Si la persona no tiene cuenta, le llega la invitación para crear su contraseña.</div>
@@ -445,10 +463,40 @@
       <div class="person-meta" id="manualesEstado"></div>
       <div id="manualesList"></div>
     </div>
+    </div>
+
+    <div class="subvista" id="sub-retos">
+    <div class="card">
+      <div class="card-title">Reto del mes (solo MD+)</div>
+      <div class="person-meta" style="margin-bottom:6px;">Al crearlo, pulsa «✉️ Avisar» para mandar el email a los miembros. Tres días antes del cierre se manda solo un recordatorio a quien no ha enviado foto, y al día siguiente del cierre el aviso de la galería.</div>
+      <input type="hidden" id="retoId">
+      <input type="text" id="retoTitulo" placeholder="Título (p. ej. «Sombras largas»)">
+      <textarea id="retoEnunciado" rows="3" placeholder="Enunciado: qué tienen que fotografiar y cómo"></textarea>
+      <input type="text" id="retoPista" placeholder="Pista o consejo (opcional, sale en letra a mano)">
+      <div class="row">
+        <label class="person-meta">Empieza <input type="date" id="retoInicio"></label>
+        <label class="person-meta">Cierra <input type="date" id="retoCierre"></label>
+        <label class="person-meta"><input type="checkbox" id="retoActivo" checked> Activo</label>
+      </div>
+      <div class="row"><button onclick="guardarReto()">Guardar reto</button><button class="secondary" onclick="limpiarReto()">Nuevo</button></div>
+    </div>
+    <div id="retosList"></div>
+    </div>
+
+    <div class="subvista" id="sub-actividad">
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="accHoy">0</div><div class="stat-label">entran hoy</div></div>
+        <div class="stat-box"><div class="stat-num" id="acc7">0</div><div class="stat-label">últimos 7 días</div></div>
+        <div class="stat-box"><div class="stat-num" id="acc30">0</div><div class="stat-label">últimos 30 días</div></div>
+        <div class="stat-box"><div class="stat-num" id="accInactivos">0</div><div class="stat-label">sin entrar +30 días</div></div>
+      </div>
+    </div>
     <div class="card-title">Miembros (toca uno para ver su historial)</div>
     <div id="miembrosList"></div>
     <div class="card-title" style="margin-top:18px;">Últimos movimientos</div>
     <div id="accesosList"></div>
+    </div>
   </div>
 
   <!-- FOTOS VIEW (cuaderno de fotos, retos y muro) -->
@@ -483,21 +531,6 @@
     </div>
     <div id="fotosList"></div>
 
-    <div class="card" style="margin-top:22px;">
-      <div class="card-title">Reto del mes (solo MD+)</div>
-      <div class="person-meta" style="margin-bottom:6px;">Al crearlo, pulsa «✉️ Avisar» para mandar el email a los miembros. Tres días antes del cierre se manda solo un recordatorio a quien no ha enviado foto, y al día siguiente del cierre el aviso de la galería.</div>
-      <input type="hidden" id="retoId">
-      <input type="text" id="retoTitulo" placeholder="Título (p. ej. «Sombras largas»)">
-      <textarea id="retoEnunciado" rows="3" placeholder="Enunciado: qué tienen que fotografiar y cómo"></textarea>
-      <input type="text" id="retoPista" placeholder="Pista o consejo (opcional, sale en letra a mano)">
-      <div class="row">
-        <label class="person-meta">Empieza <input type="date" id="retoInicio"></label>
-        <label class="person-meta">Cierra <input type="date" id="retoCierre"></label>
-        <label class="person-meta"><input type="checkbox" id="retoActivo" checked> Activo</label>
-      </div>
-      <div class="row"><button onclick="guardarReto()">Guardar reto</button><button class="secondary" onclick="limpiarReto()">Nuevo</button></div>
-    </div>
-    <div id="retosList"></div>
   </div>
 
   <!-- PEGATINAS VIEW (mapa de mirardespacio.es/salidas) -->
@@ -591,6 +624,7 @@
     </div>
   </div>
 
+</main>
 </div>
 
 <script type="module">
@@ -643,11 +677,15 @@ let fotos = [], retos = [], cuentas = [];
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    document.getElementById('app').style.display = '';
+    document.getElementById('mTop').style.display = '';
+    document.getElementById('mBar').style.display = '';
     attachListeners();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
+    document.getElementById('mTop').style.display = 'none';
+    document.getElementById('mBar').style.display = 'none';
     if (unsubEvents) unsubEvents();
     if (unsubPeople) unsubPeople();
     if (unsubSignups) unsubSignups();
@@ -673,7 +711,7 @@ function attachListeners() {
   });
   unsubPeople = onSnapshot(collection(db, 'people'), (snap) => {
     people = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderPeople();
+    renderPeople(); if (window.renderSuscripciones) renderSuscripciones();
     if (currentEventId) renderRoster();
   });
   unsubMiembros = onSnapshot(collection(db, 'miembros_actividad'), (snap) => {
@@ -724,24 +762,40 @@ function attachListeners() {
   unsubSignups = onSnapshot(collection(db, 'signups'), (snap) => {
     signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderEvents();
-    renderPeople();
+    renderPeople(); if (window.renderSuscripciones) renderSuscripciones();
     if (currentEventId) renderRoster();
   });
 }
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-// ---------- TABS ----------
-document.querySelectorAll('.tab').forEach(t => {
+// ---------- SECCIONES (menú lateral y barra del móvil) ----------
+const TITULOS = {
+  salidas: ['Salidas', 'Crea salidas y pasa lista'], 'event-detail': ['Salidas', ''], personas: ['Personas', ''],
+  fotos: ['Fotos', 'Cuadernos, retos, talleres y muro'], accesos: ['Accesos y Mirar Despacio+', 'Cuentas, suscripciones, manuales y retos del mes'],
+  juego: ['Juegos', ''], pegatinas: ['Pegatinas', 'El mapa de las salidas'], exportar: ['Exportar', 'Copias y listados'],
+};
+document.querySelectorAll('[data-tab]').forEach(t => {
   t.addEventListener('click', () => showTab(t.dataset.tab));
 });
+window.abrirMenu = function() { document.getElementById('menu').classList.add('abierto'); };
+document.addEventListener('click', (e) => {
+  const m = document.getElementById('menu');
+  if (m.classList.contains('abierto') && !m.contains(e.target) && !e.target.closest('.m-top button, .m-bar button:not([data-tab])')) m.classList.remove('abierto');
+});
 window.showTab = function(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  const seccion = name === 'event-detail' ? 'salidas' : name;
+  document.querySelectorAll('[data-tab]').forEach(t => t.classList.toggle('active', t.dataset.tab === seccion));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
+  const [tit, sub] = TITULOS[name] || [name, ''];
+  document.getElementById('tituloVista').textContent = tit;
+  document.getElementById('subVista').textContent = sub;
+  document.getElementById('menu').classList.remove('abierto');
+  window.scrollTo(0, 0);
   if (name === 'personas') renderPeople();
   if (name === 'exportar') updateExport();
-  if (name === 'accesos') renderAccesos();
+  if (name === 'accesos') { let sub = 'md'; try { sub = sessionStorage.getItem('crm-sub') || 'md'; } catch (e) {} verSub(sub); }
   if (name === 'pegatinas') renderPegatinas();
   if (name === 'fotos') { renderFotos(); renderRetos(); }
 };
@@ -870,8 +924,8 @@ window.renderFotos = function() {
 const fechaHilo = ms => { const d = new Date(ms); return isNaN(d) ? '' : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); };
 function bloqueHilo(f) {
   if (!f.comentario) return '';
-  const msgs = (f.hilo || []).map(m => `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;white-space:pre-line;color:#1a1814;${m.de === 'otto' ? 'background:#fdecf3;border-left:3px solid #e8347a;' : 'background:#f0eee9;margin-left:24px;'}"><span class="person-meta" style="color:#6b655a;">${m.de === 'otto' ? 'Tú' : escapeHtml(f.nombreCuenta || f.nombreMuro || 'Ella/él')} · ${fechaHilo(m.en)}${m.origen === 'correo' ? ' · por correo' : ''}</span><br>${escapeHtml(m.texto)}</div>`).join('');
-  return `<div style="margin-top:10px;border-top:1px dashed #cfc9bd;padding-top:8px;">
+  const msgs = (f.hilo || []).map(m => `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;white-space:pre-line;color:var(--text);${m.de === 'otto' ? 'background:var(--acc-soft);border-left:3px solid var(--acc);' : 'background:var(--surface-2);margin-left:24px;'}"><span class="person-meta">${m.de === 'otto' ? 'Tú' : escapeHtml(f.nombreCuenta || f.nombreMuro || 'Ella/él')} · ${fechaHilo(m.en)}${m.origen === 'correo' ? ' · por correo' : ''}</span><br>${escapeHtml(m.texto)}</div>`).join('');
+  return `<div style="margin-top:10px;border-top:1px dashed var(--line-2);padding-top:8px;">
     <div class="person-meta"><b>Hilo con ${escapeHtml((f.nombreCuenta || f.nombreMuro || 'esta persona').split(' ')[0])}</b> (solo lo veis vosotros dos)${f.sinLeer ? ` · <a href="#" onclick="marcarLeida('${f.id}');return false;">marcar como leída</a>` : ''}</div>
     ${msgs}
     <textarea id="resp-${f.id}" rows="3" placeholder="Escribe aquí: «Enviar respuesta» se lo manda por email y queda en su cuaderno…" style="width:100%;margin-top:6px;"></textarea>
@@ -1396,7 +1450,7 @@ function lineaAcceso(a, conNombre) {
   const quien = conNombre ? `<strong>${escapeHtml(a.nombre || a.email || '¿?')}</strong> · ` : '';
   const que = a.tipo === 'pagina' || a.tipo === 'salida'
     ? `${TIPO_TXT[a.tipo]} <em>${escapeHtml(nombrePagina(a.ruta))}</em>` : TIPO_TXT[a.tipo] || a.tipo;
-  return `<div class="person-meta" style="padding:6px 0;border-bottom:1px solid #2e2a23;">${quien}${que}<span style="float:right;">${fechaTxt(fechaDe(a.fecha))}</span></div>`;
+  return `<div class="person-meta" style="padding:7px 0;border-bottom:1px solid var(--line);">${quien}${que}<span style="float:right;">${fechaTxt(fechaDe(a.fecha))}</span></div>`;
 }
 window.toggleMiembro = function(id) {
   miembroAbierto = miembroAbierto === id ? null : id;
@@ -1488,9 +1542,10 @@ function renderEvents() {
 window.openEvent = function(id) {
   currentEventId = id;
   showTab('event-detail');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   const ev = events.find(e => e.id === id);
-  document.getElementById('eventDetailTitle').textContent = `${ev.name} — ${ev.date || 'sin fecha'}`;
+  document.getElementById('eventDetailTitle').textContent = 'Resumen';
+  document.getElementById('tituloVista').textContent = ev.name || 'Salida';
+  document.getElementById('subVista').textContent = (ev.date ? new Date(ev.date + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Sin fecha') + (ev.location ? ' · ' + ev.location : '');
   document.getElementById('eventPlazas').value = ev.plazas || 10;
   const mover = document.getElementById('moverLista');
   mover.style.display = id === 'web-sin-fecha' ? 'block' : 'none';
@@ -1722,13 +1777,13 @@ function accesoCuenta(p) {
 }
 function chipsPersona(p, e, c) {
   const chips = [];
-  if (e.activo) chips.push(`<span class="badge" style="background:#5a7a5d;">MD+${e.tipo === 'prueba' ? ' prueba' : e.nivel === 'online' ? ' online' : ''}${e.hasta ? ' · ' + fechaCorta(e.hasta) : ''}</span>`);
-  else if (e.revisar) chips.push('<span class="badge" style="background:#b5654f;">MD+ revisar</span>');
-  if (c && c.acceso === 'fotos') chips.push('<span class="badge" style="background:#6b655a;">solo fotos</span>');
-  if (c && c.acceso === 'ninguno' && !(c.manuales || []).length) chips.push('<span class="badge" style="background:#4a4640;">cuenta sin acceso</span>');
-  if (c && (c.manuales || []).length) chips.push(`<span class="badge" style="background:#e8821a;">📘 ${c.manuales.length} manual${c.manuales.length > 1 ? 'es' : ''}</span>`);
-  if (c && c.acceso !== 'sin-cuenta' && c.confirmada === false) chips.push('<span class="badge" style="background:#7a756f;">invitación sin aceptar</span>');
-  if (duplicadosDe(p).length) chips.push('<span class="badge" style="background:#b5654f;">duplicada</span>');
+  if (e.activo) chips.push(`<span class="tag t-plus">MD+${e.tipo === 'prueba' ? ' prueba' : e.nivel === 'online' ? ' online' : ''}${e.hasta ? ' hasta ' + fechaCorta(e.hasta) : ''}</span>`);
+  else if (e.revisar) chips.push('<span class="tag t-dup">MD+ por revisar</span>');
+  if (c && c.acceso === 'fotos') chips.push('<span class="tag t-fotos">Solo fotos</span>');
+  if (c && c.acceso === 'ninguno' && !(c.manuales || []).length) chips.push('<span class="tag t-off">Cuenta sin acceso</span>');
+  if (c && (c.manuales || []).length) chips.push(`<span class="tag t-man">${c.manuales.length} manual${c.manuales.length > 1 ? 'es' : ''}</span>`);
+  if (c && c.acceso !== 'sin-cuenta' && c.confirmada === false) chips.push('<span class="tag t-off">Invitación sin aceptar</span>');
+  if (duplicadosDe(p).length) chips.push('<span class="tag t-dup">Duplicada</span>');
   return chips.join(' ');
 }
 function fichaPersona(p, psignups) {
@@ -1825,7 +1880,60 @@ function renderPeople() {
 }
 window.togglePersona = function(id) {
   if (personasAbiertas.has(id)) personasAbiertas.delete(id); else personasAbiertas.add(id);
-  renderPeople();
+  renderPeople(); renderSuscripciones();
+};
+// Sub-pestañas de Accesos y MD+
+window.verSub = function(sub) {
+  document.querySelectorAll('.subtab').forEach(b => b.classList.toggle('on', b.dataset.sub === sub));
+  document.querySelectorAll('.subvista').forEach(v => v.classList.toggle('on', v.id === 'sub-' + sub));
+  try { sessionStorage.setItem('crm-sub', sub); } catch (e) {}
+  if (sub === 'md') renderSuscripciones();
+  if (sub === 'cuentas' && !cuentas.length) cargarCuentas();
+  if (sub === 'manuales' && typeof manualesDatos !== 'undefined' && !manualesDatos.length) cargarManuales();
+  if (sub === 'retos') renderRetos();
+  if (sub === 'actividad') renderAccesos();
+};
+// Mirar Despacio+: todas las suscripciones en una lista, con su ficha al pinchar
+window.renderSuscripciones = function() {
+  const el = document.getElementById('suscripcionesList');
+  if (!el) return;
+  const hoyISO = new Date().toISOString().slice(0, 10), semana = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+  const conMD = people.filter(p => p.subscription || p.trialStart);
+  const est = new Map(conMD.map(p => [p.id, estadoPlus(p)]));
+  const activos = conMD.filter(p => est.get(p.id).activo);
+  const set = (id, n) => { const x = document.getElementById(id); if (x) x.textContent = n; };
+  set('mdActivos', activos.filter(p => est.get(p.id).tipo === 'suscripcion').length);
+  set('mdPrueba', activos.filter(p => est.get(p.id).tipo === 'prueba').length);
+  set('mdPronto', activos.filter(p => est.get(p.id).hasta && est.get(p.id).hasta <= semana).length);
+  set('mdRevisar', conMD.filter(p => est.get(p.id).revisar).length);
+  const f = document.getElementById('filtroMD')?.value || 'activos';
+  const lista = conMD.filter(p => {
+    const e = est.get(p.id);
+    if (f === 'activos') return e.activo;
+    if (f === 'pronto') return e.activo && e.hasta && e.hasta <= semana;
+    if (f === 'revisar') return e.revisar;
+    if (f === 'prueba') return e.activo && e.tipo === 'prueba';
+    if (f === 'bajas') return !e.activo;
+    return true;
+  }).sort((a, b) => String(est.get(a.id).hasta || '9999').localeCompare(String(est.get(b.id).hasta || '9999')));
+  set('cuentaMD', lista.length + (lista.length === 1 ? ' persona' : ' personas'));
+  if (!cuentasCargadas) cargarCuentasPersonas();
+  el.innerHTML = lista.length ? lista.map(p => {
+    const e = est.get(p.id), c = accesoCuenta(p), abierta = personasAbiertas.has(p.id);
+    const ps = signups.filter(s => s.personId === p.id);
+    const quedan = e.hasta ? Math.ceil((new Date(e.hasta + 'T23:59:59') - Date.now()) / 864e5) : null;
+    const plazo = !e.hasta ? 'sin fecha' : e.activo ? (quedan <= 7 ? `<b style="color:var(--warn)">quedan ${quedan} días</b>` : 'hasta el ' + fechaCorta(e.hasta)) : 'terminó el ' + fechaCorta(e.hasta);
+    return `<div class="persona ${abierta ? 'abierta' : ''}">
+      <div class="persona-linea" onclick="togglePersona('${p.id}')">
+        <span class="persona-nombre">${escapeHtml(nombreCompleto(p) || p.email || 'Sin nombre')}</span>
+        <span class="persona-chips">${chipsPersona(p, e, c)}</span>
+        <span class="persona-salidas">${plazo}</span>
+        <span class="persona-email">${escapeHtml(p.email || '')}</span>
+        <span class="persona-flecha">${abierta ? '▾' : '▸'}</span>
+      </div>
+      ${abierta ? fichaPersona(p, ps) : ''}
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:16px;">Nadie en esta lista.</div>';
 };
 // Guarda solo ese campo (nunca reescribe la ficha entera: así no se pisan datos que haya
 // escrito la web o el servidor mientras tanto, como la casilla de novedades)
@@ -1895,7 +2003,7 @@ async function cargarCuentasPersonas() {
   try {
     const lista = await admin({ accion: 'cuentas' });
     cuentasPorEmail = Object.fromEntries(lista.map(c => [String(c.email).toLowerCase(), c]));
-    renderPeople();
+    renderPeople(); if (window.renderSuscripciones) renderSuscripciones();
   } catch (e) { console.warn('cuentas', e.message); }
 }
 function estadoPlus(p) {
@@ -2166,5 +2274,29 @@ function escapeHtml(str) {
 window.trialControlHtml = trialControlHtml;
 </script>
 
+<script>
+  // Botón de tema: claro → oscuro → automático
+  (function () {
+    var NOMBRES = { claro: '☀  Tema claro', oscuro: '☾  Tema oscuro', auto: '◐  Tema automático' };
+    function actual() { return document.documentElement.getAttribute('data-tema') || 'auto'; }
+    function pintar() {
+      var b = document.getElementById('botonTema'); if (b) b.textContent = NOMBRES[actual()];
+      var oscuro = actual() === 'oscuro' || (actual() === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', oscuro ? '#1b1320' : '#e8821a');
+    }
+    window.cambiarTema = function () {
+      var sig = { claro: 'oscuro', oscuro: 'auto', auto: 'claro' }[actual()];
+      if (sig === 'auto') document.documentElement.removeAttribute('data-tema'); else document.documentElement.setAttribute('data-tema', sig);
+      try { if (sig === 'auto') localStorage.removeItem('crm-tema'); else localStorage.setItem('crm-tema', sig); } catch (e) {}
+      pintar();
+    };
+    if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', pintar);
+    pintar();
+    // El contador de fotos por comentar también en la barra del móvil
+    var o = document.getElementById('fotosPendientes'), m = document.getElementById('fotosPendientesM');
+    if (o && m && window.MutationObserver) new MutationObserver(function () { m.textContent = o.textContent; m.style.display = o.style.display; })
+      .observe(o, { attributes: true, childList: true, characterData: true, subtree: true });
+  })();
+</script>
 </body>
 </html>
