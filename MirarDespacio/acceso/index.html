@@ -42,7 +42,7 @@
   <main>
     <img src="/assets/logo-md-ig.png" alt="Mirar Despacio">
     <span class="nota" id="nota">para socios</span>
-    <h1>Mirar Despacio<em>+</em></h1>
+    <h1>Mirar Despacio<em id="mas">+</em></h1>
     <p id="estado">Escribe tu email y te mando un enlace para entrar. Sin contraseñas.</p>
     <form id="pedir" hidden>
       <label for="email">Tu email (el mismo con el que te apuntaste)</label>
@@ -78,8 +78,9 @@
       var DESTINOS = { socios: '/socios/', retos: '/retos/', cuaderno: '/cuaderno/' };
       var manualPedido = (A.match(/^manual-([a-z0-9-]+)$/) || [])[1] || '';
 
-      if (manualPedido) { $('nota').textContent = 'manual del taller'; $('hazte').hidden = true; }
-      else if (A === 'cuaderno') { $('nota').textContent = 'tu cuaderno de fotos'; $('hazte').hidden = true; }
+      // Al manual o al cuaderno entra gente que no es de MD+: ahí el título va sin el «+»
+      if (manualPedido) { $('nota').textContent = 'manual del taller'; $('hazte').hidden = true; $('mas').hidden = true; }
+      else if (A === 'cuaderno') { $('nota').textContent = 'tu cuaderno de fotos'; $('hazte').hidden = true; $('mas').hidden = true; }
       if (EMAIL) { $('email').value = EMAIL; $('email2').value = EMAIL; }
 
       function texto(html) { estado.innerHTML = html; }
