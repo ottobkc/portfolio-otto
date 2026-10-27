@@ -27,7 +27,7 @@ datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespa
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
 NAV = [('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/podcast/', 'Podcast'), ('/muro/', 'Muro'), ('/tutorias/', 'Tutorías'),
-       ('/zine/', 'Zine'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
+       ('/tienda/', 'Tienda'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 
 ORG = {
     "@type": "Organization", "@id": DOM + "/#org", "name": "Mirar Despacio", "url": DOM + "/",

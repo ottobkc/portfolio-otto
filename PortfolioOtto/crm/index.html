@@ -804,8 +804,10 @@ onAuthStateChanged(auth, (user) => {
 function setSyncStatus(text, isError) {
   const el = document.getElementById('syncStatus');
   el.textContent = text;
-  el.style.color = isError ? '#b5654f' : '';
-  if (text && !isError) setTimeout(() => { el.textContent = ''; }, 1500);
+  el.style.color = isError ? 'var(--danger)' : '';
+  // Un aviso nuevo cancela el borrado del anterior (si no, un «Guardado» borraría el error que llega después)
+  clearTimeout(setSyncStatus.t);
+  if (text) setSyncStatus.t = setTimeout(() => { el.textContent = ''; }, isError ? 9000 : 1800);
 }
 
 function attachListeners() {
@@ -2145,6 +2147,8 @@ function mdPanelHtml(p) {
     <div class="sub-panel-row" style="flex-wrap:wrap;">
       <select id="mdMeses_${p.id}" style="width:auto;"><option value="1">1 mes</option><option value="3">3 meses</option><option value="6">6 meses</option><option value="12">12 meses</option></select>
       <select id="mdNivel_${p.id}" style="width:auto;"><option value="salidas" ${e.nivel !== 'online' ? 'selected' : ''}>Con salidas</option><option value="online" ${e.nivel === 'online' ? 'selected' : ''}>Online</option></select>
+      <input id="mdImporte_${p.id}" inputmode="decimal" placeholder="€ cobrados" value="${ultimoCobroPlus(p)}" style="width:96px;margin:0;" title="Lo que te ha pagado (se apunta en Contabilidad). Vacío = no se apunta">
+      <select id="mdMetodo_${p.id}" style="width:auto;"><option value="bizum">Bizum</option><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="stripe">Stripe</option></select>
       <button class="trial-btn" onclick="mdAlta('${p.id}')">${e.activo && e.tipo === 'suscripcion' ? 'Renovar' : 'Dar de alta'}</button>
       ${!e.activo ? `<button class="trial-btn" onclick="mdAccion('${p.id}','plus-prueba')">Prueba 30 días</button>` : ''}
       ${e.activo || e.revisar ? `<button class="trial-btn" onclick="mdBaja('${p.id}')">Dar de baja</button>` : ''}
@@ -2157,7 +2161,13 @@ async function mdAccion(personId, accion, extra = {}) {
     const txt = { invitado: 'invitación enviada', 'ya-existe': 'acceso actualizado', hecho: 'acceso actualizado', 'sin-cuenta': 'no tenía cuenta', 'sin-identity': 'OJO: no se pudo cambiar el acceso', error: 'OJO: error al cambiar el acceso' }[r.acceso] || r.acceso;
     setSyncStatus('Guardado ✓ · ' + txt, /OJO/.test(txt));
     cargarCuentasPersonas();
-  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+    return true;
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); return false; }
+}
+// Importe del último cobro de MD+ de esa persona (para proponerlo al renovar)
+function ultimoCobroPlus(p) {
+  const m = window.cx && window.cx.ultimoCobroPlus ? window.cx.ultimoCobroPlus(p) : null;
+  return m ? String(m.importe).replace('.', ',') : '';
 }
 window.mdAccion = mdAccion;
 window.mdAlta = function(personId) {
@@ -2168,7 +2178,17 @@ window.mdAlta = function(personId) {
   if (!p.email) { alert('Ponle un email primero.'); return; }
   if (!confirm(`${e.activo && e.tipo === 'suscripcion' ? 'Renovar' : 'Dar de alta'} MD+ (${nivel === 'online' ? 'online' : 'con salidas'}) ${meses} mes(es) a ${nombreCompleto(p)}?` +
     (cuentasPorEmail[String(p.email).toLowerCase()] ? '' : '\n\nNo tiene cuenta: le llegará un email para crear su contraseña.'))) return;
-  mdAccion(personId, 'plus-alta', { meses: Number(meses), nivel });
+  const importe = parseFloat(String(document.getElementById('mdImporte_' + personId).value || '').replace(',', '.')) || 0;
+  const metodo = document.getElementById('mdMetodo_' + personId).value;
+  mdAccion(personId, 'plus-alta', { meses: Number(meses), nivel }).then(async (hecho) => {
+    if (!hecho || !(importe > 0)) return;
+    try {
+      const [c] = await cargarModulos();
+      await c.apuntarCobro({ importe, metodo, categoria: 'mirar-despacio-plus', personId, email: p.email || '', quien: nombreCompleto(p),
+        concepto: `Mirar Despacio+ ${nivel === 'online' ? 'online' : 'con salidas'} · ${meses} ${Number(meses) === 1 ? 'mes' : 'meses'}`, meses: Number(meses), nivelPlus: nivel });
+      setSyncStatus(`Guardado ✓ · cobro de ${importe.toLocaleString('es-ES')} € apuntado en Contabilidad`);
+    } catch (e) { setSyncStatus('Acceso renovado, pero no se pudo apuntar el cobro: ' + e.message, true); }
+  });
 };
 window.mdBaja = function(personId) {
   const p = people.find(x => x.id === personId);

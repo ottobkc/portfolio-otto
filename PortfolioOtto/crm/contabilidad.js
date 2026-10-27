@@ -145,7 +145,7 @@ let perResumen = 'T' + (Math.floor(new Date().getMonth() / 3) + 1) + '-' + new D
 let perFact = 'A-' + new Date().getFullYear(), perCob = perResumen, perGas = perResumen;
 
 // ===================== Estructura de la sección =====================
-const SUBS = [['resumen', 'Resumen'], ['facturas', 'Facturas'], ['cobros', 'Cobros'], ['gastos', 'Gastos'], ['suscripciones', 'Suscripciones'], ['ajustes', 'Tus datos']];
+const SUBS = [['resumen', 'Resumen'], ['facturas', 'Facturas'], ['cobros', 'Cobros'], ['plus', 'Mirar Despacio+'], ['gastos', 'Gastos'], ['suscripciones', 'Suscripciones'], ['ajustes', 'Tus datos']];
 function esqueleto() {
   const v = $('view-contabilidad');
   if (v.dataset.listo) return;
@@ -162,7 +162,7 @@ function pintar() {
   esqueleto();
   document.querySelectorAll('[data-csub]').forEach((b) => b.classList.toggle('on', b.dataset.csub === sub));
   document.querySelectorAll('.cx-vista').forEach((x) => x.classList.toggle('on', x.id === 'cx-' + sub));
-  ({ resumen: pintarResumen, facturas: pintarFacturas, cobros: pintarCobros, gastos: pintarGastos, suscripciones: pintarSuscripciones, ajustes: pintarAjustes })[sub]();
+  ({ resumen: pintarResumen, facturas: pintarFacturas, cobros: pintarCobros, plus: pintarPlus, gastos: pintarGastos, suscripciones: pintarSuscripciones, ajustes: pintarAjustes })[sub]();
 }
 function ver(k) { sub = k; try { sessionStorage.setItem('crm-conta', k); } catch (e) { /* nada */ } pintar(); }
 
@@ -731,6 +731,67 @@ function facturaDeCobro(id) {
   });
 }
 
+
+// ===================== Mirar Despacio+ (cobros de las suscripciones) =====================
+// Los cobros de MD+ son los movimientos de las categorías de MD+ (los apunta Stripe solo, o tú al
+// renovar desde Accesos y MD+ poniendo lo que te ha pagado). Aquí se ven por persona y por periodo.
+const CATS_PLUS = ['mirar-despacio-plus', 'regalo-plus'];
+const esPlus = (m) => m.tipo !== 'gasto' && CATS_PLUS.includes(m.categoria);
+const nombreP = (p) => [p.name, p.apellidos].filter(Boolean).join(' ') || p.email || 'Sin nombre';
+function cobrosDe(p) {
+  const em = String(p.email || '').toLowerCase();
+  return movimientos.filter((m) => esPlus(m) && (m.personId === p.id || (em && String(m.email || '').toLowerCase() === em)))
+    .sort((a, b) => fechaMov(b).localeCompare(fechaMov(a)));
+}
+function ultimoCobroPlus(p) { return cobrosDe(p)[0] || null; }
+let perPlus = perResumen;
+function pintarPlus() {
+  perPlus = periodoDe('cxPerPlus', perPlus);
+  const r = rango(perPlus), hoy = hoyISO();
+  const q = normal(($('cxBuscaPlus') || {}).value || '');
+  const activos = C.personas().filter((p) => p.subscription && p.subscription.active && (!p.subscription.until || p.subscription.until >= isoDe(new Date(Date.now() - 3 * 864e5))));
+  const hace35 = isoDe(new Date(Date.now() - 35 * 864e5));
+  const filas = activos.map((p) => {
+    const cs = cobrosDe(p), u = cs[0];
+    return { p, u, total: cs.reduce((n, m) => n + num(m.importe), 0), sinCobro: !u || fechaMov(u) < hace35 };
+  }).filter((x) => !q || normal([nombreP(x.p), x.p.email].join(' ')).includes(q))
+    .sort((a, b) => b.sinCobro - a.sinCobro || String(a.p.subscription.until || '9').localeCompare(String(b.p.subscription.until || '9')));
+  const delPeriodo = movimientos.filter((m) => esPlus(m) && enRango(fechaMov(m), r)).sort((a, b) => fechaMov(b).localeCompare(fechaMov(a)));
+  const listaPer = q ? delPeriodo.filter((m) => normal([m.quien, m.nombre, m.email, m.concepto].join(' ')).includes(q)) : delPeriodo;
+  const v = $('cx-plus');
+  if (!v.querySelector('#cxListaPlus')) {
+    v.innerHTML = `<div class="card"><div class="stat-grid" style="margin:0;" id="cxPlusStats"></div></div>
+      <div class="card"><div class="row" style="align-items:center;flex-wrap:wrap;">
+        <input id="cxBuscaPlus" placeholder="Buscar por nombre o email" oninput="cx.pintar()" style="margin:0;flex:2 1 200px;">
+        <div style="flex:0 0 auto;" id="cxPerPlusCaja"></div></div>
+        <div class="person-meta" style="margin-top:8px;">Para apuntar un cobro, renueva o da de alta desde <a href="#" onclick="showTab('accesos');return false;">Accesos y MD+</a> poniendo lo que te ha pagado. Los pagos por Stripe se apuntarán solos.</div></div>
+      <div class="card-title" style="margin-top:6px;">Suscripciones activas</div>
+      <div class="cx-lista" id="cxListaPlusActivos"></div>
+      <div class="card-title" style="margin-top:18px;">Cobros del periodo</div>
+      <div class="cx-lista" id="cxListaPlus"></div>`;
+  }
+  if (!$('cxPerPlusCaja').contains(document.activeElement)) $('cxPerPlusCaja').innerHTML = selPeriodo('cxPerPlus', perPlus, 'cx.pintar()');
+  const sin = filas.filter((x) => x.sinCobro).length;
+  $('cxPlusStats').innerHTML = `<div class="stat-box"><div class="stat-num">${activos.length}</div><div class="stat-label">activas</div></div>
+    <div class="stat-box"><div class="stat-num">${eur(delPeriodo.reduce((n, m) => n + num(m.importe), 0))}</div><div class="stat-label">cobrado en el periodo</div></div>
+    <div class="stat-box"><div class="stat-num">${delPeriodo.length}</div><div class="stat-label">cobros</div></div>
+    <div class="stat-box"><div class="stat-num" style="${sin ? 'color:var(--warn)' : ''}">${sin}</div><div class="stat-label">sin cobro en el último mes</div></div>`;
+  $('cxListaPlusActivos').innerHTML = filas.map(({ p, u, total, sinCobro }) => {
+    const s = p.subscription || {};
+    return `<div class="cx-fila" onclick="showTab('accesos')">
+      <div class="cx-quien"><b>${esc(nombreP(p))}</b><div class="person-meta">${s.nivel === 'online' ? 'Online' : 'Con salidas'}${s.until ? ' · hasta ' + fechaES(s.until) : ''}${s.origen === 'stripe' ? ' · Stripe' : ''}</div></div>
+      <div class="cx-tags">${sinCobro ? '<span class="tag t-man">sin cobro apuntado este mes</span>' : `<span class="tag t-off">último ${fechaES(fechaMov(u))} · ${eur(u.importe)}</span>`}</div>
+      <div class="cx-imp">${eur(total)}<div class="person-meta">en total</div></div>
+    </div>`;
+  }).join('') || '<div class="empty" style="padding:16px;">No hay suscripciones activas</div>';
+  $('cxListaPlus').innerHTML = listaPer.map((m) => `<div class="cx-fila" style="cursor:default">
+      <div class="cx-fecha">${fechaES(fechaMov(m))}</div>
+      <div class="cx-quien"><b>${esc(m.quien || m.nombre || m.email || '—')}</b><div class="person-meta">${esc(m.concepto || nombreCat(m.categoria))} · ${esc(METODOS[m.metodo] || m.metodo || '')}${m.origen === 'auto' ? ' · automático' : ''}</div></div>
+      <div class="cx-tags">${m.facturaId ? `<span class="tag t-plus">${esc(m.facturaNumero || 'factura')}</span>` : `<button class="small secondary" onclick="cx.facturaDeCobro('${m.id}')">Hacer factura</button>`}</div>
+      <div class="cx-imp">${eur(m.importe)}</div>
+    </div>`).join('') || '<div class="empty" style="padding:16px;">Sin cobros de MD+ en este periodo</div>';
+}
+
 // ===================== Gastos =====================
 async function archivos(cuerpo) {
   const token = await C.auth.currentUser.getIdToken();
@@ -1100,7 +1161,7 @@ export const facturasActuales = () => facturas;
 window.cx = {
   ver, pintar, nuevaFactura, abrirFactura, cerrarEditor, recalcular, masLinea, elegirCliente, guardarBorrador, borrarBorrador, emitir,
   marcarCobrada, confirmarCobro, duplicar, rectificar, verPdf, imprimir, cerrarPdf, enviar,
-  guardarCobro, borrarMov, facturaDeCobro,
+  guardarCobro, borrarMov, facturaDeCobro, ultimoCobroPlus,
   calcGasto, elegirProveedor, editarGasto, cancelarGasto, quitarJust, guardarGasto, verJust,
   editarSus, guardarSus, borrarSus, pausarSus, cargoSus,
   guardarAjustes, csv,

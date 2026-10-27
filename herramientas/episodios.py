@@ -153,7 +153,7 @@ def construir_episodios(g, EPISODIOS, URLS, PLATAFORMAS):
         <div class="ep-navs">{nav}</div>
         <p style="margin-top:32px;"><a href="/podcast/">← Todos los episodios</a></p>
         <h2>Si te ha gustado, <em>sal a mirar.</em></h2>
-        <p>Una vez al mes hacemos una <a href="/salidas/">salida fotográfica por Madrid</a>: sin clases, con tarjetas de misión y fotos al final. Las fotos y las ideas que más resonaron del podcast están en <a href="/zine/">el zine</a>.</p>
+        <p>Una vez al mes hacemos una <a href="/salidas/">salida fotográfica por Madrid</a>: sin clases, con tarjetas de misión y fotos al final. Las fotos y las ideas que más resonaron del podcast están en <a href="/tienda/">el zine</a>.</p>
       </div>
     </section>'''
         schema = [{

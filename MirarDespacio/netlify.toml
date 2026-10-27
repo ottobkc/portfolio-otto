@@ -25,6 +25,19 @@
   to     = "/salidas/"
   status = 301
 
+# El zine ahora está en la tienda
+[[redirects]]
+  from   = "/zine/*"
+  to     = "/tienda/"
+  status = 301
+
+# Productos de la tienda (los lee una función de ottokols.es desde el CRM)
+[[redirects]]
+  from   = "/api/tienda"
+  to     = "https://ottokols.es/.netlify/functions/tienda"
+  status = 200
+  force  = true
+
 # Calendario para suscribirse (Google/Apple): lo genera una función de ottokols.es
 [[redirects]]
   from   = "/agenda.ics"

@@ -194,7 +194,7 @@ def construir(g):
         <ol class="episodios">
 {lista}
         </ol>
-        <p style="margin-top:28px;">La temporada terminó convertida en <a href="/zine/">un zine impreso</a> con las fotos y las ideas que más resonaron.</p>
+        <p style="margin-top:28px;">La temporada terminó convertida en <a href="/tienda/">un zine impreso</a> con las fotos y las ideas que más resonaron.</p>
       </div>
     </section>'''
     podcast_schema = {
@@ -417,25 +417,38 @@ def construir(g):
         'Tutorías de fotografía individuales, presenciales en Madrid u online: tu cámara, la luz, composición y fotografía de calle. Presencial desde 40 €, online desde 30 €.',
         cuerpo, schema=[tut_schema]))
 
-    # ------------------------------------------------------------ ZINE
+    # ------------------------------------------------------------ TIENDA
+    # Los productos salen del CRM (sección Tienda) a través de /api/tienda: cada producto nuevo
+    # aparece solo. Mientras no haya ninguno a la venta se ve el bloque fijo del zine.
     cuerpo = f'''
     <section class="portada">
       <div class="envoltura estrecho">
-        <p class="antetitulo">Zine · Temporada 1</p>
-        <h1>El <em>zine.</em></h1>
-        <p class="entradilla">La primera temporada del podcast, en papel. Un zine A5 de 36 páginas, grapado, con fotos de calle y las ideas que más resonaron en los 20 episodios.</p>
-        <ul class="datos" style="max-width:460px;">
-          <li><span>Formato</span><span>A5 · 36 páginas · grapado</span></li>
-          <li><span>Disponibilidad</span><span>Quedan ejemplares</span></li>
-          <li><span>Precio</span><span>12 € en mano en las salidas</span></li>
-        </ul>
-        <p style="margin-top:24px;">Si vienes a una salida te lo llevo en mano y te ahorras el envío. Si no, escríbeme y vemos cómo hacértelo llegar.</p>
-        {''.join(f'<img src="{cld(u, "f_auto,q_auto,w_1000")}" alt="Páginas del zine de Mirar Despacio" loading="lazy" style="margin-top:20px;width:100%;">' for u in ZINE_FOTOS)}
-        <div class="botones"><a class="boton" href="mailto:{EMAIL}?subject=Quiero%20un%20zine">Quiero uno</a><a class="boton claro" href="/salidas/">Próxima salida</a></div>
+        <p class="antetitulo">Tienda</p>
+        <h1>Cosas para <em>mirar despacio.</em></h1>
+        <p class="entradilla">El zine, la baraja de retos y lo que vaya saliendo de las salidas y el podcast. Hecho en pequeño, en Madrid.</p>
+      </div>
+    </section>
+    <section class="seccion" style="padding-top:0;">
+      <div class="envoltura">
+        <div id="tienda-productos" class="productos" data-email="{EMAIL}" hidden></div>
+        <div id="tienda-fijo" class="estrecho" style="margin:0 auto;">
+          <p class="antetitulo">Zine · Temporada 1</p>
+          <h2>El <em>zine.</em></h2>
+          <p>La primera temporada del podcast, en papel. Un zine A5 de 36 páginas, grapado, con fotos de calle y las ideas que más resonaron en los 20 episodios.</p>
+          <ul class="datos" style="max-width:460px;">
+            <li><span>Formato</span><span>A5 · 36 páginas · grapado</span></li>
+            <li><span>Disponibilidad</span><span>Quedan ejemplares</span></li>
+            <li><span>Precio</span><span>12 € en mano en las salidas</span></li>
+          </ul>
+          <p style="margin-top:24px;">Si vienes a una salida te lo llevo en mano y te ahorras el envío. Si no, escríbeme y vemos cómo hacértelo llegar.</p>
+          {''.join(f'<img src="{cld(u, "f_auto,q_auto,w_1000")}" alt="Páginas del zine de Mirar Despacio" loading="lazy" style="margin-top:20px;width:100%;">' for u in ZINE_FOTOS)}
+          <div class="botones"><a class="boton" href="mailto:{EMAIL}?subject=Quiero%20un%20zine">Quiero uno</a><a class="boton claro" href="/salidas/">Próxima salida</a></div>
+        </div>
       </div>
     </section>'''
-    escribir('/zine/', pagina('/zine/', 'Zine de fotografía callejera · Mirar Despacio',
-        'Zine impreso de Mirar Despacio: la primera temporada del podcast de fotografía callejera en 36 páginas de fotos e ideas. A5, grapado, 12 €.', cuerpo))
+    escribir('/tienda/', pagina('/tienda/', 'Tienda · Zine y baraja de fotografía callejera · Mirar Despacio',
+        'Tienda de Mirar Despacio: el zine impreso de fotografía callejera, la baraja de retos y otras cosas para mirar despacio. Hecho en Madrid.', cuerpo,
+        extra_pie=f'\n  <script src="{g["v"]("tienda.js")}" defer></script>'))
 
     # ------------------------------------------------------------ MIRAR DESPACIO+
     cuerpo = f'''
