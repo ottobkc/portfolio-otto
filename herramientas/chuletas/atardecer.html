@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Chuleta · Callejera al atardecer · Mirar Despacio</title>
+<!-- Tarjeta de bolsillo A6 (105 × 148 mm) a doble cara, con 3 mm de sangrado por cada lado.
+     Para regenerar el PDF: abrir en Chrome → Imprimir → Guardar como PDF, márgenes «Ninguno», con gráficos de fondo.
+     El QR lleva a https://ottokols.es/acceso.html?a=manual-atardecer · El logo (logo-md-blanco.png) va en esta misma carpeta. -->
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/*FUENTES*/
+
+@page { size: 111mm 154mm; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #f5f3ef; }
+body { color: #1a1814; font: 400 7.6pt/1.38 'Inter', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.cara { width: 111mm; height: 154mm; position: relative; overflow: hidden; page-break-after: always; background: #f5f3ef; }
+.cara:last-child { page-break-after: auto; }
+/* zona segura: 3 mm de sangrado + 5 mm de margen */
+.seguro { position: absolute; inset: 8mm; display: flex; flex-direction: column; }
+.cielo { position: absolute; left: 0; right: 0; top: 0; height: 47mm; background: linear-gradient(180deg, #f2c27a 0%, #e8821a 38%, #b9466a 70%, #2b4a6f 100%); }
+.cielo::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 15mm; background: repeating-linear-gradient(90deg, transparent 0 4.2mm, rgba(26,24,20,.22) 4.2mm 4.45mm); }
+.titulo { color: #fff; position: relative; height: 39mm; }
+.marca { font: 600 5.6pt/1 'Inter', sans-serif; letter-spacing: .24em; text-transform: uppercase; opacity: .92; }
+h1 { font: 300 23pt/1 'Fraunces', serif; margin-top: 4mm; letter-spacing: -.01em; }
+h1 em { font-style: italic; font-weight: 500; }
+.notita { font: 600 11pt/1 'Caveat', cursive; position: absolute; right: 0; bottom: 4mm; transform: rotate(-4deg); }
+h2 { font: 600 5.8pt/1 'Inter', sans-serif; letter-spacing: .2em; text-transform: uppercase; color: #e8821a; margin: 0 0 2mm; }
+.reloj { margin-top: 2mm; }
+.barra { display: grid; grid-template-columns: 1.25fr 1fr 1fr 1fr; border-radius: 1.6mm; overflow: hidden; }
+.barra div { padding: 1.6mm 1.8mm; color: #fff; font: 400 6.2pt/1.25 'Inter', sans-serif; }
+.barra b { display: block; font: 500 9.5pt/1.1 'Fraunces', serif; }
+.barra div:nth-child(1) { background: #e9a64a; color: #1a1814; }
+.barra div:nth-child(2) { background: #e8821a; }
+.barra div:nth-child(3) { background: #9c4466; }
+.barra div:nth-child(4) { background: #2b4a6f; }
+.mano { font: 600 10pt/1.05 'Caveat', cursive; color: #e8347a; }
+.reloj .mano { margin-top: 1.6mm; }
+table { width: 100%; border-collapse: collapse; margin-top: 1mm; }
+th { text-align: left; font: 600 5.4pt/1 'Inter', sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #6b655a; padding: 0 1mm 1.2mm 0; border-bottom: .3mm solid #1a1814; }
+td { padding: 1.25mm 1mm 1.25mm 0; border-bottom: .2mm solid #d8d1c4; vertical-align: top; white-space: nowrap; }
+td:first-child { font-weight: 600; white-space: normal; }
+.ajustes { margin-top: 4.5mm; }
+.pie { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline; color: #6b655a; font-size: 6pt; }
+/* Reverso */
+.reverso .franja { position: absolute; left: 0; right: 0; top: 0; height: 6mm; background: linear-gradient(90deg, #f2c27a, #e8821a 35%, #b9466a 70%, #2b4a6f); }
+.reverso h3 { font: 300 15pt/1.05 'Fraunces', serif; margin: 1mm 0 3mm; }
+.reverso h3 em { font-style: italic; font-weight: 500; color: #e8347a; }
+ol { list-style: none; counter-reset: c; }
+ol li { counter-increment: c; position: relative; padding-left: 6mm; margin-bottom: 2mm; }
+ol li::before { content: counter(c); position: absolute; left: 0; top: -.4mm; font: 500 10pt/1 'Fraunces', serif; color: #e8821a; }
+ol li b { font-weight: 600; }
+.arreglos { margin-top: 2.5mm; border-top: .2mm solid #d8d1c4; padding-top: 2.5mm; }
+.arreglos p { margin-bottom: 1.2mm; }
+.arreglos p b { font-weight: 600; }
+.qr { margin-top: auto; display: flex; gap: 4mm; align-items: center; background: #ebe6dd; border-radius: 2mm; padding: 3mm; }
+.qr svg { width: 21mm; height: 21mm; flex: none; background: #fff; padding: 1.2mm; border-radius: 1mm; }
+.qr p { font-size: 7pt; }
+.qr .mano { font-size: 12pt; color: #1a1814; display: block; margin-bottom: 1mm; }
+
+.logo { position: absolute; top: -1mm; right: 0; width: 25mm; height: auto; }
+.barra.c2 { grid-template-columns: 1fr 1fr; }
+.barra.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.barra.c4 { grid-template-columns: 1.25fr 1fr 1fr 1fr; }
+table.texto td { white-space: normal; }
+table.texto td:first-child { width: 27%; }
+.pasos { font: 500 9pt/1 'Fraunces', serif; letter-spacing: .02em; margin-top: 1.6mm; }
+
+.cielo { background: linear-gradient(180deg, #f2c27a 0%, #e8821a 38%, #b9466a 70%, #2b4a6f 100%); }
+
+</style>
+</head>
+<body>
+
+<section class="cara">
+  <div class="cielo"></div>
+  <div class="seguro">
+    <div class="titulo">
+      <div class="marca">Taller</div>
+      <img class="logo" src="logo-md-blanco.png" alt="Mirar Despacio">
+      <h1>Callejera<br><em>al atardecer</em></h1>
+      <span class="notita">para el bolsillo</span>
+    </div>
+    <div class="reloj">
+      <h2>El reloj de la luz</h2>
+      <div class="barra c4"><div>Hora dorada<b>−1 h</b></div><div>Puesta<b>0</b></div><div>Hora azul<b>+20′</b></div><div>Noche<b>+40′</b></div></div>
+      <p class="mano">en la calle el sol se va 20–30′ antes: llega con margen</p>
+    </div>
+    <div class="ajustes">
+      <h2>Ajustes de partida</h2>
+      <table class=""><thead><tr><th>Situación</th><th>f/</th><th>Velocidad</th><th>ISO</th><th>±</th></tr></thead><tbody><tr><td>Luz rasante</td><td>5,6–8</td><td>1/250+</td><td>200–400</td><td>0 / −0,3</td></tr><tr><td>Silueta</td><td>8–11</td><td>la que salga</td><td>100–200</td><td>−1 / −2</td></tr><tr><td>Contraluz con cara</td><td>2,8–4</td><td>1/250+</td><td>200–400</td><td>+1 / +1,7</td></tr><tr><td>Sol en estrella</td><td>11–16</td><td>la que salga</td><td>100</td><td>−0,7 / −1</td></tr><tr><td>Hora azul, gente</td><td>2,8–4</td><td>1/60–1/125</td><td>1600–6400</td><td>−0,3 / −0,7</td></tr><tr><td>Barrido</td><td>8</td><td>1/15–1/30</td><td>400–800</td><td>−0,3</td></tr></tbody></table>
+      <p class="mano" style="margin-top:2mm;">puntos de partida: mira la pantalla y corrige</p>
+    </div>
+    <div class="pie"><span>Manual, ISO a mano · ± = marca del exposímetro</span><span>Balance: Luz de día</span></div>
+  </div>
+</section>
+
+<section class="cara reverso">
+  <div class="franja"></div>
+  <div class="seguro">
+    <h2 style="margin-top:2mm;">Antes de cada foto</h2>
+    <h3>Seis cosas que <em>mirar.</em></h3>
+    <ol>
+      <li><b>¿Dónde está el sol?</b> De lado: textura. Detrás del sujeto: silueta o borde de luz. A tu espalda: color.</li>
+      <li><b>Date la vuelta.</b> La mejor luz suele estar a tu espalda, en las fachadas.</li>
+      <li><b>Protege el cielo.</b> Histograma y parpadeo de altas luces: un cielo quemado no se recupera.</li>
+      <li><b>Sube el ISO a tiempo.</b> Cuando la marca se vaya al menos, un paso más de ISO. Velocidad: 1/125+ con gente.</li>
+      <li><b>Pesca, no caces.</b> Fondo bueno, encuadra y espera a que entre alguien.</li>
+      <li><b>Cambias de calle, haces prueba.</b> La luz de hace diez minutos ya no sirve.</li>
+    </ol>
+    <div class="arreglos">
+      <h2>Si sale mal</h2>
+      <p><b>Cielo blanco:</b> compensa a negativo.</p>
+      <p><b>Naranja plano o gris:</b> balance en Luz de día.</p>
+      <p><b>Movida:</b> sube el ISO o apóyate.</p>
+    </div>
+    <div class="qr">
+      <svg version="1.1" viewBox="0 0 33 33" xmlns="http://www.w3.org/2000/svg"><path d="M0,0H1V1H0zM1,0H2V1H1zM2,0H3V1H2zM3,0H4V1H3zM4,0H5V1H4zM5,0H6V1H5zM6,0H7V1H6zM12,0H13V1H12zM13,0H14V1H13zM16,0H17V1H16zM17,0H18V1H17zM18,0H19V1H18zM19,0H20V1H19zM20,0H21V1H20zM21,0H22V1H21zM23,0H24V1H23zM26,0H27V1H26zM27,0H28V1H27zM28,0H29V1H28zM29,0H30V1H29zM30,0H31V1H30zM31,0H32V1H31zM32,0H33V1H32zM0,1H1V2H0zM6,1H7V2H6zM9,1H10V2H9zM10,1H11V2H10zM11,1H12V2H11zM12,1H13V2H12zM13,1H14V2H13zM14,1H15V2H14zM15,1H16V2H15zM17,1H18V2H17zM20,1H21V2H20zM26,1H27V2H26zM32,1H33V2H32zM0,2H1V3H0zM2,2H3V3H2zM3,2H4V3H3zM4,2H5V3H4zM6,2H7V3H6zM8,2H9V3H8zM9,2H10V3H9zM10,2H11V3H10zM11,2H12V3H11zM12,2H13V3H12zM13,2H14V3H13zM15,2H16V3H15zM16,2H17V3H16zM17,2H18V3H17zM18,2H19V3H18zM21,2H22V3H21zM23,2H24V3H23zM24,2H25V3H24zM26,2H27V3H26zM28,2H29V3H28zM29,2H30V3H29zM30,2H31V3H30zM32,2H33V3H32zM0,3H1V4H0zM2,3H3V4H2zM3,3H4V4H3zM4,3H5V4H4zM6,3H7V4H6zM8,3H9V4H8zM9,3H10V4H9zM12,3H13V4H12zM14,3H15V4H14zM15,3H16V4H15zM16,3H17V4H16zM20,3H21V4H20zM22,3H23V4H22zM23,3H24V4H23zM26,3H27V4H26zM28,3H29V4H28zM29,3H30V4H29zM30,3H31V4H30zM32,3H33V4H32zM0,4H1V5H0zM2,4H3V5H2zM3,4H4V5H3zM4,4H5V5H4zM6,4H7V5H6zM8,4H9V5H8zM11,4H12V5H11zM12,4H13V5H12zM13,4H14V5H13zM15,4H16V5H15zM18,4H19V5H18zM23,4H24V5H23zM26,4H27V5H26zM28,4H29V5H28zM29,4H30V5H29zM30,4H31V5H30zM32,4H33V5H32zM0,5H1V6H0zM6,5H7V6H6zM8,5H9V6H8zM9,5H10V6H9zM10,5H11V6H10zM14,5H15V6H14zM15,5H16V6H15zM16,5H17V6H16zM17,5H18V6H17zM18,5H19V6H18zM20,5H21V6H20zM22,5H23V6H22zM26,5H27V6H26zM32,5H33V6H32zM0,6H1V7H0zM1,6H2V7H1zM2,6H3V7H2zM3,6H4V7H3zM4,6H5V7H4zM5,6H6V7H5zM6,6H7V7H6zM8,6H9V7H8zM10,6H11V7H10zM12,6H13V7H12zM14,6H15V7H14zM16,6H17V7H16zM18,6H19V7H18zM20,6H21V7H20zM22,6H23V7H22zM24,6H25V7H24zM26,6H27V7H26zM27,6H28V7H27zM28,6H29V7H28zM29,6H30V7H29zM30,6H31V7H30zM31,6H32V7H31zM32,6H33V7H32zM8,7H9V8H8zM12,7H13V8H12zM14,7H15V8H14zM15,7H16V8H15zM21,7H22V8H21zM22,7H23V8H22zM24,7H25V8H24zM0,8H1V9H0zM2,8H3V9H2zM3,8H4V9H3zM4,8H5V9H4zM5,8H6V9H5zM6,8H7V9H6zM11,8H12V9H11zM12,8H13V9H12zM13,8H14V9H13zM14,8H15V9H14zM15,8H16V9H15zM16,8H17V9H16zM17,8H18V9H17zM22,8H23V9H22zM24,8H25V9H24zM26,8H27V9H26zM27,8H28V9H27zM28,8H29V9H28zM29,8H30V9H29zM30,8H31V9H30zM1,9H2V10H1zM8,9H9V10H8zM9,9H10V10H9zM11,9H12V10H11zM16,9H17V10H16zM18,9H19V10H18zM19,9H20V10H19zM20,9H21V10H20zM21,9H22V10H21zM23,9H24V10H23zM26,9H27V10H26zM27,9H28V10H27zM29,9H30V10H29zM30,9H31V10H30zM31,9H32V10H31zM32,9H33V10H32zM0,10H1V11H0zM1,10H2V11H1zM3,10H4V11H3zM4,10H5V11H4zM5,10H6V11H5zM6,10H7V11H6zM7,10H8V11H7zM8,10H9V11H8zM10,10H11V11H10zM11,10H12V11H11zM15,10H16V11H15zM18,10H19V11H18zM20,10H21V11H20zM21,10H22V11H21zM22,10H23V11H22zM28,10H29V11H28zM30,10H31V11H30zM0,11H1V12H0zM1,11H2V12H1zM2,11H3V12H2zM5,11H6V12H5zM7,11H8V12H7zM9,11H10V12H9zM11,11H12V12H11zM12,11H13V12H12zM14,11H15V12H14zM15,11H16V12H15zM19,11H20V12H19zM20,11H21V12H20zM21,11H22V12H21zM23,11H24V12H23zM25,11H26V12H25zM28,11H29V12H28zM29,11H30V12H29zM30,11H31V12H30zM31,11H32V12H31zM1,12H2V13H1zM3,12H4V13H3zM4,12H5V13H4zM5,12H6V13H5zM6,12H7V13H6zM12,12H13V13H12zM18,12H19V13H18zM19,12H20V13H19zM22,12H23V13H22zM23,12H24V13H23zM24,12H25V13H24zM25,12H26V13H25zM27,12H28V13H27zM28,12H29V13H28zM29,12H30V13H29zM1,13H2V14H1zM4,13H5V14H4zM5,13H6V14H5zM11,13H12V14H11zM12,13H13V14H12zM13,13H14V14H13zM14,13H15V14H14zM15,13H16V14H15zM16,13H17V14H16zM20,13H21V14H20zM23,13H24V14H23zM26,13H27V14H26zM29,13H30V14H29zM31,13H32V14H31zM32,13H33V14H32zM0,14H1V15H0zM1,14H2V15H1zM2,14H3V15H2zM3,14H4V15H3zM6,14H7V15H6zM7,14H8V15H7zM9,14H10V15H9zM10,14H11V15H10zM11,14H12V15H11zM13,14H14V15H13zM17,14H18V15H17zM18,14H19V15H18zM19,14H20V15H19zM21,14H22V15H21zM22,14H23V15H22zM24,14H25V15H24zM25,14H26V15H25zM26,14H27V15H26zM29,14H30V15H29zM30,14H31V15H30zM31,14H32V15H31zM2,15H3V16H2zM3,15H4V16H3zM9,15H10V16H9zM11,15H12V16H11zM12,15H13V16H12zM14,15H15V16H14zM16,15H17V16H16zM19,15H20V16H19zM20,15H21V16H20zM21,15H22V16H21zM25,15H26V16H25zM26,15H27V16H26zM29,15H30V16H29zM30,15H31V16H30zM0,16H1V17H0zM1,16H2V17H1zM2,16H3V17H2zM3,16H4V17H3zM4,16H5V17H4zM5,16H6V17H5zM6,16H7V17H6zM9,16H10V17H9zM10,16H11V17H10zM14,16H15V17H14zM17,16H18V17H17zM19,16H20V17H19zM22,16H23V17H22zM24,16H25V17H24zM25,16H26V17H25zM27,16H28V17H27zM28,16H29V17H28zM32,16H33V17H32zM1,17H2V18H1zM2,17H3V18H2zM5,17H6V18H5zM7,17H8V18H7zM10,17H11V18H10zM16,17H17V18H16zM17,17H18V18H17zM18,17H19V18H18zM19,17H20V18H19zM21,17H22V18H21zM22,17H23V18H22zM23,17H24V18H23zM26,17H27V18H26zM27,17H28V18H27zM29,17H30V18H29zM30,17H31V18H30zM32,17H33V18H32zM6,18H7V19H6zM8,18H9V19H8zM9,18H10V19H9zM10,18H11V19H10zM11,18H12V19H11zM12,18H13V19H12zM14,18H15V19H14zM15,18H16V19H15zM17,18H18V19H17zM20,18H21V19H20zM21,18H22V19H21zM22,18H23V19H22zM24,18H25V19H24zM25,18H26V19H25zM26,18H27V19H26zM27,18H28V19H27zM28,18H29V19H28zM30,18H31V19H30zM31,18H32V19H31zM0,19H1V20H0zM1,19H2V20H1zM3,19H4V20H3zM5,19H6V20H5zM10,19H11V20H10zM12,19H13V20H12zM14,19H15V20H14zM16,19H17V20H16zM17,19H18V20H17zM18,19H19V20H18zM19,19H20V20H19zM21,19H22V20H21zM22,19H23V20H22zM27,19H28V20H27zM28,19H29V20H28zM29,19H30V20H29zM30,19H31V20H30zM31,19H32V20H31zM32,19H33V20H32zM1,20H2V21H1zM6,20H7V21H6zM8,20H9V21H8zM11,20H12V21H11zM13,20H14V21H13zM16,20H17V21H16zM22,20H23V21H22zM28,20H29V21H28zM29,20H30V21H29zM31,20H32V21H31zM32,20H33V21H32zM0,21H1V22H0zM1,21H2V22H1zM3,21H4V22H3zM4,21H5V22H4zM5,21H6V22H5zM7,21H8V22H7zM9,21H10V22H9zM10,21H11V22H10zM11,21H12V22H11zM14,21H15V22H14zM15,21H16V22H15zM18,21H19V22H18zM21,21H22V22H21zM23,21H24V22H23zM26,21H27V22H26zM29,21H30V22H29zM32,21H33V22H32zM0,22H1V23H0zM4,22H5V23H4zM5,22H6V23H5zM6,22H7V23H6zM7,22H8V23H7zM9,22H10V23H9zM10,22H11V23H10zM11,22H12V23H11zM12,22H13V23H12zM15,22H16V23H15zM16,22H17V23H16zM25,22H26V23H25zM26,22H27V23H26zM27,22H28V23H27zM28,22H29V23H28zM29,22H30V23H29zM30,22H31V23H30zM31,22H32V23H31zM0,23H1V24H0zM3,23H4V24H3zM11,23H12V24H11zM12,23H13V24H12zM15,23H16V24H15zM19,23H20V24H19zM21,23H22V24H21zM22,23H23V24H22zM24,23H25V24H24zM25,23H26V24H25zM26,23H27V24H26zM28,23H29V24H28zM29,23H30V24H29zM30,23H31V24H30zM32,23H33V24H32zM0,24H1V25H0zM3,24H4V25H3zM4,24H5V25H4zM6,24H7V25H6zM7,24H8V25H7zM8,24H9V25H8zM9,24H10V25H9zM13,24H14V25H13zM14,24H15V25H14zM15,24H16V25H15zM17,24H18V25H17zM20,24H21V25H20zM24,24H25V25H24zM25,24H26V25H25zM26,24H27V25H26zM27,24H28V25H27zM28,24H29V25H28zM8,25H9V26H8zM10,25H11V26H10zM13,25H14V26H13zM19,25H20V26H19zM20,25H21V26H20zM21,25H22V26H21zM23,25H24V26H23zM24,25H25V26H24zM28,25H29V26H28zM30,25H31V26H30zM31,25H32V26H31zM32,25H33V26H32zM0,26H1V27H0zM1,26H2V27H1zM2,26H3V27H2zM3,26H4V27H3zM4,26H5V27H4zM5,26H6V27H5zM6,26H7V27H6zM12,26H13V27H12zM14,26H15V27H14zM15,26H16V27H15zM16,26H17V27H16zM18,26H19V27H18zM20,26H21V27H20zM23,26H24V27H23zM24,26H25V27H24zM26,26H27V27H26zM28,26H29V27H28zM30,26H31V27H30zM0,27H1V28H0zM6,27H7V28H6zM8,27H9V28H8zM9,27H10V28H9zM10,27H11V28H10zM12,27H13V28H12zM16,27H17V28H16zM20,27H21V28H20zM21,27H22V28H21zM22,27H23V28H22zM23,27H24V28H23zM24,27H25V28H24zM28,27H29V28H28zM29,27H30V28H29zM30,27H31V28H30zM0,28H1V29H0zM2,28H3V29H2zM3,28H4V29H3zM4,28H5V29H4zM6,28H7V29H6zM8,28H9V29H8zM9,28H10V29H9zM10,28H11V29H10zM12,28H13V29H12zM18,28H19V29H18zM20,28H21V29H20zM22,28H23V29H22zM24,28H25V29H24zM25,28H26V29H25zM26,28H27V29H26zM27,28H28V29H27zM28,28H29V29H28zM29,28H30V29H29zM31,28H32V29H31zM32,28H33V29H32zM0,29H1V30H0zM2,29H3V30H2zM3,29H4V30H3zM4,29H5V30H4zM6,29H7V30H6zM8,29H9V30H8zM9,29H10V30H9zM10,29H11V30H10zM11,29H12V30H11zM12,29H13V30H12zM15,29H16V30H15zM16,29H17V30H16zM19,29H20V30H19zM20,29H21V30H20zM24,29H25V30H24zM25,29H26V30H25zM28,29H29V30H28zM30,29H31V30H30zM31,29H32V30H31zM32,29H33V30H32zM0,30H1V31H0zM2,30H3V31H2zM3,30H4V31H3zM4,30H5V31H4zM6,30H7V31H6zM8,30H9V31H8zM10,30H11V31H10zM12,30H13V31H12zM13,30H14V31H13zM17,30H18V31H17zM18,30H19V31H18zM20,30H21V31H20zM22,30H23V31H22zM23,30H24V31H23zM24,30H25V31H24zM25,30H26V31H25zM26,30H27V31H26zM27,30H28V31H27zM29,30H30V31H29zM30,30H31V31H30zM0,31H1V32H0zM6,31H7V32H6zM9,31H10V32H9zM13,31H14V32H13zM14,31H15V32H14zM16,31H17V32H16zM20,31H21V32H20zM21,31H22V32H21zM25,31H26V32H25zM26,31H27V32H26zM28,31H29V32H28zM29,31H30V32H29zM30,31H31V32H30zM0,32H1V33H0zM1,32H2V33H1zM2,32H3V33H2zM3,32H4V33H3zM4,32H5V33H4zM5,32H6V33H5zM6,32H7V33H6zM8,32H9V33H8zM9,32H10V33H9zM10,32H11V33H10zM12,32H13V33H12zM13,32H14V33H13zM14,32H15V33H14zM17,32H18V33H17zM22,32H23V33H22zM23,32H24V33H23zM24,32H25V33H24zM25,32H26V33H25zM27,32H28V33H27zM31,32H32V33H31z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"/></svg>
+      <p><span class="mano">el manual completo</span>Escanéalo y entra con tu cuenta: ajustes, ejercicios y las horas de luz de cualquier día.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

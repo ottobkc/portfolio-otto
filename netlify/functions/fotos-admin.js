@@ -90,11 +90,12 @@ function correoComentario(f) {
     cuerpo: [
       'Si quieres contestarme o preguntarme algo, pulsa el botón y escríbelo en el hilo de la foto: solo lo vemos tú y yo.',
       enMuro
-        ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde tu cuaderno.`
+        ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde ${f.tipo === 'taller' ? 'el manual del taller' : 'tu cuaderno'}.`
         : 'Sigue subiendo: cuantas más vea, mejor te puedo decir hacia dónde tirar.',
       `<span style="font-size:13px;color:#8a8378;">${f.tipo === 'reto'
         ? `Las fotos de los retos se guardan mientras estén entre los ${RETOS_GUARDADOS} últimos`
-        : `Las fotos de las salidas se guardan ${SALIDA_DIAS} días`}${enMuro ? ' (las del muro, siempre)' : ''}. Si quieres conservarla con el comentario, usa el botón «Guardar para Instagram» y quedará en tu móvil.</span>`,
+        : f.tipo === 'taller' ? `Las fotos de los ejercicios del taller se guardan ${SALIDA_DIAS} días`
+        : `Las fotos de las salidas se guardan ${SALIDA_DIAS} días`}${enMuro ? ' (las del muro, siempre)' : ''}.${f.tipo === 'taller' ? '' : ' Si quieres conservarla con el comentario, usa el botón «Guardar para Instagram» y quedará en tu móvil.'}</span>`,
     ],
   });
   return { asunto: 'Te he comentado una foto · Mirar Despacio', html, texto: aTexto(html) };

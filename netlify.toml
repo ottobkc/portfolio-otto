@@ -84,6 +84,12 @@
     Referrer-Policy = "no-referrer"
 
 [[headers]]
+  for = "/manuales/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "private, no-store"
+
+[[headers]]
   for = "/crm/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
@@ -145,6 +151,76 @@
 [[redirects]]
   from   = "/cuaderno/*"
   to     = "/acceso.html?a=cuaderno"
+  status = 302
+  force  = true
+
+# Manuales de los talleres: cada uno solo lo abre quien tiene su rol "taller-<id>"
+# (quien pagó ese taller, canjeó un bono de ese taller o recibió el acceso desde el CRM).
+# Ser MD+ NO da acceso. Un manual nuevo = copiar esta pareja de reglas y cambiar el id
+# (y ponerlo en netlify/lib/manuales.js).
+[[redirects]]
+  from       = "/manuales/atardecer/*"
+  to         = "/manuales/atardecer/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["taller-atardecer", "admin"]}
+
+[[redirects]]
+  from   = "/manuales/atardecer/*"
+  to     = "/acceso.html?a=manual-atardecer"
+  status = 302
+  force  = true
+
+[[redirects]]
+  from       = "/manuales/nocturna/*"
+  to         = "/manuales/nocturna/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["taller-nocturna", "admin"]}
+
+[[redirects]]
+  from   = "/manuales/nocturna/*"
+  to     = "/acceso.html?a=manual-nocturna"
+  status = 302
+  force  = true
+
+[[redirects]]
+  from       = "/manuales/composicion/*"
+  to         = "/manuales/composicion/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["taller-composicion", "admin"]}
+
+[[redirects]]
+  from   = "/manuales/composicion/*"
+  to     = "/acceso.html?a=manual-composicion"
+  status = 302
+  force  = true
+
+[[redirects]]
+  from       = "/manuales/iniciacion/*"
+  to         = "/manuales/iniciacion/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["taller-iniciacion", "admin"]}
+
+[[redirects]]
+  from   = "/manuales/iniciacion/*"
+  to     = "/acceso.html?a=manual-iniciacion"
+  status = 302
+  force  = true
+
+# Cualquier otra ruta de /manuales/ (manuales aún sin publicar) no se sirve a nadie
+[[redirects]]
+  from       = "/manuales/*"
+  to         = "/manuales/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["admin"]}
+
+[[redirects]]
+  from   = "/manuales/*"
+  to     = "/acceso.html"
   status = 302
   force  = true
 

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Manual · Composición en la calle · Mirar Despacio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --papel: #f5f3ef;
+      --papel-2: #ebe6dd;
+      --tinta: #1a1814;
+      --gris: #6b655a;
+      --linea: #d8d1c4;
+      --naranja: #e8821a;
+      --rosa: #e8347a;
+      --azul: #2b4a6f;
+      --serif: 'Fraunces', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+      --mano: 'Caveat', cursive;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--papel); color: var(--tinta); font: 400 17px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration-color: var(--naranja); text-underline-offset: 3px; }
+    .envoltura { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+    /* Portada: el degradado del cielo de noviembre, de la hora dorada a la hora azul */
+    .portada { background: linear-gradient(180deg, #f2c27a 0%, #e8821a 34%, #b9466a 62%, #2b4a6f 100%); color: #fff; padding: 56px 0 44px; position: relative; overflow: hidden; }
+    .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(26,24,20,.0) 0 22px, rgba(26,24,20,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
+    .marca { font: 600 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; opacity: .9; }
+    .portada h1 { font: 300 clamp(40px, 9vw, 64px)/1.02 var(--serif); margin: 18px 0 10px; letter-spacing: -.01em; }
+    .portada h1 em { font-style: italic; font-weight: 500; }
+    .portada p.sub { font: 300 italic 20px/1.4 var(--serif); margin: 0; max-width: 30ch; }
+    .portada .nota { font: 600 24px/1.1 var(--mano); margin-top: 26px; transform: rotate(-2deg); display: inline-block; }
+
+    nav.indice { border-bottom: 1px solid var(--linea); background: var(--papel); position: sticky; top: 0; z-index: 5; }
+    nav.indice ul { list-style: none; margin: 0 auto; padding: 0 20px; max-width: 720px; display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; }
+    nav.indice ul::-webkit-scrollbar { display: none; }
+    nav.indice a { display: block; padding: 13px 0; font: 500 14px/1 var(--sans); text-decoration: none; white-space: nowrap; color: var(--gris); }
+    nav.indice a:hover { color: var(--tinta); }
+
+    section { padding: 44px 0 8px; }
+    .antetitulo { font: 600 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--naranja); margin: 0 0 10px; }
+    h2 { font: 300 clamp(30px, 6vw, 40px)/1.1 var(--serif); margin: 0 0 18px; }
+    h2 em { font-style: italic; color: var(--rosa); }
+    h3 { font: 500 21px/1.3 var(--serif); margin: 30px 0 8px; }
+    p { margin: 0 0 14px; }
+    .entradilla { font: 300 20px/1.5 var(--serif); }
+    .mano { font: 600 23px/1.15 var(--mano); color: var(--rosa); }
+    .aparte { border-left: 3px solid var(--naranja); padding: 4px 0 4px 16px; margin: 20px 0; }
+    .aparte.azul { border-left-color: var(--azul); }
+    ul.lista { padding-left: 20px; margin: 0 0 14px; }
+    ul.lista li { margin-bottom: 6px; }
+    strong { font-weight: 600; }
+
+    /* Calculadora de luz */
+    .luz { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; margin: 22px 0; }
+    .luz label { font: 500 14px/1 var(--sans); color: var(--gris); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .luz input { font: 500 16px var(--sans); padding: 8px 10px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+    .franja { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 16px; border-radius: 10px; overflow: hidden; }
+    .franja div { padding: 12px 10px; color: #fff; }
+    .franja div:nth-child(1) { background: #e9a64a; color: var(--tinta); }
+    .franja div:nth-child(2) { background: var(--naranja); }
+    .franja div:nth-child(3) { background: #9c4466; }
+    .franja div:nth-child(4) { background: var(--azul); }
+    .franja b { display: block; font: 500 22px/1.1 var(--serif); }
+    .franja span { font: 500 12px/1.3 var(--sans); }
+    .luz .falta { font: 600 22px/1.2 var(--mano); color: var(--rosa); margin: 14px 0 0; }
+    .luz small { display: block; color: var(--gris); font-size: 13px; margin-top: 8px; }
+
+    /* Tabla de ajustes */
+    .ajustes { width: 100%; border-collapse: collapse; margin: 18px 0 8px; font-size: 15px; }
+    .ajustes th { text-align: left; font: 600 12px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); padding: 8px 8px 8px 0; border-bottom: 1.5px solid var(--tinta); }
+    .ajustes td { padding: 12px 8px 12px 0; border-bottom: 1px solid var(--linea); vertical-align: top; }
+    .ajustes td:first-child { font-weight: 600; }
+    @media (max-width: 560px) {
+      .ajustes thead { display: none; }
+      .ajustes tr { display: block; border-bottom: 1px solid var(--linea); padding: 12px 0; }
+      .ajustes td { display: block; border: 0; padding: 2px 0; }
+      .ajustes td:not(:first-child)::before { content: attr(data-t) ': '; color: var(--gris); font-size: 13px; }
+      .franja { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Ejercicios */
+    .ejercicio { background: var(--papel-2); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; }
+    .ejercicio h3 { margin: 0 0 6px; padding-right: 40px; }
+    .ejercicio .cuando { font: 600 20px/1 var(--mano); color: var(--naranja); }
+    .ejercicio p:last-child { margin-bottom: 0; }
+    .ejercicio input[type=checkbox] { position: absolute; top: 18px; right: 18px; width: 24px; height: 24px; accent-color: var(--rosa); }
+    .ejercicio.hecho { opacity: .65; }
+
+    .errores dt { font: 500 19px/1.3 var(--serif); margin-top: 18px; }
+    .errores dd { margin: 4px 0 0; }
+
+    footer { margin-top: 48px; padding: 30px 0 48px; border-top: 1px solid var(--linea); color: var(--gris); font-size: 14px; }
+    footer .mano { font-size: 26px; }
+    @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  
+    /* Retos para después y autores */
+    .reto-casa { border: 1.5px solid var(--tinta); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; background: #fff; }
+    .reto-casa .num { display: block; font: 300 34px/1 var(--serif); color: var(--naranja); margin: 0 0 6px; }
+    .reto-casa h3 { margin: 0 0 6px; }
+    .reto-casa p:last-child { margin-bottom: 0; }
+    .enviar { background: var(--tinta); color: var(--papel); border-radius: 14px; padding: 22px 20px; margin: 22px 0; }
+    .enviar h3 { margin: 0 0 8px; color: var(--papel); }
+    .enviar ul { padding-left: 18px; margin: 0 0 16px; }
+    .enviar li { margin-bottom: 6px; }
+    .enviar a.boton { display: inline-block; background: var(--naranja); color: #fff; text-decoration: none; font: 600 16px/1 var(--sans); padding: 14px 20px; border-radius: 999px; }
+    .enviar small { display: block; margin-top: 12px; opacity: .75; font-size: 13px; }
+    .autor { border-top: 1px solid var(--linea); padding: 16px 0 4px; }
+    .autor h3 { margin: 0 0 4px; }
+    .autor .que { font: 600 20px/1.2 var(--mano); color: var(--rosa); margin: 0 0 6px; }
+
+    /* Esquemas de composición */
+    .esquema { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin: 18px 0; }
+    .esquema svg { width: 96px; height: 72px; background: #fff; border: 1px solid var(--linea); border-radius: 6px; }
+    .esquema h3 { margin-top: 0; }
+    /* Simulador de exposición */
+    .sim { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; margin: 22px 0; }
+    .sim .controles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .sim label { font: 500 13px/1.3 var(--sans); color: var(--gris); display: block; }
+    .sim select { width: 100%; margin-top: 4px; font: 500 16px var(--sans); padding: 8px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+    .sim .escena { margin-top: 12px; }
+    .sim .resultado { margin-top: 16px; display: grid; grid-template-columns: 110px 1fr; gap: 14px; align-items: center; }
+    .sim .foto { height: 80px; border-radius: 8px; background: linear-gradient(135deg, #c98a3c, #6d7f8f 55%, #2d3a45); position: relative; overflow: hidden; }
+    .sim .foto::after { content: ''; position: absolute; inset: 0; background: var(--velo, transparent); }
+    .sim .veredicto { font: 600 22px/1.15 var(--mano); color: var(--rosa); }
+    .sim ul { margin: 10px 0 0; padding-left: 18px; font-size: 15px; }
+    @media (max-width: 560px) { .sim .controles { grid-template-columns: 1fr; } }
+
+    /* Portada de este manual */
+    .portada { background: #ebe6dd; color: var(--tinta); }
+    .portada::after { height: 100%; background:
+      linear-gradient(90deg, transparent calc(33.33% - 1px), rgba(26,24,20,.16) calc(33.33% - 1px) 33.33%, transparent 33.33% calc(66.66% - 1px), rgba(26,24,20,.16) calc(66.66% - 1px) 66.66%, transparent 66.66%),
+      linear-gradient(180deg, transparent calc(33.33% - 1px), rgba(26,24,20,.16) calc(33.33% - 1px) 33.33%, transparent 33.33% calc(66.66% - 1px), rgba(26,24,20,.16) calc(66.66% - 1px) 66.66%, transparent 66.66%);
+      mask: none; }
+    .portada .marca { color: var(--naranja); }
+    .portada h1 em { color: var(--rosa); }
+    .portada .nota { color: var(--naranja); }
+  </style>
+</head>
+<body>
+
+  <header class="portada">
+    <div class="envoltura">
+      <div class="marca">Mirar Despacio · Manual del taller</div>
+      <h1>Composición<br><em>en la calle</em></h1>
+      <p class="sub">Mirar antes de disparar: qué dejas dentro del marco y por qué.</p>
+      <span class="nota">vale con cualquier cámara, también el móvil</span>
+    </div>
+  </header>
+
+  <nav class="indice" aria-label="Índice">
+    <ul>
+      <li><a href="#antes">Antes</a></li>
+      <li><a href="#encuadre">Encuadre</a></li>
+      <li><a href="#lineas">Líneas y capas</a></li>
+      <li><a href="#luz">Luz y sombra</a></li>
+      <li><a href="#equilibrio">Equilibrio</a></li>
+      <li><a href="#romper">Romper reglas</a></li>
+      <li><a href="#ejercicios">Ejercicios</a></li>
+      <li><a href="#errores">Errores</a></li>
+      <li><a href="#retos">Retos para casa</a></li>
+      <li><a href="#donde">Dónde practicar</a></li>
+      <li><a href="#autores">Autores</a></li>
+      <li><a href="#despues">Después</a></li>
+    </ul>
+  </nav>
+
+  <main class="envoltura">
+
+    <section id="antes">
+      <p class="antetitulo">Antes de salir</p>
+      <h2>Lo que vamos a <em>hacer.</em></h2>
+      <p class="entradilla">Empezamos sentados, unos veinte minutos, con las herramientas de composición sobre la mesa. Luego salimos a la calle y las practicamos una a una, con ejercicios cortos. Al final las rompemos a propósito y volvemos a ver las fotos.</p>
+      <p>En este taller el equipo da igual. Vale una cámara, una compacta o el móvil: la composición es dónde pones el marco, no con qué.</p>
+
+      <h3>Qué traer</h3>
+      <ul class="lista">
+        <li><strong>Lo que uses para hacer fotos</strong>, con la batería cargada y espacio libre.</li>
+        <li><strong>Si es el móvil:</strong> activa la cuadrícula en los ajustes de la cámara y deja el zoom en 1x. El zoom digital solo recorta y empeora la foto: para acercarte, camina.</li>
+        <li>Calzado cómodo: vamos a andar, agacharnos y subir escaleras para cambiar el punto de vista.</li>
+      </ul>
+      <p class="aparte">La regla de este taller: <strong>antes de disparar, mira los cuatro bordes del encuadre.</strong> Todo lo que está dentro cuenta, también lo que no habías visto.</p>
+    </section>
+
+    <section id="encuadre">
+      <p class="antetitulo">Encuadre</p>
+      <h2>Qué dejas dentro <em>y qué fuera.</em></h2>
+      <p>Componer es, sobre todo, decidir qué no sale. La calle está llena de cosas, y una foto se entiende cuando tiene una idea clara y pocas cosas que la distraigan.</p>
+      <div class="esquema">
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#1a1814" stroke-width="1.5"/><rect x="26" y="20" width="44" height="32" fill="none" stroke="#e8347a" stroke-width="2" stroke-dasharray="3 2"/><circle cx="44" cy="38" r="5" fill="#e8821a"/><circle cx="16" cy="56" r="3" fill="#bbb"/><circle cx="80" cy="16" r="3" fill="#bbb"/></svg>
+        <div><h3>Acércate, y luego un paso más</h3><p>La mayoría de las fotos mejoran acercándose. Si dudas entre dos encuadres, prueba el más cerrado. Lo que sobra en los bordes compite con lo importante.</p></div>
+      </div>
+      <div class="esquema">
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#1a1814" stroke-width="1.5"/><line x1="8" y1="64" x2="88" y2="8" stroke="#1a1814" stroke-width="1"/><circle cx="12" cy="40" r="4" fill="#e8821a"/><path d="M60 20 l10 10 M70 20 l-10 10" stroke="#bbb" stroke-width="2"/></svg>
+        <div><h3>Dónde colocar lo importante</h3><p>En el centro la foto se queda quieta y estable; fuera del centro, sobre las líneas de los tercios, gana tensión y recorrido. Ninguna es mejor: elige según lo que quieras contar.</p></div>
+      </div>
+      <h3>Los bordes</h3>
+      <ul class="lista">
+        <li><strong>Que nada importante toque el borde por poco.</strong> O lo dejas fuera, o lo metes con aire.</li>
+        <li><strong>Cuidado con las cabezas y los pies cortados</strong> justo por una articulación (tobillos, rodillas, muñecas): parece un error. Si cortas, que sea a propósito y con decisión.</li>
+        <li><strong>Mira el fondo.</strong> Una farola que sale de una cabeza, un cartel que se lee mejor que la persona… Muévete medio paso antes de disparar.</li>
+      </ul>
+      <h3>El punto de vista</h3>
+      <p>Casi todo el mundo fotografía de pie, a la altura de los ojos. Agacharte a la altura de la cintura o subirte a un escalón cambia la foto entera: desde abajo, las personas y los edificios ganan presencia; desde arriba, el suelo se convierte en el fondo y todo se ordena.</p>
+    </section>
+
+    <section id="lineas">
+      <p class="antetitulo">Líneas, capas y profundidad</p>
+      <h2>Una foto plana <em>con fondo.</em></h2>
+      <div class="esquema">
+        <svg viewBox="0 0 96 72" aria-hidden="true"><path d="M4 70 L48 30 M30 70 L52 30 M92 70 L56 30 M70 70 L54 30" stroke="#1a1814" stroke-width="1.5" fill="none"/><circle cx="52" cy="28" r="4" fill="#e8347a"/></svg>
+        <div><h3>Líneas que llevan la mirada</h3><p>Bordillos, raíles, barandillas, sombras, la fuga de una calle. La mirada sigue las líneas: haz que lleven a algo, y coloca a la persona donde terminan.</p></div>
+      </div>
+      <div class="esquema">
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="0" y="48" width="96" height="24" fill="#1a1814"/><rect x="0" y="28" width="96" height="20" fill="#6b655a"/><rect x="0" y="0" width="96" height="28" fill="#ebe6dd"/><circle cx="24" cy="42" r="6" fill="#e8821a"/></svg>
+        <div><h3>Capas: delante, en medio, detrás</h3><p>Una foto con algo en primer plano, algo en el plano medio y algo al fondo se lee como un espacio en el que se puede entrar. Busca un primer plano (una esquina, un hombro, un cristal) y dispara a través de él.</p></div>
+      </div>
+      <h3>Encuadre dentro del encuadre</h3>
+      <p>Puertas, ventanas, arcos, huecos entre dos personas, un retrovisor. Un marco dentro de la foto aísla al sujeto y le da a la imagen una segunda lectura.</p>
+      <p class="mano">↳ los marcos naturales están en todas partes cuando empiezas a buscarlos</p>
+    </section>
+
+    <section id="luz">
+      <p class="antetitulo">Luz y sombra como forma</p>
+      <h2>La luz también <em>compone.</em></h2>
+      <div class="esquema">
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect width="96" height="72" fill="#1a1814"/><path d="M30 0 L66 0 L80 72 L44 72 Z" fill="#f2c27a"/><circle cx="60" cy="44" r="5" fill="#1a1814"/></svg>
+        <div><h3>Manchas de luz</h3><p>Una franja de sol entre dos sombras es un escenario. Expón para la luz (compensa a negativo) y todo lo demás se va a negro: solo queda lo que está iluminado.</p></div>
+      </div>
+      <ul class="lista">
+        <li><strong>Las sombras son formas.</strong> Una sombra proyectada en una pared o en el suelo puede ser el sujeto de la foto.</li>
+        <li><strong>El contraste guía la mirada:</strong> lo primero que se ve en una foto es lo más claro y lo que más contrasta. Coloca ahí lo importante.</li>
+        <li><strong>Con el móvil:</strong> toca la zona clara de la pantalla y baja la exposición deslizando el dedo. Así mides para la luz.</li>
+        <li><strong>Con cámara, en manual:</strong> sube la velocidad (o baja el ISO) hasta que la marca del exposímetro quede en −1 o −1,5. Con ISO automático, gira la compensación a esos mismos valores.</li>
+      </ul>
+    </section>
+
+    <section id="equilibrio">
+      <p class="antetitulo">Equilibrio, tensión y espacio negativo</p>
+      <h2>El vacío <em>también pesa.</em></h2>
+      <div class="esquema">
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect width="96" height="72" fill="#ebe6dd"/><circle cx="78" cy="58" r="4" fill="#e8347a"/></svg>
+        <div><h3>Espacio negativo</h3><p>Una figura pequeña en un espacio grande y vacío (una pared, el cielo, una plaza) dice soledad, escala, calma. Deja que el vacío ocupe casi todo el encuadre.</p></div>
+      </div>
+      <h3>Equilibrio</h3>
+      <p>Cada elemento de la foto "pesa": lo grande, lo oscuro, lo que tiene color o cara pesa más. Una foto está equilibrada cuando los pesos se compensan (una persona a la izquierda, una mancha de color a la derecha). Desequilibrarla a propósito crea tensión.</p>
+      <h3>Tensión</h3>
+      <ul class="lista">
+        <li><strong>Hacia dónde mira o anda alguien:</strong> déjale espacio delante. Si lo dejas detrás, la foto se siente incómoda (a veces es lo que quieres).</li>
+        <li><strong>Dos elementos que se responden:</strong> dos personas, un cartel y alguien que pasa, dos colores. La relación entre ellos es la foto.</li>
+        <li><strong>Repetición y patrón roto:</strong> una fila de ventanas iguales y una abierta. Diez paraguas negros y uno amarillo.</li>
+      </ul>
+    </section>
+
+    <section id="romper">
+      <p class="antetitulo">Romper las reglas</p>
+      <h2>Pero <em>a propósito.</em></h2>
+      <div class="esquema">
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#1a1814" stroke-width="1.5"/><line x1="8" y1="64" x2="88" y2="8" stroke="#1a1814" stroke-width="1"/><circle cx="12" cy="40" r="4" fill="#e8821a"/><path d="M60 20 l10 10 M70 20 l-10 10" stroke="#e8347a" stroke-width="2"/></svg>
+        <div><h3>Las reglas son puntos de partida</h3><p>El horizonte torcido, la persona pegada al borde, la cabeza cortada, todo en el centro. Cualquier regla se puede romper si se nota que es una decisión y no un descuido.</p></div>
+      </div>
+      <p>La diferencia entre un error y una decisión es la intención: si vas a romper una regla, rómpela del todo. Un horizonte un poco torcido parece un fallo; uno muy inclinado, una elección.</p>
+      <p class="aparte">Una forma de practicarlo: haz la foto "correcta" y, sin moverte del sitio, haz otra rompiendo una regla a propósito. Al revisarlas, muchas veces gana la segunda.</p>
+    </section>
+
+    <section id="ejercicios">
+      <p class="antetitulo">En la calle</p>
+      <h2>Cinco <em>ejercicios.</em></h2>
+      <p>Los haremos durante el taller y te sirven para repetirlos cualquier día, en cualquier calle. Márcalos cuando los tengas: se queda guardado en este móvil.</p>
+      <div class="ejercicio" data-ej="1">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">encuadre</span>
+        <h3>Cinco encuadres, un sitio</h3>
+        <p>Elige una escena y hazle cinco fotos distintas sin irte de ahí: más cerca, desde abajo, desde arriba, con otro fondo, en vertical.</p>
+      </div>
+      <div class="ejercicio" data-ej="2">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">líneas</span>
+        <h3>Sigue la línea</h3>
+        <p>Una foto en la que una línea (bordillo, sombra, barandilla) lleve la mirada hasta una persona.</p>
+      </div>
+      <div class="ejercicio" data-ej="3">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">capas</span>
+        <h3>Tres capas</h3>
+        <p>Una foto con algo delante, algo en medio y algo al fondo. Dispara a través de algo.</p>
+      </div>
+      <div class="ejercicio" data-ej="4">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">vacío</span>
+        <h3>Espacio negativo</h3>
+        <p>Una persona muy pequeña en un espacio muy grande y limpio. Que el vacío ocupe al menos dos tercios.</p>
+      </div>
+      <div class="ejercicio" data-ej="5">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">romper</span>
+        <h3>La correcta y la otra</h3>
+        <p>Haz una foto siguiendo las reglas y otra, desde el mismo sitio, rompiendo una a propósito. Tráelas a la revisión.</p>
+      </div>
+    </section>
+
+    <section id="errores">
+      <p class="antetitulo">Errores típicos</p>
+      <h2>Y cómo <em>arreglarlos.</em></h2>
+      <dl class="errores">
+        <dt>La foto tiene demasiadas cosas</dt>
+        <dd>Acércate o cambia el punto de vista hasta que quede una idea. Pregúntate qué sobra antes de disparar.</dd>
+        <dt>El sujeto se pierde en el fondo</dt>
+        <dd>Busca un fondo liso o en contraste: claro detrás de oscuro, oscuro detrás de claro.</dd>
+        <dt>Todas las fotos son iguales</dt>
+        <dd>Todas a la altura de los ojos y en horizontal. Agáchate, súbete, gira la cámara.</dd>
+        <dt>Algo raro en un borde</dt>
+        <dd>Un brazo, un coche, medio cartel. Repasa los cuatro bordes antes de disparar.</dd>
+        <dt>Con el móvil, todo parece lejos y deformado</dt>
+        <dd>El gran angular del móvil aleja y estira los bordes. Acércate más de lo que crees y deja a la gente lejos de las esquinas.</dd>
+      </dl>
+    </section>
+
+    <section id="retos">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Tres retos <em>para casa.</em></h2>
+      <p class="entradilla">Lo que aprendes en una tarde se olvida en una semana si no lo repites. Estos tres retos son para hacerlos tú solo, sin prisa, en los días siguientes. Y no se quedan en tu móvil: me los mandas y te los comento uno a uno.</p>
+      <div class="enviar">
+        <h3>Cómo funciona</h3>
+        <ul>
+          <li>Debajo de cada reto tienes el botón para <strong>subir tu foto</strong>: una por reto. Mientras no la haya comentado, puedes cambiarla.</li>
+          <li>En el texto, cuéntame qué buscabas y qué herramienta usaste.</li>
+          <li>Te comento cada foto: qué herramientas has usado, si la foto tiene una idea clara y qué quitaría o movería. Te aviso por email cuando estén.</li>
+          <li>Mi comentario lo lees aquí mismo, debajo de tu foto, y puedes contestarme: esa conversación solo la vemos tú y yo.</li>
+          <li>No hay prisa: hazlos cuando puedas. Las fotos se guardan 90 días.</li>
+        </ul>
+        <small>Si quieres, al subirla puedes dejar que salga en el muro de Mirar Despacio. Tú decides.</small>
+      </div>
+      <div class="reto-casa ej-despues" data-n="1">
+        <span class="num">1</span>
+        <h3>Un sitio, cinco encuadres</h3>
+        <p>Elige un sitio y hazle al menos cinco fotos distintas sin irte: más cerca, desde abajo, desde arriba, con otro fondo, en vertical. Sube la mejor y cuéntame en el texto qué cambiaste para llegar a ella.</p>
+        <div class="ej-zona"></div>
+      </div>
+      <div class="reto-casa ej-despues" data-n="2">
+        <span class="num">2</span>
+        <h3>Tres capas</h3>
+        <p>Una foto con algo delante, algo en medio y algo al fondo. Dispara a través de algo: un cristal, un hueco, el hombro de alguien.</p>
+        <div class="ej-zona"></div>
+      </div>
+      <div class="reto-casa ej-despues" data-n="3">
+        <span class="num">3</span>
+        <h3>Rompe una regla</h3>
+        <p>Una foto que rompa una regla de composición a propósito: horizonte muy torcido, persona pegada al borde, todo en el centro… En el texto dime cuál has roto y por qué.</p>
+        <div class="ej-zona"></div>
+      </div>
+    </section>
+
+    <section id="donde">
+      <p class="antetitulo">Para practicar solo</p>
+      <h2>Dónde entrenar <em>la mirada.</em></h2>
+      <p>Cualquier calle sirve para componer, pero algunos sitios te ponen las herramientas delante:</p>
+      <ul class="lista">
+        <li><strong>Plaza Mayor.</strong> Arcos y soportales para el marco dentro del marco, simetría, repetición de ventanas y balcones, y mucha gente cruzando la plaza vacía.</li>
+        <li><strong>Barrio de las Letras.</strong> Calles estrechas, puertas, ventanas, frases en el suelo. Muy bueno para el encuadre cerrado y para capas: algo delante, algo en medio, algo al fondo.</li>
+        <li><strong>Madrid Río y Matadero.</strong> Puentes, pasarelas, barandillas y grandes espacios abiertos: líneas que llevan la mirada y espacio negativo con una persona pequeña.</li>
+        <li><strong>La Castellana y AZCA.</strong> Arquitectura moderna, líneas rectas y sombras duras. Para practicar geometría, equilibrio y luz como forma.</li>
+      </ul>
+      <p class="mano">Un buen entrenamiento: elige una sola herramienta antes de salir de casa y no hagas ninguna foto que no la use.</p>
+    </section>
+
+    <section id="autores">
+      <p class="antetitulo">Para mirar despacio</p>
+      <h2>Tres fotógrafos <em>que mirar.</em></h2>
+      <p>Busca su trabajo con calma, en libros o en internet. No para copiarlo: para fijarte en una sola cosa de cada uno y llevártela a la calle.</p>
+      <div class="autor">
+        <h3>Henri Cartier-Bresson</h3>
+        <p class="que">la geometría</p>
+        <p>Antes de disparar, buscaba un escenario con buenas líneas y formas, y esperaba a que la persona adecuada entrara en el sitio exacto. Fíjate en las líneas y las formas que hay debajo de cada foto.</p>
+      </div>
+      <div class="autor">
+        <h3>Alex Webb</h3>
+        <p class="que">las capas</p>
+        <p>Sus fotos tienen gente y color en varios planos a la vez, cada uno con algo pasando. Fíjate en cómo ordena delante, en medio y detrás sin que la foto se convierta en un caos.</p>
+      </div>
+      <div class="autor">
+        <h3>Saul Leiter</h3>
+        <p class="que">tapar y dejar ver</p>
+        <p>Fotografiaba Nueva York a través de cristales empañados, entre toldos y huecos, dejando grandes zonas oscuras o vacías. Fíjate en cuánto espacio deja sin "nada" y en cómo eso hace mirar lo poco que se ve.</p>
+      </div>
+    </section>
+
+    <section id="despues">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Recortar también <em>es componer.</em></h2>
+      <ul class="lista">
+        <li><strong>Elige tres</strong> y pregúntate por qué funcionan: qué herramienta usaste en cada una.</li>
+        <li><strong>Recorta con intención:</strong> endereza el horizonte (o tuércelo del todo) y quita lo que sobra en los bordes. Pero no recortes para salvar una foto: la próxima vez acércate al disparar.</li>
+        <li><strong>Practica una herramienta por salida:</strong> un día solo líneas, otro solo capas, otro solo espacio negativo. Así se aprende a ver.</li>
+        <li>Si tienes dudas con alguna foto, escríbeme a <a href="mailto:info@mirardespacio.es">info@mirardespacio.es</a>.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="envoltura">
+      <p class="mano">primero mirar, luego encuadrar</p>
+      <p>Manual del taller Composición en la calle · Mirar Despacio · Otto Kols. Solo para quien ha hecho el taller: por favor, no lo compartas.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Ejercicios hechos: solo se guardan en este navegador
+    (function () {
+      var CLAVE = 'md-manual-composicion';
+      var hechos = {};
+      try { hechos = JSON.parse(localStorage.getItem(CLAVE) || '{}') || {}; } catch (e) { hechos = {}; }
+      document.querySelectorAll('.ejercicio').forEach(function (el) {
+        var id = el.getAttribute('data-ej'), caja = el.querySelector('input');
+        caja.checked = !!hechos[id];
+        el.classList.toggle('hecho', caja.checked);
+        caja.addEventListener('change', function () {
+          hechos[id] = caja.checked;
+          el.classList.toggle('hecho', caja.checked);
+          try { localStorage.setItem(CLAVE, JSON.stringify(hechos)); } catch (e) { /* sin almacenamiento: no pasa nada */ }
+        });
+      });
+    })();
+  </script>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="/js/hilo.js"></script>
+  <script src="/js/ejercicios-taller.js" data-taller="composicion"></script>
+</body>
+</html>

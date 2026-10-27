@@ -67,6 +67,9 @@
       }
       // ?a=cuaderno / ?a=retos -> después de entrar, ir directo a esa página
       function destino() { var m = location.search.match(/[?&]a=(cuaderno|retos)/); return m ? '/' + m[1] + '/' : ''; }
+      // ?a=manual-<taller> -> el manual de ese taller (solo si tiene su rol "taller-<id>")
+      function manualPedido() { var m = location.search.match(/[?&]a=manual-([a-z0-9-]+)/); return m ? m[1] : ''; }
+      function manualesDe(r) { return r.filter(function (x) { return /^taller-/.test(x); }).map(function (x) { return x.slice(7); }); }
       function intentos(n) {
         try {
           if (n === undefined) return parseInt(sessionStorage.getItem('md_intentos') || '0', 10);
@@ -83,7 +86,16 @@
           var r = roles(token);
           var plus = r.indexOf('member') !== -1 || r.indexOf('admin') !== -1;
           var soloFotos = !plus && r.indexOf('participante') !== -1;
-          if (!plus && !soloFotos) {
+          var manuales = manualesDe(r);
+          var pedido = manualPedido();
+          var irManual = '';
+          if (pedido && (manuales.indexOf(pedido) !== -1 || r.indexOf('admin') !== -1)) irManual = '/manuales/' + pedido + '/';
+          else if (!plus && !soloFotos && manuales.length) irManual = '/manuales/' + manuales[0] + '/';
+          if (pedido && !irManual) {
+            estado.textContent = 'Has entrado como ' + user.email + ', pero el manual de ese taller solo lo tiene quien se ha apuntado a él. Si te has apuntado, escríbeme y te doy acceso.';
+            return;
+          }
+          if (!plus && !soloFotos && !irManual) {
             estado.textContent = 'Has entrado como ' + user.email + ', pero ahora mismo tu cuenta no tiene acceso activo. Tus fotos y comentarios siguen guardados: escríbeme y lo reactivo.';
             return;
           }
@@ -94,7 +106,7 @@
           }
           intentos(intentos() + 1);
           estado.textContent = 'Entrando…';
-          location.replace(soloFotos ? '/cuaderno/' : (destino() || '/recursos.html'));
+          location.replace(irManual || (soloFotos ? '/cuaderno/' : (destino() || '/recursos.html')));
         }).catch(function () {
           estado.textContent = 'Tu sesión ha caducado. Cierra sesión y vuelve a entrar.';
         });
