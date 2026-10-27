@@ -196,6 +196,85 @@
   .subvista { display: none; }
   .subvista.on { display: block; }
 
+
+  /* ===== Contabilidad y tienda ===== */
+  .cx-vista { display: none; } .cx-vista.on { display: block; }
+  .cx-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .cx-dos > .card { margin-bottom: 14px; }
+  .cx-linea { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
+  .cx-linea span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cx-total { border-top: 1px solid var(--line-2); margin-top: 4px; padding-top: 8px; font-weight: 700; font-size: 15px; }
+  .cx-modelo { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; font-size: 13px; }
+  .cx-modelo > div:first-child { margin-bottom: 6px; }
+  .cx-avisos { display: grid; gap: 6px; margin-top: 4px; }
+  .cx-aviso { background: var(--warn-soft); color: var(--text); border-radius: 10px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+  .cx-aviso:hover { filter: brightness(.98); }
+  .cx-etq { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; font-weight: 600; }
+  .cx-lista { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .cx-lista:empty { display: none; }
+  .cx-fila { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; gap: 14px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 13px; cursor: pointer; }
+  .cx-fila:last-child { border-bottom: 0; }
+  .cx-fila:hover { background: var(--hover); }
+  #cxListaCob .cx-fila, #cxListaSus .cx-fila { cursor: default; }
+  #cxListaSus .cx-fila { grid-template-columns: minmax(0, 1fr) auto auto auto; }
+  #cxListaGas .cx-fila { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+  .cx-num { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 82px; }
+  .cx-quien { min-width: 0; } .cx-quien b, .cx-quien .person-meta { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cx-fecha { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cx-tags { white-space: nowrap; text-align: right; }
+  .cx-imp { font-weight: 600; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 80px; }
+  .cx-acc { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .cx-editor { border-color: var(--acc); box-shadow: 0 0 0 3px var(--acc-soft); }
+  .fx-cab, .fx-linea { display: grid; grid-template-columns: minmax(0, 1fr) 70px 100px 120px 34px; gap: 6px; align-items: start; }
+  .fx-cab { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .fx-linea input, .fx-linea select { margin-bottom: 6px; }
+  .td-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .td-prod { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: pointer; }
+  .td-prod:hover { border-color: var(--line-2); background: var(--hover); }
+  .td-foto { aspect-ratio: 4 / 3; background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
+  .td-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .td-info { padding: 10px 12px 12px; }
+  .td-fotos { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .td-mini { width: 104px; } .td-mini img { width: 104px; height: 104px; object-fit: cover; border-radius: 8px; display: block; margin-bottom: 4px; }
+  .td-mini div { display: flex; gap: 3px; } .td-mini button { padding: 2px 7px; }
+  .td-var { display: grid; grid-template-columns: minmax(0, 1fr) 90px 34px; gap: 6px; align-items: start; }
+  .td-lped { display: grid; grid-template-columns: minmax(0, 1fr) auto 70px 34px; gap: 6px; align-items: start; }
+  .td-lped select[data-k="variante"] { width: auto; }
+  .td-stock { align-self: center; margin-bottom: 8px; white-space: nowrap; }
+
+  /* Factura (vista e impresión) */
+  #cxImpresion { display: none; position: fixed; inset: 0; z-index: 100; overflow: auto; background: rgba(20,14,22,.6); padding: 20px 12px 40px; }
+  .fp-barra { max-width: 800px; margin: 0 auto 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .fp-barra .person-meta { color: #f3e9e4; }
+  .fp { max-width: 800px; margin: 0 auto; background: #fff; color: #1a1814; padding: 48px 52px; border-radius: 4px; font: 13px/1.5 'Inter', sans-serif; }
+  .fp-cab { display: flex; justify-content: space-between; gap: 30px; margin-bottom: 30px; }
+  .fp-logo { width: 150px; display: block; margin-bottom: 18px; }
+  .fp-marca { font: 600 15px 'Inter', sans-serif; letter-spacing: .28em; margin-bottom: 18px; }
+  .fp-tit { font: 300 30px/1.1 'Fraunces', Georgia, serif; }
+  .fp-num { font-weight: 700; font-size: 15px; margin-top: 4px; }
+  .fp-fecha { color: #77716a; }
+  .fp-emisor { text-align: right; color: #3d3833; }
+  .fp-cliente { border-top: 1px solid #ececea; border-bottom: 1px solid #ececea; padding: 14px 0; margin-bottom: 22px; }
+  .fp-etq { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #77716a; margin-bottom: 4px; font-weight: 600; }
+  .fp-tabla { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .fp-tabla th { text-align: left; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #77716a; border-bottom: 1px solid #1a1814; padding: 6px 4px; font-weight: 600; }
+  .fp-tabla td { padding: 8px 4px; border-bottom: 1px solid #ececea; vertical-align: top; }
+  .fp-tabla .d { text-align: right; white-space: nowrap; }
+  .fp-totales { margin-left: auto; width: 300px; max-width: 100%; }
+  .fp-totales div { display: flex; justify-content: space-between; padding: 3px 0; }
+  .fp-total { border-top: 1px solid #1a1814; margin-top: 6px; padding-top: 8px !important; font-weight: 700; font-size: 16px; }
+  .fp-nota { margin-top: 18px; color: #3d3833; font-size: 12px; }
+  .fp-pie { margin-top: 40px; color: #77716a; font-size: 11px; text-align: center; }
+  @media print {
+    @page { size: A4; margin: 14mm; }
+    body.cx-imprimiendo > *:not(#cxImpresion) { display: none !important; }
+    body.cx-imprimiendo { background: #fff; }
+    #cxImpresion { position: static; background: none; padding: 0; overflow: visible; }
+    .fp-barra { display: none !important; }
+    .fp { padding: 0; max-width: none; border-radius: 0; }
+  }
+  @media (max-width: 1000px) { .cx-dos { grid-template-columns: 1fr; gap: 0; } }
+
   /* Login */
   #loginScreen { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; background: var(--sb-bg); }
   #loginScreen .logo-login { width: 160px; margin-bottom: 24px; }
@@ -229,6 +308,19 @@
     .row > select, .row > input { flex: 1 1 140px; }
     .stat-box { min-width: calc(50% - 5px); }
     .stat-grid.mini .stat-box { min-width: 0; }
+
+    .cx-fila, #cxListaGas .cx-fila, #cxListaSus .cx-fila { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 11px 14px; }
+    .cx-fila .cx-num, .cx-fila .cx-fecha { grid-column: 1; font-size: 12px; min-width: 0; }
+    .cx-fila .cx-quien { grid-column: 1; }
+    .cx-fila .cx-tags { grid-column: 1 / -1; text-align: left; white-space: normal; }
+    .cx-fila .cx-imp { grid-column: 2; grid-row: 1; min-width: 0; }
+    .cx-fila .cx-acc { grid-column: 1 / -1; justify-content: flex-start; }
+    .fx-cab { display: none; }
+    .fx-linea { grid-template-columns: 1fr 1fr 1fr 34px; padding-bottom: 8px; border-bottom: 1px dashed var(--line-2); margin-bottom: 8px; }
+    .fx-linea [data-k="concepto"] { grid-column: 1 / -1; }
+    .td-productos { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .td-lped { grid-template-columns: 1fr 70px 34px; } .td-lped select[data-k="producto"] { grid-column: 1 / -1; }
+    .fp { padding: 28px 20px; } .fp-cab { flex-direction: column; gap: 14px; } .fp-emisor { text-align: left; }
   }
 </style>
 </head>
@@ -273,8 +365,8 @@
     <a class="item" href="galerias.html"><span class="ico">▤</span>Galerías de clientes</a>
     <button class="item" data-tab="exportar"><span class="ico">⇩</span>Exportar</button>
     <div class="sep"></div>
-    <span class="item prox"><span class="ico">€</span>Contabilidad<span class="b">pronto</span></span>
-    <span class="item prox"><span class="ico">◫</span>Tienda<span class="b">pronto</span></span>
+    <button class="item" data-tab="contabilidad"><span class="ico">€</span>Contabilidad <span id="contaPendientes" class="badge" style="display:none" title="Cargos de suscripciones esta semana"></span></button>
+    <button class="item" data-tab="tienda"><span class="ico">◫</span>Tienda <span id="tiendaPendientes" class="badge" style="display:none" title="Pedidos por preparar"></span></button>
     <div class="pie">
       <button class="tema" id="botonTema" type="button" onclick="cambiarTema()"></button>
       <button class="salir" type="button" onclick="doLogout()">Cerrar sesión</button>
@@ -596,6 +688,10 @@
     </div>
   </div>
 
+  <!-- CONTABILIDAD y TIENDA: las pintan contabilidad.js y tienda.js -->
+  <div class="view" id="view-contabilidad"></div>
+  <div class="view" id="view-tienda"></div>
+
   <!-- EXPORTAR VIEW -->
   <div class="view" id="view-exportar">
     <div class="card">
@@ -650,6 +746,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Contabilidad y tienda van en sus propios archivos; usan esta misma sesión y estas utilidades
+window.crm = { db, auth, personas: () => people, aviso: (t, e) => setSyncStatus(t, e), esc: (s) => escapeHtml(s), uid: () => uid() };
+let modulos = null;
+function cargarModulos() {
+  if (!modulos) modulos = Promise.all([import('./contabilidad.js'), import('./tienda.js')]);
+  return modulos;
+}
+
 window.doLogin = function() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -681,6 +785,7 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('mTop').style.display = '';
     document.getElementById('mBar').style.display = '';
     attachListeners();
+    cargarModulos().then(([c, t]) => { c.iniciar(); t.iniciar(); }).catch(e => setSyncStatus('No se pudo cargar contabilidad/tienda: ' + e.message, true));
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
@@ -692,6 +797,7 @@ onAuthStateChanged(auth, (user) => {
     if (unsubMiembros) unsubMiembros();
     if (unsubAccesos) unsubAccesos();
     if (unsubPegatinas) unsubPegatinas();
+    if (modulos) modulos.then(([c, t]) => { c.detener(); t.detener(); });
   }
 });
 
@@ -774,6 +880,7 @@ const TITULOS = {
   salidas: ['Salidas', 'Crea salidas y pasa lista'], 'event-detail': ['Salidas', ''], personas: ['Personas', ''],
   fotos: ['Fotos', 'Cuadernos, retos, talleres y muro'], accesos: ['Accesos y Mirar Despacio+', 'Cuentas, suscripciones, manuales y retos del mes'],
   juego: ['Juegos', ''], pegatinas: ['Pegatinas', 'El mapa de las salidas'], exportar: ['Exportar', 'Copias y listados'],
+  contabilidad: ['Contabilidad', 'Facturas, cobros, gastos y suscripciones'], tienda: ['Tienda', 'Productos, stock y pedidos'],
 };
 document.querySelectorAll('[data-tab]').forEach(t => {
   t.addEventListener('click', () => showTab(t.dataset.tab));
@@ -798,6 +905,8 @@ window.showTab = function(name) {
   if (name === 'accesos') { let sub = 'md'; try { sub = sessionStorage.getItem('crm-sub') || 'md'; } catch (e) {} verSub(sub); }
   if (name === 'pegatinas') renderPegatinas();
   if (name === 'fotos') { renderFotos(); renderRetos(); }
+  if (name === 'contabilidad') cargarModulos().then(([c]) => c.mostrar());
+  if (name === 'tienda') cargarModulos().then(([, t]) => t.mostrar());
 };
 
 // ---------- FOTOS (cuaderno, retos, muro) ----------
@@ -1884,8 +1993,8 @@ window.togglePersona = function(id) {
 };
 // Sub-pestañas de Accesos y MD+
 window.verSub = function(sub) {
-  document.querySelectorAll('.subtab').forEach(b => b.classList.toggle('on', b.dataset.sub === sub));
-  document.querySelectorAll('.subvista').forEach(v => v.classList.toggle('on', v.id === 'sub-' + sub));
+  document.querySelectorAll('#view-accesos .subtab').forEach(b => b.classList.toggle('on', b.dataset.sub === sub));
+  document.querySelectorAll('#view-accesos .subvista').forEach(v => v.classList.toggle('on', v.id === 'sub-' + sub));
   try { sessionStorage.setItem('crm-sub', sub); } catch (e) {}
   if (sub === 'md') renderSuscripciones();
   if (sub === 'cuentas' && !cuentas.length) cargarCuentas();
@@ -2200,7 +2309,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias'];
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);
