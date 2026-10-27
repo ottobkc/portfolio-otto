@@ -72,7 +72,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <script type="application/ld+json">
 {ld}
   </script>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}"></script>{extra_head}
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>{extra_head}
 </head>
 <body>
   <a class="oculto-visual" href="#contenido">Saltar al contenido</a>

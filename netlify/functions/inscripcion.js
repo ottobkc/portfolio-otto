@@ -48,6 +48,30 @@ async function proximaSalida({ anticipada = false } = {}) {
   };
 }
 
+// Datos de una salida del CRM (para reenviar la confirmación desde el CRM).
+// Busca en salidas-data.json la salida de ese día; si no está, tira de lo que tenga el CRM.
+async function salidaDeEvento(eventId, ev) {
+  if (eventId === SIN_FECHA || !ev || !ev.date) return { conFecha: false };
+  let s = null;
+  try {
+    const r = await fetch(DATOS + '?t=' + Date.now(), { signal: AbortSignal.timeout(5000) });
+    if (r.ok) {
+      const d = await r.json();
+      s = [...(d.proximas || []), ...(d.salidas || [])].find((x) => x.fechaISO && x.fechaISO.slice(0, 10) === ev.date) || null;
+    }
+  } catch (e) { console.warn('salidas-data.json:', e.message); }
+  if (!s) return { conFecha: true, dia: ev.date, fecha: ev.date, zona: ev.location || ev.name || '', hora: '', iso: '', finISO: '' };
+  return {
+    conFecha: true,
+    dia: ev.date,
+    fecha: pendiente(s.fecha) ? ev.date : s.fecha,
+    zona: pendiente(s.zona) ? '' : (s.zona || s.titulo || ''),
+    hora: pendiente(s.hora) ? '' : (s.hora || ''),
+    iso: s.fechaISO || '',
+    finISO: s.fechaFinISO || '',
+  };
+}
+
 function leerCuerpo(event) {
   const raw = event.isBase64Encoded ? Buffer.from(event.body || '', 'base64').toString() : event.body || '';
   const tipo = (event.headers['content-type'] || '').toLowerCase();
@@ -319,3 +343,6 @@ exports.handler = async (event, context) => {
 
 // Para generar las vistas previas de los correos
 exports._correoPersona = correoPersona;
+// Para el botón «Enviar confirmación» del CRM (fotos-admin)
+exports._salidaDeEvento = salidaDeEvento;
+exports._PLAZAS = PLAZAS;
