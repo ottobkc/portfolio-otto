@@ -8,9 +8,9 @@
 //   3. 'listo: true' aquí
 const MANUALES = {
   atardecer: { titulo: 'Callejera al atardecer', listo: true },
-  nocturna: { titulo: 'Callejera nocturna', listo: false },
-  iniciacion: { titulo: 'Primeros pasos', listo: false },
-  composicion: { titulo: 'Composición en la calle', listo: false },
+  nocturna: { titulo: 'Callejera nocturna', listo: true },
+  iniciacion: { titulo: 'Primeros pasos', listo: true },
+  composicion: { titulo: 'Composición en la calle', listo: true },
 };
 const URL_BASE = 'https://ottokols.es';
 const urlManual = (id) => `${URL_BASE}/manuales/${id}/`;
