@@ -71,9 +71,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <meta name="theme-color" content="#f5f3ef">
   <link rel="icon" href="{cld(LOGO, 'w_64,h_64,c_pad,b_rgb:f5f3ef')}">
   <link rel="apple-touch-icon" href="{cld(LOGO, 'w_180,h_180,c_pad,b_rgb:f5f3ef')}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Jost:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <link rel="stylesheet" href="{v('md.css')}">
   <script type="application/ld+json">
 {ld}

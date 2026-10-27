@@ -91,7 +91,7 @@ def construir_legales(g, escribir, pagina):
           <li><strong>Estadísticas:</strong> Umami cuenta las visitas sin cookies y sin identificarte.</li>
           <li><strong>Lo imprescindible:</strong> tu navegador guarda tu sesión si entras en la zona de miembros y tu récord si juegas. Sin eso esas partes no funcionarían, y no hace falta pedirte permiso para ello.</li>
           <li><strong>Reproductor de Spotify:</strong> no se carga hasta que pulsas para escuchar un episodio. A partir de ese momento, Spotify puede usar sus propias cookies según su política.</li>
-          <li><strong>Tipografías y mapa:</strong> las tipografías se cargan desde Google Fonts y los mapas desde OpenStreetMap. Para mandártelas, esos servicios reciben la dirección IP de tu conexión, pero no instalan cookies.</li>
+          <li><strong>Mapa de pegatinas:</strong> el mapa se carga desde OpenStreetMap, que recibe la dirección IP de tu conexión para mandarte las imágenes del mapa, pero no instala cookies.</li>
         </ul>
 
         <h2>Tus derechos</h2>

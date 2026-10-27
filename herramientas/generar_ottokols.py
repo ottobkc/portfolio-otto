@@ -69,9 +69,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
   <meta property="og:image" content="{og_img if og_img.startswith('http') else DOM + og_img}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#edece7">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Caveat:wght@500&family=Hanken+Grotesk:wght@400;500&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <link rel="stylesheet" href="/assets/ok.css">
   <script type="application/ld+json">
 {ld}
