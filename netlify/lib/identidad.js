@@ -102,4 +102,51 @@ async function invitarCon(context, email, acceso, { bajar = false } = {}) {
   }
 }
 
-module.exports = { usuarioDe, listarUsuarios, usuarioPorEmail, rolesPara, ponerRoles, invitarCon };
+// ---------- Manuales de talleres ----------
+// Cada manual tiene su propio rol: "taller-<id>" (ver netlify/lib/manuales.js).
+// Es independiente de MD+: rolesPara() no lo toca, así que el acceso al manual se queda
+// aunque caduque el mes de MD+ o se cambie el acceso desde el CRM.
+const rolManual = (tallerId) => 'taller-' + String(tallerId || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+const manualesDe = (roles) => (roles || []).filter((r) => /^taller-/.test(r)).map((r) => r.slice(7));
+
+// Da acceso a un manual. Si la persona no tiene cuenta, la invita (le llega el correo para
+// crear su contraseña) solo con ese manual: no le da MD+ ni el cuaderno de fotos.
+// Devuelve 'invitado' | 'ya-existe' | 'ya-tenia' | 'sin-identity' | 'error-…'
+async function darManual(context, email, tallerId) {
+  const llamar = api(context);
+  if (!llamar) return 'sin-identity';
+  email = String(email || '').trim().toLowerCase();
+  const rol = rolManual(tallerId);
+  try {
+    let usuario = await usuarioPorEmail(context, email);
+    let estado = 'ya-existe';
+    if (!usuario) {
+      const r = await llamar('/invite', { method: 'POST', body: JSON.stringify({ email }) });
+      if (!r.ok) return 'error-' + r.status;
+      usuario = r.json;
+      estado = 'invitado';
+    }
+    const actuales = (usuario.app_metadata && usuario.app_metadata.roles) || [];
+    if (actuales.includes(rol)) return 'ya-tenia';
+    await ponerRoles(context, usuario.id, [...actuales, rol]);
+    return estado;
+  } catch (e) {
+    console.error('darManual', e.message);
+    return 'error';
+  }
+}
+
+async function quitarManual(context, id, tallerId) {
+  const u = (await listarUsuarios(context)).find((x) => x.id === id);
+  if (!u) return 'no-existe';
+  const rol = rolManual(tallerId);
+  const actuales = (u.app_metadata && u.app_metadata.roles) || [];
+  if (!actuales.includes(rol)) return 'no-tenia';
+  await ponerRoles(context, u.id, actuales.filter((r) => r !== rol));
+  return 'hecho';
+}
+
+module.exports = {
+  usuarioDe, listarUsuarios, usuarioPorEmail, rolesPara, ponerRoles, invitarCon,
+  rolManual, manualesDe, darManual, quitarManual,
+};

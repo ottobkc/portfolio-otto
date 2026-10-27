@@ -439,7 +439,7 @@ def construir(g):
         <p class="antetitulo">Talleres · Madrid</p>
         <h1>Aprender <em>disparando.</em></h1>
         <p class="entradilla">Talleres de 3 a 4 horas por las calles de Madrid, en grupos de {max(t['plazas'] for t in td['talleres'])} personas como mucho. Mucha práctica, poca teoría y alguien al lado para resolver dudas en el momento.</p>
-        <p><span class="nota" style="font-size:1.35rem;">te llevas</span> un manual impreso, pegatinas y un mes de <a href="/mirar-despacio-plus/">Mirar Despacio+</a> para seguir practicando.</p>
+        <p><span class="nota" style="font-size:1.35rem;">te llevas</span> el manual web del taller, una tarjeta de bolsillo con los ajustes clave, pegatinas y un mes de <a href="/mirar-despacio-plus/">Mirar Despacio+</a> para seguir practicando.</p>
         <div class="botones"><a class="boton" href="#talleres">Ver talleres</a><a class="boton claro" href="/regalo/">🎁 Regalar un taller</a></div>
       </div>
     </section>
@@ -487,7 +487,7 @@ def construir(g):
         "offers": [{"@type": "Offer", "name": "Taller " + t['titulo'], "price": str(t['precio']), "priceCurrency": "EUR"} for t in td['talleres']],
     }
     escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
-        'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual impreso y un mes de Mirar Despacio+. También para regalar.',
+        'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual del taller y un mes de Mirar Despacio+. También para regalar.',
         cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS))
 
     # ------------------------------------------------------------ REGALO

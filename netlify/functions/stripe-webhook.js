@@ -117,10 +117,12 @@ async function compra(fs, context, s) {
       personId: persona.id, eventId: evRef.id, status: 'confirmado', attended: false,
       origen: 'stripe', pagado: true, plazasCompradas: qty, importe, pagoId: s.id, createdAt: FieldValue.serverTimestamp(),
     });
-    await T.correoPlazaTaller({ d, ed, nombre, email }).catch(() => {});
+    const manual = await T.darManual(context, email, ed.taller);
+    await T.correoPlazaTaller({ d, ed, nombre, email, manual }).catch(() => {});
     const concepto = `Taller ${prod.taller ? prod.taller.titulo : ed.taller} (${ed.fecha})${qty > 1 ? ' ×' + qty : ''}`;
     avisos.push(['Plazas', `${antes + qty} de ${plazas}` + (antes + qty > plazas ? ' ⚠️ SE HA PASADO DE PLAZAS' : '')]);
-    if (qty > 1) avisos.push(['Ojo', `Ha comprado ${qty} plazas: pídele los datos de los acompañantes`]);
+    avisos.push(['Manual', { invitado: 'Acceso dado (cuenta nueva: le llega la invitación)', 'ya-existe': 'Acceso dado a su cuenta', 'ya-tenia': 'Ya tenía acceso', 'sin-manual': 'Este taller no tiene manual' }[manual] || 'Revisar acceso al manual (' + manual + ')']);
+    if (qty > 1) avisos.push(['Ojo', `Ha comprado ${qty} plazas: pídele los datos de los acompañantes (y dales acceso al manual desde el CRM)`]);
     const cierre = await T.cerrarSiCompleto(fs, d, ed);
     if (cierre) avisos.push(['Enlace de pago', cierre === 'desactivado' ? 'Completo: he desactivado el enlace en Stripe' : 'Completo, pero no he podido desactivar el enlace (' + cierre + '): hazlo a mano en Stripe']);
     await T.ingreso(fs, idPago, { ...base, categoria: 'taller', concepto });

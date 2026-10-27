@@ -159,8 +159,15 @@ function datosEdicion(d, ed) {
   return { t, filas, cal };
 }
 
-async function correoPlazaTaller({ d, ed, nombre, email, regalo }) {
+async function correoPlazaTaller({ d, ed, nombre, email, regalo, manual }) {
   const { t, filas, cal } = datosEdicion(d, ed);
+  const M = require('./manuales');
+  const m = M.MANUALES[ed.taller];
+  // manual = lo que devolvió darManual ('invitado' si se le acaba de crear la cuenta)
+  const lineaManual = !m ? '' : m.listo
+    ? `Ya tienes acceso al <strong>manual del taller</strong>, para leerlo antes o repasarlo después: <a href="${esc(M.urlEntrada(ed.taller))}">ábrelo aquí</a>.` +
+      (manual === 'invitado' ? ' Te llegará otro correo para crear tu contraseña: entrarás siempre con este email.' : ' Entra con tu cuenta de siempre.')
+    : 'Antes del taller tendrás acceso al manual web del taller; te aviso cuando esté listo.';
   const html = tarjeta({
     titulo: 'Taller ' + (t.titulo || '') + ' · Mirar Despacio',
     nombre,
@@ -172,9 +179,10 @@ async function correoPlazaTaller({ d, ed, nombre, email, regalo }) {
     cuerpo: [
       'El punto de encuentro exacto y lo que conviene llevar te los mando en un mail unos días antes.',
       'Incluye: ' + esc((t.incluye || []).join(', ').toLowerCase()) + '.',
+      lineaManual,
       'Si por lo que sea ese día no puedes, avísame cuanto antes: con 7 días o más de antelación te devuelvo el importe o te cambio la fecha; con menos, puedes pasar la plaza a otra fecha o a otra persona.',
       'El taller necesita un mínimo de ' + (Number(t.minimo) || 4) + ' personas. Si 72 horas antes no se llega, te escribo para que elijas entre otra fecha o la devolución íntegra.',
-    ],
+    ].filter(Boolean),
   });
   return enviar({ para: email, asunto: `Tienes plaza · Taller ${t.titulo || ''}, ${fechaLarga(ed.fechaISO, ed.fecha).toLowerCase()}`, html, texto: aTexto(html) });
 }
@@ -224,6 +232,12 @@ async function avisoOtto(asunto, filas, responderA) {
 // Invita al email si aún no tiene cuenta. El rol "member" lo pone identity-signup al aceptar.
 // Invita a la zona de miembros con acceso MD+ completo. Si la persona ya tenía cuenta
 // (por ejemplo, de "solo fotos"), le sube el acceso a MD+.
+// Acceso al manual web del taller (rol "taller-<id>"; ver netlify/lib/manuales.js)
+async function darManual(context, email, tallerId) {
+  if (!require('./manuales').MANUALES[tallerId]) return 'sin-manual';
+  return require('./identidad').darManual(context, email, tallerId);
+}
+
 async function invitarIdentity(context, email) {
   return require('./identidad').invitarCon(context, email, 'plus');
 }
@@ -253,6 +267,6 @@ async function darPlus(fs, persona, { meses, nivel, origen }) {
 module.exports = {
   cabeceras, limpio, emailValido, eur, datos, taller, edicion, eventoId, pasada, producto, cerrarSiCompleto,
   nuevoCodigo, normalizarCodigo, personaPorEmail, eventoTaller, ocupadas, ingreso,
-  correoPlazaTaller, correoBonoComprador, correoBienvenidaPlus, avisoOtto, invitarIdentity,
+  correoPlazaTaller, correoBonoComprador, correoBienvenidaPlus, avisoOtto, invitarIdentity, darManual,
   darPlus, fechaCorta, VALIDEZ_BONO_DIAS,
 };
