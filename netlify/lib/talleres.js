@@ -180,6 +180,7 @@ async function correoPlazaTaller({ d, ed, nombre, email, regalo, manual }) {
       'El punto de encuentro exacto y lo que conviene llevar te los mando en un mail unos días antes.',
       'Incluye: ' + esc((t.incluye || []).join(', ').toLowerCase()) + '.',
       lineaManual,
+      'El mes de Mirar Despacio+ incluido empieza el día del taller: esa mañana te llega el acceso.',
       'Si por lo que sea ese día no puedes, avísame cuanto antes: con 7 días o más de antelación te devuelvo el importe o te cambio la fecha; con menos, puedes pasar la plaza a otra fecha o a otra persona.',
       'El taller necesita un mínimo de ' + (Number(t.minimo) || 4) + ' personas. Si 72 horas antes no se llega, te escribo para que elijas entre otra fecha o la devolución íntegra.',
     ].filter(Boolean),
@@ -204,17 +205,17 @@ async function correoBonoComprador({ email, nombre, codigo, titulo, caduca }) {
   return enviar({ para: email, asunto: 'Tu regalo de Mirar Despacio está listo', html, texto: aTexto(html) });
 }
 
-async function correoBienvenidaPlus({ email, nombre, hasta, regalo, nivel, portal }) {
+async function correoBienvenidaPlus({ email, nombre, hasta, regalo, nivel, portal, taller }) {
   const html = tarjeta({
     titulo: 'Bienvenida a Mirar Despacio+',
     nombre,
-    intro: [regalo ? 'Ya has canjeado tu regalo: estás dentro de Mirar Despacio+.' : 'Gracias por unirte a Mirar Despacio+. Ya estás dentro.'],
+    intro: [taller ? 'Hoy es el taller, y con él empieza el mes de Mirar Despacio+ que viene incluido. Ya estás dentro.' : regalo ? 'Ya has canjeado tu regalo: estás dentro de Mirar Despacio+.' : 'Gracias por unirte a Mirar Despacio+. Ya estás dentro.'],
     filas: [['✨', 'Mirar Despacio+' + (nivel === 'con-salidas' ? ' con salidas' : '')], ...(hasta ? [['⏳', 'Acceso hasta el ' + esc(hasta)]] : [])],
     calendario: null,
     cuerpo: [
       'En unos minutos te llegará otro correo para <strong>crear tu contraseña</strong> de la zona de miembros. Si ya tenías cuenta, entra directamente en ottokols.es/acceso.html.',
       nivel === 'con-salidas' ? 'Las salidas están incluidas: cuando te apuntes a una, tendrás plaza.' : '',
-      !regalo && portal ? `Sin permanencia: para cambiar la tarjeta, ver tus recibos o darte de baja, entra en <a href="${esc(portal)}">tu área de pagos</a> con este mismo email.` : '',
+      !regalo && !taller && portal ? `Sin permanencia: para cambiar la tarjeta, ver tus recibos o darte de baja, entra en <a href="${esc(portal)}">tu área de pagos</a> con este mismo email.` : '',
       'Si tienes cualquier duda, contesta a este correo.',
     ].filter(Boolean),
   });

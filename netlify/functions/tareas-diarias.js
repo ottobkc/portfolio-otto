@@ -2,6 +2,8 @@
 //  1. Reto: recordatorio 3 días antes del cierre a quien aún no ha mandado foto
 //  2. Reto: aviso «ya puedes ver la galería» el día después del cierre
 //  3. MD+: quita el acceso a quien ha caducado (3 días de margen) y avisa a Otto de lo que caduca pronto
+//  4. Talleres: el día del taller empieza el mes de MD+ incluido para cada plaza confirmada
+//     (aunque se pagara semanas antes). Si ya era MD+, se le suma un mes.
 // Si en una ejecución programada no hubiera acceso a la administración de cuentas,
 // no se rompe nada: Otto recibe la lista para hacerlo a mano desde el CRM.
 const { db, FieldValue } = require('../lib/firestore');
@@ -71,6 +73,29 @@ exports.handler = async (event, context) => {
   if (quitados.length) informe.push('Se ha quitado MD+ (pueden seguir subiendo fotos de salidas):\n- ' + quitados.join('\n- '));
   if (pronto.length) informe.push('MD+ que termina en los próximos días:\n- ' + pronto.join('\n- '));
   if (revisar.length) informe.push('Revisa en el CRM (Personas → Mirar Despacio+) y ponles fecha:\n- ' + revisar.join('\n- '));
+
+  // 4. Mes de MD+ incluido en los talleres de hoy
+  const T = require('../lib/talleres');
+  const hoyTalleres = await fs.collection('events').where('tipo', '==', 'taller').where('date', '==', madrid(0)).get();
+  const conPlus = [];
+  for (const ev of hoyTalleres.docs) {
+    const plazas = await fs.collection('signups').where('eventId', '==', ev.id).get();
+    for (const sd of plazas.docs) {
+      const su = sd.data();
+      if (su.status === 'espera' || su.status === 'cancelado' || su.plusTallerEn || !su.personId) continue;
+      const pRef = fs.collection('people').doc(su.personId);
+      const pSnap = await pRef.get();
+      if (!pSnap.exists || !pSnap.data().email) continue;
+      const persona = { id: pSnap.id, ref: pRef, ...pSnap.data() };
+      const hasta = await T.darPlus(fs, persona, { meses: 1, nivel: 'con-salidas', origen: 'taller' });
+      const acceso = await T.invitarIdentity(context, persona.email);
+      await T.correoBienvenidaPlus({ email: persona.email, nombre: persona.name || '', hasta: T.fechaCorta(hasta), nivel: 'con-salidas', taller: true }).catch(() => {});
+      await sd.ref.update({ plusTallerEn: FieldValue.serverTimestamp() });
+      const nombre = [persona.name, persona.apellidos].filter(Boolean).join(' ') || persona.email;
+      conPlus.push(`${nombre} (${ev.data().name || 'taller'}): MD+ hasta el ${T.fechaCorta(hasta)}${/^error|sin-identity/.test(acceso) ? ' — DALE EL ACCESO A MANO en el CRM' : ''}`);
+    }
+  }
+  if (conPlus.length) informe.push('Hoy hay taller: empieza el mes de MD+ incluido para:\n- ' + conPlus.join('\n- '));
 
   const para = process.env.AVISO_A || remitente();
   if (informe.length && para) {
