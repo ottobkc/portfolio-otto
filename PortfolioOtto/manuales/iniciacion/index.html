@@ -32,6 +32,10 @@
     .portada { background: linear-gradient(180deg, #f2c27a 0%, #e8821a 34%, #b9466a 62%, #2b4a6f 100%); color: #fff; padding: 56px 0 44px; position: relative; overflow: hidden; }
     .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(26,24,20,.0) 0 22px, rgba(26,24,20,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
     .marca { font: 600 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; opacity: .9; }
+    .portada .envoltura { position: relative; }
+    .logo-md { position: absolute; top: -8px; right: 20px; z-index: 1; }
+    .logo-md img { display: block; width: 132px; height: auto; }
+    @media (max-width: 560px) { .logo-md img { width: 104px; } .portada .marca { max-width: 55%; } }
     .portada h1 { font: 300 clamp(40px, 9vw, 64px)/1.02 var(--serif); margin: 18px 0 10px; letter-spacing: -.01em; }
     .portada h1 em { font-style: italic; font-weight: 500; }
     .portada p.sub { font: 300 italic 20px/1.4 var(--serif); margin: 0; max-width: 30ch; }
@@ -144,7 +148,8 @@
 
   <header class="portada">
     <div class="envoltura">
-      <div class="marca">Mirar Despacio · Manual del taller</div>
+      <a href="/recursos.html" class="logo-md" title="Mirar Despacio+"><img src="/assets/logo-md-blanco.png" alt="Mirar Despacio" width="150" height="50"></a>
+      <div class="marca">Manual del taller</div>
       <h1>Primeros<br><em>pasos</em></h1>
       <p class="sub">Entiende tu cámara en una mañana: los botones que importan y por qué.</p>
       <span class="nota">para volver aquí cada vez que te atasques</span>
