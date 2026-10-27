@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Manual · Callejera nocturna · Mirar Despacio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --papel: #f5f3ef;
+      --papel-2: #ebe6dd;
+      --tinta: #1a1814;
+      --gris: #6b655a;
+      --linea: #d8d1c4;
+      --naranja: #e8821a;
+      --rosa: #e8347a;
+      --azul: #2b4a6f;
+      --serif: 'Fraunces', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+      --mano: 'Caveat', cursive;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--papel); color: var(--tinta); font: 400 17px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration-color: var(--naranja); text-underline-offset: 3px; }
+    .envoltura { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+    /* Portada: el degradado del cielo de noviembre, de la hora dorada a la hora azul */
+    .portada { background: linear-gradient(180deg, #f2c27a 0%, #e8821a 34%, #b9466a 62%, #2b4a6f 100%); color: #fff; padding: 56px 0 44px; position: relative; overflow: hidden; }
+    .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(26,24,20,.0) 0 22px, rgba(26,24,20,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
+    .marca { font: 600 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; opacity: .9; }
+    .portada .envoltura { position: relative; }
+    .logo-md { position: absolute; top: -8px; right: 20px; z-index: 1; }
+    .logo-md img { display: block; width: 132px; height: auto; }
+    @media (max-width: 560px) { .logo-md img { width: 104px; } .portada .marca { max-width: 55%; } }
+    .portada h1 { font: 300 clamp(40px, 9vw, 64px)/1.02 var(--serif); margin: 18px 0 10px; letter-spacing: -.01em; }
+    .portada h1 em { font-style: italic; font-weight: 500; }
+    .portada p.sub { font: 300 italic 20px/1.4 var(--serif); margin: 0; max-width: 30ch; }
+    .portada .nota { font: 600 24px/1.1 var(--mano); margin-top: 26px; transform: rotate(-2deg); display: inline-block; }
+
+    nav.indice { border-bottom: 1px solid var(--linea); background: var(--papel); position: sticky; top: 0; z-index: 5; }
+    nav.indice ul { list-style: none; margin: 0 auto; padding: 0 20px; max-width: 720px; display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; }
+    nav.indice ul::-webkit-scrollbar { display: none; }
+    nav.indice a { display: block; padding: 13px 0; font: 500 14px/1 var(--sans); text-decoration: none; white-space: nowrap; color: var(--gris); }
+    /* En pantallas anchas el índice cabe entero en varias líneas; en el móvil se desliza y un degradado avisa de que hay más */
+    @media (min-width: 760px) { nav.indice ul { flex-wrap: wrap; overflow: visible; column-gap: 20px; row-gap: 0; } nav.indice a { padding: 10px 0; } }
+    @media (max-width: 759px) { nav.indice { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); } nav.indice ul { padding-right: 48px; } }
+    nav.indice a:hover { color: var(--tinta); }
+
+    section { padding: 44px 0 8px; }
+    .antetitulo { font: 600 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--naranja); margin: 0 0 10px; }
+    h2 { font: 300 clamp(30px, 6vw, 40px)/1.1 var(--serif); margin: 0 0 18px; }
+    h2 em { font-style: italic; color: var(--rosa); }
+    h3 { font: 500 21px/1.3 var(--serif); margin: 30px 0 8px; }
+    p { margin: 0 0 14px; }
+    .entradilla { font: 300 20px/1.5 var(--serif); }
+    .mano { font: 600 23px/1.15 var(--mano); color: var(--rosa); }
+    .aparte { border-left: 3px solid var(--naranja); padding: 4px 0 4px 16px; margin: 20px 0; }
+    .aparte.azul { border-left-color: var(--azul); }
+    ul.lista { padding-left: 20px; margin: 0 0 14px; }
+    ul.lista li { margin-bottom: 6px; }
+    strong { font-weight: 600; }
+
+    /* Calculadora de luz */
+    .luz { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; margin: 22px 0; }
+    .luz label { font: 500 14px/1 var(--sans); color: var(--gris); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .luz input, .luz select { font: 500 16px var(--sans); padding: 8px 10px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+    .franja { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 16px; border-radius: 10px; overflow: hidden; }
+    .franja div { padding: 12px 10px; color: #fff; }
+    .franja div:nth-child(1) { background: #e9a64a; color: var(--tinta); }
+    .franja div:nth-child(2) { background: var(--naranja); }
+    .franja div:nth-child(3) { background: #9c4466; }
+    .franja div:nth-child(4) { background: var(--azul); }
+    .franja b { display: block; font: 500 22px/1.1 var(--serif); }
+    .franja span { font: 500 12px/1.3 var(--sans); }
+    .luz .falta { font: 600 22px/1.2 var(--mano); color: var(--rosa); margin: 14px 0 0; }
+    .luz small { display: block; color: var(--gris); font-size: 13px; margin-top: 8px; }
+
+    /* Tabla de ajustes */
+    .ajustes { width: 100%; border-collapse: collapse; margin: 18px 0 8px; font-size: 15px; }
+    .ajustes th { text-align: left; font: 600 12px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); padding: 8px 8px 8px 0; border-bottom: 1.5px solid var(--tinta); }
+    .ajustes td { padding: 12px 8px 12px 0; border-bottom: 1px solid var(--linea); vertical-align: top; }
+    .ajustes td:first-child { font-weight: 600; }
+    @media (max-width: 560px) {
+      .ajustes thead { display: none; }
+      .ajustes tr { display: block; border-bottom: 1px solid var(--linea); padding: 12px 0; }
+      .ajustes td { display: block; border: 0; padding: 2px 0; }
+      .ajustes td:not(:first-child)::before { content: attr(data-t) ': '; color: var(--gris); font-size: 13px; }
+      .franja { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Ejercicios */
+    .ejercicio { background: var(--papel-2); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; }
+    .ejercicio h3 { margin: 0 0 6px; padding-right: 40px; }
+    .ejercicio .cuando { font: 600 20px/1 var(--mano); color: var(--naranja); }
+    .ejercicio p:last-child { margin-bottom: 0; }
+    .ejercicio input[type=checkbox] { position: absolute; top: 18px; right: 18px; width: 24px; height: 24px; accent-color: var(--rosa); }
+    .ejercicio.hecho { opacity: .65; }
+
+    .errores dt { font: 500 19px/1.3 var(--serif); margin-top: 18px; }
+    .errores dd { margin: 4px 0 0; }
+
+    footer { margin-top: 48px; padding: 30px 0 48px; border-top: 1px solid var(--linea); color: var(--gris); font-size: 14px; }
+    footer .mano { font-size: 26px; }
+    @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  
+    /* Retos para después y autores */
+    .reto-casa { border: 1.5px solid var(--tinta); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; background: #fff; }
+    .reto-casa .num { display: block; font: 300 34px/1 var(--serif); color: var(--naranja); margin: 0 0 6px; }
+    .reto-casa h3 { margin: 0 0 6px; }
+    .reto-casa p:last-child { margin-bottom: 0; }
+    .enviar { background: var(--tinta); color: var(--papel); border-radius: 14px; padding: 22px 20px; margin: 22px 0; }
+    .enviar h3 { margin: 0 0 8px; color: var(--papel); }
+    .enviar ul { padding-left: 18px; margin: 0 0 16px; }
+    .enviar li { margin-bottom: 6px; }
+    .enviar a.boton { display: inline-block; background: var(--naranja); color: #fff; text-decoration: none; font: 600 16px/1 var(--sans); padding: 14px 20px; border-radius: 999px; }
+    .enviar small { display: block; margin-top: 12px; opacity: .75; font-size: 13px; }
+    .autor { border-top: 1px solid var(--linea); padding: 16px 0 4px; }
+    .autor h3 { margin: 0 0 4px; }
+    .autor .que { font: 600 20px/1.2 var(--mano); color: var(--rosa); margin: 0 0 6px; }
+
+    /* Esquemas de composición */
+    .esquema { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin: 18px 0; }
+    .esquema svg { width: 96px; height: 72px; background: #fff; border: 1px solid var(--linea); border-radius: 6px; }
+    .esquema h3 { margin-top: 0; }
+    /* Simulador de exposición */
+    .sim { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; margin: 22px 0; }
+    .sim .controles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .sim label { font: 500 13px/1.3 var(--sans); color: var(--gris); display: block; }
+    .sim select { width: 100%; margin-top: 4px; font: 500 16px var(--sans); padding: 8px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+    .sim .escena { margin-top: 12px; }
+    .sim .resultado { margin-top: 16px; display: grid; grid-template-columns: 110px 1fr; gap: 14px; align-items: center; }
+    .sim .foto { height: 80px; border-radius: 8px; background: linear-gradient(135deg, #c98a3c, #6d7f8f 55%, #2d3a45); position: relative; overflow: hidden; }
+    .sim .foto::after { content: ''; position: absolute; inset: 0; background: var(--velo, transparent); }
+    .sim .veredicto { font: 600 22px/1.15 var(--mano); color: var(--rosa); }
+    .sim ul { margin: 10px 0 0; padding-left: 18px; font-size: 15px; }
+    @media (max-width: 560px) { .sim .controles { grid-template-columns: 1fr; } }
+
+    /* Portada de este manual */
+    .portada { background: linear-gradient(180deg, #2b4a6f 0%, #1b2233 45%, #0e0f15 100%); }
+    .portada::after { background: repeating-linear-gradient(90deg, rgba(232,130,26,0) 0 38px, rgba(232,130,26,.35) 38px 40px, rgba(232,52,122,0) 40px 77px, rgba(232,52,122,.3) 77px 79px); }
+    .portada h1 em { color: #f2c27a; }
+  </style>
+</head>
+<body>
+
+  <header class="portada">
+    <div class="envoltura">
+      <a href="/socios/" class="logo-md" title="Mirar Despacio+"><img src="/assets/logo-md-blanco.png" alt="Mirar Despacio" width="150" height="50"></a>
+      <div class="marca">Manual del taller</div>
+      <h1>Callejera<br><em>nocturna</em></h1>
+      <p class="sub">Madrid cuando se encienden las luces, y cómo fotografiarla sin que todo salga movido.</p>
+      <span class="nota">para leer antes, y para repasar después</span>
+    </div>
+  </header>
+
+  <nav class="indice" aria-label="Índice">
+    <ul>
+      <li><a href="#antes">Antes</a></li>
+      <li><a href="#noche">Las luces</a></li>
+      <li><a href="#medir">Medir</a></li>
+      <li><a href="#escaparates">Escaparates y reflejos</a></li>
+      <li><a href="#movimiento">Movimiento</a></li>
+      <li><a href="#ejercicios">Ejercicios</a></li>
+      <li><a href="#errores">Errores</a></li>
+      <li><a href="#retos">Retos para casa</a></li>
+      <li><a href="#donde">Dónde practicar</a></li>
+      <li><a href="#autores">Autores</a></li>
+      <li><a href="#despues">Después</a></li>
+    </ul>
+  </nav>
+
+  <main class="envoltura">
+
+    <section id="antes">
+      <p class="antetitulo">Antes de salir</p>
+      <h2>Lo que vamos a <em>hacer.</em></h2>
+      <p class="entradilla">Empezamos sentados, un rato corto, para entender cómo se mide con poca luz. Salimos con la hora azul todavía en el cielo, nos metemos en las calles con más luz artificial y volvemos al mismo sitio a ver las fotos tomando algo.</p>
+      <p>Lee este manual una vez antes del taller para llegar con el vocabulario, y vuelve a él cuando salgas solo de noche.</p>
+
+      <h3>Qué traer</h3>
+      <ul class="lista">
+        <li><strong>Tu cámara con la batería cargada, y una de repuesto.</strong> Con frío y con la pantalla encendida se gastan mucho más rápido. Llévala en un bolsillo interior, cerca del cuerpo.</li>
+        <li><strong>El objetivo más luminoso que tengas.</strong> Un 35 o 50 mm f/1,8 cambia la noche por completo. Con el objetivo del kit (f/3,5–5,6) también se puede: subiremos más el ISO.</li>
+        <li><strong>Tarjeta con espacio y RAW activado</strong>, si tu cámara lo permite. De noche el RAW se agradece mucho al editar.</li>
+        <li><strong>El móvil también vale</strong>, en modo profesional o manual. El modo noche va bien para escenas quietas; con gente andando, sale borroso.</li>
+        <li>No hace falta trípode: el taller es a mano alzada. Lo que se pueda apoyar, lo apoyaremos en barandillas y bancos.</li>
+        <li><strong>Abrigo, guantes finos y calzado cómodo.</strong> Vamos a estar mucho rato quietos esperando la foto.</li>
+      </ul>
+      <p class="aparte"><strong>Nada de flash.</strong> Mata la luz de la ciudad, que es justo lo que venimos a fotografiar, y molesta a la gente. Con muchas personas alrededor, lleva la mochila por delante y la correa de la cámara puesta.</p>
+    </section>
+
+    <section id="noche">
+      <p class="antetitulo">La noche no es oscura</p>
+      <h2>La ciudad está llena de <em>luces.</em></h2>
+      <p>De noche no hay una luz, hay cientos, cada una de un color, una dureza y una dirección. El truco es dejar de pensar "hay poca luz" y empezar a pensar "¿qué luz hay aquí y qué hace?".</p>
+      <ul class="lista">
+        <li><strong>Escaparates:</strong> la mejor luz de la noche. Grande, suave y frontal. Una persona que mira un escaparate tiene la cara iluminada como en un estudio.</li>
+        <li><strong>Farolas:</strong> luz dura desde arriba, con círculos de luz en el suelo y oscuridad entre farola y farola. Las antiguas de sodio son naranjas; las LED, blancas o frías.</li>
+        <li><strong>Neones y letreros:</strong> color puro. Tiñen las caras y las paredes cercanas.</li>
+        <li><strong>Faros y pilotos de coches:</strong> luz que se mueve. Contraluces, destellos y estelas.</li>
+        <li><strong>Luces de Navidad:</strong> miles de puntos de luz que, desenfocados, se convierten en círculos (bokeh).</li>
+        <li><strong>El cielo de la hora azul:</strong> al principio del taller el cielo todavía tiene color. Es el mejor momento para fotos de calle con cielo.</li>
+      </ul>
+
+      <div class="luz" id="calculadora">
+        <label>¿Cuándo se hace de noche el día <input type="date" id="dia"> en <select id="ciudad" aria-label="Ciudad"></select></label>
+        <div class="franja">
+          <div><span>Hora dorada desde</span><b id="h-dorada">—</b></div>
+          <div><span>Puesta de sol</span><b id="h-puesta">—</b></div>
+          <div><span>Hora azul desde</span><b id="h-azul">—</b></div>
+          <div><span>Ya es de noche</span><b id="h-noche">—</b></div>
+        </div>
+        <p class="falta" id="falta"></p>
+        <small id="luz-nota"></small>
+        <small>Si sales solo, empieza en la hora azul: tendrás cielo y luces a la vez.</small>
+      </div>
+
+      <h3>El color de la noche</h3>
+      <p>Cada fuente de luz tiene su color, y el balance de blancos automático intenta "arreglarlas" todas a la vez, sin conseguirlo. Dos opciones:</p>
+      <ul class="lista">
+        <li><strong>Déjalo cálido:</strong> balance en Luz de día. Las farolas salen naranjas y los escaparates dorados. Es la noche como la recuerdas.</li>
+        <li><strong>Límpialo:</strong> balance en Tungsteno / Incandescente (unos 3200 K) o a mano en 3500–4000 K. Los blancos se vuelven blancos y el cielo y las sombras, azules.</li>
+      </ul>
+      <p>Elige una opción y mantenla toda la noche: así las fotos de la serie se parecen entre sí. Si disparas en RAW, puedes cambiarlo después.</p>
+    </section>
+
+    <section id="medir">
+      <p class="antetitulo">Medir con poca luz</p>
+      <h2>ISO alto, <em>sin miedo.</em></h2>
+      <p>De noche siempre te falta luz, y hay que decidir qué sacrificas. El orden de prioridades para fotografiar gente es casi siempre el mismo:</p>
+      <ol class="lista">
+        <li><strong>Que no salga movida.</strong> Con gente andando, 1/125 como mínimo; con gente quieta, 1/60.</li>
+        <li><strong>Diafragma lo más abierto posible</strong> (el número más pequeño: f/1,8, f/2,8…). Cuidado: a f/1,8 la zona enfocada es muy fina.</li>
+        <li><strong>El ISO que haga falta.</strong> 3200, 6400 y más. Una foto con grano se aprovecha; una movida, no. Las cámaras de los últimos diez años aguantan mucho más de lo que crees.</li>
+      </ol>
+
+      <h3>El modo que te recomiendo: manual, con el ISO a mano</h3>
+      <p>Pon la cámara en M y fija los tres valores tú: <strong>diafragma abierto, 1/125 e ISO 3200</strong> como punto de partida. Luego mira el exposímetro (la escala con una marca que se mueve, en el visor o en la pantalla): de noche la marca tiene que quedar <strong>entre −0,7 y −1,3</strong>, no en el cero.</p>
+      <p>Cuando cambies de calle, <strong>toca solo el ISO</strong>: 1600 en una calle muy iluminada o con escaparates grandes, 6400 en una calle oscura. Diafragma y velocidad se quedan quietos. Así siempre sabes qué estás sacrificando y nada cambia sin que tú lo decidas.</p>
+      <h3>La alternativa cómoda: ISO automático y compensación</h3>
+      <p>Si prefieres no estar pendiente del ISO, déjalo en automático: tú fijas diafragma y velocidad, la cámara pone el ISO de cada calle y tú corriges con la rueda de compensación (±), con los mismos valores. Algunas cámaras sencillas no dejan compensar en manual con ISO automático; en ese caso usa prioridad a la apertura (A o Av) con una velocidad mínima de 1/125 en el menú de ISO automático.</p>
+      <p class="aparte">En este manual, <strong>"compensa −1"</strong> significa: en manual, deja la marca del exposímetro en −1; con ISO automático, gira la compensación a −1.</p>
+
+      <h3>Por qué la cámara se equivoca de noche</h3>
+      <p>El fotómetro quiere que todo salga gris medio, y la noche no es gris: es oscura. Si le dejas, aclara la escena, quema las luces y te da una noche que parece una tarde nublada. Compensa a negativo, de <strong>−0,7 a −1,3</strong>. Las sombras tienen que ser oscuras.</p>
+      <p class="aparte"><strong>Protege las luces.</strong> Activa el aviso de altas luces (el parpadeo). Un letrero o un escaparate quemado se convierte en una mancha blanca sin color. Un fondo negro, en cambio, es la noche.</p>
+
+      <h3>Enfocar a oscuras</h3>
+      <ul class="lista">
+        <li>Usa <strong>un solo punto de enfoque, el central</strong>, y apúntalo a algo con contraste: un borde iluminado, un letrero, el perfil de una cara contra una luz.</li>
+        <li>Si el enfoque se vuelve loco, <strong>enfoca a la distancia</strong>: enfoca en algo que esté a la distancia de tu sujeto, bloquea el enfoque y espera a que entre.</li>
+        <li>A f/1,8 tienes muy poco margen. Si la gente pasa a distintas distancias, cierra a f/2,8 y sube un paso el ISO.</li>
+      </ul>
+
+      <h3>Aguantar la cámara</h3>
+      <ul class="lista">
+        <li>Codos pegados al cuerpo, cámara al ojo (no con los brazos estirados), y dispara soltando el aire.</li>
+        <li>Haz <strong>ráfagas cortas de tres fotos</strong>: casi siempre la del medio sale más nítida.</li>
+        <li>Apóyate en lo que haya: una pared, una farola, una barandilla. Con apoyo puedes bajar a 1/15 o menos en escenas quietas.</li>
+      </ul>
+
+      <table class="ajustes">
+        <thead><tr><th>Situación</th><th>Diafragma</th><th>Velocidad</th><th>ISO</th><th>Exposímetro / ±</th></tr></thead>
+        <tbody>
+          <tr><td>Calle con escaparates y gente</td><td data-t="Diafragma">f/1,8–f/2,8</td><td data-t="Velocidad">1/125–1/250</td><td data-t="ISO">3200–6400</td><td data-t="Exposímetro / ±">−0,7</td></tr>
+          <tr><td>Cara iluminada por un escaparate</td><td data-t="Diafragma">f/2–f/2,8</td><td data-t="Velocidad">1/125</td><td data-t="ISO">1600–3200</td><td data-t="Exposímetro / ±">−0,7 a −1</td></tr>
+          <tr><td>Silueta contra una luz</td><td data-t="Diafragma">f/2,8–f/4</td><td data-t="Velocidad">1/250</td><td data-t="ISO">1600</td><td data-t="Exposímetro / ±">−1,3 a −2</td></tr>
+          <tr><td>Reflejos en charcos y cristales</td><td data-t="Diafragma">f/4–f/5,6</td><td data-t="Velocidad">1/60–1/125</td><td data-t="ISO">3200–6400</td><td data-t="Exposímetro / ±">−0,7</td></tr>
+          <tr><td>Barrido de alguien que pasa</td><td data-t="Diafragma">f/8</td><td data-t="Velocidad">1/15–1/30</td><td data-t="ISO">400–1600</td><td data-t="Exposímetro / ±">−0,3</td></tr>
+          <tr><td>Estelas de coches (cámara apoyada)</td><td data-t="Diafragma">f/8–f/11</td><td data-t="Velocidad">1/2–2 s</td><td data-t="ISO">100–200</td><td data-t="Exposímetro / ±">0 a −0,3</td></tr>
+          <tr><td>Luces de Navidad desenfocadas</td><td data-t="Diafragma">f/1,8–f/2,8</td><td data-t="Velocidad">1/125</td><td data-t="ISO">1600–3200</td><td data-t="Exposímetro / ±">−0,7</td></tr>
+        </tbody>
+      </table>
+      <p class="mano">con el objetivo del kit (f/3,5–5,6), sube un paso o dos el ISO</p>
+    </section>
+
+    <section id="escaparates">
+      <p class="antetitulo">Siluetas, reflejos y escaparates</p>
+      <h2>Lo que la noche <em>regala.</em></h2>
+
+      <h3>El escaparate como estudio</h3>
+      <p>Busca un escaparate bien iluminado y espera a que alguien se pare delante. Si estás de lado, tendrás una cara iluminada sobre un fondo oscuro, con una luz que en un estudio costaría mucho conseguir. Mide para la cara (compensa a negativo para que el fondo se vaya a negro).</p>
+
+      <h3>Siluetas contra la luz</h3>
+      <p>Lo contrario: colócate para que el escaparate, el neón o los faros queden detrás de la persona. Expón para la luz y la persona queda negra, recortada. Igual que de día, la silueta tiene que entenderse: de perfil, con aire entre las piernas, con algún objeto que cuente algo.</p>
+
+      <h3>Reflejos</h3>
+      <p>Charcos, cristales, coches mojados, la acera recién regada. De noche cualquier superficie que brilla duplica las luces. <strong>Si llueve, es un regalo:</strong> agáchate, acerca la cámara al charco y deja que el reflejo ocupe medio encuadre.</p>
+      <p class="mano">↳ en un escaparate puedes juntar en una foto lo que hay dentro, lo que se refleja y quien pasa</p>
+
+      <h3>Islas de luz</h3>
+      <p>Las farolas dejan círculos de luz en el suelo con oscuridad alrededor. Encuadra uno, espera, y dispara cuando alguien pase justo por dentro. Fuera del círculo, todo negro: la persona aparece como en un escenario.</p>
+    </section>
+
+    <section id="movimiento">
+      <p class="antetitulo">Movimiento con intención</p>
+      <h2>Cuando lo movido <em>es la foto.</em></h2>
+      <p>De noche las fotos salen movidas sin querer. La idea es que salgan movidas queriendo: que el movimiento cuente algo y que se note que es a propósito.</p>
+
+      <h3>Barrido</h3>
+      <p>Pon 1/15–1/30, elige a alguien que pase en bici, en patinete o andando rápido, síguelo con la cámara girando la cintura y dispara sin dejar de moverte. El fondo sale como rayas de luz y la persona más o menos nítida. <strong>Hacen falta muchos intentos:</strong> si te sale una de diez, vas bien.</p>
+
+      <h3>Estelas</h3>
+      <p>Con la cámara apoyada (en una barandilla, en el suelo, en la mochila) y velocidades de medio segundo a dos segundos, los faros de los coches se convierten en líneas de luz. Usa el disparador con retardo de 2 segundos para no mover la cámara al pulsar.</p>
+
+      <h3>Fantasmas</h3>
+      <p>Con la cámara apoyada a 1/4 o 1/2, todo lo quieto sale nítido y la gente que anda, transparente. Una calle llena de gente se convierte en una calle de fantasmas.</p>
+
+      <h3>Luces de Navidad desenfocadas</h3>
+      <p>Abre el diafragma al máximo, enfoca algo cercano (una persona, una rama, una mano) y deja que las luces del fondo queden fuera de foco: se convierten en círculos. Cuanto más cerca esté tu sujeto y más lejos las luces, más grandes serán los círculos. Si enfocas a mano en lo más cercano posible y no hay sujeto, la foto entera se vuelve círculos de colores.</p>
+    </section>
+
+    <section id="ejercicios">
+      <p class="antetitulo">En la calle</p>
+      <h2>Cinco <em>ejercicios.</em></h2>
+      <p>Los haremos durante el taller y te sirven para repetirlos solo cualquier noche. Márcalos cuando los tengas: se queda guardado en este móvil.</p>
+      <div class="ejercicio" data-ej="1">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">hora azul</span>
+        <h3>Calle con cielo</h3>
+        <p>Una foto de calle con gente en la que el cielo todavía sea azul y ya estén encendidas las luces. Solo hay veinte minutos: empieza por aquí.</p>
+      </div>
+      <div class="ejercicio" data-ej="2">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">escaparates</span>
+        <h3>Retrato de escaparate</h3>
+        <p>Una cara iluminada por un escaparate, con el fondo oscuro. Espera a que alguien se pare a mirar. Mide para la cara.</p>
+      </div>
+      <div class="ejercicio" data-ej="3">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">contraluz</span>
+        <h3>Silueta contra la luz</h3>
+        <p>Una persona recortada en negro contra un escaparate, un neón o unos faros. Que se entienda la forma.</p>
+      </div>
+      <div class="ejercicio" data-ej="4">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">reflejos</span>
+        <h3>El doble</h3>
+        <p>Una foto en la que el reflejo (charco, cristal, coche) sea tan importante como lo reflejado.</p>
+      </div>
+      <div class="ejercicio" data-ej="5">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">movimiento</span>
+        <h3>Barrido</h3>
+        <p>Diez intentos de barrido con alguien que pase. Quédate con el mejor. Y si hay luces de Navidad, una foto con ellas convertidas en círculos.</p>
+      </div>
+    </section>
+
+    <section id="errores">
+      <p class="antetitulo">Errores típicos</p>
+      <h2>Y cómo <em>arreglarlos.</em></h2>
+      <dl class="errores">
+        <dt>Todo sale movido</dt>
+        <dd>La velocidad ha bajado de 1/60. Sube el ISO, abre el diafragma o apóyate. No tengas miedo al grano.</dd>
+        <dt>La noche parece de día, gris y lavada</dt>
+        <dd>La cámara ha aclarado la escena. Compensa a negativo hasta que las sombras sean negras.</dd>
+        <dt>Las luces salen como manchas blancas</dt>
+        <dd>Están quemadas. Más compensación a negativo; las sombras se recuperan mejor que las luces.</dd>
+        <dt>Desenfocado aunque la cámara dice que ha enfocado</dt>
+        <dd>A f/1,8 la zona nítida es de centímetros. Cierra a f/2,8 o enfoca en el ojo o en el borde más cercano.</dd>
+        <dt>Colores raros, mitad naranja mitad verde</dt>
+        <dd>El balance automático no sabe qué hacer con tantas luces. Fíjalo en Luz de día o en 3500–4000 K y no lo toques.</dd>
+      </dl>
+    </section>
+
+    <section id="retos">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Tres retos <em>para casa.</em></h2>
+      <p class="entradilla">Lo que aprendes en una tarde se olvida en una semana si no lo repites. Estos tres retos son para hacerlos tú solo, sin prisa, en los días siguientes. Y no se quedan en tu móvil: me los mandas y te los comento uno a uno.</p>
+      <div class="enviar">
+        <h3>Cómo funciona</h3>
+        <ul>
+          <li>Debajo de cada reto tienes el botón para <strong>subir tu foto</strong>: una por reto. Mientras no la haya comentado, puedes cambiarla.</li>
+          <li>En el texto, cuéntame <strong>los ajustes que usaste</strong> (diafragma, velocidad, ISO) y qué buscabas.</li>
+          <li>Te comento cada foto: si la exposición deja la noche oscura sin quemar las luces, si el ruido o el movimiento están bien usados y qué cambiaría del encuadre. Te aviso por email cuando estén.</li>
+          <li>Mi comentario lo lees aquí mismo, debajo de tu foto, y puedes contestarme: esa conversación solo la vemos tú y yo.</li>
+          <li>No hay prisa: hazlos cuando puedas. Las fotos se guardan 90 días.</li>
+        </ul>
+        <small>Si quieres, al subirla puedes dejar que salga en el muro de Mirar Despacio. Tú decides.</small>
+      </div>
+      <div class="reto-casa ej-despues" data-n="1">
+        <span class="num">1</span>
+        <h3>Tu calle, de noche</h3>
+        <p>Fotografía la calle donde vives (o una que conozcas bien) de noche, con gente, a mano alzada y sin flash. Busca la luz que más te guste de esa calle y construye la foto alrededor de ella.</p>
+        <div class="ej-zona"></div>
+      </div>
+      <div class="reto-casa ej-despues" data-n="2">
+        <span class="num">2</span>
+        <h3>Retrato de escaparate</h3>
+        <p>Una persona iluminada por un escaparate, con el fondo oscuro. Mide para la cara. Si te da corte, empieza por alguien que conozcas.</p>
+        <div class="ej-zona"></div>
+      </div>
+      <div class="reto-casa ej-despues" data-n="3">
+        <span class="num">3</span>
+        <h3>Movimiento a propósito</h3>
+        <p>Un barrido de alguien que pasa, o una calle de "fantasmas" con la cámara apoyada. Haz muchos intentos y sube el mejor. Que se note que es a propósito.</p>
+        <div class="ej-zona"></div>
+      </div>
+    </section>
+
+    <section id="donde">
+      <p class="antetitulo">Para practicar solo</p>
+      <h2>Dónde está la luz <em>de noche.</em></h2>
+      <p>De noche no buscas oscuridad, buscas luz artificial: escaparates, letreros, farolas, faros. Algunos sitios donde sobra:</p>
+      <ul class="lista">
+        <li><strong>Gran Vía y Callao.</strong> Letreros, pantallas, escaparates enormes y gente hasta tarde. Perfecta para siluetas contra la luz y caras iluminadas por pantallas.</li>
+        <li><strong>Malasaña y Chueca.</strong> Calles estrechas con bares, neones y escaparates pequeños. El mejor sitio para el retrato de escaparate y para la luz de las puertas de los bares.</li>
+        <li><strong>Plaza Mayor y sus soportales.</strong> Farolas, arcos y círculos de luz en el suelo: islas de luz para esperar a que alguien pase. En diciembre, el mercado de Navidad.</li>
+        <li><strong>Sol, Preciados y el centro en Navidad.</strong> Luces de Navidad por todas partes: círculos desenfocados, mucha gente y mucho movimiento para barridos. Lleva la mochila por delante.</li>
+        <li><strong>Cualquier calle mojada.</strong> Cuando llueve, la ciudad entera se duplica. Busca un charco frente a un letrero o un semáforo y agáchate.</li>
+      </ul>
+      <p class="mano">Empieza siempre por la hora azul y métete después en las calles con más luz artificial: es el mismo recorrido que hacemos en el taller.</p>
+    </section>
+
+    <section id="autores">
+      <p class="antetitulo">Para mirar despacio</p>
+      <h2>Tres fotógrafos <em>que mirar.</em></h2>
+      <p>Busca su trabajo con calma, en libros o en internet. No para copiarlo: para fijarte en una sola cosa de cada uno y llevártela a la calle.</p>
+      <div class="autor">
+        <h3>Brassaï</h3>
+        <p class="que">la noche como escenario</p>
+        <p>En «París de noche» (1932) fotografió calles con niebla, farolas y personajes nocturnos cuando casi nadie lo hacía. Fíjate en cómo las farolas crean islas de luz y todo lo demás es negro.</p>
+      </div>
+      <div class="autor">
+        <h3>Daido Moriyama</h3>
+        <p class="que">grano sin miedo</p>
+        <p>Sus fotos de Tokio son granuladas, contrastadas y a veces movidas, y eso es parte de su fuerza. Fíjate en que la técnica perfecta no es lo que importa: importa la sensación.</p>
+      </div>
+      <div class="autor">
+        <h3>Greg Girard</h3>
+        <p class="que">neón y fluorescente</p>
+        <p>Fotografió durante décadas las noches de Hong Kong y Kowloon, con su mezcla de neones, fluorescentes y luz de sodio. Fíjate en cómo deja convivir colores de luz distintos en la misma foto.</p>
+      </div>
+    </section>
+
+    <section id="despues">
+      <p class="antetitulo">Después del taller</p>
+      <h2>La noche se edita <em>con cuidado.</em></h2>
+      <ul class="lista">
+        <li><strong>Elige tres.</strong> Las que mejor cuentan esa noche.</li>
+        <li><strong>No aclares de más.</strong> La tentación es levantar las sombras para "ver más". Deja que lo oscuro sea oscuro.</li>
+        <li><strong>Reduce el ruido con moderación.</strong> Un poco de grano es noche; demasiada reducción deja la piel como de plástico.</li>
+        <li><strong>Ajusta la temperatura</strong> a la sensación que quieres: cálida y cercana, o fría y urbana.</li>
+        <li>Si tienes dudas con alguna foto, escríbeme a <a href="mailto:info@mirardespacio.es">info@mirardespacio.es</a>.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="envoltura">
+      <p class="mano">de noche, la sombra también es foto</p>
+      <p>Manual del taller Callejera nocturna · Mirar Despacio · Otto Kols. Solo para quien ha hecho el taller: por favor, no lo compartas.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Ejercicios hechos: solo se guardan en este navegador
+    (function () {
+      var CLAVE = 'md-manual-nocturna';
+      var hechos = {};
+      try { hechos = JSON.parse(localStorage.getItem(CLAVE) || '{}') || {}; } catch (e) { hechos = {}; }
+      document.querySelectorAll('.ejercicio').forEach(function (el) {
+        var id = el.getAttribute('data-ej'), caja = el.querySelector('input');
+        caja.checked = !!hechos[id];
+        el.classList.toggle('hecho', caja.checked);
+        caja.addEventListener('change', function () {
+          hechos[id] = caja.checked;
+          el.classList.toggle('hecho', caja.checked);
+          try { localStorage.setItem(CLAVE, JSON.stringify(hechos)); } catch (e) { /* sin almacenamiento: no pasa nada */ }
+        });
+      });
+    })();
+  </script>
+  <script src="/js/sesion.js"></script>
+  <script src="/js/hilo.js"></script>
+  <script src="/js/ejercicios-taller.js" data-taller="nocturna"></script>
+  <script src="/js/horas-luz.js"></script>
+</body>
+</html>
