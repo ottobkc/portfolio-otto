@@ -11,7 +11,7 @@
 //  POST {accion:'enlaces', eventId, reenviar} -> manda por email su enlace a la gente de esa salida
 //        (si en la salida hay alguien marcado como "asistió", solo a los que asistieron)
 const crypto = require('crypto');
-const { getAuth } = require('firebase-admin/auth');
+const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
 const { listarUsuarios, ponerRoles, rolesPara, invitarCon } = require('../lib/identidad');
 const { enviar, esc } = require('../lib/correo');
@@ -41,8 +41,9 @@ function correoEnlace(p, ev, url) {
     titulo: 'Sube tus fotos de la salida · Mirar Despacio',
     nombre: p.name || '',
     intro: [`Gracias por venir a la salida${fecha ? ' del ' + fecha : ''}${ev.location ? ' por ' + esc(ev.location) : ''}.`,
-      'Si te apetece, sube tus fotos favoritas (hasta 5) y te digo lo que veo en cada una. Es muy sencillo: pulsas el botón, eliges las fotos del móvil o del ordenador y listo.'],
-    filas: [['🔑', 'No necesitas contraseña: el enlace es solo tuyo.'], ['💬', 'Te aviso por email cuando las comente.']],
+      'Si te apetece, sube tus fotos favoritas (hasta 5) y te digo lo que veo en cada una. Es muy sencillo: pulsas el botón, eliges las fotos del móvil o del ordenador y listo.',
+      'Una cosa importante: <strong>en el recuadro de cada foto escribe qué reto era</strong> (el nivel y el número de tu ficha, por ejemplo «Medio 7», o el número de la tarjeta del relato, por ejemplo «Relato 3»). Así sé qué estabas buscando.'],
+    filas: [['🔑', 'No necesitas contraseña: el enlace es solo tuyo.'], ['🏷️', 'Escribe en cada foto qué reto era.'], ['💬', 'Te aviso por email cuando las comente.']],
     calendario: null,
     boton: { url, texto: '📷 Subir mis fotos', antes: '' },
     cuerpo: ['Guarda este email: el mismo enlace te sirve para las próximas salidas y para ver mis comentarios.',
@@ -54,6 +55,25 @@ function correoEnlace(p, ev, url) {
 const res = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
 const accesoDe = (roles) => (roles.includes('admin') ? 'admin' : roles.includes('member') ? 'plus' : roles.includes('participante') ? 'fotos' : 'ninguno');
 
+// Enlace a la foto concreta (abre su hilo para responder)
+function enlaceFoto(f) {
+  const base = f.tipo === 'reto' ? RETOS : (f.enlace || CUADERNO);
+  return base + '#foto-' + f.id;
+}
+
+function correoRespuesta(f, texto) {
+  const html = tarjeta({
+    titulo: 'Te he respondido · Mirar Despacio',
+    nombre: (f.nombreCuenta || f.nombreMuro || '').split(' ')[0],
+    intro: [`Te he respondido en el hilo de tu foto${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''}.`],
+    filas: [['💬', esc(texto).replace(/\n/g, '<br>')]],
+    calendario: null,
+    boton: { url: enlaceFoto(f), texto: 'Ver y responder', antes: '' },
+    cuerpo: ['Puedes contestarme desde ese botón: la conversación solo la vemos tú y yo.'],
+  });
+  return { asunto: 'Te he respondido · Mirar Despacio', html, texto: aTexto(html) };
+}
+
 function correoComentario(f) {
   const enMuro = f.enMuro && f.publicable;
   const html = tarjeta({
@@ -64,9 +84,9 @@ function correoComentario(f) {
       : `He visto la foto que subiste${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''} y te he dejado un comentario.`],
     filas: [['💬', esc(f.comentario).replace(/\n/g, '<br>')]],
     calendario: null,
-    boton: f.tipo === 'reto' ? { url: RETOS, texto: 'Ver el comentario', antes: '' }
-      : { url: f.enlace || CUADERNO, texto: 'Ver el comentario', antes: '' },
+    boton: { url: enlaceFoto(f), texto: 'Ver y responder', antes: '' },
     cuerpo: [
+      'Si quieres contestarme o preguntarme algo, pulsa el botón y escríbelo en el hilo de la foto: solo lo vemos tú y yo.',
       enMuro
         ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde tu cuaderno.`
         : 'Sigue subiendo: cuantas más vea, mejor te puedo decir hacia dónde tirar.',
@@ -84,16 +104,55 @@ exports.handler = async (event, context) => {
     const fs = db(); // inicia firebase-admin
     const token = (event.headers.authorization || '').replace(/^Bearer\s+/i, '');
     let quien;
-    try { quien = await getAuth().verifyIdToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
+    try { quien = await verificarToken(token); } catch (e) { return res(401, { error: 'sesion' }); }
     if ((quien.email || '').toLowerCase() !== ADMIN) return res(403, { error: 'no-admin' });
 
     const b = JSON.parse(event.body || '{}');
+
+    if (b.accion === 'borrar-foto') {
+      const ref = fs.collection('fotos').doc(String(b.id || ''));
+      const snap = await ref.get();
+      if (!snap.exists) return res(404, { error: 'no-existe' });
+      const f = snap.data();
+      let cloudinary = 'no-aplica';
+      const m = String(f.url || '').match(/^https:\/\/res\.cloudinary\.com\/dybxateci\/image\/upload\/(?:[^/]+\/)*?(?:v\d+\/)?(.+)\.[a-z0-9]+$/i);
+      if (m && b.cloudinary !== false) {
+        const { CLOUDINARY_API_KEY: key, CLOUDINARY_API_SECRET: secret } = process.env;
+        if (!key || !secret) return res(500, { error: 'faltan-claves-cloudinary' });
+        const auth = 'Basic ' + Buffer.from(key + ':' + secret).toString('base64');
+        const r = await fetch('https://api.cloudinary.com/v1_1/dybxateci/resources/image/upload?public_ids[]=' + encodeURIComponent(decodeURIComponent(m[1])) + '&invalidate=true', { method: 'DELETE', headers: { Authorization: auth } });
+        if (!r.ok) return res(502, { error: 'cloudinary-' + r.status });
+        const j = await r.json();
+        cloudinary = Object.values(j.deleted || {})[0] || 'desconocido';
+      }
+      await ref.delete();
+      return res(200, { ok: true, cloudinary });
+    }
+
+    if (b.accion === 'responder') {
+      const ref = fs.collection('fotos').doc(String(b.id || ''));
+      const snap = await ref.get();
+      if (!snap.exists) return res(404, { error: 'no-existe' });
+      const f = { ...snap.data(), id: snap.id };
+      const texto = String(b.texto || '').replace(/\r/g, '').trim().slice(0, 1500);
+      if (!texto || !f.email) return res(400, { error: 'vacio' });
+      if ((f.hilo || []).length >= 60) return res(400, { error: 'hilo-lleno' });
+      if (f.origen === 'enlace' && f.personaId) {
+        const pRef = fs.collection('people').doc(f.personaId);
+        const pSnap = await pRef.get();
+        if (pSnap.exists) f.enlace = SUBIR + (await claveDe(pRef, pSnap.data()));
+      }
+      await ref.update({ hilo: FieldValue.arrayUnion({ de: 'otto', texto, en: Date.now(), origen: 'crm' }), sinLeer: false });
+      const c = correoRespuesta(f, texto);
+      const ok = await enviar({ para: f.email, asunto: c.asunto, html: c.html, texto: c.texto }).catch((e) => { console.error('correo respuesta', e.message); return false; });
+      return res(200, { ok: true, enviado: !!ok });
+    }
 
     if (b.accion === 'avisar') {
       const ref = fs.collection('fotos').doc(String(b.id || ''));
       const snap = await ref.get();
       if (!snap.exists) return res(404, { error: 'no-existe' });
-      const f = snap.data();
+      const f = { ...snap.data(), id: snap.id };
       if (!f.comentario || !f.email) return res(400, { error: 'sin-comentario' });
       if (f.origen === 'enlace' && f.personaId) {
         const pRef = fs.collection('people').doc(f.personaId);

@@ -80,6 +80,8 @@
     font-size: 16px;
     font-family: inherit;
   }
+  select { color-scheme: dark; }
+  option { background: var(--panel); color: var(--cream); }
   button {
     padding: 10px 14px;
     border-radius: 8px;
@@ -258,6 +260,7 @@
     <div class="tab" data-tab="ingresos">Ingresos</div>
     <div class="tab" data-tab="juego">Juego</div>
     <div class="tab" data-tab="exportar">Exportar</div>
+    <a href="galerias.html" style="padding:10px 14px;color:var(--gold);font-size:14px;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent">Galerías de clientes ↗</a>
   </div>
 
   <!-- SALIDAS LIST VIEW -->
@@ -396,8 +399,10 @@
     <div class="row" style="margin-bottom:10px;">
       <select id="fotosFiltro" onchange="renderFotos()">
         <option value="pendiente">Por comentar</option>
+        <option value="respuestas">Con respuesta nueva</option>
         <option value="comentada">Comentadas</option>
         <option value="muro">En el muro</option>
+        <option value="anonimas">Sin nombre (Anónimo)</option>
         <option value="todas">Todas</option>
       </select>
       <select id="fotosTipo" onchange="renderFotos()">
@@ -539,7 +544,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc,
-  query, orderBy, limit, where, updateDoc, serverTimestamp, getDocs
+  query, orderBy, limit, where, updateDoc, serverTimestamp, getDocs, arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -703,23 +708,72 @@ async function admin(cuerpo) {
 const mini = (url, w) => String(url || '').replace('/image/upload/', `/image/upload/c_limit,w_${w},q_auto,f_auto/`);
 const fms = t => t && t.toMillis ? t.toMillis() : 0;
 
+// Foto que llegó sin nombre (la persona del enlace no tenía nombre en el CRM)
+const esAnonima = f => !f.nombreCuenta && (!f.nombreMuro || f.nombreMuro === 'Anónimo');
+const nombreDe = p => [p.name, p.apellidos].filter(Boolean).join(' ');
+
+// Bloque para asignar la foto a una persona del CRM o ponerle un nombre
+function bloqueAsignar(f) {
+  const anon = esAnonima(f);
+  const otras = fotos.filter(x => x.id !== f.id && x.email === f.email && esAnonima(x)).length;
+  const src = people.find(p => p.id === f.personaId);
+  const opciones = people.slice().sort((a, b) => nombreDe(a).localeCompare(nombreDe(b), 'es'))
+    .map(p => `<option value="${p.id}">${escapeHtml(nombreDe(p) || '(sin nombre)')}${p.email ? ' · ' + escapeHtml(p.email) : ''}</option>`).join('');
+  return `<details style="margin:8px 0;" ${anon ? 'open' : ''}>
+    <summary class="person-meta" style="cursor:pointer;">${anon ? '⚠️ Sin nombre · asignarla a una persona' : '✏️ Cambiar la persona o el nombre'}</summary>
+    <div class="row" style="margin-top:6px;align-items:center;">
+      <select id="asig-${f.id}"><option value="">Elegir persona del CRM…</option>${opciones}</select>
+      <input type="text" id="asigNom-${f.id}" placeholder="o escribe un nombre" style="flex:1;">
+    </div>
+    ${otras ? `<label class="person-meta" style="display:block;margin-top:6px;"><input type="checkbox" id="asigOtras-${f.id}" checked> Aplicarlo también a sus otras ${otras} foto(s) sin nombre</label>` : ''}
+    ${src && !src.name ? `<label class="person-meta" style="display:block;margin-top:6px;"><input type="checkbox" id="asigFicha-${f.id}" checked> Si escribo un nombre, guardarlo también en la ficha de ${escapeHtml(src.email || 'esta persona')}</label>` : ''}
+    <div class="row" style="margin-top:6px;"><button class="small" onclick="asignarFoto('${f.id}')">Asignar</button></div>
+  </details>`;
+}
+
+window.asignarFoto = async function(id) {
+  const f = fotos.find(x => x.id === id); if (!f) return;
+  const pid = document.getElementById('asig-' + id).value;
+  const escrito = document.getElementById('asigNom-' + id).value.trim();
+  if (!pid && !escrito) { alert('Elige una persona del CRM o escribe un nombre.'); return; }
+  const p = pid ? people.find(x => x.id === pid) : null;
+  const nombre = p ? nombreDe(p) : escrito;
+  if (!nombre) { alert('Esa persona no tiene nombre en el CRM: escribe uno a mano.'); return; }
+  const otras = document.getElementById('asigOtras-' + id);
+  const ficha = document.getElementById('asigFicha-' + id);
+  const objetivo = otras && otras.checked ? fotos.filter(x => x.id === id || (x.email === f.email && esAnonima(x))) : [f];
+  const cambios = { nombreMuro: nombre, nombreCuenta: nombre, asignadaEn: serverTimestamp() };
+  if (p) { cambios.personaId = p.id; if (p.email) cambios.email = String(p.email).toLowerCase(); }
+  setSyncStatus('Guardando…');
+  try {
+    for (const x of objetivo) await updateDoc(doc(db, 'fotos', x.id), cambios);
+    if (!p && ficha && ficha.checked && f.personaId) await setDoc(doc(db, 'people', f.personaId), { name: nombre }, { merge: true });
+    setSyncStatus(`Asignada a ${nombre} (${objetivo.length} foto${objetivo.length === 1 ? '' : 's'}) ✓`);
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
 window.renderFotos = function() {
   const el = document.getElementById('fotosList');
   if (!el) return;
   const pend = fotos.filter(f => f.estado === 'pendiente');
   const b = document.getElementById('fotosPendientes');
-  b.style.display = pend.length ? '' : 'none'; b.textContent = pend.length;
+  const conResp = fotos.filter(f => f.sinLeer);
+  b.style.display = (pend.length + conResp.length) ? '' : 'none'; b.textContent = pend.length + conResp.length;
   document.getElementById('fPend').textContent = pend.length;
   document.getElementById('fCom').textContent = fotos.filter(f => f.estado === 'comentada').length;
   document.getElementById('fMuro').textContent = fotos.filter(f => f.enMuro).length;
   document.getElementById('fGente').textContent = new Set(fotos.map(f => f.email)).size;
   const filtro = document.getElementById('fotosFiltro').value;
   const q = (document.getElementById('fotosBuscar').value || '').toLowerCase();
-  let lista = fotos.filter(f => filtro === 'todas' ? true : filtro === 'muro' ? f.enMuro : f.estado === filtro);
+  let lista = fotos.filter(f => filtro === 'todas' ? true : filtro === 'muro' ? f.enMuro : filtro === 'anonimas' ? esAnonima(f) : filtro === 'respuestas' ? !!f.sinLeer : f.estado === filtro);
   const tipo = document.getElementById('fotosTipo').value;
   if (tipo) lista = lista.filter(f => (f.tipo === 'reto') === (tipo === 'reto'));
   if (q) lista = lista.filter(f => [f.nombreMuro, f.nombreCuenta, f.email, f.refNombre].join(' ').toLowerCase().includes(q));
   lista.sort((a, b) => filtro === 'pendiente' ? fms(a.creada) - fms(b.creada) : fms(b.creada) - fms(a.creada));
+  // Lo que estás escribiendo o marcando (comentario, "Al muro", "Destacada") se conserva
+  // aunque la lista se redibuje porque llegue otra foto o se guarde otra.
+  const pendiente = {};
+  el.querySelectorAll('[id^="com-"],[id^="muro-"],[id^="dest-"],[id^="resp-"]').forEach(x => { pendiente[x.id] = x.type === 'checkbox' ? x.checked : x.value; });
   el.innerHTML = lista.length ? '' : '<div class="empty">Nada por aquí</div>';
   lista.forEach(f => {
     const otras = fotos.filter(x => x.email === f.email).length;
@@ -729,10 +783,11 @@ window.renderFotos = function() {
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;" class="foto-crm">
         ${f.archivada ? '<div class="empty">Imagen archivada (limpieza automática)</div>' : `<a href="${escapeHtml(f.url)}" target="_blank"><img src="${escapeHtml(mini(f.url, 700))}" style="width:100%;display:block;border-radius:6px;" loading="lazy"></a>`}
         <div>
-          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''}</div>
+          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''} ${f.sinLeer ? '<span class="badge" style="background:#1a7f4b;">💬 respuesta nueva</span>' : ''}</div>
           <div class="person-meta">${escapeHtml(f.refNombre || '')} · ${fechaTxt(fechaDe(f.creada))} · ${otras} foto(s) suyas · ${f.origen === 'enlace' ? 'por enlace' : 'con cuenta'}</div>
           <div class="person-meta">Firma en el muro: ${escapeHtml(f.nombreMuro || '')} · ${f.publicable ? 'permite el muro' : '<b>no quiere salir en el muro</b>'}${f.tipo === 'reto' ? ' · ' + (f.compartir ? 'la ven los miembros' : 'no la comparte con los miembros') : ''}</div>
-          ${f.texto ? `<p style="font-style:italic;margin:8px 0;">“${escapeHtml(f.texto)}”</p>` : ''}
+          ${f.texto ? `<p style="margin:8px 0;"><span class="person-meta">Reto / nota:</span> <em>“${escapeHtml(f.texto)}”</em></p>` : '<div class="person-meta" style="margin:8px 0;">No ha dicho de qué reto es.</div>'}
+          ${bloqueAsignar(f)}
           <textarea id="com-${f.id}" rows="4" placeholder="Tu comentario…" style="width:100%;margin-top:6px;">${escapeHtml(f.comentario || '')}</textarea>
           <div class="row" style="align-items:center;margin-top:6px;">
             <label class="person-meta"><input type="checkbox" id="muro-${f.id}" ${f.enMuro || (f.estado === 'pendiente' && f.publicable) ? 'checked' : ''} ${f.publicable ? '' : 'disabled'}> Al muro</label>
@@ -744,10 +799,66 @@ window.renderFotos = function() {
             <button class="small danger" onclick="borrarFoto('${f.id}')">✕</button>
           </div>
           ${f.avisadoEn ? `<div class="person-meta">Avisado: ${fechaTxt(fechaDe(f.avisadoEn))}</div>` : ''}
+          ${bloqueHilo(f)}
         </div>
       </div>`;
     el.appendChild(div);
   });
+  Object.entries(pendiente).forEach(([id, v]) => {
+    const x = document.getElementById(id);
+    if (!x) return;
+    if (x.type === 'checkbox') { if (!x.disabled) x.checked = v; } else x.value = v;
+  });
+};
+
+// Hilo privado de cada foto comentada (solo lo ven la persona dueña de la foto y tú)
+const fechaHilo = ms => { const d = new Date(ms); return isNaN(d) ? '' : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); };
+function bloqueHilo(f) {
+  if (!f.comentario) return '';
+  const msgs = (f.hilo || []).map(m => `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;white-space:pre-line;color:#1a1814;${m.de === 'otto' ? 'background:#fdecf3;border-left:3px solid #e8347a;' : 'background:#f0eee9;margin-left:24px;'}"><span class="person-meta" style="color:#6b655a;">${m.de === 'otto' ? 'Tú' : escapeHtml(f.nombreCuenta || f.nombreMuro || 'Ella/él')} · ${fechaHilo(m.en)}${m.origen === 'correo' ? ' · por correo' : ''}</span><br>${escapeHtml(m.texto)}</div>`).join('');
+  return `<div style="margin-top:10px;border-top:1px dashed #cfc9bd;padding-top:8px;">
+    <div class="person-meta"><b>Hilo con ${escapeHtml((f.nombreCuenta || f.nombreMuro || 'esta persona').split(' ')[0])}</b> (solo lo veis vosotros dos)${f.sinLeer ? ` · <a href="#" onclick="marcarLeida('${f.id}');return false;">marcar como leída</a>` : ''}</div>
+    ${msgs}
+    <textarea id="resp-${f.id}" rows="3" placeholder="Escribe aquí: «Enviar respuesta» se lo manda por email y queda en su cuaderno…" style="width:100%;margin-top:6px;"></textarea>
+    <div class="row" style="margin-top:6px;">
+      <button onclick="enviarRespuesta('${f.id}')">Enviar respuesta</button>
+      <button class="secondary" onclick="anadirRecibida('${f.id}')" title="Pega arriba lo que te contestó por correo y pulsa aquí: se añade al hilo como suyo">Añadir lo que contestó por correo</button>
+    </div></div>`;
+}
+
+window.enviarRespuesta = async function(id) {
+  const ta = document.getElementById('resp-' + id);
+  const texto = (ta.value || '').trim();
+  if (!texto) { alert('Escribe la respuesta.'); return; }
+  setSyncStatus('Enviando…');
+  ta.value = '';   // se vacía ya: si la lista se redibuja, no reaparece el texto
+  try {
+    const r = await admin({ accion: 'responder', id, texto });
+    setSyncStatus(r && r.enviado === false ? 'Guardada en el hilo, pero el email no ha salido' : 'Respuesta enviada ✓ (email + hilo)', r && r.enviado === false);
+  } catch (e) { const t2 = document.getElementById('resp-' + id); if (t2) t2.value = texto; setSyncStatus('Error: ' + e.message, true); }
+};
+
+// Una respuesta que te llegó por correo antes de que existiera el hilo: se pega y se añade como suya
+window.anadirRecibida = async function(id) {
+  const ta = document.getElementById('resp-' + id);
+  const texto = (ta.value || '').trim();
+  if (!texto) { alert('Pega primero arriba lo que te contestó por correo.'); return; }
+  const f = fotos.find(x => x.id === id);
+  const dia = prompt('¿Qué día te escribió? (dd/mm/aaaa). Déjalo vacío si fue hoy.', '');
+  if (dia === null) return;
+  let en = Date.now();
+  const m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/.exec((dia || '').trim());
+  if (m) { const a = +m[3] < 100 ? 2000 + +m[3] : +m[3]; en = new Date(a, +m[2] - 1, +m[1], 12).getTime(); }
+  setSyncStatus('Guardando…');
+  ta.value = '';
+  try {
+    await updateDoc(doc(db, 'fotos', id), { hilo: arrayUnion({ de: 'persona', texto, en, origen: 'correo' }), sinLeer: false });
+    setSyncStatus('Añadida al hilo ✓');
+  } catch (e) { const t2 = document.getElementById('resp-' + id); if (t2) t2.value = texto; setSyncStatus('Error: ' + e.message, true); }
+};
+
+window.marcarLeida = async function(id) {
+  try { await updateDoc(doc(db, 'fotos', id), { sinLeer: false }); } catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 window.guardarComentario = async function(id, avisar) {
@@ -762,13 +873,18 @@ window.guardarComentario = async function(id, avisar) {
       ...(f.estado === 'pendiente' ? { comentadaEn: serverTimestamp() } : {}),
     });
     if (avisar) await admin({ accion: 'avisar', id });
-    setSyncStatus(avisar ? 'Guardado y avisado ✓' : 'Guardado ✓');
+    const mur = enMuro ? ' · en el muro' : (f.publicable ? ' · no está en el muro' : ' · no permite el muro');
+    setSyncStatus((avisar ? 'Guardado y avisado ✓' : 'Guardado ✓') + mur);
   } catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 window.borrarFoto = async function(id) {
-  if (!confirm('¿Borrar esta foto del cuaderno? (La imagen sigue en Cloudinary, carpeta del cuaderno.)')) return;
-  await deleteDoc(doc(db, 'fotos', id));
+  if (!confirm('¿Borrar esta foto? Se elimina del CRM y también de Cloudinary (no se puede deshacer).')) return;
+  try {
+    setSyncStatus('Borrando…');
+    const r = await admin({ accion: 'borrar-foto', id });
+    setSyncStatus(r && r.cloudinary === 'not_found' ? 'Borrada (ya no estaba en Cloudinary) ✓' : 'Borrada del CRM y de Cloudinary ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 function renderRetos() {
@@ -845,7 +961,7 @@ window.copiarEnlaceFotos = async function(personId) {
   try {
     const r = await admin({ accion: 'enlace', personId });
     const p = people.find(x => x.id === personId);
-    const texto = `Hola ${p && p.name ? p.name : ''}, aquí puedes subir tus fotos de la salida y te las comento: ${r.url}`;
+    const texto = `Hola ${p && p.name ? p.name : ''}, aquí puedes subir tus fotos de la salida y te las comento: ${r.url}\n\nEn cada foto escribe qué reto era (por ejemplo «Medio 7» o «Relato 3») para que sepa qué estabas buscando.`;
     await navigator.clipboard.writeText(texto).catch(() => prompt('Copia el mensaje:', texto));
     setSyncStatus('Enlace copiado ✓');
   } catch (e) { setSyncStatus('Error: ' + e.message, true); }
@@ -1476,6 +1592,7 @@ window.createPersonDirect = async function() {
 };
 
 // ---------- PEOPLE VIEW ----------
+window.renderPeople = renderPeople; // lo usan el buscador y el filtro (oninput/onchange)
 function renderPeople() {
   const search = (document.getElementById('searchPeople')?.value || '').toLowerCase();
   const el = document.getElementById('peopleList');

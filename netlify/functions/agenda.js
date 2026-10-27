@@ -19,8 +19,8 @@ async function leer(nombre) {
   } catch (e) { return {}; }
 }
 
-async function eventos(anticipadas) {
-  const k = anticipadas ? 'a' : 'p';
+async function eventos(anticipadas, pasadas) {
+  const k = (anticipadas ? 'a' : 'p') + (pasadas ? 'x' : '');
   if (cache && cache.k === k && Date.now() - cache.t < 120e3) return cache.e;
   const [s, t] = await Promise.all([leer('salidas-data.json'), leer('talleres-data.json')]);
   const ahora = Date.now();
@@ -44,6 +44,25 @@ async function eventos(anticipadas) {
     lista.push({ id: 'taller-' + e.id, tipo: 'taller', titulo: 'Taller · ' + (tl.titulo || e.taller), zona: e.zona || '',
       inicio: ini.toISOString(), fin: fin.toISOString(), url: BASE + 'talleres/#' + (e.taller || ''), precio: tl.precio || null });
   });
+  if (pasadas) {
+    // Ya hechas: salidas con fechaISO en la lista "salidas" y ediciones de talleres ya pasadas (solo para mostrar, sin apuntarse)
+    const vistos = new Set(lista.map((e) => e.id));
+    (s.salidas || []).filter((x) => x.fechaISO).forEach((x) => {
+      const ini = new Date(x.fechaISO);
+      if (isNaN(ini) || ini.getTime() > ahora) return;
+      const id = 'salida-' + x.fechaISO.slice(0, 10);
+      if (vistos.has(id)) return;
+      lista.push({ id, tipo: 'salida', pasada: true, titulo: 'Salida' + (x.titulo ? ' · ' + x.titulo : ''), zona: x.titulo || '',
+        inicio: ini.toISOString(), fin: new Date(ini.getTime() + 3 * 3600e3).toISOString(), url: BASE + 'salidas/' });
+    });
+    (t.ediciones || []).filter((e) => e.activa && e.fechaISO).forEach((e) => {
+      const tl = talleres[e.taller] || {};
+      const ini = new Date(e.fechaISO);
+      if (isNaN(ini) || ini.getTime() >= ahora) return;
+      lista.push({ id: 'taller-' + e.id, tipo: 'taller', pasada: true, titulo: 'Taller · ' + (tl.titulo || e.taller), zona: e.zona || '',
+        inicio: ini.toISOString(), fin: ini.toISOString(), url: '' });
+    });
+  }
   lista.sort((a, b) => a.inicio.localeCompare(b.inicio));
   cache = { t: Date.now(), e: lista, k };
   return lista;
@@ -67,7 +86,7 @@ function ics(lista) {
 exports.handler = async (event) => {
   const o = event.headers.origin || '';
   const qs = event.queryStringParameters || {};
-  const lista = await eventos(!!qs.anticipadas && qs.formato !== 'ics');
+  const lista = await eventos(!!qs.anticipadas && qs.formato !== 'ics', !!qs.pasadas && qs.formato !== 'ics');
   if (qs.formato === 'ics') {
     return { statusCode: 200, headers: { 'Content-Type': 'text/calendar; charset=utf-8', 'Cache-Control': 'public, max-age=1800',
       'Content-Disposition': 'inline; filename="mirar-despacio.ics"' }, body: ics(lista) };

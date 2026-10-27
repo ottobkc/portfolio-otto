@@ -5,18 +5,26 @@
   },
   "proximas": [
     {
-      "fecha": "11 de Octubre",
-      "zona": "Huertas",
+      "fecha": "15 de Noviembre",
+      "zona": "Monocalle Gran Vía",
       "hora": "10:00",
       "activa": true,
-      "fechaISO": "2026-10-11T10:00:00+02:00"
+      "fechaISO": "2026-11-15T10:00:00+01:00"
     }
   ],
   "salidas": [
     {
+      "titulo": "Huertas",
+      "fecha": "Octubre 2026",
+      "tag": "salida-4",
+      "fechaISO": "2026-10-11T10:00:00+02:00",
+      "fotos": []
+    },
+    {
       "titulo": "Tribunal y Chueca",
       "fecha": "Septiembre 2026",
       "tag": "salida-3",
+      "fechaISO": "2026-09-06T10:00:00+02:00",
       "fotos": [
         "https://res.cloudinary.com/dybxateci/image/upload/v1790700522/salida-3_1_ubvsvl.jpg",
         "https://res.cloudinary.com/dybxateci/image/upload/v1790700523/salida-3_2_hmbhgq.jpg",
@@ -30,6 +38,7 @@
       "titulo": "Malasaña",
       "fecha": "Agosto 2026",
       "tag": "salida-2",
+      "fechaISO": "2026-08-02T10:00:00+02:00",
       "fotos": [
         "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8245_mcpqek.jpg",
         "https://res.cloudinary.com/dybxateci/image/upload/v1785693102/IMG_8218_zm0gde.jpg",
@@ -44,6 +53,7 @@
       "titulo": "Barrio de las Letras",
       "fecha": "Junio 2026",
       "tag": "salida-1",
+      "fechaISO": "2026-06-28T10:00:00+02:00",
       "fotos": [
         "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida1_pg2n03.jpg",
         "https://res.cloudinary.com/dybxateci/image/upload/v1782743935/salida3_chxjef.jpg",

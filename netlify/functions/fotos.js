@@ -161,9 +161,11 @@ async function constancia(fs, lista, yo, mapa) {
   return filas.map(({ visible, ...x }) => x).slice(0, 40);
 }
 
-const publica = (f, mapa = {}) => ({
-  retos: (mapa[f.email] || {}).retos || 0, racha: (mapa[f.email] || {}).racha || 0,
-  id: f.id, nombre: f.nombreMuro || 'Anónimo', url: mini(f.url, 1000), grande: mini(f.url, 1800),
+// Miniatura cuadrada para la cuadrícula del muro
+const cuadrada = (url, lado) => String(url || '').replace('/image/upload/', `/image/upload/c_fill,g_auto,w_${lado},h_${lado},q_auto,f_auto/`);
+
+const publica = (f) => ({
+  id: f.id, nombre: f.nombreMuro || 'Anónimo', url: cuadrada(f.url, 560), grande: mini(f.url, 1800),
   ancho: f.ancho || null, alto: f.alto || null, comentario: f.comentario || '', donde: f.refNombre || '',
   tipo: f.tipo, destacada: !!f.destacada, fecha: ms(f.comentadaEn),
 });
@@ -195,10 +197,13 @@ exports.handler = async (event, context) => {
       const lista = q.docs.map((d) => ({ id: d.id, ...d.data() }))
         .filter((f) => f.publicable)
         .sort((a, b) => (b.destacada - a.destacada) || (ms(b.comentadaEn) - ms(a.comentadaEn)))
-        .slice(0, 90);
-      const mapaMuro = await logros(fs, await retos(fs));
-      lista.splice(0, lista.length, ...lista.map((f) => publica(f, mapaMuro)));
-      return res(h, 200, lista, { 'Cache-Control': 'public, max-age=120' });
+        .slice(0, 90)
+        .map(publica);
+      // Datos públicos: sin Vary por origen y con caché en la CDN (5 min, y sirve la anterior mientras se refresca)
+      return res({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, 200, lista, {
+        'Cache-Control': 'public, max-age=60',
+        'Netlify-CDN-Cache-Control': 'public, s-maxage=300, stale-while-revalidate=86400',
+      });
     }
 
     let cuerpo = {};
@@ -243,8 +248,11 @@ exports.handler = async (event, context) => {
           grande: mini(f.url, 1800), texto: f.texto || '', estado: f.estado, comentario: f.comentario || '',
           enMuro: !!f.enMuro, publicable: !!f.publicable, compartir: !!f.compartir, destacada: !!f.destacada,
           nombreMuro: f.nombreMuro || '', creada: ms(f.creada), comentadaEn: ms(f.comentadaEn),
+          hilo: (f.hilo || []).map((m) => ({ de: m.de, texto: m.texto, en: m.en })),
         })),
-        ...(yo.plus ? calcularRacha(lista, mias, (await pausasPorEmail(fs))[yo.email]) : {}),
+        // Quien fue de MD+ y ya no lo es: ve sus retos, medallas y racha en solo lectura (todo queda en pausa)
+        exMiembro: !yo.plus && mias.some((f) => f.tipo === 'reto'),
+        ...(yo.plus || mias.some((f) => f.tipo === 'reto') ? calcularRacha(lista, mias, (await pausasPorEmail(fs))[yo.email]) : {}),
         limites: { porSalida: POR_SALIDA, pendientes: PENDIENTES_MAX, mb: MAX_BYTES / 1048576 },
       });
     }
@@ -263,7 +271,7 @@ exports.handler = async (event, context) => {
 
     if (b.accion === 'avisos' && yo.plus) {
       await fs.collection('preferencias').doc(yo.email).set({ sinAvisosRetos: !b.valor, cambiado: FieldValue.serverTimestamp() }, { merge: true });
-      return res(200, { ok: true });
+      return res(h, 200, { ok: true });
     }
 
     if (b.accion === 'borrar' || b.accion === 'publicable' || b.accion === 'compartir') {
@@ -278,6 +286,31 @@ exports.handler = async (event, context) => {
       } else {
         const valor = !!b.valor;
         await ref.update({ publicable: valor, ...(valor ? {} : { enMuro: false }) });
+      }
+      return res(h, 200, { ok: true });
+    }
+
+    // Respuesta de la persona en el hilo de una de sus fotos comentadas (solo ella y Otto lo ven)
+    if (b.accion === 'responder') {
+      const ref = fs.collection('fotos').doc(String(b.id || ''));
+      const snap = await ref.get();
+      if (!snap.exists || snap.data().email !== yo.email) return res(h, 404, { error: 'no-existe' });
+      const f = snap.data();
+      if (!f.comentario) return res(h, 400, { error: 'sin-comentario' });
+      const texto = String(b.texto || '').replace(/\r/g, '').trim().slice(0, 1500);
+      if (!texto) return res(h, 400, { error: 'vacio' });
+      if ((f.hilo || []).length >= 60) return res(h, 400, { error: 'hilo-lleno' });
+      await ref.update({ hilo: FieldValue.arrayUnion({ de: 'persona', texto, en: Date.now(), origen: 'web' }), sinLeer: true, respondidoEn: FieldValue.serverTimestamp() });
+      const para = process.env.AVISO_A || remitente();
+      if (para) {
+        await conLimite(enviar({
+          para, asunto: `💬 Respuesta en una foto · ${f.nombreMuro || yo.nombre || yo.email}`,
+          html: `<p><strong>${esc(f.nombreMuro || yo.nombre || '')}</strong> (${esc(yo.email)}) ha respondido en el hilo de su foto${f.refNombre ? ` de <em>${esc(f.refNombre)}</em>` : ''}:</p>
+            <blockquote style="border-left:3px solid #e8347a;margin:12px 0;padding-left:12px;">${esc(texto).replace(/\n/g, '<br>')}</blockquote>
+            <p><img src="${mini(f.url, 600)}" width="300" style="max-width:100%;height:auto;"></p>
+            <p>Contéstale desde el CRM, pestaña Fotos.</p>`,
+          texto: `${f.nombreMuro || yo.email} ha respondido en su foto: ${texto}\n\nContéstale desde el CRM, pestaña Fotos.`,
+        }).catch((e) => console.error('aviso respuesta', e.message)), 4000);
       }
       return res(h, 200, { ok: true });
     }

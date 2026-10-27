@@ -1,5 +1,6 @@
 # Contenido de cada página de mirardespacio.es. Lo llama generar.py.
 import json, html
+from episodios import ruta_ep, construir_episodios
 
 EPISODIOS_T1 = [
     (1, "Qué es para mí la fotografía callejera (y por qué nos da miedo mirar)", ""),
@@ -159,7 +160,7 @@ def construir(g):
 
     # ------------------------------------------------------------ PODCAST
     lista = '\n'.join(
-        f'''          <li class="episodio"><span class="n">{n}</span><div><h3>{f'<a href="{EPISODIO_URL[n]}">{t}</a>' if EPISODIO_URL.get(n) else t}</h3>{f"<p>{d}</p>" if d else ""}</div></li>'''
+        f'''          <li class="episodio"><span class="n">{n}</span><div><h3>{f'<a href="{ruta_ep(n, t)}">{t}</a>' if EPISODIO_URL.get(n) else t}</h3>{f"<p>{d}</p>" if d else ""}{f'<p class="etiqueta"><a href="{ruta_ep(n, t)}">Ver episodio</a> · <a href="{EPISODIO_URL[n]}">Spotify</a></p>' if EPISODIO_URL.get(n) else ""}</div></li>'''
         for n, t, d in EPISODIOS_T1)
     plataformas = ''.join(f'<a class="boton{" color" if i == 0 else " claro"}" href="{u}" data-umami-event="podcast-{nombre.lower().split()[0]}">{nombre}</a>'
                           for i, (nombre, u) in enumerate([x for x in PLATAFORMAS if x[1]]))
@@ -201,12 +202,14 @@ def construir(g):
         "webFeed": SPOTIFY, "author": {"@type": "Person", "name": "Otto Kols"},
         "publisher": {"@id": DOM + "/#org"}, "sameAs": [u for _, u in PLATAFORMAS if u],
         "hasPart": [dict({"@type": "PodcastEpisode", "episodeNumber": n, "name": t,
-                     "partOfSeason": {"@type": "PodcastSeason", "seasonNumber": 1}}, **({"url": EPISODIO_URL[n]} if EPISODIO_URL.get(n) else {})) for n, t, _ in EPISODIOS_T1],
+                     "partOfSeason": {"@type": "PodcastSeason", "seasonNumber": 1}}, **({"url": DOM + ruta_ep(n, t)} if EPISODIO_URL.get(n) else {})) for n, t, _ in EPISODIOS_T1],
     }
     podcast_schema.pop("webFeed")  # sin RSS público conocido todavía
     escribir('/podcast/', pagina('/podcast/', 'Podcast de fotografía callejera · Mirar Despacio',
         'Mirar Despacio, el podcast en español sobre fotografía callejera: miedo a mirar, ética en la calle, publicar, estilo propio. Episodios cortos para escuchar paseando.',
         cuerpo, schema=[podcast_schema]))
+
+    construir_episodios(g, EPISODIOS_T1, EPISODIO_URL, PLATAFORMAS)
 
     # ------------------------------------------------------------ SALIDAS
     cuerpo = f'''
@@ -674,14 +677,14 @@ def construir(g):
 
     # ------------------------------------------------------------ MURO
     cuerpo = """
-    <section class="portada">
+    <section class="portada portada-muro">
       <div class="envoltura">
         <p class="antetitulo">Fotos de la comunidad</p>
         <h1>El <em>muro.</em></h1>
         <p class="entradilla">Fotos de la gente que viene a las salidas por Madrid y de los retos mensuales de Mirar Despacio+, que se hacen desde cualquier sitio. Cada una con lo que vi en ella.</p>
       </div>
     </section>
-    <section class="seccion">
+    <section class="seccion seccion-muro">
       <div class="envoltura">
         <div class="muro-filtros" id="muroFiltros" hidden>
           <button type="button" data-f="" aria-pressed="true">Todas</button><button type="button" data-f="salida" aria-pressed="false">Salidas</button><button type="button" data-f="reto" aria-pressed="false">Retos del mes</button>
@@ -702,7 +705,8 @@ def construir(g):
     </section>"""
     escribir('/muro/', pagina('/muro/', 'El muro · Fotos de la comunidad de Mirar Despacio',
         'Fotos de calle de la gente que viene a las salidas de Mirar Despacio en Madrid y de los miembros de Mirar Despacio+, con los comentarios de Otto.',
-        cuerpo, extra_pie=MURO_JS))
+        cuerpo, extra_pie=MURO_JS,
+        extra_head='<link rel="preconnect" href="https://ottokols.es">\n  <link rel="preconnect" href="https://res.cloudinary.com">'))
 
     # ------------------------------------------------------------ JUEGO
     cuerpo = """
@@ -754,9 +758,8 @@ TALLERES_JS = '''
   <script src="/assets/talleres.js"></script>'''
 AGENDA_JS = '''
   <script src="https://ottokols.es/js/agenda.js"></script>
-  <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8 });</script>'''
+  <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8, pasadas: true });</script>'''
 MURO_JS = '''
-  <script src="https://ottokols.es/js/medallas.js"></script>
   <script src="/assets/muro.js"></script>'''
 JUEGO_JS = '''
   <script src="/assets/monturas.js"></script>

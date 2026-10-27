@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Galerías de clientes — CRM</title>
+<meta name="theme-color" content="#1a1814">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root { --ink:#1a1814; --panel:#23201b; --panel-2:#2c2822; --cream:#f5f3ef; --gold:#c8a97a; --dim:#a8a49c; --danger:#d98a73; --ok:#8fb894; --naranja:#e8821a; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--ink); color: var(--cream); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; }
+  body { padding: calc(20px + env(safe-area-inset-top)) 14px 80px; }
+  .app { max-width: 980px; margin: 0 auto; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-size: 24px; font-weight: 400; margin: 0 0 2px; }
+  h2 { font-family: Georgia, "Times New Roman", serif; font-size: 20px; font-weight: 400; margin: 0; }
+  .subtitle { color: var(--dim); font-size: 13px; margin-bottom: 18px; }
+  .subtitle a { color: var(--gold); }
+  .card { background: var(--panel); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .card-title { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin-bottom: 10px; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 4px; }
+  input, select, textarea { width: 100%; padding: 10px 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: var(--cream); font-size: 16px; font-family: inherit; }
+  textarea { min-height: 120px; font-size: 14px; }
+  button { padding: 10px 14px; border-radius: 8px; border: none; background: var(--gold); color: var(--ink); font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+  button:disabled { opacity: .45; cursor: default; }
+  button.secondary { background: transparent; border: 1px solid rgba(255,255,255,.22); color: var(--cream); }
+  button.danger { background: transparent; border: 1px solid rgba(217,138,115,.5); color: var(--danger); }
+  button.small { padding: 6px 10px; font-size: 12px; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 160px; }
+  .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+  .dim { color: var(--dim); font-size: 13px; }
+  .err { color: var(--danger); font-size: 13px; }
+  .ok { color: var(--ok); font-size: 13px; }
+  .mono { font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+
+  .item { background: var(--panel); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; color: var(--cream); font-weight: 400; }
+  .item:hover { background: var(--panel-2); }
+  .item .nombre { font-weight: 500; }
+  .chip { font-size: 11px; padding: 3px 8px; border-radius: 99px; white-space: nowrap; border: 1px solid currentColor; }
+  .chip.seleccion { color: var(--gold); }
+  .chip.enviada { color: var(--naranja); background: rgba(232,130,26,.12); }
+  .chip.entregada { color: var(--ok); }
+  .chip.caducada { color: var(--dim); }
+
+  .pasos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
+  .paso { border-top: 3px solid rgba(255,255,255,.12); padding-top: 6px; font-size: 12px; color: var(--dim); }
+  .paso.hecho { border-color: var(--ok); color: var(--cream); }
+  .paso.ahora { border-color: var(--gold); color: var(--gold); }
+
+  .zona { border: 1.5px dashed rgba(255,255,255,.25); border-radius: 12px; padding: 22px 14px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .zona.encima { border-color: var(--gold); background: rgba(200,169,122,.07); }
+  .barra { height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden; width: 100%; }
+  .barra div { height: 100%; background: var(--gold); width: 0; transition: width .2s; }
+
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; margin-top: 12px; }
+  .foto { position: relative; background: #000; border-radius: 6px; overflow: hidden; }
+  .foto img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .foto.elegida { outline: 3px solid var(--naranja); outline-offset: -3px; }
+  .foto .pie { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 4px; background: linear-gradient(transparent, rgba(0,0,0,.7)); font-size: 10px; font-family: ui-monospace, Menlo, monospace; }
+  .foto .pie button { padding: 2px 6px; font-size: 11px; background: rgba(0,0,0,.6); color: var(--cream); border-radius: 4px; }
+  .foto .portada-tag { position: absolute; top: 4px; left: 4px; font-size: 10px; background: var(--gold); color: var(--ink); padding: 1px 6px; border-radius: 4px; }
+  .lista-finales { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .final { display: flex; align-items: center; gap: 10px; background: var(--panel-2); border-radius: 8px; padding: 6px; }
+  .final img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; background: #000; }
+  .final .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+  .copiar { background: var(--panel-2); border-radius: 8px; padding: 10px 12px; font-size: 13px; white-space: pre-wrap; word-break: break-word; margin-bottom: 8px; user-select: all; }
+  .confirma { border: 1px solid rgba(217,138,115,.5); border-radius: 10px; padding: 12px; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  #loginScreen { max-width: 360px; margin: 80px auto; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<div id="loginScreen" hidden>
+  <h1>Galerías de clientes</h1>
+  <p class="subtitle">Entra con la cuenta del CRM.</p>
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" autocomplete="username">
+    <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
+    <button type="submit" style="width:100%">Entrar</button>
+    <p id="loginError" class="err"></p>
+  </form>
+</div>
+
+<div id="panel" hidden>
+  <h1>Galerías de clientes</h1>
+  <p class="subtitle"><a href="./">← Volver al CRM</a> · <span id="estadoServicios"></span></p>
+
+  <!-- LISTA -->
+  <section id="vistaLista">
+    <div class="card">
+      <div class="card-title">Nueva galería</div>
+      <form id="formNueva">
+        <div class="row">
+          <div><label for="nTitulo">Clientes (como lo verán)</label><input id="nTitulo" placeholder="Ana &amp; Martín" required></div>
+          <div><label for="nSub">Sesión, lugar y fecha</label><input id="nSub" placeholder="Pedida · Parterre del Retiro · 10.10.2026"></div>
+        </div>
+        <div class="row">
+          <div><label for="nMax">Fotos que pueden elegir</label>
+            <select id="nMax"><option value="8">8 · Natural</option><option value="15" selected>15 · Estudio / pedida</option><option value="20">20 · Completo</option><option value="otro">Otro número…</option></select></div>
+          <div id="nMaxOtroCaja" hidden><label for="nMaxOtro">Número de fotos</label><input id="nMaxOtro" type="number" min="1" max="200" value="10"></div>
+          <div><label for="nCodigo">Código (vacío = se crea solo)</label><input id="nCodigo" placeholder="RETIRO-1010" autocapitalize="characters"></div>
+        </div>
+        <button type="submit" id="crear">Crear galería</button>
+        <span id="errNueva" class="err"></span>
+      </form>
+    </div>
+    <div class="card-title" style="margin-top:20px">Galerías</div>
+    <div id="lista"><p class="dim">Cargando…</p></div>
+  </section>
+
+  <!-- DETALLE -->
+  <section id="vistaDetalle" hidden>
+    <p><button type="button" class="secondary small" id="volver">← Todas las galerías</button></p>
+    <div class="card">
+      <div class="card-title"><span id="dEstado"></span><span class="mono" id="dCodigo"></span></div>
+      <h2 id="dTitulo"></h2>
+      <p class="dim" id="dSub"></p>
+      <div class="pasos" style="margin-top:14px">
+        <div class="paso" id="p1">1 · Vistas previas</div>
+        <div class="paso" id="p2">2 · Selección</div>
+        <div class="paso" id="p3">3 · Entrega HD</div>
+      </div>
+      <details>
+        <summary class="dim" style="cursor:pointer">Editar datos de la galería</summary>
+        <form id="formEditar" style="margin-top:10px">
+          <div class="row">
+            <div><label for="eTitulo">Clientes</label><input id="eTitulo"></div>
+            <div><label for="eSub">Sesión, lugar y fecha</label><input id="eSub"></div>
+          </div>
+          <div class="row">
+            <div><label for="eMax">Fotos que pueden elegir</label><input id="eMax" type="number" min="1" max="200"></div>
+            <div><label for="eCodigo">Código</label><input id="eCodigo" autocapitalize="characters"></div>
+          </div>
+          <button type="submit">Guardar cambios</button> <span id="msgEditar" class="dim"></span>
+        </form>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Mensaje para los clientes</div>
+      <div class="copiar" id="mensaje"></div>
+      <div class="acciones">
+        <button type="button" id="copiarMensaje">Copiar mensaje</button>
+        <a id="abrirGaleria" target="_blank" rel="noopener"><button type="button" class="secondary">Ver como cliente ↗</button></a>
+      </div>
+    </div>
+
+    <!-- 1 · Vistas previas -->
+    <div class="card" id="cardPrevias">
+      <div class="card-title"><span>1 · Vistas previas</span><span id="nPrevias"></span></div>
+      <div class="zona" id="zonaPrevias">
+        <p>Arrastra aquí las fotos exportadas de Lightroom (JPG).<br><span class="dim">Se reducen solas a 2000 px antes de subir. Quedan con marca de agua para el cliente.</span></p>
+        <div class="acciones">
+          <button type="button" id="elegirPrevias">Elegir fotos</button>
+          <button type="button" class="secondary" id="elegirCarpeta">Elegir carpeta</button>
+        </div>
+        <input type="file" id="filePrevias" accept="image/jpeg,image/png,image/webp" multiple hidden>
+        <input type="file" id="dirPrevias" webkitdirectory hidden>
+        <div class="barra" hidden id="barraPrevias"><div></div></div>
+        <span class="dim" id="estadoPrevias" aria-live="polite"></span>
+      </div>
+      <div class="rejilla" id="rejillaPrevias"></div>
+    </div>
+
+    <!-- 2 · Selección -->
+    <div class="card">
+      <div class="card-title"><span>2 · Selección</span><span id="nElegidas"></span></div>
+      <p class="dim" id="textoSeleccion"></p>
+      <div id="cajaSeleccion" hidden>
+        <label>Para el filtro de texto de Lightroom (Biblioteca → Texto → Nombre de archivo, «contiene»):</label>
+        <div class="copiar mono" id="archivosElegidos"></div>
+        <div class="acciones">
+          <button type="button" id="copiarArchivos">Copiar nombres</button>
+          <button type="button" class="secondary" id="reabrir" hidden>Reabrir para que cambien la selección</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 · Entrega -->
+    <div class="card">
+      <div class="card-title"><span>3 · Entrega en HD</span><span id="nFinales"></span></div>
+      <div class="zona" id="zonaFinales">
+        <p>Arrastra aquí las fotos editadas, tal cual salen de Lightroom.<br><span class="dim">Se guardan sin tocar, a la calidad y tamaño que tengan.</span></p>
+        <button type="button" id="elegirFinales">Elegir fotos editadas</button>
+        <input type="file" id="fileFinales" accept="image/*" multiple hidden>
+        <div class="barra" hidden id="barraFinales"><div></div></div>
+        <span class="dim" id="estadoFinales" aria-live="polite"></span>
+      </div>
+      <div class="lista-finales" id="listaFinales"></div>
+      <div class="acciones" style="margin-top:12px">
+        <button type="button" id="entregar">Marcar como entregada y activar descargas</button>
+      </div>
+      <p class="dim" id="textoEntrega"></p>
+    </div>
+
+    <!-- Limpieza -->
+    <div class="card">
+      <div class="card-title">Limpieza</div>
+      <p class="dim">Cuando hayan descargado las fotos, borra las vistas previas para no llenar Cloudinary (la portada se queda). Los originales siguen en tu ordenador y en el NAS.</p>
+      <div class="acciones">
+        <button type="button" class="danger" id="borrarPrevias">Borrar vistas previas</button>
+        <button type="button" class="danger" id="borrarGaleria">Borrar galería entera</button>
+      </div>
+      <div class="confirma" id="confirma" hidden>
+        <p id="confirmaTexto"></p>
+        <div class="acciones"><button type="button" class="secondary" id="confirmaNo">Cancelar</button><button type="button" class="danger" id="confirmaSi">Sí, borrar</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyDfRTs1pF5-iV2dlNFY-dlFv4A-HcxZeTk",
+  authDomain: "mirardespaciocrm.firebaseapp.com",
+  projectId: "mirardespaciocrm",
+  storageBucket: "mirardespaciocrm.firebasestorage.app",
+  messagingSenderId: "328402994544",
+  appId: "1:328402994544:web:abab2ce9d54d286eb7fbb5",
+});
+const auth = getAuth(app);
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ESTADO = { seleccion: 'Eligiendo', enviada: 'Selección recibida', entregada: 'Entregada' };
+const WEB = 'https://ottokols.es/galeria/';
+let actual = null, servicios = {};
+
+async function api(cuerpo) {
+  const token = await auth.currentUser.getIdToken();
+  const r = await fetch('/.netlify/functions/galerias-admin', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(cuerpo) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(j.error || 'error'), { datos: j, status: r.status });
+  return j;
+}
+const textoError = (e) => ({
+  'codigo-usado': 'Ese código ya lo usa otra galería.', 'codigo-formato': 'El código solo puede llevar letras, números y guiones (6 a 24).',
+  titulo: 'Pon el nombre de los clientes.', 'sin-cloudinary': 'Faltan las claves de Cloudinary en Netlify.', 'sin-r2': 'Falta configurar Cloudflare R2 en Netlify.',
+  'sin-finales': 'Sube antes las fotos editadas.', 'no-subida': 'La foto no llegó a R2. Vuelve a subirla.', 'no-admin': 'Esta cuenta no es la de administración.',
+}[e.message] || 'Algo ha fallado (' + e.message + '). Prueba de nuevo.');
+
+// ---------- Sesión ----------
+$('#loginForm').addEventListener('submit', (e) => {
+  e.preventDefault(); $('#loginError').textContent = '';
+  signInWithEmailAndPassword(auth, $('#loginEmail').value.trim(), $('#loginPassword').value).catch(() => { $('#loginError').textContent = 'Email o contraseña incorrectos.'; });
+});
+onAuthStateChanged(auth, (u) => {
+  $('#loginScreen').hidden = !!u; $('#panel').hidden = !u;
+  if (u) cargarLista();
+});
+
+// ---------- Lista ----------
+const fecha = (t) => t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
+async function cargarLista() {
+  try {
+    const j = await api({ accion: 'listar' });
+    servicios = { cloudinary: j.cloudinary, r2: j.r2 };
+    $('#estadoServicios').textContent = `Cloudinary ${j.cloudinary ? '✓' : '✗ sin claves'} · R2 ${j.r2 ? '✓' : '✗ sin configurar'}`;
+    $('#lista').innerHTML = j.galerias.length ? j.galerias.map((g) => {
+      const caducada = g.estado === 'entregada' && g.caduca && g.caduca < Date.now();
+      const estado = caducada ? 'caducada' : g.estado;
+      const detalle = g.estado === 'seleccion' ? `${g.fotos} fotos · ${g.elegidas}/${g.max} elegidas${g.vista ? '' : ' · aún no la han abierto'}`
+        : g.estado === 'enviada' ? `${g.elegidas} elegidas · ${g.finales} editadas subidas` : `${g.finales} fotos · hasta el ${fecha(g.caduca)}`;
+      return `<button type="button" class="item" data-id="${g.id}"><span><span class="nombre">${esc(g.titulo)}</span><br><span class="dim">${esc(g.subtitulo)}${g.subtitulo ? ' · ' : ''}${detalle}</span></span><span class="chip ${estado}">${caducada ? 'Caducada' : ESTADO[g.estado]}</span></button>`;
+    }).join('') : '<p class="dim">Todavía no hay galerías. Crea la primera arriba.</p>';
+  } catch (e) { $('#lista').innerHTML = `<p class="err">${esc(textoError(e))}</p>`; }
+}
+$('#lista').addEventListener('click', (e) => { const b = e.target.closest('[data-id]'); if (b) abrir(b.dataset.id); });
+$('#nMax').addEventListener('change', () => { $('#nMaxOtroCaja').hidden = $('#nMax').value !== 'otro'; });
+$('#formNueva').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('#errNueva').textContent = '';
+  const max = $('#nMax').value === 'otro' ? $('#nMaxOtro').value : $('#nMax').value;
+  $('#crear').disabled = true;
+  try {
+    const j = await api({ accion: 'crear', titulo: $('#nTitulo').value, subtitulo: $('#nSub').value, max, codigo: $('#nCodigo').value || undefined });
+    e.target.reset(); $('#nMaxOtroCaja').hidden = true;
+    await abrir(j.id);
+  } catch (err) { $('#errNueva').textContent = textoError(err); }
+  $('#crear').disabled = false;
+});
+
+// ---------- Detalle ----------
+$('#volver').onclick = () => { actual = null; $('#vistaDetalle').hidden = true; $('#vistaLista').hidden = false; cargarLista(); };
+async function abrir(id) {
+  $('#vistaLista').hidden = true; $('#vistaDetalle').hidden = false; window.scrollTo(0, 0);
+  try { actual = await api({ accion: 'ver', id }); pintarDetalle(); }
+  catch (e) { alertaDetalle(textoError(e)); }
+}
+const recargar = async () => { actual = await api({ accion: 'ver', id: actual.id }); pintarDetalle(); };
+function alertaDetalle(t) { $('#dTitulo').textContent = t; }
+
+function mensaje(g) {
+  const url = WEB + '?c=' + encodeURIComponent(g.codigo);
+  if (g.estado === 'entregada') return `¡Hola! Ya tenéis vuestras fotos editadas 📸\n\nLas podéis descargar en alta resolución aquí:\n${url}\n\nCódigo de acceso: ${g.codigo}\n\nEstarán disponibles hasta el ${fecha(g.caduca)}, así que guardadlas en el ordenador o en la nube. ¡Espero que os encanten!`;
+  return `¡Hola! Ya tenéis las fotos de la sesión para elegir 📸\n\nEntrad aquí:\n${url}\n\nCódigo de acceso: ${g.codigo}\n\nElegid vuestras ${g.max} favoritas. Lo que vais marcando se guarda solo, así que podéis hacerlo con calma. Son vistas previas sin editar: el color y la luz finales cambiarán en la edición. Cuando lo tengáis, pulsad «Enviar selección» y me pongo con ellas.`;
+}
+
+function pintarDetalle() {
+  const g = actual;
+  $('#dTitulo').textContent = g.titulo; $('#dSub').textContent = g.subtitulo; $('#dCodigo').textContent = 'Código ' + g.codigo;
+  const caducada = g.estado === 'entregada' && g.caduca && g.caduca < Date.now();
+  $('#dEstado').innerHTML = `<span class="chip ${caducada ? 'caducada' : g.estado}">${caducada ? 'Caducada' : ESTADO[g.estado]}</span>`;
+  const n = { seleccion: 1, enviada: 2, entregada: 3 }[g.estado];
+  ['p1', 'p2', 'p3'].forEach((p, i) => { $('#' + p).className = 'paso' + (i + 1 < n || (i + 1 === n && g.estado === 'entregada') ? ' hecho' : i + 1 === n ? ' ahora' : ''); });
+  $('#eTitulo').value = g.titulo; $('#eSub').value = g.subtitulo; $('#eMax').value = g.max; $('#eCodigo').value = g.codigo;
+  $('#mensaje').textContent = mensaje(g);
+  $('#abrirGaleria').href = WEB + '?c=' + encodeURIComponent(g.codigo);
+
+  // Vistas previas
+  const sel = new Set(g.seleccion || []);
+  $('#nPrevias').textContent = `${g.fotos.length} fotos`;
+  $('#rejillaPrevias').innerHTML = g.fotos.map((f) => `<div class="foto${sel.has(f.id) ? ' elegida' : ''}">
+      <img src="${esc(f.mini)}" alt="" loading="lazy">${g.portada === f.id ? '<span class="portada-tag">Portada</span>' : ''}
+      <div class="pie"><span>${esc(f.arch)}</span><span>
+        ${g.portada === f.id ? '' : `<button type="button" data-portada="${esc(f.id)}" title="Usar de portada">★</button>`}
+        ${g.estado === 'seleccion' ? `<button type="button" data-quitar="${esc(f.id)}" aria-label="Quitar ${esc(f.arch)}">✕</button>` : ''}
+      </span></div></div>`).join('');
+  $('#zonaPrevias').hidden = g.estado !== 'seleccion';
+
+  // Selección
+  const archivos = g.fotos.filter((f) => sel.has(f.id)).map((f) => f.arch);
+  $('#nElegidas').textContent = `${sel.size} de ${g.max}`;
+  $('#textoSeleccion').textContent = g.estado === 'seleccion'
+    ? (sel.size ? `Están eligiendo: llevan ${sel.size}. Se guarda sola mientras eligen; te llegará un email cuando la envíen.` : (g.vista ? 'Han abierto la galería pero aún no han marcado ninguna.' : 'Aún no han abierto la galería.'))
+    : `Selección enviada${g.enviadaEn ? ' el ' + fecha(g.enviadaEn) : ''}: ${sel.size} fotos.`;
+  $('#cajaSeleccion').hidden = !archivos.length;
+  $('#archivosElegidos').textContent = archivos.join(', ');
+  $('#reabrir').hidden = g.estado !== 'enviada';
+
+  // Entrega
+  $('#nFinales').textContent = `${g.finales.length} subidas`;
+  $('#listaFinales').innerHTML = g.finales.map((f) => `<div class="final">${f.mini ? `<img src="${esc(f.mini)}" alt="">` : '<img alt="">'}
+    <span class="n">${esc(f.nombre)}<br><span class="dim">${(f.bytes / 1048576).toFixed(1)} MB</span></span>
+    <button type="button" class="small danger" data-quitar-final="${esc(f.clave)}">Quitar</button></div>`).join('');
+  $('#entregar').hidden = !g.finales.length;
+  $('#entregar').textContent = g.estado === 'entregada' ? 'Alargar las descargas 30 días desde hoy' : 'Marcar como entregada y activar descargas';
+  $('#zonaFinales').hidden = !servicios.r2;
+  $('#textoEntrega').textContent = !servicios.r2 ? 'Para subir las HD falta configurar Cloudflare R2 en Netlify.'
+    : g.estado === 'entregada' ? `Entregada. Descargas activas hasta el ${fecha(g.caduca)}. Puedes seguir añadiendo o cambiando fotos.`
+    : g.finales.length ? `Cuando estén todas (${g.finales.length}${sel.size ? ' de ' + sel.size : ''}), márcala como entregada y manda el mensaje.` : '';
+  $('#confirma').hidden = true;
+}
+
+$('#formEditar').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('#msgEditar').textContent = '';
+  try { await api({ accion: 'editar', id: actual.id, titulo: $('#eTitulo').value, subtitulo: $('#eSub').value, max: $('#eMax').value, codigo: $('#eCodigo').value }); await recargar(); $('#msgEditar').textContent = 'Guardado'; }
+  catch (err) { $('#msgEditar').textContent = textoError(err); }
+});
+
+async function copiar(texto, boton) {
+  const antes = boton.textContent;
+  try { await navigator.clipboard.writeText(texto); boton.textContent = 'Copiado ✓'; }
+  catch (e) { boton.textContent = 'Selecciónalo y cópialo a mano'; }
+  setTimeout(() => { boton.textContent = antes; }, 2000);
+}
+$('#copiarMensaje').onclick = function () { copiar($('#mensaje').textContent, this); };
+$('#copiarArchivos').onclick = function () { copiar($('#archivosElegidos').textContent, this); };
+$('#reabrir').onclick = async () => { await api({ accion: 'estado', id: actual.id, estado: 'seleccion' }); await recargar(); };
+
+$('#rejillaPrevias').addEventListener('click', async (e) => {
+  const p = e.target.closest('[data-portada]'), q = e.target.closest('[data-quitar]');
+  if (p) { await api({ accion: 'portada', id: actual.id, fotoId: p.dataset.portada }); await recargar(); }
+  if (q) { q.disabled = true; await api({ accion: 'quitar', id: actual.id, fotoId: q.dataset.quitar }); await recargar(); }
+});
+$('#listaFinales').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-quitar-final]'); if (!b) return;
+  b.disabled = true; await api({ accion: 'quitar-final', id: actual.id, clave: b.dataset.quitarFinal }); await recargar();
+});
+$('#entregar').onclick = async function () {
+  this.disabled = true;
+  try { await api({ accion: 'entregar', id: actual.id }); await recargar(); } catch (e) { $('#textoEntrega').textContent = textoError(e); }
+  this.disabled = false;
+};
+
+// ---------- Borrados (confirmación en la página) ----------
+let pendiente = null;
+function preguntar(texto, accion) { pendiente = accion; $('#confirmaTexto').textContent = texto; $('#confirma').hidden = false; }
+$('#confirmaNo').onclick = () => { pendiente = null; $('#confirma').hidden = true; };
+$('#confirmaSi').onclick = async function () { if (!pendiente) return; this.disabled = true; try { await pendiente(); } catch (e) { $('#confirmaTexto').textContent = textoError(e); } this.disabled = false; };
+$('#borrarPrevias').onclick = () => preguntar(`Se borran de Cloudinary las ${Math.max(0, actual.fotos.length - 1)} vistas previas (la portada se queda). Los clientes ya no podrán ver las fotos sin editar.`, async () => { await api({ accion: 'borrar-previas', id: actual.id }); await recargar(); });
+$('#borrarGaleria').onclick = () => preguntar(`Se borra la galería de ${actual.titulo} entera: vistas previas, fotos editadas en R2 y el acceso. No se puede deshacer.`, async () => { await api({ accion: 'borrar', id: actual.id }); $('#volver').click(); });
+
+// ---------- Subidas ----------
+// Reduce una imagen en el navegador (lado largo máximo) y devuelve un JPG
+async function reducir(file, lado, calidad) {
+  const bmp = await createImageBitmap(file);
+  const k = Math.min(1, lado / Math.max(bmp.width, bmp.height));
+  const w = Math.round(bmp.width * k), h = Math.round(bmp.height * k);
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bmp, 0, 0, w, h); bmp.close && bmp.close();
+  return new Promise((ok, mal) => c.toBlob((b) => (b ? ok(b) : mal(new Error('jpg'))), 'image/jpeg', calidad));
+}
+// Reserva de permisos de subida: el servidor firma de 20 en 20 (una firma por foto) y caducan a la hora
+function reservaFirmas(finales) {
+  let lista = [], pidiendo = null, desde = 0, url = '';
+  const pedir = async () => {
+    const j = await api({ accion: 'firmar', id: actual.id, finales, n: 20 });
+    url = j.url; lista = j.firmas; desde = Date.now();
+  };
+  return async () => {
+    while (!lista.length || Date.now() - desde > 40 * 60e3) {
+      if (Date.now() - desde > 40 * 60e3) lista = [];
+      pidiendo = pidiendo || pedir().finally(() => { pidiendo = null; });
+      await pidiendo;
+    }
+    return { url, campos: lista.shift() };
+  };
+}
+// Sube a Cloudinary con una firma del servidor
+async function aCloudinary(blob, firma) {
+  const fd = new FormData();
+  Object.entries(firma.campos).forEach(([k, v]) => fd.append(k, v));
+  fd.append('file', blob, 'foto.jpg');
+  const r = await fetch(firma.url, { method: 'POST', body: fd });
+  if (!r.ok) throw new Error('cloudinary-' + r.status);
+  return r.json();
+}
+// Ejecuta tareas con N a la vez
+async function enParalelo(lista, n, fn) {
+  let i = 0; const trabajadores = Array.from({ length: Math.min(n, lista.length) }, async () => { while (i < lista.length) { const k = i++; await fn(lista[k], k); } });
+  await Promise.all(trabajadores);
+}
+const esImagen = (f) => /^image\/(jpeg|png|webp)$/.test(f.type) || /\.(jpe?g|png|webp)$/i.test(f.name);
+function progreso(barra, estado, hechas, total, texto) {
+  $(barra).hidden = false; $(barra + ' div').style.width = (hechas / total * 100) + '%'; $(estado).textContent = texto;
+}
+
+async function subirPrevias(files) {
+  const lista = Array.from(files).filter(esImagen);
+  if (!lista.length || !actual) return;
+  if (!servicios.cloudinary) { $('#estadoPrevias').textContent = textoError(new Error('sin-cloudinary')); return; }
+  const firma = reservaFirmas(false);
+  let hechas = 0, fallos = [], lote = [];
+  const guardarLote = async () => { if (!lote.length) return; const l = lote; lote = []; await api({ accion: 'anadir', id: actual.id, fotos: l }); };
+  progreso('#barraPrevias', '#estadoPrevias', 0, lista.length, `Subiendo 0 de ${lista.length}…`);
+  await enParalelo(lista, 3, async (f) => {
+    try {
+      const blob = await reducir(f, 2000, 0.82);
+      const r = await aCloudinary(blob, await firma());
+      lote.push({ public_id: r.public_id, format: r.format, width: r.width, height: r.height, arch: f.name });
+      if (lote.length >= 10) await guardarLote();
+    } catch (e) { fallos.push(f.name); }
+    hechas++; progreso('#barraPrevias', '#estadoPrevias', hechas, lista.length, `Subiendo ${hechas} de ${lista.length}…`);
+  });
+  await guardarLote();
+  $('#estadoPrevias').textContent = fallos.length ? `Subidas ${lista.length - fallos.length}. No se pudieron subir: ${fallos.join(', ')}. Vuelve a arrastrarlas.` : `Listo: ${lista.length} ${lista.length === 1 ? 'foto subida' : 'fotos subidas'}.`;
+  await recargar();
+}
+
+// Sube un archivo a R2 con barra de progreso (PUT directo a la URL firmada)
+function putR2(url, file, alAvanzar) {
+  return new Promise((ok, mal) => {
+    const x = new XMLHttpRequest(); x.open('PUT', url);
+    x.upload.onprogress = (e) => e.lengthComputable && alAvanzar(e.loaded / e.total);
+    x.onload = () => (x.status < 300 ? ok() : mal(new Error('r2-' + x.status)));
+    x.onerror = () => mal(new Error('r2-red'));
+    x.send(file);
+  });
+}
+async function subirFinales(files) {
+  const lista = Array.from(files).filter((f) => f.type.startsWith('image/') || /\.(jpe?g|tiff?|png)$/i.test(f.name));
+  if (!lista.length || !actual) return;
+  const total = lista.reduce((s, f) => s + f.size, 0); const avance = new Map();
+  const pintar = (texto) => { const hecho = Array.from(avance.values()).reduce((s, x) => s + x, 0); progreso('#barraFinales', '#estadoFinales', hecho, total, texto); };
+  const firma = servicios.cloudinary ? reservaFirmas(true) : null;
+  let hechas = 0, fallos = [], reemplazadas = 0;
+  pintar(`Subiendo 0 de ${lista.length}…`);
+  await enParalelo(lista, 2, async (f) => {
+    try {
+      const { url, clave } = await api({ accion: 'subir-final', id: actual.id, nombre: f.name });
+      await putR2(url, f, (p) => { avance.set(f, p * f.size); pintar(`Subiendo ${hechas} de ${lista.length}…`); });
+      // Miniatura sin marca de agua para que la vean en la entrega (la HD no se toca)
+      let previa = null, previaFormato = null;
+      if (firma && /^image\/(jpeg|png|webp)$/.test(f.type)) {
+        try { const r = await aCloudinary(await reducir(f, 900, 0.8), await firma()); previa = r.public_id; previaFormato = r.format; } catch (e) { /* sin miniatura */ }
+      }
+      const j = await api({ accion: 'confirmar-final', id: actual.id, clave, nombre: f.name, bytes: f.size, previa, previaFormato });
+      if (j.reemplazada) reemplazadas++;
+    } catch (e) { fallos.push(f.name); }
+    avance.set(f, f.size); hechas++; pintar(`Subiendo ${hechas} de ${lista.length}…`);
+  });
+  $('#barraFinales div').style.width = '100%';
+  $('#estadoFinales').textContent = (fallos.length ? `No se pudieron subir: ${fallos.join(', ')}. Vuelve a arrastrarlas. ` : `Listo: ${lista.length} ${lista.length === 1 ? 'foto' : 'fotos'} en HD. `) + (reemplazadas ? `${reemplazadas} sustituyen a otras con el mismo nombre.` : '');
+  await recargar();
+}
+
+function zona(id, alSoltar) {
+  const z = $(id);
+  z.addEventListener('dragover', (e) => { e.preventDefault(); z.classList.add('encima'); });
+  z.addEventListener('dragleave', () => z.classList.remove('encima'));
+  z.addEventListener('drop', (e) => { e.preventDefault(); z.classList.remove('encima'); alSoltar(e.dataTransfer.files); });
+}
+zona('#zonaPrevias', subirPrevias); zona('#zonaFinales', subirFinales);
+$('#elegirPrevias').onclick = () => $('#filePrevias').click();
+$('#elegirCarpeta').onclick = () => $('#dirPrevias').click();
+$('#elegirFinales').onclick = () => $('#fileFinales').click();
+$('#filePrevias').onchange = (e) => { subirPrevias(e.target.files); e.target.value = ''; };
+$('#dirPrevias').onchange = (e) => { subirPrevias(e.target.files); e.target.value = ''; };
+$('#fileFinales').onchange = (e) => { subirFinales(e.target.files); e.target.value = ''; };
+</script>
+</body>
+</html>

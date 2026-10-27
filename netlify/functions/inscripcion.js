@@ -5,6 +5,7 @@
 // 3. Le contesta por email desde info@mirardespacio.es y te avisa a ti.
 // Si algo falla devuelve error y la web manda el formulario por Formspree como antes.
 const { db, FieldValue } = require('../lib/firestore');
+const { permitir } = require('../lib/limite');
 const { enviar, esc, remitente, hayCorreo } = require('../lib/correo');
 const { tarjeta, recibido, fechaLarga, enlacesCalendario, aTexto } = require('../lib/plantillas-salida');
 
@@ -255,6 +256,11 @@ exports.handler = async (event, context) => {
     return { statusCode: 403, headers: h, body: '{"error":"solo-miembros"}' };
   }
   if (anticipada) b.email = usuario.email;
+
+  // Como mucho 10 inscripciones por hora desde el mismo sitio (frena el spam sin molestar a nadie)
+  if (!(await permitir(db(), event, 'inscripcion', 10))) {
+    return { statusCode: 429, headers: h, body: '{"error":"demasiadas"}' };
+  }
 
   const datos = {
     nombre: limpio(b.nombre, 80),

@@ -1,0 +1,117 @@
+/* Practica con el triángulo · estilos propios (todo bajo .tri para no tocar el resto del sitio)
+   Usa las variables de md.css: crema, papel, tinta, naranja, rosa, Georgia + Jost + Caveat */
+.tri { --cuerpo-camara: #1d1b18; --texto-camara: #efe9df; --bien: #2f8f5b; --regular: #c9781a; --mal: #c4373a;
+  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.tri-portada { padding-bottom: 8px; }
+.tri-portada .entradilla { margin-bottom: 0; }
+.tri-juego { padding: 8px 0 clamp(56px, 9vw, 100px); }
+.tri-juego .envoltura { display: flex; flex-direction: column; gap: 20px; }
+.tri :focus-visible { outline: 2px solid var(--naranja); outline-offset: 2px; }
+
+/* Modos */
+.tri-modos { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--linea); }
+.tri .mode { font: 500 1rem var(--f-texto); background: none; border: none; border-bottom: 3px solid transparent; color: var(--gris);
+  padding: 10px 16px 9px; cursor: pointer; margin-bottom: -1px; }
+.tri .mode:hover { color: var(--tinta); }
+.tri .mode[aria-selected="true"] { color: var(--tinta); border-bottom-color: var(--naranja); }
+.tri .mode .badge { font-size: .7rem; background: var(--rosa); color: #fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: 2px; }
+
+/* Niveles */
+.tri-niveles { display: flex; gap: 8px; flex-wrap: wrap; }
+.tri .lvl { font: 400 .92rem var(--f-texto); border: 1px solid var(--linea); background: transparent; color: var(--tinta); border-radius: 999px;
+  padding: 7px 15px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+.tri .lvl:hover { border-color: var(--tinta); }
+.tri .lvl[aria-pressed="true"] { background: var(--tinta); color: var(--crema); border-color: var(--tinta); }
+.tri .lvl .st { color: var(--naranja); letter-spacing: 1px; font-size: .8rem; }
+.tri .lvl.locked { color: var(--gris); border-style: dashed; cursor: not-allowed; }
+.tri .lvl.locked .tag { font-size: .7rem; font-weight: 500; color: var(--rosa); letter-spacing: .04em; }
+.tri-modeinfo { margin: 0; color: var(--tinta-suave); font-size: .95rem; max-width: 70ch; }
+.tri-modeinfo b { color: var(--tinta); font-weight: 500; }
+
+.tri-main { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .tri-main { grid-template-columns: 1fr; } }
+
+/* Visor */
+.tri-camara { background: var(--cuerpo-camara); border-radius: 14px; padding: 14px; color: var(--texto-camara); display: flex; flex-direction: column; gap: 10px; }
+.tri-vf { position: relative; border-radius: 4px; overflow: hidden; background: #000; aspect-ratio: 16/10; max-width: 100%; }
+.tri-vf canvas { display: block; width: 100%; height: 100%; }
+.tri-tercios { position: absolute; inset: 0; pointer-events: none;
+  background:
+   linear-gradient(to right, transparent calc(33.33% - .5px), rgba(255,255,255,.18) 33.33%, transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.18) 66.66%, transparent calc(66.66% + .5px)),
+   linear-gradient(to bottom, transparent calc(33.33% - .5px), rgba(255,255,255,.18) 33.33%, transparent calc(33.33% + .5px), transparent calc(66.66% - .5px), rgba(255,255,255,.18) 66.66%, transparent calc(66.66% + .5px)); }
+.tri-af { position: absolute; width: 34px; height: 34px; border: 1.5px solid rgba(255,255,255,.75); border-radius: 3px; transform: translate(-50%, -50%); pointer-events: none; }
+.tri-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.tri-flash.go { animation: tri-flash .45s ease-out; }
+@keyframes tri-flash { 0% { opacity: .95; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .tri-flash.go { animation: none; } }
+.tri-tira { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; font: 14px var(--f-mono); font-variant-numeric: tabular-nums; }
+.tri-tira .vals { display: flex; gap: 16px; flex-wrap: wrap; }
+.tri-tira .vals b { color: #ffb35c; font-weight: 600; }
+.tri-meter { display: flex; align-items: center; gap: 8px; font: 12px var(--f-mono); }
+.tri-meter .scale { position: relative; width: 170px; height: 22px; }
+.tri-meter .scale i { position: absolute; bottom: 4px; width: 1px; background: rgba(239,233,223,.55); height: 6px; }
+.tri-meter .scale i.maj { height: 10px; background: var(--texto-camara); }
+.tri-meter .scale .lbl { position: absolute; top: -2px; font-size: 10px; transform: translateX(-50%); opacity: .7; font-style: normal; }
+.tri-meter .needle { position: absolute; bottom: 0; width: 3px; height: 14px; background: #ffb35c; border-radius: 2px; transform: translateX(-50%); transition: left .15s; }
+.tri-meter .ev { min-width: 5ch; text-align: right; }
+
+/* Panel */
+.tri-panel { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.tri-brief { border-left: 3px solid var(--naranja); padding-left: 16px; }
+.tri-brief .kicker { font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gris); }
+.tri-brief h2 { font-size: clamp(1.6rem, 3vw, 2rem); margin: 4px 0 8px; text-wrap: balance; }
+.tri-brief p { margin: 0; color: var(--tinta-suave); }
+.tri-brief .goals { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.tri-brief .goals li { font-size: .8rem; background: var(--papel); padding: 3px 10px; border-radius: 999px; color: var(--tinta-suave); }
+.tri-brief .goals li.rule { background: transparent; border: 1px solid var(--rosa); color: var(--rosa); font-weight: 500; }
+
+.tri-ruedas { display: flex; flex-direction: column; gap: 16px; }
+.tri .dial { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline; }
+.tri .dial label { font-weight: 500; }
+.tri .dial .val { font: 600 1rem var(--f-mono); font-variant-numeric: tabular-nums; color: var(--naranja); }
+.tri .dial .hint { grid-column: 1 / -1; font-size: .85rem; color: var(--gris); }
+.tri .dial input { grid-column: 1 / -1; width: 100%; accent-color: var(--naranja); margin: 4px 0 0; }
+.tri .dial input:disabled { opacity: .45; }
+.tri .ticks { grid-column: 1 / -1; display: flex; justify-content: space-between; font: 10.5px var(--f-mono); color: var(--gris); font-variant-numeric: tabular-nums; }
+
+.tri-acciones { display: flex; gap: 10px; flex-wrap: wrap; }
+.tri-disparo { flex: 1 1 auto; justify-content: center; font-size: 1.05rem; }
+.tri-disparo .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; }
+.tri-disparo:disabled { background: var(--linea); color: var(--gris); cursor: not-allowed; opacity: 1; }
+
+/* Resultado */
+.tri-resultado { background: var(--papel); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.tri-resultado p { margin: 0; }
+.tri-resultado .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.tri-resultado .score { font-family: var(--f-titulo); font-size: 3rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.tri-resultado .score small { font-size: 1.1rem; color: var(--gris); }
+.tri-resultado .stars { font-size: 1.4rem; letter-spacing: 3px; color: var(--naranja); }
+.tri-resultado .stars .off { color: var(--linea); }
+.tri-resultado .bars { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center; font-size: .85rem; }
+.tri-resultado .bar { height: 7px; background: var(--linea); border-radius: 4px; overflow: hidden; }
+.tri-resultado .bar span { display: block; height: 100%; border-radius: 4px; }
+.tri-resultado .bars .n { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--gris); text-align: right; min-width: 3ch; }
+.tri-resultado .verdict { margin: 0; padding-left: 18px; }
+.tri-resultado .verdict li { margin-bottom: 4px; }
+.tri-resultado .solution { font-size: .92rem; color: var(--tinta-suave); }
+.tri-resultado .solution b { font-family: var(--f-mono); color: var(--tinta); font-weight: 600; }
+.tri-nota { font-family: var(--f-mano); font-size: 1.45rem; line-height: 1.2; color: var(--rosa); }
+.tri-nota::before { content: "Nota de Otto: "; color: var(--gris); font-size: 1.25rem; }
+.tri-resultado .daily-end { font-size: .92rem; color: var(--gris); }
+.tri-resultado .daily-end b { color: var(--tinta); font-weight: 500; font-variant-numeric: tabular-nums; }
+.tri-resultado .sharebox { font: 13px var(--f-mono); background: var(--crema); border: 1px solid var(--linea); border-radius: 8px; padding: 10px; white-space: pre-wrap; margin: 0; user-select: all; }
+.tri-resultado .boton { padding: 10px 18px; }
+
+.tri-pronto { border: 1.5px dashed var(--rosa); border-radius: 12px; padding: 16px 18px; }
+.tri-pronto p { margin: 0; max-width: 72ch; }
+.tri-pronto strong { font-family: var(--f-titulo); font-weight: 400; font-size: 1.15rem; }
+.tri-pronto a { white-space: nowrap; }
+
+.tri-chuleta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; border-top: 1px solid var(--linea); padding-top: 24px; }
+@media (max-width: 700px) { .tri-chuleta { grid-template-columns: 1fr; } }
+.tri-chuleta h3 { margin: 0 0 4px; }
+.tri-chuleta p { margin: 0; color: var(--tinta-suave); font-size: .95rem; max-width: 40ch; }
+.tri-chuleta p b { color: var(--tinta); font-weight: 500; }
+
+/* Portada de juegos */
+.juegos-lista .tarjeta .mas { color: var(--tinta); }

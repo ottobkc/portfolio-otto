@@ -32,6 +32,20 @@
   status = 200
   force  = true
 
+# -----------------------------------------------
+# SEGURIDAD — en todas las páginas
+# Que ninguna otra web pueda meter estas páginas en un marco, HTTPS siempre, etc.
+# -----------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    Content-Security-Policy = "frame-ancestors 'self'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=()"
+
 [[headers]]
   for = "/assets/*"
   [headers.values]

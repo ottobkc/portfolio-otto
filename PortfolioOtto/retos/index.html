@@ -223,6 +223,7 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/tarjeta-ig.js"></script>
+  <script src="/js/hilo.js"></script>
   <script src="/js/medallas.js"></script>
   <script src="/js/monturas.js"></script>
   <script>
@@ -278,13 +279,15 @@
       $('fotos').innerHTML = mias.length ? mias.map(function (f) {
         var est = f.enMuro ? '<span class="estado muro">' + (f.destacada ? '★ Destacada en el muro' : 'En el muro') + '</span>' :
           f.estado === 'comentada' ? '<span class="estado comentada">Comentada</span>' : '<span class="estado">Esperando comentario</span>';
-        return '<article class="foto"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
+        return '<article class="foto" id="foto-' + f.id + '"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
           '<span class="donde">' + esc(f.donde) + '</span><div>' + est + '</div>' + (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
           '<div class="acciones">' + (f.estado === 'pendiente' ? '<button class="link" data-borrar="' + f.id + '">Borrar</button>' : '') +
           '<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
           '<label class="check" style="font-size:.85rem"><input type="checkbox" data-compartir="' + f.id + '"' + (f.compartir ? ' checked' : '') + '> La ven los miembros</label></div>' +
           (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
+          MDHilo.wa(f) +
+          MDHilo.html(f) +
           '</div></article>';
       }).join('') : '<p class="vacio" style="grid-column:1/-1">Todavía no has hecho ningún reto. El de este mes es un buen comienzo.</p>';
 
@@ -393,7 +396,7 @@
     }
 
     function cargar() {
-      return llamar('GET').then(function (d) { datos = d; pintar(); }).catch(function (e) {
+      return llamar('GET').then(function (d) { datos = d; pintar(); MDHilo.irA(); }).catch(function (e) {
         if (e.message !== 'sesion') $('saludo').textContent = 'No se ha podido cargar. Recarga la página.';
       });
     }
@@ -450,6 +453,7 @@
     });
     $('fotos').addEventListener('click', function (e) {
       var t = e.target;
+      if (MDHilo.alPulsar(t, function (id, texto) { return llamar('POST', { accion: 'responder', id: id, texto: texto }).then(cargar); })) return;
       if (t.dataset.ig) {
         var f = buscarFoto(t.dataset.id); if (!f) return;
         var txt = t.textContent; t.disabled = true; t.textContent = 'Preparando…';
