@@ -282,7 +282,7 @@
       if (!mias.length) { cont.innerHTML = '<p class="vacio" style="grid-column:1/-1">Aún no has subido ninguna foto de una salida.' + (d.yo.plus ? ' El reto del mes está en <a href="/retos/">su propia página</a>.' : '') + '</p>'; return; }
       cont.innerHTML = mias.map(function (f) {
         var est = f.enMuro ? '<span class="estado muro">' + (f.destacada ? '★ Destacada en el muro' : 'En el muro') + '</span>' :
-          f.estado === 'comentada' ? '<span class="estado comentada">Comentada</span>' : '<span class="estado">Esperando comentario</span>';
+          f.estado === 'comentada' ? '<span class="estado comentada">Comentada</span>' : f.estado === 'vista' ? '<span class="estado comentada">Vista ✓</span>' : '<span class="estado">Esperando comentario</span>';
         var acc = [];
         if (f.estado === 'pendiente') acc.push('<button class="link" data-borrar="' + f.id + '">Borrar</button>');
         acc.push('<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>');

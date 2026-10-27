@@ -117,6 +117,7 @@
     }
     var estado = f.estado === 'pendiente'
       ? '<p class="ej-estado">Pendiente de comentar. Te aviso por email cuando la vea.</p>'
+      : f.estado === 'vista' || !f.comentario ? '<p class="ej-estado">Vista ✓</p>'
       : '<div class="ej-comentario"><small>Otto</small>' + esc(f.comentario) + '</div>' + (window.MDHilo ? MDHilo.html(f) : '');
     el.innerHTML = '<article class="foto" id="foto-' + esc(f.id) + '"><img src="' + esc(f.url) + '" alt="Tu foto del ejercicio" loading="lazy">' +
       (f.texto ? '<p class="ej-estado">“' + esc(f.texto) + '”</p>' : '') + estado +

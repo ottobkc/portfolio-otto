@@ -170,7 +170,7 @@
       $('zonaMias').hidden = !d.mias.length;
       $('mias').innerHTML = d.mias.map(function (f) {
         var etq = f.enMuro ? '<span class="etq muro">En el muro' + (f.destacada ? ' ★' : '') + '</span>' :
-          f.estado === 'comentada' ? '<span class="etq si">Comentada</span>' : '<span class="etq">Pendiente de comentar</span>';
+          f.estado === 'comentada' ? '<span class="etq si">Comentada</span>' : f.estado === 'vista' ? '<span class="etq si">Vista ✓</span>' : '<span class="etq">Pendiente de comentar</span>';
         return '<article class="foto" id="foto-' + f.id + '"><img src="' + esc(f.url) + '" alt="" loading="lazy"><div class="datos">' + etq +
           '<p style="color:var(--muted);font-size:1rem;margin-top:8px;">' + esc(f.donde) + '</p>' +
           (f.texto ? '<p style="font-style:italic">“' + esc(f.texto) + '”</p>' : '') +

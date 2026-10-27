@@ -278,7 +278,7 @@
 
       $('fotos').innerHTML = mias.length ? mias.map(function (f) {
         var est = f.enMuro ? '<span class="estado muro">' + (f.destacada ? '★ Destacada en el muro' : 'En el muro') + '</span>' :
-          f.estado === 'comentada' ? '<span class="estado comentada">Comentada</span>' : '<span class="estado">Esperando comentario</span>';
+          f.estado === 'comentada' ? '<span class="estado comentada">Comentada</span>' : f.estado === 'vista' ? '<span class="estado comentada">Vista ✓</span>' : '<span class="estado">Esperando comentario</span>';
         return '<article class="foto" id="foto-' + f.id + '"><img src="' + esc(f.url) + '" data-grande="' + esc(f.grande) + '" alt="" loading="lazy"><div class="datos">' +
           '<span class="donde">' + esc(f.donde) + '</span><div>' + est + '</div>' + (f.texto ? '<p class="suyo">“' + esc(f.texto) + '”</p>' : '') +
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +

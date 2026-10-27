@@ -737,6 +737,7 @@
           '<input type="text" name="apellidos" placeholder="Apellidos" required value="' + esc(nombre.slice(1).join(' ')) + '">' +
           '<input type="tel" name="telefono" placeholder="Teléfono (opcional)">' +
           '<label class="ck"><input type="checkbox" name="acepta_imagen" value="si" required> <span>Acepto que las fotos del grupo puedan usarse para dar a conocer Mirar Despacio en la web y en redes.</span></label>' +
+          '<label class="ck"><input type="checkbox" name="acepta_novedades" value="si"> <span>Quiero recibir por email novedades de Mirar Despacio (talleres y actividades nuevas). Opcional.</span></label>' +
           '<label class="ck"><input type="checkbox" name="acepta_datos" value="si" required> <span>Acepto que se usen mis datos para gestionar la inscripción (<a href="https://mirardespacio.es/privacidad/" target="_blank">privacidad</a>).</span></label>' +
           '<button type="submit">Reservar mi plaza</button><p class="msg" id="msgAnticipada"></p></form>';
         document.getElementById('formAnticipada').addEventListener('submit', function (ev) {

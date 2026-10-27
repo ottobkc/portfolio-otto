@@ -174,7 +174,8 @@ exports.handler = async (event, context) => {
         const roles = (u.app_metadata && u.app_metadata.roles) || [];
         return {
           id: u.id, email: u.email, nombre: (u.user_metadata && u.user_metadata.full_name) || '',
-          acceso: accesoDe(roles), confirmada: !!u.confirmed_at, creada: u.created_at, ultimoLogin: u.last_sign_in_at || null,
+          acceso: accesoDe(roles), manuales: roles.filter((r) => /^taller-/.test(r)).map((r) => r.slice(7)),
+          confirmada: !!u.confirmed_at, creada: u.created_at, ultimoLogin: u.last_sign_in_at || null,
         };
       }));
     }

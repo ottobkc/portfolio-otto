@@ -126,6 +126,24 @@
   .person-row.pendiente { border-left: 3px solid var(--gold); }
   .person-row.espera { border-left: 3px solid var(--danger); }
   .person-main { flex: 1; min-width: 0; }
+  .persona { background: var(--panel); border-radius: 8px; margin-bottom: 4px; }
+  .persona.abierta { outline: 1px solid rgba(200,169,122,.35); }
+  .persona-linea { display: grid; grid-template-columns: minmax(120px, 1.2fr) minmax(0, 1.4fr) auto minmax(0, 1fr) 14px; gap: 10px; align-items: center; padding: 8px 12px; cursor: pointer; font-size: 13px; }
+  .persona-linea:hover { background: rgba(245,243,239,.04); }
+  .persona-nombre { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-chips { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-salidas { font-size: 11px; color: var(--dim); white-space: nowrap; }
+  .persona-email { font-size: 11px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-flecha { color: var(--dim); }
+  .ficha-persona { padding: 4px 12px 12px; border-top: 1px solid rgba(245,243,239,.08); }
+  .ficha-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .ficha-titulo { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin: 4px 0 6px; }
+  @media (max-width: 640px) {
+    .persona-linea { grid-template-columns: 1fr auto 14px; }
+    .persona-chips { grid-column: 1 / -1; grid-row: 2; }
+    .persona-email { display: none; }
+    .ficha-grid { grid-template-columns: 1fr; }
+  }
   .person-name { font-size: 14px; font-weight: 500; }
   .person-meta { font-size: 11px; color: var(--dim); }
   .badge {
@@ -327,24 +345,46 @@
 
   <!-- PERSONAS VIEW -->
   <div class="view" id="view-personas">
-    <div class="card">
-      <div class="card-title">Nueva persona</div>
-      <input type="text" id="newPersonName" placeholder="Nombre">
-      <input type="text" id="newPersonApellidos" placeholder="Apellidos (opcional)">
-      <input type="text" id="newPersonEmail" placeholder="Email (opcional)">
-      <input type="tel" id="newPersonTelefono" placeholder="Teléfono (opcional)">
-      <button onclick="createPersonDirect()">Añadir persona</button>
-    </div>
+    <details class="card">
+      <summary class="card-title" style="cursor:pointer;margin:0;">+ Nueva persona</summary>
+      <div style="margin-top:10px;">
+        <input type="text" id="newPersonName" placeholder="Nombre">
+        <input type="text" id="newPersonApellidos" placeholder="Apellidos (opcional)">
+        <input type="text" id="newPersonEmail" placeholder="Email (opcional)">
+        <input type="tel" id="newPersonTelefono" placeholder="Teléfono (opcional)">
+        <button onclick="createPersonDirect()">Añadir persona</button>
+      </div>
+    </details>
     <div class="card">
       <input type="text" id="searchPeople" placeholder="Buscar por nombre, apellidos, email o teléfono..." oninput="renderPeople()">
       <div class="row" style="margin-top:8px;align-items:center;">
         <select id="filtroPersonas" onchange="renderPeople()">
           <option value="">Todas las personas</option>
-          <option value="plus">MD+ activos</option>
-          <option value="pronto">MD+ que termina esta semana</option>
-          <option value="revisar">MD+ por revisar (puestos a mano)</option>
-          <option value="novedades">Aceptan novedades por email</option>
+          <optgroup label="Mirar Despacio+">
+            <option value="plus">MD+ activos</option>
+            <option value="pronto">MD+ que termina esta semana</option>
+            <option value="revisar">MD+ por revisar (puestos a mano)</option>
+          </optgroup>
+          <optgroup label="Acceso a la zona de miembros">
+            <option value="acc-plus">Con acceso MD+</option>
+            <option value="acc-fotos">Solo subida de fotos (sin MD+)</option>
+            <option value="acc-manual">Con algún manual de taller</option>
+            <option value="acc-off">Con cuenta, pero sin acceso (deshabilitada)</option>
+            <option value="acc-sin">Sin cuenta</option>
+          </optgroup>
+          <optgroup label="Otros">
+            <option value="novedades">Aceptan novedades por email</option>
+            <option value="sin-imagen">Sin consentimiento de imagen</option>
+            <option value="duplicados">Fichas duplicadas</option>
+          </optgroup>
         </select>
+        <select id="ordenPersonas" onchange="renderPeople()">
+          <option value="asistidas">Más asistencias</option>
+          <option value="apuntadas">Más inscripciones</option>
+          <option value="nombre">Nombre</option>
+          <option value="recientes">Recién añadidas</option>
+        </select>
+        <span class="person-meta" id="cuentaPersonas"></span>
         <button class="secondary" onclick="copiarNovedades()">Copiar emails de novedades</button>
       </div>
     </div>
@@ -400,7 +440,7 @@
     <div class="card">
       <div class="stat-grid">
         <div class="stat-box"><div class="stat-num" id="fPend">0</div><div class="stat-label">por comentar</div></div>
-        <div class="stat-box"><div class="stat-num" id="fCom">0</div><div class="stat-label">comentadas</div></div>
+        <div class="stat-box"><div class="stat-num" id="fCom">0</div><div class="stat-label">comentadas o vistas</div></div>
         <div class="stat-box"><div class="stat-num" id="fMuro">0</div><div class="stat-label">en el muro</div></div>
         <div class="stat-box"><div class="stat-num" id="fGente">0</div><div class="stat-label">personas</div></div>
       </div>
@@ -412,6 +452,7 @@
         <option value="pendiente">Por comentar</option>
         <option value="respuestas">Con respuesta nueva</option>
         <option value="comentada">Comentadas</option>
+        <option value="vista">Vistas sin comentar</option>
         <option value="muro">En el muro</option>
         <option value="anonimas">Sin nombre (Anónimo)</option>
         <option value="todas">Todas</option>
@@ -535,7 +576,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc,
-  query, orderBy, limit, where, updateDoc, serverTimestamp, getDocs, arrayUnion
+  query, orderBy, limit, where, updateDoc, serverTimestamp, getDocs, arrayUnion, deleteField
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -747,7 +788,7 @@ window.renderFotos = function() {
   const conResp = fotos.filter(f => f.sinLeer);
   b.style.display = (pend.length + conResp.length) ? '' : 'none'; b.textContent = pend.length + conResp.length;
   document.getElementById('fPend').textContent = pend.length;
-  document.getElementById('fCom').textContent = fotos.filter(f => f.estado === 'comentada').length;
+  document.getElementById('fCom').textContent = fotos.filter(f => f.estado === 'comentada' || f.estado === 'vista').length;
   document.getElementById('fMuro').textContent = fotos.filter(f => f.enMuro).length;
   document.getElementById('fGente').textContent = new Set(fotos.map(f => f.email)).size;
   const filtro = document.getElementById('fotosFiltro').value;
@@ -770,7 +811,7 @@ window.renderFotos = function() {
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;" class="foto-crm">
         ${f.archivada ? '<div class="empty">Imagen archivada (limpieza automática)</div>' : `<a href="${escapeHtml(f.url)}" target="_blank"><img src="${escapeHtml(mini(f.url, 700))}" style="width:100%;display:block;border-radius:6px;" loading="lazy"></a>`}
         <div>
-          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : f.tipo === 'taller' ? '<span class="badge" style="background:#e8821a;">taller</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''} ${f.sinLeer ? '<span class="badge" style="background:#1a7f4b;">💬 respuesta nueva</span>' : ''}</div>
+          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.estado === 'vista' ? '<span class="badge" style="background:#7a756f;">vista sin comentar</span>' : ''} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : f.tipo === 'taller' ? '<span class="badge" style="background:#e8821a;">taller</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''} ${f.sinLeer ? '<span class="badge" style="background:#1a7f4b;">💬 respuesta nueva</span>' : ''}</div>
           <div class="person-meta">${escapeHtml(f.refNombre || '')} · ${fechaTxt(fechaDe(f.creada))} · ${otras} foto(s) suyas · ${f.origen === 'enlace' ? 'por enlace' : 'con cuenta'}</div>
           <div class="person-meta">Firma en el muro: ${escapeHtml(f.nombreMuro || '')} · ${f.publicable ? 'permite el muro' : '<b>no quiere salir en el muro</b>'}${f.tipo === 'reto' ? ' · ' + (f.compartir ? 'la ven los miembros' : 'no la comparte con los miembros') : ''}</div>
           ${f.texto ? `<p style="margin:8px 0;"><span class="person-meta">Reto / nota:</span> <em>“${escapeHtml(f.texto)}”</em></p>` : '<div class="person-meta" style="margin:8px 0;">No ha dicho de qué reto es.</div>'}
@@ -783,6 +824,9 @@ window.renderFotos = function() {
           <div class="row" style="margin-top:6px;">
             <button onclick="guardarComentario('${f.id}', true)">${f.estado === 'pendiente' ? 'Guardar y avisar' : 'Guardar y volver a avisar'}</button>
             <button class="secondary" onclick="guardarComentario('${f.id}', false)">Guardar sin avisar</button>
+            ${f.estado === 'pendiente' ? `<button class="secondary" onclick="marcarVista('${f.id}')" title="La quita de «Por comentar» sin escribir nada ni avisar. Para la persona sale como «Vista ✓».">✓ No necesita comentario</button>` : ''}
+            ${f.estado === 'vista' ? `<button class="secondary" onclick="desmarcarVista('${f.id}')">Volver a «por comentar»</button>` : ''}
+            ${f.sinLeer ? `<button class="secondary" onclick="marcarLeida('${f.id}')" title="Su respuesta no necesita contestación: la quita de «Con respuesta nueva»">✓ Respuesta leída</button>` : ''}
             <button class="small danger" onclick="borrarFoto('${f.id}')">✕</button>
           </div>
           ${f.avisadoEn ? `<div class="person-meta">Avisado: ${fechaTxt(fechaDe(f.avisadoEn))}</div>` : ''}
@@ -842,6 +886,17 @@ window.anadirRecibida = async function(id) {
     await updateDoc(doc(db, 'fotos', id), { hilo: arrayUnion({ de: 'persona', texto, en, origen: 'correo' }), sinLeer: false });
     setSyncStatus('Añadida al hilo ✓');
   } catch (e) { const t2 = document.getElementById('resp-' + id); if (t2) t2.value = texto; setSyncStatus('Error: ' + e.message, true); }
+};
+
+// Fotos que no necesitan comentario: salen de «Por comentar» sin escribir nada ni mandar email
+window.marcarVista = async function(id) {
+  setSyncStatus('Guardando…');
+  try { await updateDoc(doc(db, 'fotos', id), { estado: 'vista', vistaEn: serverTimestamp() }); setSyncStatus('Marcada como vista ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+window.desmarcarVista = async function(id) {
+  try { await updateDoc(doc(db, 'fotos', id), { estado: 'pendiente', vistaEn: null }); setSyncStatus('Vuelve a «por comentar»'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 window.marcarLeida = async function(id) {
@@ -1543,7 +1598,7 @@ function renderRoster() {
       div.innerHTML = `
         <div class="attend-check ${s.attended ? 'checked' : ''}" onclick="toggleAttended('${s.id}')">${s.attended ? '✓' : ''}</div>
         <div class="person-main">
-          <div class="person-name">${escapeHtml(nombreCompleto(person))} ${timesAttended > 1 ? `<span class="badge">repite ×${timesAttended}</span>` : ''}</div>
+          <div class="person-name">${escapeHtml(nombreCompleto(person))} ${timesAttended > 1 ? `<span class="badge" title="Salidas a las que consta que ha venido (marcadas como asistió)">ha venido ${timesAttended} veces</span>` : ''}</div>
           <div class="person-meta">${escapeHtml(person.email || '')}${telefonoHtml(person.telefono)}</div>
         </div>
         <select class="status-select" onchange="changeStatus('${s.id}', this.value)">
@@ -1608,68 +1663,134 @@ window.createPersonDirect = async function() {
 
 // ---------- PEOPLE VIEW ----------
 window.renderPeople = renderPeople; // lo usan el buscador y el filtro (oninput/onchange)
+// Personas: una línea por persona; al pinchar se abre su ficha completa.
+window.personasAbiertas = window.personasAbiertas || new Set();
+const msDe = (t) => (t && t.toMillis ? t.toMillis() : t ? new Date(t).getTime() : 0) || 0;
+function accesoCuenta(p) {
+  if (!cuentasCargadas || !p.email) return null;
+  return cuentasPorEmail[String(p.email).toLowerCase()] || { acceso: 'sin-cuenta' };
+}
+function chipsPersona(p, e, c) {
+  const chips = [];
+  if (e.activo) chips.push(`<span class="badge" style="background:#5a7a5d;">MD+${e.tipo === 'prueba' ? ' prueba' : e.nivel === 'online' ? ' online' : ''}${e.hasta ? ' · ' + fechaCorta(e.hasta) : ''}</span>`);
+  else if (e.revisar) chips.push('<span class="badge" style="background:#b5654f;">MD+ revisar</span>');
+  if (c && c.acceso === 'fotos') chips.push('<span class="badge" style="background:#6b655a;">solo fotos</span>');
+  if (c && c.acceso === 'ninguno' && !(c.manuales || []).length) chips.push('<span class="badge" style="background:#4a4640;">cuenta sin acceso</span>');
+  if (c && (c.manuales || []).length) chips.push(`<span class="badge" style="background:#e8821a;">📘 ${c.manuales.length} manual${c.manuales.length > 1 ? 'es' : ''}</span>`);
+  if (c && c.acceso !== 'sin-cuenta' && c.confirmada === false) chips.push('<span class="badge" style="background:#7a756f;">invitación sin aceptar</span>');
+  if (duplicadosDe(p).length) chips.push('<span class="badge" style="background:#b5654f;">duplicada</span>');
+  return chips.join(' ');
+}
+function fichaPersona(p, psignups) {
+  const salidas = psignups.map(s => ({ s, ev: events.find(x => x.id === s.eventId) || {} }))
+    .sort((a, b) => String(b.ev.date || '').localeCompare(String(a.ev.date || '')));
+  const lineaSalida = ({ s, ev }) => `<div class="person-meta" style="padding:3px 0;">${ev.date ? fechaCorta(ev.date) : 'sin fecha'} · ${escapeHtml(ev.name || 'Salida')}${ev.location ? ' · ' + escapeHtml(ev.location) : ''} —
+    ${s.attended ? '<b style="color:var(--ok);">vino</b>' : s.status === 'espera' ? 'lista de espera' : s.status === 'cancelado' ? 'canceló' : ev.date && ev.date < new Date().toISOString().slice(0, 10) ? '<span style="color:var(--danger);">no consta que viniera</span>' : 'apuntada'}</div>`;
+  return `
+    <div class="ficha-persona">
+      ${duplicadosDe(p).map(o => `<div class="person-meta" style="margin:0 0 8px;padding:8px 10px;border-radius:8px;background:rgba(232,130,26,.12);">
+        ⚠️ Hay otra ficha con el mismo email: <strong>${escapeHtml(nombreCompleto(o))}</strong> (${signups.filter(s => s.personId === o.id).length} inscripción(es)).
+        <button class="small secondary" style="margin-left:6px;" onclick="fusionarPersonas('${p.id}','${o.id}')">Quedarme con esta y fusionar la otra</button>
+      </div>`).join('')}
+      <div class="ficha-grid">
+        <div>
+          <div class="ficha-titulo">Datos</div>
+          <input type="text" placeholder="Nombre" value="${escapeAttr(p.name)}" onchange="guardarDato('${p.id}','name',this.value)">
+          <input type="text" placeholder="Apellidos" value="${escapeAttr(p.apellidos)}" onchange="guardarDato('${p.id}','apellidos',this.value)">
+          <input type="text" placeholder="Email" value="${escapeAttr(p.email)}" onchange="guardarDato('${p.id}','email',this.value)">
+          <input type="tel" placeholder="Teléfono" value="${escapeAttr(p.telefono)}" onchange="guardarDato('${p.id}','telefono',this.value)">
+          <input type="text" placeholder="Instagram" value="${escapeAttr(p.instagram)}" onchange="guardarDato('${p.id}','instagram',this.value)">
+          <div class="person-meta">${p.telefono && waLink(p.telefono) ? `<a href="${waLink(p.telefono)}" target="_blank" rel="noopener" style="color:inherit">Abrir WhatsApp</a> · ` : ''}Origen: ${escapeHtml(p.origen || 'a mano')}${msDe(p.createdAt) ? ' · ficha creada el ' + new Date(msDe(p.createdAt)).toLocaleDateString('es-ES') : ''}</div>
+          <label class="consent-toggle"><input type="checkbox" ${p.consentImagen ? 'checked' : ''} onchange="guardarCampo('${p.id}','consentImagen',this.checked)"> Consentimiento de uso de imagen</label>
+          <label class="consent-toggle"><input type="checkbox" ${p.aceptaNovedades ? 'checked' : ''} onchange="guardarNovedades('${p.id}',this.checked)"> Acepta novedades por email${p.novedadesDesde ? ` <span class="person-meta">(desde ${new Date(p.novedadesDesde).toLocaleDateString('es-ES')})</span>` : ''}</label>
+        </div>
+        <div>
+          <div class="ficha-titulo">Mirar Despacio+ y acceso</div>
+          <div class="sub-panel">${mdPanelHtml(p)}</div>
+          <div class="ficha-titulo" style="margin-top:12px;">Salidas y talleres (${psignups.length})</div>
+          ${salidas.length ? salidas.map(lineaSalida).join('') : '<div class="person-meta">Ninguna todavía</div>'}
+        </div>
+      </div>
+      <div style="text-align:right;margin-top:8px;"><button class="small danger" onclick="deletePerson('${p.id}')">Borrar ficha</button></div>
+    </div>`;
+}
 function renderPeople() {
   const search = (document.getElementById('searchPeople')?.value || '').toLowerCase();
   const el = document.getElementById('peopleList');
   if (!el) return;
-  el.innerHTML = '';
   const filtro = document.getElementById('filtroPersonas')?.value || '';
+  const orden = document.getElementById('ordenPersonas')?.value || 'asistidas';
+  if (!cuentasCargadas) cargarCuentasPersonas();
+  const conteo = (p) => {
+    const ps = signups.filter(s => s.personId === p.id);
+    return { ps, apuntadas: ps.filter(s => s.status !== 'espera' && s.status !== 'cancelado').length, vino: ps.filter(s => s.attended).length };
+  };
   let filtered = people.filter(p =>
-    [p.name, p.apellidos, p.email, p.telefono].some(v => (v || '').toLowerCase().includes(search))
+    [p.name, p.apellidos, p.email, p.telefono, p.instagram].some(v => (v || '').toLowerCase().includes(search))
   ).filter(p => {
     const e = estadoPlus(p);
+    const c = accesoCuenta(p);
     if (filtro === 'plus') return e.activo;
     if (filtro === 'pronto') return e.activo && e.hasta && e.hasta <= new Date(Date.now() + 7*864e5).toISOString().slice(0,10);
     if (filtro === 'revisar') return e.revisar;
     if (filtro === 'novedades') return p.aceptaNovedades;
+    if (filtro === 'sin-imagen') return !p.consentImagen;
+    if (filtro === 'duplicados') return duplicadosDe(p).length > 0;
+    if (filtro.startsWith('acc-')) {
+      if (!c) return filtro === 'acc-sin' && !p.email;
+      if (filtro === 'acc-plus') return c.acceso === 'plus' || c.acceso === 'admin';
+      if (filtro === 'acc-fotos') return c.acceso === 'fotos';
+      if (filtro === 'acc-manual') return (c.manuales || []).length > 0;
+      if (filtro === 'acc-off') return c.acceso === 'ninguno' && !(c.manuales || []).length;
+      if (filtro === 'acc-sin') return c.acceso === 'sin-cuenta';
+    }
     return true;
   });
-  if (!cuentasCargadas) cargarCuentasPersonas();
-  filtered.sort((a,b) => {
-    const countA = signups.filter(s => s.personId === a.id).length;
-    const countB = signups.filter(s => s.personId === b.id).length;
-    return countB - countA;
+  const datos = new Map(filtered.map(p => [p.id, conteo(p)]));
+  filtered.sort((a, b) => {
+    const A = datos.get(a.id), B = datos.get(b.id);
+    if (orden === 'nombre') return nombreCompleto(a).localeCompare(nombreCompleto(b), 'es');
+    if (orden === 'recientes') return msDe(b.createdAt) - msDe(a.createdAt);
+    if (orden === 'apuntadas') return B.apuntadas - A.apuntadas || B.vino - A.vino;
+    return B.vino - A.vino || B.apuntadas - A.apuntadas;
   });
-  if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty">Sin resultados</div>';
-    return;
-  }
-  filtered.forEach(p => {
-    const psignups = signups.filter(s => s.personId === p.id);
-    const attended = psignups.filter(s => s.attended).length;
-    const div = document.createElement('div');
-    div.className = 'person-row';
-    div.style.flexDirection = 'column';
-    div.style.alignItems = 'stretch';
-    div.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div class="person-main">
-          <div class="person-name">${escapeHtml(nombreCompleto(p))} ${attended > 1 ? `<span class="badge">${attended} salidas</span>` : ''} ${p.plusHasta ? `<span class="badge" style="background:${new Date(p.plusHasta) < new Date() ? '#b5654f' : '#5a7a5d'};">MD+${p.plusNivel === 'con-salidas' ? ' con salidas' : ''} hasta ${new Date(p.plusHasta).toLocaleDateString('es-ES')}</span>` : ''}</div>
-          <div class="person-meta">${escapeHtml(p.email || 'sin email')}${telefonoHtml(p.telefono)} · apuntado a ${psignups.length} salida(s)</div>
-        </div>
-        <button class="small danger" onclick="deletePerson('${p.id}')">✕</button>
+  const cuenta = document.getElementById('cuentaPersonas');
+  if (cuenta) cuenta.textContent = filtered.length + ' de ' + people.length + (filtro.startsWith('acc-') && !cuentasCargadas ? ' · cargando cuentas…' : '');
+  if (filtered.length === 0) { el.innerHTML = '<div class="empty">Sin resultados</div>'; return; }
+  el.innerHTML = filtered.map(p => {
+    const { ps, apuntadas, vino } = datos.get(p.id);
+    const abierta = personasAbiertas.has(p.id);
+    const e = estadoPlus(p), c = accesoCuenta(p);
+    return `<div class="persona ${abierta ? 'abierta' : ''}">
+      <div class="persona-linea" onclick="togglePersona('${p.id}')">
+        <span class="persona-nombre">${escapeHtml(nombreCompleto(p) || p.email || 'Sin nombre')}</span>
+        <span class="persona-chips">${chipsPersona(p, e, c)}${p.aceptaNovedades ? ' <span title="Acepta novedades por email">✉️</span>' : ''}</span>
+        <span class="persona-salidas" title="${apuntadas} inscripciones (sin contar lista de espera ni cancelaciones) · ha venido a ${vino}">${apuntadas ? `${apuntadas} apuntada${apuntadas > 1 ? 's' : ''} · vino a ${vino}` : '—'}</span>
+        <span class="persona-email">${escapeHtml(p.email || '')}</span>
+        <span class="persona-flecha">${abierta ? '▾' : '▸'}</span>
       </div>
-      ${duplicadosDe(p).map(o => `<div class="person-meta" style="margin-top:6px;padding:8px 10px;border-radius:8px;background:rgba(232,130,26,.12);">
-        ⚠️ Hay otra ficha con el mismo email: <strong>${escapeHtml(nombreCompleto(o))}</strong> (${signups.filter(s => s.personId === o.id).length} salida(s)).
-        <button class="small secondary" style="margin-left:6px;" onclick="fusionarPersonas('${p.id}','${o.id}')">Quedarme con esta y fusionar la otra</button>
-      </div>`).join('')}
-      <details class="datos-persona" ${datosAbiertos.has(p.id) ? 'open' : ''} ontoggle="this.open ? datosAbiertos.add('${p.id}') : datosAbiertos.delete('${p.id}')">
-        <summary class="person-meta" style="cursor:pointer;">Editar datos</summary>
-        <input type="text" placeholder="Nombre" value="${escapeAttr(p.name)}" onchange="guardarDato('${p.id}','name',this.value)">
-        <input type="text" placeholder="Apellidos" value="${escapeAttr(p.apellidos)}" onchange="guardarDato('${p.id}','apellidos',this.value)">
-        <input type="text" placeholder="Email" value="${escapeAttr(p.email)}" onchange="guardarDato('${p.id}','email',this.value)">
-        <input type="tel" placeholder="Teléfono" value="${escapeAttr(p.telefono)}" onchange="guardarDato('${p.id}','telefono',this.value)">
-      </details>
-      <div class="sub-panel">${mdPanelHtml(p)}</div>
-      <label class="consent-toggle">
-        <input type="checkbox" ${p.consentImagen ? 'checked' : ''} onchange="toggleConsent('${p.id}', this.checked)">
-        Consentimiento de uso de imagen
-      </label>
-      ${p.aceptaNovedades ? '<div class="person-meta">✉️ Acepta novedades por email</div>' : ''}
-    `;
-    el.appendChild(div);
-  });
+      ${abierta ? fichaPersona(p, ps) : ''}
+    </div>`;
+  }).join('');
 }
+window.togglePersona = function(id) {
+  if (personasAbiertas.has(id)) personasAbiertas.delete(id); else personasAbiertas.add(id);
+  renderPeople();
+};
+// Guarda solo ese campo (nunca reescribe la ficha entera: así no se pisan datos que haya
+// escrito la web o el servidor mientras tanto, como la casilla de novedades)
+window.guardarCampo = async function(personId, campo, valor) {
+  setSyncStatus('Guardando…');
+  try { await setDoc(doc(db, 'people', personId), { [campo]: valor }, { merge: true }); setSyncStatus('Guardado ✓'); }
+  catch (err) { setSyncStatus('Error: ' + err.message, true); }
+};
+window.guardarNovedades = async function(personId, valor) {
+  setSyncStatus('Guardando…');
+  try {
+    await setDoc(doc(db, 'people', personId), valor ? { aceptaNovedades: true, novedadesDesde: new Date().toISOString(), novedadesOrigen: 'crm' } : { aceptaNovedades: false, novedadesBaja: new Date().toISOString() }, { merge: true });
+    setSyncStatus('Guardado ✓');
+  } catch (err) { setSyncStatus('Error: ' + err.message, true); }
+};
 
 const TRIAL_DAYS = 30;
 
@@ -1707,7 +1828,7 @@ window.toggleConsent = async function(personId, value) {
   if (!p) return;
   setSyncStatus('Guardando…');
   try {
-    await setDoc(doc(db, 'people', personId), { ...p, consentImagen: value });
+    await setDoc(doc(db, 'people', personId), { consentImagen: value }, { merge: true });
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error guardando consentimiento:', err);
@@ -1837,9 +1958,8 @@ window.activateSub = async function(personId) {
   setSyncStatus('Guardando…');
   try {
     await setDoc(doc(db, 'people', personId), {
-      ...p,
       subscription: { active: true, since, until: untilDate.toISOString().slice(0,10) }
-    });
+    }, { merge: true });
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error activando suscripción:', err);
@@ -1852,7 +1972,7 @@ window.deactivateSub = async function(personId) {
   if (!p) return;
   setSyncStatus('Guardando…');
   try {
-    await setDoc(doc(db, 'people', personId), { ...p, subscription: { active: false } });
+    await setDoc(doc(db, 'people', personId), { subscription: { active: false } }, { merge: true });
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error desactivando suscripción:', err);
@@ -1864,16 +1984,15 @@ window.grantTrial = async function(personId) {
   const p = people.find(p => p.id === personId);
   if (!p) return;
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'people', personId), { ...p, trialStart: new Date().toISOString() });
+  await setDoc(doc(db, 'people', personId), { trialStart: new Date().toISOString() }, { merge: true });
   setSyncStatus('Guardado ✓');
 };
 
 window.revokeTrial = async function(personId) {
   const p = people.find(p => p.id === personId);
   if (!p) return;
-  const { trialStart, ...rest } = p;
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'people', personId), rest);
+  await updateDoc(doc(db, 'people', personId), { trialStart: deleteField() });
   setSyncStatus('Guardado ✓');
 };
 
