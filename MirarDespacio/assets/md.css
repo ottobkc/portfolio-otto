@@ -352,3 +352,24 @@ html.visor-abierto { overflow: hidden; }
 .ep-nav.sig { text-align: right; grid-column: 2; }
 .ep-nav.ant { grid-column: 1; }
 @media (max-width: 560px) { .ep-navs { grid-template-columns: 1fr; } .ep-nav.sig, .ep-nav.ant { grid-column: 1; text-align: left; } }
+
+/* Reproductor de Spotify bajo demanda (no se carga hasta pulsar, así no instala cookies) */
+.spotify-fachada { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 14px; text-align: center; padding: 28px 22px; border-radius: 12px; background: #23201b; color: var(--crema); border: 1px solid #3a352d; }
+.spotify-fachada.cargado { display: block; padding: 0; border: 0; background: none; min-height: 0 !important; }
+.spotify-cargar { display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; color: inherit; font: inherit; font-size: 1.15rem; font-weight: 400; cursor: pointer; padding: 6px 10px; border-radius: 999px; }
+.spotify-cargar svg { width: 54px; height: 54px; color: var(--naranja); transition: transform .2s ease; }
+.spotify-cargar:hover svg, .spotify-cargar:focus-visible svg { transform: scale(1.06); }
+.spotify-cargar:focus-visible { outline: 2px solid var(--naranja); outline-offset: 4px; }
+.spotify-fachada p { margin: 0; max-width: 34ch; font-size: .88rem; line-height: 1.5; color: #b8b1a4; }
+.spotify-fachada a { color: var(--crema); }
+
+/* Páginas legales */
+.texto-legal .ficha { background: var(--papel); border: 1px solid var(--linea); border-radius: 6px; padding: 16px 20px; margin: 0 0 1.4rem; }
+.texto-legal .ficha p { margin: 0 0 .2rem; }
+.texto-legal h3 { font-size: 1.05rem; margin: 1.4rem 0 .4rem; font-weight: 500; }
+.texto-legal .tabla { overflow-x: auto; margin: .6rem 0 1.4rem; }
+.texto-legal table { width: 100%; border-collapse: collapse; font-size: .95rem; line-height: 1.5; }
+.texto-legal th, .texto-legal td { text-align: left; vertical-align: top; padding: 10px 8px; border-bottom: 1px solid var(--linea); }
+.texto-legal th { font-weight: 500; }
+.texto-legal .pendiente { background: #ffe2c2; padding: 0 4px; border-radius: 2px; }
+.acepta-condiciones { font-size: .92rem; color: var(--gris); margin-top: 18px; }

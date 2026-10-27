@@ -1,6 +1,7 @@
 # Contenido de cada página de mirardespacio.es. Lo llama generar.py.
 import json, html
 from episodios import ruta_ep, construir_episodios
+from spotify import reproductor
 
 EPISODIOS_T1 = [
     (1, "Qué es para mí la fotografía callejera (y por qué nos da miedo mirar)", ""),
@@ -118,7 +119,7 @@ def construir(g):
           <p class="entradilla">Sobre la vergüenza de fotografiar a desconocidos, qué hacer si te piden borrar una foto, publicar en el vacío del algoritmo o encontrar tu estilo sin buscarlo.</p>
           <div class="botones"><a class="boton claro" href="/podcast/">Todos los episodios</a></div>
         </div>
-        <iframe class="revelar" title="Mirar Despacio #1 en Spotify" style="border-radius:12px;border:0;width:100%;" src="https://open.spotify.com/embed/episode/1uNhbeNInYusHKHv8UpA0m?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        {reproductor('1uNhbeNInYusHKHv8UpA0m', 1, clase='revelar')}
       </div>
     </section>
 
@@ -171,7 +172,7 @@ def construir(g):
         <h1>El podcast de <em>Mirar Despacio.</em></h1>
         <p class="entradilla">Un podcast en español sobre fotografía callejera, atención y esas cosas pequeñas que se nos escapan cuando vamos con prisa. Episodios cortos, para escuchar paseando o en el metro. No hace falta saber de fotografía.</p>
         <div class="botones">{plataformas}</div>
-        <iframe title="Mirar Despacio #1 en Spotify" style="border-radius:12px;border:0;width:100%;margin-top:36px;" src="https://open.spotify.com/embed/episode/1uNhbeNInYusHKHv8UpA0m?theme=0" height="352" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        {reproductor('1uNhbeNInYusHKHv8UpA0m', 1, estilo='margin-top:36px;')}
       </div>
     </section>
 
@@ -451,6 +452,7 @@ def construir(g):
       <div class="envoltura">
         <div class="rejilla-3 talleres">{''.join(tarjeta_taller(i + 1, t) for i, t in enumerate(td['talleres']))}
         </div>
+        <p class="acepta-condiciones">Al reservar aceptas las <a href="/condiciones/">condiciones de venta</a>: cambios, devoluciones y qué pasa si no se llega al mínimo de personas.</p>
       </div>
     </section>
 
@@ -479,7 +481,7 @@ def construir(g):
         <h2>Antes de <em>reservar.</em></h2>
         <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, trae la cámara que quieras aprender a usar: réflex, mirrorless o compacta. Y para el de composición vale cualquier cosa, también el móvil.</p></details>
         <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, con tarjeta, en la página de pago segura de Stripe. Los precios llevan el IVA incluido. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
-        <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a>. Si avisas con al menos 7 días de antelación, te devuelvo el importe entero o te paso la plaza a otra fecha, lo que prefieras. Con menos de 7 días ya tengo el material y el sitio preparados para ti, así que no hay devolución, pero puedes pasar la plaza a otra fecha o regalársela a otra persona.</p></details>
+        <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a>. Si avisas con al menos 7 días de antelación, te devuelvo el importe entero o te paso la plaza a otra fecha, lo que prefieras. Con menos de 7 días ya tengo el material y el sitio preparados para ti, así que no hay devolución, pero puedes pasar la plaza a otra fecha o regalársela a otra persona. Todo el detalle está en las <a href="/condiciones/">condiciones de venta</a>.</p></details>
         <details class="faq"><summary>¿Y si no se apunta suficiente gente?</summary><p>Cada taller necesita un mínimo de {min(t.get('minimo', 4) for t in td['talleres'])} personas para que funcione como grupo. Si 72 horas antes no se llega, te escribo y eliges: pasar tu plaza a la siguiente fecha de ese taller o la devolución íntegra de lo que pagaste.</p></details>
         <details class="faq"><summary>¿En qué se diferencian de las salidas?</summary><p>Las salidas son paseos en grupo con retos, gratuitos y con contribución libre al final. Los talleres son más cortos de grupo, con un tema concreto, explicación y práctica guiada, y te llevas material.</p></details>
       </div>
@@ -504,6 +506,7 @@ def construir(g):
           <h1>Regala <em>mirar despacio.</em></h1>
           <p class="entradilla">Un taller o unos meses de Mirar Despacio+. Al pagar te llega al momento una tarjeta regalo con un código, para imprimir o reenviar. Quien la recibe la canjea aquí y elige fecha. Vale un año.</p>
           <ul class="datos" style="margin-top:28px;">{regalos_t}{regalos_p}</ul>
+          <p class="acepta-condiciones">Al comprar aceptas las <a href="/condiciones/">condiciones de venta</a>.</p>
           <div style="margin-top:56px;">
             <p class="antetitulo">¿Te han regalado algo?</p>
             <h2>Canjea tu <em>código.</em></h2>
@@ -597,6 +600,7 @@ def construir(g):
             <a class="boton color" data-plus-url="conSalidas" data-umami-event="plus-interes" href="mailto:{EMAIL}?subject=Me%20interesa%20Mirar%20Despacio%2B%20con%20salidas">Me interesa</a></div>
         </div>
         <p style="margin-top:22px;">Sin permanencia: te das de baja cuando quieras<a data-plus-portal hidden href="#">, tú mismo desde tu área de pagos</a>. ¿Es para otra persona? <a href="/regalo/">Regala Mirar Despacio+</a>.</p>
+        <p class="acepta-condiciones">Al suscribirte aceptas las <a href="/condiciones/">condiciones de venta</a>. Se cobra cada mes hasta que te des de baja.</p>
       </div>
     </section>
 
@@ -615,47 +619,9 @@ def construir(g):
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
         'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
 
-    # ------------------------------------------------------------ PRIVACIDAD
-    cuerpo = """
-    <section class="portada">
-      <div class="envoltura estrecho">
-        <p class="antetitulo">Tus datos</p>
-        <h1>Política de <em>privacidad.</em></h1>
-        <p class="entradilla">Qué datos recojo, para qué los uso y cómo puedes pedir que los cambie o los borre. Sin letra pequeña.</p>
-      </div>
-    </section>
-    <section class="seccion">
-      <div class="envoltura estrecho texto-legal">
-        <h2>Quién es el responsable</h2>
-        <p>Otto Kols, fotógrafo en Madrid, responsable de Mirar Despacio (mirardespacio.es y ottokols.es). Contacto: <a href="mailto:{EMAIL}">{EMAIL}</a>.</p>
-
-        <h2>Qué datos recojo y para qué</h2>
-        <ul>
-          <li><strong>Inscripción a salidas:</strong> nombre, apellidos, email y, si los das, teléfono, Instagram y con qué haces fotos. Los uso para gestionar tu plaza, mandarte la confirmación y el punto de encuentro, avisarte de las salidas, mandarte después el enlace para subir tus fotos y, si dejas el teléfono, añadirte a la comunidad de WhatsApp. Base: tu consentimiento y la gestión de la actividad a la que te apuntas.</li>
-          <li><strong>Fotos que subes:</strong> las guardo para comentarlas. Solo salen en el <a href="/muro/">muro</a> público si tú lo marcas, y en la galería de los retos (solo para miembros) si tú lo marcas. Puedes quitarlas cuando quieras.</li>
-          <li><strong>Mirar Despacio+:</strong> tu cuenta (email y nombre), tus fotos, comentarios y retos hechos. Uso tu email para lo relacionado con el servicio: avisos del reto del mes, fechas de salidas y cambios en tu suscripción. Puedes dejar de recibir los avisos del reto desde el enlace de cada email.</li>
-          <li><strong>Novedades:</strong> solo si marcas la casilla, te escribiré sobre talleres y actividades nuevas. Puedes darte de baja en cualquier momento.</li>
-          <li><strong>Fotos del grupo en las salidas:</strong> se pueden usar para documentar y dar a conocer Mirar Despacio en la web y en redes, nunca para uso comercial de terceros. Si no quieres aparecer, dímelo y retiro las fotos en las que salgas.</li>
-          <li><strong>Formularios de contacto:</strong> solo para contestarte.</li>
-          <li><strong>Estadísticas:</strong> uso Umami, que cuenta visitas sin cookies y sin identificarte.</li>
-        </ul>
-
-        <h2>Cuánto tiempo</h2>
-        <p>Mientras participes en Mirar Despacio o tengas cuenta. Las fotos de las salidas se borran del servidor a los 90 días (salvo las que estén en el muro); las de los retos, cuando hay tres retos más nuevos. Si me pides que borre tus datos, los borro.</p>
-
-        <h2>Con quién se comparten</h2>
-        <p>Con nadie para su propio uso. Para que la web funcione uso servicios que guardan los datos por mí: Netlify (web y cuentas), Google Firebase (lista de inscripciones), Cloudinary (fotos) y Brevo (envío de emails). Algunos están fuera de la Unión Europea y trabajan con las garantías que exige la normativa.</p>
-
-        <h2>Si quieres cambiar algo</h2>
-        <p>Escríbeme a <a href="mailto:{EMAIL}">{EMAIL}</a> y lo hago: ver qué datos tengo tuyos, corregirlos, borrarlos o dejar de usarlos. Si crees que algo no está bien hecho, dímelo y lo reviso y lo corrijo.</p>
-        <p class="aviso">Como en cualquier web, la ley también te reconoce el derecho a dirigirte a la Agencia Española de Protección de Datos.</p>
-
-        <p class="aviso">Última actualización: octubre de 2026.</p>
-      </div>
-    </section>"""
-    cuerpo = cuerpo.replace('{EMAIL}', g['EMAIL'])
-    escribir('/privacidad/', pagina('/privacidad/', 'Privacidad · Mirar Despacio',
-        'Qué datos recoge Mirar Despacio, para qué los usa y cómo puedes pedir que los cambie o los borre.', cuerpo))
+    # ------------------------------------------------------------ PRIVACIDAD, CONDICIONES Y AVISO LEGAL
+    from legales import construir_legales
+    construir_legales(g, escribir, pagina)
 
     # ------------------------------------------------------------ AGENDA
     cuerpo = """

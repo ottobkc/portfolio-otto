@@ -114,6 +114,8 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
           <li><a href="mailto:{EMAIL}">{EMAIL}</a></li>
           <li><a href="{INSTAGRAM}" rel="me">Instagram · @ob.kc</a></li>
           <li><a href="{MD}">Mirar Despacio</a></li>
+          <li><a href="{MD}privacidad/">Privacidad</a></li>
+          <li><a href="{MD}aviso-legal/">Aviso legal</a></li>
         </ul>
       </div>
       <p class="legal">© 2026 Otto Kols · Madrid</p>
@@ -405,7 +407,7 @@ cuerpo = f'''
           <div><label for="c-tipo">Qué tienes en mente</label><select id="c-tipo" name="tipo">{opciones}</select></div>
           <div><label for="c-fecha">Fecha aproximada</label><input type="text" id="c-fecha" name="fecha" placeholder="Por ejemplo: noviembre, sin fecha aún…"></div>
           <div><label for="c-mensaje">Cuéntame algo</label><textarea id="c-mensaje" name="mensaje" rows="5"></textarea></div>
-          <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para responder a este mensaje.</label>
+          <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para responder a este mensaje. <a href="https://mirardespacio.es/privacidad/">Privacidad</a></label>
           <div><button class="btn lleno" type="submit">Enviar mensaje</button></div>
         </form>
         <div class="ok" id="contactOk"><strong>Mensaje recibido.</strong> Te escribo pronto.</div>

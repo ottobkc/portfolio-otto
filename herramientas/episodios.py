@@ -3,6 +3,7 @@
 # (abre https://anchor.fm/s/10f57d180/podcast/rss en el navegador y "Guardar como").
 # Sin ese archivo las páginas se generan igualmente, pero sin descripción larga.
 import os, re, html, unicodedata
+from spotify import reproductor
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from email.utils import parsedate_to_datetime
@@ -136,7 +137,7 @@ def construir_episodios(g, EPISODIOS, URLS, PLATAFORMAS):
         <p class="antetitulo"><a href="/podcast/">Podcast</a> · Temporada 1 · Episodio {n}</p>
         <h1>{t_esc}</h1>
         {meta_html}
-        <iframe title="Mirar Despacio #{n} en Spotify" style="border-radius:12px;border:0;width:100%;margin-top:24px;" src="https://open.spotify.com/embed/episode/{sid}?theme=0" height="232" loading="lazy" allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        {reproductor(sid, n, alto=232, estilo='margin-top:24px;')}
         <div class="botones"><a class="boton color" href="{spotify}" data-umami-event="ep{n}-spotify">Escuchar en Spotify</a>{otras}</div>
       </div>
     </section>

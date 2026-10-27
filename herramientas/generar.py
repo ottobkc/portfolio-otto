@@ -11,6 +11,12 @@ EMAIL = 'info@mirardespacio.es'
 UMAMI = '8f2ba4b0-e3aa-4d28-b1ec-282e448736f8'
 FORMSPREE = 'https://formspree.io/f/mlgkdlno'
 ACCESO = 'https://ottokols.es/acceso.html'
+# Titular de la web para las páginas legales (privacidad, condiciones y aviso legal).
+# Nombre y apellidos exactamente como en el DNI. Si NIF está vacío, las páginas lo marcan como pendiente.
+TITULAR = 'Otto Kolschinske'
+NIF = ''
+DOMICILIO = 'Calle Pirra 18, portal E, 1.º C, 28022 Madrid'
+ACTUALIZADO_LEGAL = 'noviembre de 2026'
 HOY = '2026-09-29'
 
 import hashlib
@@ -108,6 +114,8 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
           <li><a href="{SPOTIFY}">Spotify</a></li>
           <li><a href="{ACCESO}">Acceso miembros</a></li>
           <li><a href="/privacidad/">Privacidad</a></li>
+          <li><a href="/condiciones/">Condiciones de venta</a></li>
+          <li><a href="/aviso-legal/">Aviso legal</a></li>
         </ul>
       </div>
       <p class="legal">© 2026 Mirar Despacio · Otto Kols · Madrid</p>
