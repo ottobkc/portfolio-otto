@@ -60,7 +60,7 @@
     /* Calculadora de luz */
     .luz { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; margin: 22px 0; }
     .luz label { font: 500 14px/1 var(--sans); color: var(--gris); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .luz input { font: 500 16px var(--sans); padding: 8px 10px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+    .luz input, .luz select { font: 500 16px var(--sans); padding: 8px 10px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
     .franja { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 16px; border-radius: 10px; overflow: hidden; }
     .franja div { padding: 12px 10px; color: #fff; }
     .franja div:nth-child(1) { background: #e9a64a; color: var(--tinta); }
@@ -175,7 +175,7 @@
       </ul>
 
       <div class="luz" id="calculadora">
-        <label>Horas de luz en Madrid el día <input type="date" id="dia"></label>
+        <label>Horas de luz el día <input type="date" id="dia"> en <select id="ciudad" aria-label="Ciudad"></select></label>
         <div class="franja">
           <div><span>Hora dorada desde</span><b id="h-dorada">—</b></div>
           <div><span>Puesta de sol</span><b id="h-puesta">—</b></div>
@@ -183,7 +183,7 @@
           <div><span>Ya es de noche</span><b id="h-noche">—</b></div>
         </div>
         <p class="falta" id="falta"></p>
-        <small>Calculado para el centro de Madrid. Son horas astronómicas: en la calle, los edificios tapan el sol bastante antes.</small>
+        <small id="luz-nota"></small>
       </div>
 
       <div class="aparte">
@@ -439,49 +439,6 @@
   </footer>
 
   <script>
-    // Horas de la luz para Madrid (cálculo solar; mismo método que suncalc)
-    (function () {
-      var LAT = 40.4168, LNG = -3.7038;
-      var rad = Math.PI / 180, dia = 864e5, J1970 = 2440588, J2000 = 2451545, e = rad * 23.4397, J0 = 0.0009;
-      function horas(fecha) {
-        var lw = rad * -LNG, phi = rad * LAT, d = fecha.valueOf() / dia - 0.5 + J1970 - J2000;
-        var n = Math.round(d - J0 - lw / (2 * Math.PI));
-        var ap = function (h) { return J0 + (h + lw) / (2 * Math.PI) + n; };
-        var ds = ap(0), M = rad * (357.5291 + 0.98560028 * ds);
-        var L = M + rad * (1.9148 * Math.sin(M) + 0.02 * Math.sin(2 * M) + 0.0003 * Math.sin(3 * M)) + rad * 102.9372 + Math.PI;
-        var dec = Math.asin(Math.sin(L) * Math.sin(e));
-        function cuando(alt) {
-          var w = Math.acos((Math.sin(alt * rad) - Math.sin(phi) * Math.sin(dec)) / (Math.cos(phi) * Math.cos(dec)));
-          var j = J2000 + ap(w) + 0.0053 * Math.sin(M) - 0.0069 * Math.sin(2 * L);
-          return new Date((j + 0.5 - J1970) * dia);
-        }
-        return { dorada: cuando(6), puesta: cuando(-0.833), azul: cuando(-4), noche: cuando(-8) };
-      }
-      var fmt = function (d) { return d.toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit' }); };
-      var hoyMadrid = function () { return new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' }).slice(0, 10); };
-      var input = document.getElementById('dia');
-      function pintar() {
-        var iso = input.value || hoyMadrid();
-        var h = horas(new Date(iso + 'T12:00:00Z'));
-        document.getElementById('h-dorada').textContent = fmt(h.dorada);
-        document.getElementById('h-puesta').textContent = fmt(h.puesta);
-        document.getElementById('h-azul').textContent = fmt(h.azul);
-        document.getElementById('h-noche').textContent = fmt(h.noche);
-        var falta = document.getElementById('falta'), ahora = Date.now();
-        if (iso !== hoyMadrid()) { falta.textContent = ''; return; }
-        var min = function (t) { return Math.round((t - ahora) / 6e4); };
-        if (ahora < h.dorada) falta.textContent = 'faltan ' + min(h.dorada) + ' min para la hora dorada';
-        else if (ahora < h.puesta) falta.textContent = '¡hora dorada! el sol se pone en ' + min(h.puesta) + ' min';
-        else if (ahora < h.azul) falta.textContent = 'el sol se ha puesto: la hora azul empieza en ' + min(h.azul) + ' min';
-        else if (ahora < h.noche) falta.textContent = '¡hora azul! te quedan ' + min(h.noche) + ' min';
-        else falta.textContent = 'por hoy se acabó la luz: mañana más';
-      }
-      input.value = hoyMadrid();
-      input.addEventListener('change', pintar);
-      pintar();
-      setInterval(pintar, 30000);
-    })();
-
     // Ejercicios hechos: solo se guardan en este navegador
     (function () {
       var CLAVE = 'md-manual-atardecer';
@@ -502,5 +459,6 @@
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/js/hilo.js"></script>
   <script src="/js/ejercicios-taller.js" data-taller="atardecer"></script>
+  <script src="/js/horas-luz.js"></script>
 </body>
 </html>
