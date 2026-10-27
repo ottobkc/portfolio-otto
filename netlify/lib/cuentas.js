@@ -68,14 +68,29 @@ async function cuentaPorEmail(email) {
 }
 
 // Copia (o crea) la cuenta en Firebase con estos roles. Devuelve el uid.
-async function guardarEnFirebase(email, roles, extra = {}) {
+async function guardarEnFirebase(email, roles, extra = {}) { return (await guardar(email, roles, extra)).uid; }
+async function guardar(email, roles, extra = {}) {
   email = fb.normal(email);
   const { uid, nueva } = await fb.asegurarUsuario(email, extra.nombre);
   const datos = { email, roles: [...new Set(roles || [])], actualizada: FieldValue.serverTimestamp(), ...extra };
   if (nueva) datos.creada = FieldValue.serverTimestamp();
   Object.keys(datos).forEach((k) => datos[k] === undefined && delete datos[k]);
   await db().collection('cuentas').doc(uid).set(datos, { merge: true });
-  return uid;
+  return { uid, nueva };
+}
+
+// Correo de bienvenida a una cuenta nueva (solo en modo firebase: en modo doble lo manda Identity).
+// Nunca hace fallar el alta: si el correo no sale, queda apuntado.
+async function invitar(email, a) {
+  try {
+    const { enviar } = require('./correo');
+    const { correoInvitacion } = require('./correos-socios');
+    const c = correoInvitacion({ email, a });
+    if (!(await enviar({ para: email, asunto: c.asunto, html: c.html, texto: c.texto }))) throw new Error('sin-smtp');
+  } catch (e) {
+    console.error('invitación no enviada', email, e.message);
+    try { await db().collection('cambios_acceso').add({ tipo: 'invitacion-no-enviada', email, error: e.message, fecha: FieldValue.serverTimestamp() }); } catch (x) { /* nada */ }
+  }
 }
 
 // En modo doble la copia nunca debe romper lo que ya funciona: se apunta el fallo y se sigue
@@ -136,8 +151,13 @@ async function invitarCon(context, email, acceso, { bajar = false } = {}) {
   try {
     const d = await cuentaPorEmail(email);
     const actuales = d ? d.data().roles || [] : [];
-    if (!bajar && acceso === 'fotos' && actuales.includes('member')) return d ? 'ya-existe' : 'invitado';
-    await guardarEnFirebase(email, rolesPara(actuales, acceso));
+    if (!bajar && acceso === 'fotos' && actuales.includes('member')) return 'ya-existe';
+    const r = await guardar(email, rolesPara(actuales, acceso));
+    // Como hacía Identity: el correo de invitación solo a quien aún no había entrado nunca
+    const nuncaEntro = !d || !d.data().primeraEntrada;
+    if (acceso !== 'ninguno' && (r.nueva || (nuncaEntro && !actuales.some((x) => ROLES_ACCESO.includes(x))))) {
+      await invitar(email, acceso === 'plus' ? 'socios' : 'cuaderno');
+    }
     return d ? 'ya-existe' : 'invitado';
   } catch (e) {
     console.error('invitarCon', e.message);
@@ -162,7 +182,9 @@ async function darManual(context, email, tallerId) {
     const d = await cuentaPorEmail(email);
     const actuales = d ? d.data().roles || [] : [];
     if (actuales.includes(rol)) return 'ya-tenia';
-    await guardarEnFirebase(email, [...actuales, rol]);
+    await guardar(email, [...actuales, rol]);
+    // Correo con el acceso al manual a quien aún no ha entrado nunca (quien ya entra lo verá en su zona)
+    if (!d || !d.data().primeraEntrada) await invitar(email, 'manual-' + String(tallerId));
     return d ? 'ya-existe' : 'invitado';
   } catch (e) {
     console.error('darManual', e.message);

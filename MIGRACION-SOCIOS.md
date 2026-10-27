@@ -24,7 +24,29 @@ mirardespacio.es. ottokols.es se queda con los servicios de fotografía y el CRM
 1. Authentication → Sign-in method → Email/Password: activar **Email link (passwordless sign-in)**.
 2. Authentication → Settings → Authorized domains: añadir `mirardespacio.es` (y el dominio de las Deploy Previews: `mirar-despacio.netlify.app`).
 3. Authentication → Settings → User actions: «Enable create (sign-up)» sigue **desactivado**.
-4. Reglas de Firestore: pegar las nuevas de `PortfolioOtto/crm/firestore.rules` (exigen email verificado al admin).
+
+Las reglas de Firestore no cambian: el admin se reconoce por su email, y para entrar con ese email hace
+falta leer el correo de Otto (el enlace solo llega a su buzón).
+
+## Cómo funciona la zona nueva (mirardespacio.es)
+
+- `/acceso/`: pide el email y la función edge `socios` le pide a ottokols.es (función `socios`) que mande
+  el enlace. Solo llega si el email tiene cuenta con algún acceso; la respuesta en pantalla es siempre la misma.
+- El enlace vuelve a `/acceso/`, entra con Firebase y pide la cookie `md_socio` (firmada con `SESION_SOCIOS`, 12 h).
+- La función edge comprueba la cookie antes de servir `/socios/`, `/retos/`, `/cuaderno/` y `/manuales/<id>/`.
+- Las páginas usan `/js/sesion.js`, que imita al widget de Identity (mismas llamadas), y llaman a las funciones
+  de ottokols.es por `/api/f/*` (proxy de netlify.toml).
+- Las páginas se copian desde PortfolioOtto con `herramientas/mover_socios.py` hasta la fase 3.
+
+## Pruebas en la Deploy Preview (fase 2)
+
+1. Sin entrar: `/socios/`, `/retos/`, `/cuaderno/`, `/manuales/atardecer/` → todas llevan a `/acceso/`.
+2. Variantes: `/MANUALES/atardecer/`, `/manuales/atardecer/index.html`, `/manuales%2Fatardecer/`, `/socios/dof-calculator.html` → nunca enseñan contenido sin entrar.
+3. Pedir enlace con un email con manual → llega el correo en español → entra directo al manual.
+4. Con esa cuenta, `/socios/` y otro manual → «no tiene acceso a esa parte».
+5. Con una cuenta MD+: portada, una herramienta, retos, cuaderno, subir una foto de prueba.
+6. Cerrar sesión → `/socios/` vuelve a pedir el email.
+7. Un email sin cuenta → mismo mensaje y no llega nada.
 
 Variable `SESION_SOCIOS` (la misma en los dos sitios): firma la cookie de sesión de los socios.
 
