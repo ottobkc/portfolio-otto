@@ -425,7 +425,7 @@ def construir(g):
       <div class="envoltura estrecho">
         <p class="antetitulo">Tienda</p>
         <h1>Cosas para <em>mirar despacio.</em></h1>
-        <p class="entradilla">El zine, la baraja de retos y lo que vaya saliendo de las salidas y el podcast. Hecho en pequeño, en Madrid.</p>
+        <p class="entradilla">El zine, la baraja de retos y lo que vaya saliendo de las salidas y el podcast. Hecho despacio, en Madrid.</p>
       </div>
     </section>
     <section class="seccion" style="padding-top:0;">
