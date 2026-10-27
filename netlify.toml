@@ -170,6 +170,45 @@
   status = 302
   force  = true
 
+[[redirects]]
+  from       = "/manuales/nocturna/*"
+  to         = "/manuales/nocturna/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["taller-nocturna", "admin"]}
+
+[[redirects]]
+  from   = "/manuales/nocturna/*"
+  to     = "/acceso.html?a=manual-nocturna"
+  status = 302
+  force  = true
+
+[[redirects]]
+  from       = "/manuales/composicion/*"
+  to         = "/manuales/composicion/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["taller-composicion", "admin"]}
+
+[[redirects]]
+  from   = "/manuales/composicion/*"
+  to     = "/acceso.html?a=manual-composicion"
+  status = 302
+  force  = true
+
+[[redirects]]
+  from       = "/manuales/iniciacion/*"
+  to         = "/manuales/iniciacion/:splat"
+  status     = 200
+  force      = true
+  conditions = {Role = ["taller-iniciacion", "admin"]}
+
+[[redirects]]
+  from   = "/manuales/iniciacion/*"
+  to     = "/acceso.html?a=manual-iniciacion"
+  status = 302
+  force  = true
+
 # Cualquier otra ruta de /manuales/ (manuales aún sin publicar) no se sirve a nadie
 [[redirects]]
   from       = "/manuales/*"

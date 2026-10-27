@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Manual · Primeros pasos · Mirar Despacio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --papel: #f5f3ef;
+      --papel-2: #ebe6dd;
+      --tinta: #1a1814;
+      --gris: #6b655a;
+      --linea: #d8d1c4;
+      --naranja: #e8821a;
+      --rosa: #e8347a;
+      --azul: #2b4a6f;
+      --serif: 'Fraunces', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+      --mano: 'Caveat', cursive;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--papel); color: var(--tinta); font: 400 17px/1.65 var(--sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration-color: var(--naranja); text-underline-offset: 3px; }
+    .envoltura { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+    /* Portada: el degradado del cielo de noviembre, de la hora dorada a la hora azul */
+    .portada { background: linear-gradient(180deg, #f2c27a 0%, #e8821a 34%, #b9466a 62%, #2b4a6f 100%); color: #fff; padding: 56px 0 44px; position: relative; overflow: hidden; }
+    .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(26,24,20,.0) 0 22px, rgba(26,24,20,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
+    .marca { font: 600 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; opacity: .9; }
+    .portada h1 { font: 300 clamp(40px, 9vw, 64px)/1.02 var(--serif); margin: 18px 0 10px; letter-spacing: -.01em; }
+    .portada h1 em { font-style: italic; font-weight: 500; }
+    .portada p.sub { font: 300 italic 20px/1.4 var(--serif); margin: 0; max-width: 30ch; }
+    .portada .nota { font: 600 24px/1.1 var(--mano); margin-top: 26px; transform: rotate(-2deg); display: inline-block; }
+
+    nav.indice { border-bottom: 1px solid var(--linea); background: var(--papel); position: sticky; top: 0; z-index: 5; }
+    nav.indice ul { list-style: none; margin: 0 auto; padding: 0 20px; max-width: 720px; display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; }
+    nav.indice ul::-webkit-scrollbar { display: none; }
+    nav.indice a { display: block; padding: 13px 0; font: 500 14px/1 var(--sans); text-decoration: none; white-space: nowrap; color: var(--gris); }
+    nav.indice a:hover { color: var(--tinta); }
+
+    section { padding: 44px 0 8px; }
+    .antetitulo { font: 600 12px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--naranja); margin: 0 0 10px; }
+    h2 { font: 300 clamp(30px, 6vw, 40px)/1.1 var(--serif); margin: 0 0 18px; }
+    h2 em { font-style: italic; color: var(--rosa); }
+    h3 { font: 500 21px/1.3 var(--serif); margin: 30px 0 8px; }
+    p { margin: 0 0 14px; }
+    .entradilla { font: 300 20px/1.5 var(--serif); }
+    .mano { font: 600 23px/1.15 var(--mano); color: var(--rosa); }
+    .aparte { border-left: 3px solid var(--naranja); padding: 4px 0 4px 16px; margin: 20px 0; }
+    .aparte.azul { border-left-color: var(--azul); }
+    ul.lista { padding-left: 20px; margin: 0 0 14px; }
+    ul.lista li { margin-bottom: 6px; }
+    strong { font-weight: 600; }
+
+    /* Calculadora de luz */
+    .luz { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; margin: 22px 0; }
+    .luz label { font: 500 14px/1 var(--sans); color: var(--gris); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .luz input { font: 500 16px var(--sans); padding: 8px 10px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+    .franja { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 16px; border-radius: 10px; overflow: hidden; }
+    .franja div { padding: 12px 10px; color: #fff; }
+    .franja div:nth-child(1) { background: #e9a64a; color: var(--tinta); }
+    .franja div:nth-child(2) { background: var(--naranja); }
+    .franja div:nth-child(3) { background: #9c4466; }
+    .franja div:nth-child(4) { background: var(--azul); }
+    .franja b { display: block; font: 500 22px/1.1 var(--serif); }
+    .franja span { font: 500 12px/1.3 var(--sans); }
+    .luz .falta { font: 600 22px/1.2 var(--mano); color: var(--rosa); margin: 14px 0 0; }
+    .luz small { display: block; color: var(--gris); font-size: 13px; margin-top: 8px; }
+
+    /* Tabla de ajustes */
+    .ajustes { width: 100%; border-collapse: collapse; margin: 18px 0 8px; font-size: 15px; }
+    .ajustes th { text-align: left; font: 600 12px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--gris); padding: 8px 8px 8px 0; border-bottom: 1.5px solid var(--tinta); }
+    .ajustes td { padding: 12px 8px 12px 0; border-bottom: 1px solid var(--linea); vertical-align: top; }
+    .ajustes td:first-child { font-weight: 600; }
+    @media (max-width: 560px) {
+      .ajustes thead { display: none; }
+      .ajustes tr { display: block; border-bottom: 1px solid var(--linea); padding: 12px 0; }
+      .ajustes td { display: block; border: 0; padding: 2px 0; }
+      .ajustes td:not(:first-child)::before { content: attr(data-t) ': '; color: var(--gris); font-size: 13px; }
+      .franja { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Ejercicios */
+    .ejercicio { background: var(--papel-2); border-radius: 14px; padding: 18px 20px; margin: 16px 0; position: relative; }
+    .ejercicio h3 { margin: 0 0 6px; padding-right: 40px; }
+    .ejercicio .cuando { font: 600 20px/1 var(--mano); color: var(--naranja); }
+    .ejercicio p:last-child { margin-bottom: 0; }
+    .ejercicio input[type=checkbox] { position: absolute; top: 18px; right: 18px; width: 24px; height: 24px; accent-color: var(--rosa); }
+    .ejercicio.hecho { opacity: .65; }
+
+    .errores dt { font: 500 19px/1.3 var(--serif); margin-top: 18px; }
+    .errores dd { margin: 4px 0 0; }
+
+    footer { margin-top: 48px; padding: 30px 0 48px; border-top: 1px solid var(--linea); color: var(--gris); font-size: 14px; }
+    footer .mano { font-size: 26px; }
+    @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+  
+    /* Esquemas de composición */
+    .esquema { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin: 18px 0; }
+    .esquema svg { width: 96px; height: 72px; background: #fff; border: 1px solid var(--linea); border-radius: 6px; }
+    .esquema h3 { margin-top: 0; }
+    /* Simulador de exposición */
+    .sim { background: #fff; border: 1px solid var(--linea); border-radius: 14px; padding: 20px; margin: 22px 0; }
+    .sim .controles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .sim label { font: 500 13px/1.3 var(--sans); color: var(--gris); display: block; }
+    .sim select { width: 100%; margin-top: 4px; font: 500 16px var(--sans); padding: 8px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); color: var(--tinta); }
+    .sim .escena { margin-top: 12px; }
+    .sim .resultado { margin-top: 16px; display: grid; grid-template-columns: 110px 1fr; gap: 14px; align-items: center; }
+    .sim .foto { height: 80px; border-radius: 8px; background: linear-gradient(135deg, #c98a3c, #6d7f8f 55%, #2d3a45); position: relative; overflow: hidden; }
+    .sim .foto::after { content: ''; position: absolute; inset: 0; background: var(--velo, transparent); }
+    .sim .veredicto { font: 600 22px/1.15 var(--mano); color: var(--rosa); }
+    .sim ul { margin: 10px 0 0; padding-left: 18px; font-size: 15px; }
+    @media (max-width: 560px) { .sim .controles { grid-template-columns: 1fr; } }
+
+    /* Portada de este manual */
+    .portada { background: linear-gradient(160deg, #f2c27a 0%, #e8821a 45%, #e8347a 100%); }
+    .portada::after { height: 100%; mask: none; background: radial-gradient(circle at 82% 58%, transparent 0 46px, rgba(255,255,255,.35) 46px 48px, transparent 48px 70px, rgba(255,255,255,.22) 70px 72px, transparent 72px); }
+  </style>
+</head>
+<body>
+
+  <header class="portada">
+    <div class="envoltura">
+      <div class="marca">Mirar Despacio · Manual del taller</div>
+      <h1>Primeros<br><em>pasos</em></h1>
+      <p class="sub">Entiende tu cámara en una mañana: los botones que importan y por qué.</p>
+      <span class="nota">para volver aquí cada vez que te atasques</span>
+    </div>
+  </header>
+
+  <nav class="indice" aria-label="Índice">
+    <ul>
+      <li><a href="#antes">Antes</a></li>
+      <li><a href="#camara">Tu cámara</a></li>
+      <li><a href="#triangulo">El triángulo</a></li>
+      <li><a href="#exposicion">Exposición</a></li>
+      <li><a href="#luz">La luz</a></li>
+      <li><a href="#componer">Componer</a></li>
+      <li><a href="#calle">La calle</a></li>
+      <li><a href="#ejercicios">Ejercicios</a></li>
+      <li><a href="#errores">Errores</a></li>
+      <li><a href="#despues">Después</a></li>
+    </ul>
+  </nav>
+
+  <main class="envoltura">
+
+    <section id="antes">
+      <p class="antetitulo">Antes de salir</p>
+      <h2>Lo que vamos a <em>hacer.</em></h2>
+      <p class="entradilla">Vamos a quitarle el miedo a la cámara. Empezamos sentados, con la cámara en la mano, para ver qué hace cada botón que importa. Luego salimos a la calle a practicarlo todo disparando, y volvemos a ver las fotos.</p>
+      <p>No hace falta que te aprendas este manual antes. Échale un ojo para llegar con algo de vocabulario, y vuelve a él cada vez que te atasques con un ajuste.</p>
+
+      <h3>Qué traer</h3>
+      <ul class="lista">
+        <li><strong>Tu cámara</strong> (réflex, sin espejo o compacta) con la batería cargada.</li>
+        <li><strong>La tarjeta de memoria con espacio.</strong> Si tiene fotos que quieres guardar, pásalas antes al ordenador.</li>
+        <li><strong>El manual de tu cámara en el móvil</strong> (se descarga en PDF de la web de la marca). Cada marca llama a las cosas de forma distinta y a veces hay que buscar un menú.</li>
+        <li><strong>Ganas de equivocarte.</strong> Vamos a hacer muchas fotos malas a propósito para entender qué hace cada ajuste.</li>
+      </ul>
+    </section>
+
+    <section id="camara">
+      <p class="antetitulo">Tu cámara</p>
+      <h2>Los botones <em>que importan.</em></h2>
+      <p>Tu cámara tiene decenas de menús, pero para hacer buenas fotos solo necesitas entender unos pocos ajustes. El resto lo puedes ignorar tranquilamente.</p>
+
+      <h3>La rueda de modos</h3>
+      <ul class="lista">
+        <li><strong>Auto (verde):</strong> la cámara decide todo. Sirve para salir del paso, pero no aprendes nada y no decides nada.</li>
+        <li><strong>P (programa):</strong> como el automático, pero te deja tocar algunas cosas, como la compensación.</li>
+        <li><strong>A o Av (prioridad a la apertura):</strong> tú eliges el diafragma y la cámara la velocidad. <strong>Es el modo con el que vamos a empezar.</strong></li>
+        <li><strong>S o Tv (prioridad a la velocidad):</strong> tú eliges la velocidad y la cámara el diafragma. Útil para congelar o mover a propósito.</li>
+        <li><strong>M (manual):</strong> eliges todo. Lo probaremos al final del taller, para entender cómo encaja todo.</li>
+      </ul>
+
+      <h3>El enfoque</h3>
+      <ul class="lista">
+        <li><strong>Un solo punto de enfoque.</strong> Si dejas que la cámara elija entre todos, enfocará lo que quiera ella, no lo que quieres tú.</li>
+        <li><strong>Enfoca y recompón:</strong> apunta el punto al sujeto, pulsa el disparador hasta la mitad (enfoca), y sin soltar, mueve la cámara para encuadrar y dispara.</li>
+        <li><strong>Enfoque único</strong> (AF-S / One Shot) para cosas quietas; <strong>continuo</strong> (AF-C / AI Servo) para cosas que se mueven: sigue enfocando mientras mantienes el botón a medias.</li>
+      </ul>
+
+      <h3>Tres ajustes que conviene dejar puestos</h3>
+      <ul class="lista">
+        <li><strong>Calidad: RAW + JPG</strong> si tu cámara lo permite. El JPG para ver y compartir, el RAW por si quieres editar.</li>
+        <li><strong>Histograma visible</strong> en la pantalla al revisar las fotos.</li>
+        <li><strong>Aviso de altas luces</strong> (las zonas quemadas parpadean al revisar).</li>
+      </ul>
+    </section>
+
+    <section id="triangulo">
+      <p class="antetitulo">El triángulo de exposición</p>
+      <h2>Tres llaves <em>para la luz.</em></h2>
+      <p>Que una foto salga clara u oscura depende de tres cosas. Las tres dejan pasar más o menos luz, y cada una tiene además un efecto propio en la foto. Esa es toda la teoría:</p>
+
+      <h3>Diafragma: cuánta luz y cuánto nítido</h3>
+      <p>Es el agujero por el que entra la luz. Se escribe f/1,8, f/2,8, f/4, f/5,6, f/8, f/11, f/16. <strong>Número pequeño = agujero grande = más luz y fondo más desenfocado.</strong> Número grande = agujero pequeño = menos luz y más cosas nítidas de cerca a lejos.</p>
+
+      <h3>Velocidad: cuánto tiempo y cuánto movimiento</h3>
+      <p>Es el tiempo que está abierto. 1/1000 es muy rápido (congela una bici), 1/125 congela a alguien andando, 1/30 ya deja movimiento. <strong>Más lento = más luz, pero más riesgo de que salga movido</strong>, por lo que se mueve o porque te tiembla la mano.</p>
+      <p class="mano">↳ regla rápida: no bajes de 1 / la distancia focal (con un 50 mm, 1/50 como mínimo)</p>
+
+      <h3>ISO: cuánta sensibilidad y cuánto grano</h3>
+      <p>Es lo sensible que está el sensor. 100–400 de día; 800–3200 a la sombra o en interiores; 3200–6400 de noche. <strong>Más ISO = más clara, con algo más de grano.</strong> Las cámaras actuales aguantan mucho: no le tengas miedo.</p>
+
+      <h3>Los pasos</h3>
+      <p>Cada salto de la lista de diafragmas, de velocidades o de ISO es un "paso": deja pasar el doble o la mitad de luz. Lo bonito es que se pueden cambiar entre sí: si abres un paso el diafragma y subes un paso la velocidad, la foto sale igual de clara, pero con otro aspecto.</p>
+
+      <p><strong>Pruébalo aquí:</strong> elige una escena y cambia los tres ajustes. Mira cómo cambia la exposición y qué le pasa a la foto.</p>
+      <div class="sim" id="simulador">
+        <label class="escena">Escena
+          <select id="s-escena">
+            <option value="15">Calle a pleno sol</option>
+            <option value="12" selected>Calle a la sombra / día nublado</option>
+            <option value="7">Dentro de un bar o una estación</option>
+            <option value="4">Calle de noche con escaparates</option>
+          </select>
+        </label>
+        <div class="controles" style="margin-top:12px;">
+          <label>Diafragma<select id="s-f"></select></label>
+          <label>Velocidad<select id="s-t"></select></label>
+          <label>ISO<select id="s-iso"></select></label>
+        </div>
+        <div class="resultado">
+          <div class="foto" id="s-foto"></div>
+          <div><div class="veredicto" id="s-ver"></div></div>
+        </div>
+        <ul id="s-efectos"></ul>
+      </div>
+      <p class="aparte">En prioridad a la apertura, tú eliges el diafragma y la cámara compensa con la velocidad. Tu único trabajo es <strong>vigilar que la velocidad no baje demasiado</strong>. Si baja, sube el ISO.</p>
+    </section>
+
+    <section id="exposicion">
+      <p class="antetitulo">¿Está bien expuesta?</p>
+      <h2>No te fíes <em>de la pantalla.</em></h2>
+      <p>La pantalla de la cámara engaña: de día parece oscura, de noche parece clara. Para saber si una foto está bien expuesta, mira el <strong>histograma</strong>: una montaña que va de lo negro (izquierda) a lo blanco (derecha).</p>
+      <ul class="lista">
+        <li><strong>Pegado a la derecha y cortado:</strong> zonas quemadas, sin información. Oscurece.</li>
+        <li><strong>Pegado a la izquierda:</strong> sombras empastadas. Aclara, si la escena no es oscura de verdad.</li>
+        <li><strong>No hay un histograma "perfecto":</strong> una escena oscura tiene la montaña a la izquierda y está bien.</li>
+      </ul>
+      <h3>La compensación de exposición (+/−)</h3>
+      <p>Es la rueda o el botón con el símbolo ±. Le dice a la cámara "hazla más clara" o "más oscura" sin salir de prioridad a la apertura. La cámara se equivoca sobre todo con escenas muy claras (nieve, cielo, pared blanca: compensa a +) y muy oscuras (noche, fondo negro: compensa a −).</p>
+    </section>
+
+    <section id="luz">
+      <p class="antetitulo">Leer la luz</p>
+      <h2>Antes de la cámara, <em>los ojos.</em></h2>
+      <ul class="lista">
+        <li><strong>Dura o suave:</strong> el sol directo da sombras con borde marcado y mucho contraste. Un día nublado o la sombra de un edificio dan luz suave, sin sombras duras: la mejor para caras.</li>
+        <li><strong>De dónde viene:</strong> de frente (plana, mucho color), de lado (volumen y textura), desde atrás (contraluz y siluetas).</li>
+        <li><strong>La sombra abierta:</strong> justo en el borde de una sombra, mirando hacia la zona iluminada. Una persona ahí tiene la cara con luz suave y los ojos brillantes.</li>
+        <li><strong>A mediodía,</strong> con el sol arriba, busca la sombra. Las mejores horas son las primeras de la mañana y las últimas de la tarde.</li>
+      </ul>
+    </section>
+
+    <section id="componer">
+      <p class="antetitulo">Componer con intención</p>
+      <h2>Una foto, <em>una idea.</em></h2>
+      <ul class="lista">
+        <li><strong>Acércate.</strong> La mayoría de las primeras fotos tienen demasiadas cosas. Si dudas, un paso más cerca.</li>
+        <li><strong>Mira los bordes y el fondo</strong> antes de disparar. Una farola saliendo de una cabeza se arregla moviéndote medio paso.</li>
+        <li><strong>Tercios:</strong> activa la cuadrícula. Colocar lo importante sobre las líneas o sus cruces suele dar fotos más vivas que dejarlo en el centro.</li>
+        <li><strong>Cambia de altura:</strong> agáchate o súbete a algo. Casi nadie lo hace, y por eso funciona.</li>
+        <li><strong>Horizontal y vertical:</strong> prueba las dos. Una calle estrecha suele pedir vertical.</li>
+      </ul>
+    </section>
+
+    <section id="calle">
+      <p class="antetitulo">Primeras fotos de calle</p>
+      <h2>Sin <em>vergüenza.</em></h2>
+      <p>Fotografiar a desconocidos da corte a todo el mundo al principio. Es normal, y se pasa practicando. Algunas formas de empezar:</p>
+      <ul class="lista">
+        <li><strong>Empieza sin caras:</strong> manos, sombras, siluetas, gente de espaldas, pies que cruzan un paso de cebra.</li>
+        <li><strong>Escoge el escenario y espera:</strong> encuadra un sitio bonito y deja que la gente entre. Desde fuera parece que fotografías el sitio, y es verdad.</li>
+        <li><strong>No te escondas:</strong> la cámara a la vista y actitud tranquila llaman menos la atención que alguien haciendo fotos a escondidas.</li>
+        <li><strong>Si alguien te mira, sonríe.</strong> Si te pregunta, enséñale la foto y explícale lo que haces. Si no quiere salir, bórrala delante de él.</li>
+        <li><strong>Para publicar,</strong> ten cuidado con las personas reconocibles como protagonistas: en España lo prudente es pedir su permiso, y con menores, no publicar.</li>
+      </ul>
+    </section>
+
+    <section id="ejercicios">
+      <p class="antetitulo">En la calle</p>
+      <h2>Cinco <em>ejercicios.</em></h2>
+      <p>Los haremos durante el taller y te sirven para repetirlos solo. Márcalos cuando los tengas: se queda guardado en este móvil.</p>
+      <div class="ejercicio" data-ej="1">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">diafragma</span>
+        <h3>f/2 contra f/11</h3>
+        <p>La misma escena con el diafragma más abierto y el más cerrado que tengas. Fíjate en el fondo.</p>
+      </div>
+      <div class="ejercicio" data-ej="2">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">velocidad</span>
+        <h3>Congela y mueve</h3>
+        <p>Alguien que pasa: una foto a 1/500 y otra a 1/15. Una congelada, otra movida a propósito.</p>
+      </div>
+      <div class="ejercicio" data-ej="3">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">compensación</span>
+        <h3>Tres de la misma</h3>
+        <p>La misma foto a −1, 0 y +1. Elige la que mejor cuenta la escena (no siempre es la de 0).</p>
+      </div>
+      <div class="ejercicio" data-ej="4">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">luz</span>
+        <h3>Sol y sombra</h3>
+        <p>Retrata a un compañero a pleno sol y luego en la sombra abierta. Compara las caras.</p>
+      </div>
+      <div class="ejercicio" data-ej="5">
+        <input type="checkbox" aria-label="Hecho">
+        <span class="cuando">calle</span>
+        <h3>Cinco sin caras</h3>
+        <p>Cinco fotos de personas en la calle sin que se vea ninguna cara: manos, sombras, siluetas, espaldas.</p>
+      </div>
+    </section>
+
+    <section id="errores">
+      <p class="antetitulo">Errores típicos</p>
+      <h2>Y cómo <em>arreglarlos.</em></h2>
+      <dl class="errores">
+        <dt>Sale movida</dt>
+        <dd>La velocidad es demasiado lenta. Sube el ISO o abre el diafragma hasta tener al menos 1/125 con gente.</dd>
+        <dt>Sale desenfocada (pero no movida)</dt>
+        <dd>La cámara ha enfocado otra cosa. Usa un solo punto de enfoque y ponlo sobre lo importante.</dd>
+        <dt>El cielo sale blanco</dt>
+        <dd>Compensa a negativo, o encuadra con menos cielo.</dd>
+        <dt>Todo sale oscuro de noche o en interiores</dt>
+        <dd>Sube el ISO. 3200 o 6400 están bien.</dd>
+        <dt>Vuelvo al automático en cuanto me agobio</dt>
+        <dd>Normal. Deja la cámara en A con ISO automático: es casi tan cómodo y sigues decidiendo tú.</dd>
+      </dl>
+    </section>
+
+    <section id="despues">
+      <p class="antetitulo">Después del taller</p>
+      <h2>Sal <em>esta semana.</em></h2>
+      <ul class="lista">
+        <li><strong>Sal a hacer fotos en los próximos días,</strong> aunque sea media hora por tu barrio, antes de que se te olvide dónde está cada cosa en la cámara.</li>
+        <li><strong>Repite los ejercicios</strong> sin prisa. La segunda vez se entiende todo mucho mejor.</li>
+        <li><strong>Elige tus tres mejores fotos</strong> de cada salida. Elegir es la mitad de aprender a mirar.</li>
+        <li>Si te atascas con algún ajuste de tu cámara, escríbeme a <a href="mailto:info@mirardespacio.es">info@mirardespacio.es</a>.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="envoltura">
+      <p class="mano">equivócate mucho, y a propósito</p>
+      <p>Manual del taller Primeros pasos · Mirar Despacio · Otto Kols. Solo para quien ha hecho el taller: por favor, no lo compartas.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Simulador del triángulo de exposición (pasos enteros)
+    (function () {
+      var F = ['1.8', '2.8', '4', '5.6', '8', '11', '16'];
+      var T = ['1/2000', '1/1000', '1/500', '1/250', '1/125', '1/60', '1/30', '1/15', '1/8'];
+      var ISO = ['100', '200', '400', '800', '1600', '3200', '6400'];
+      var $ = function (id) { return document.getElementById(id); };
+      function llenar(sel, lista, def, pre) { sel.innerHTML = lista.map(function (v) { return '<option value="' + v + '"' + (v === def ? ' selected' : '') + '>' + (pre || '') + v.replace('.', ',') + '</option>'; }).join(''); }
+      llenar($('s-f'), F, '5.6', 'f/'); llenar($('s-t'), T, '1/500'); llenar($('s-iso'), ISO, '400');
+      function val(s) { return s.value; }
+      function pintar() {
+        var f = parseFloat(val($('s-f'))), t = (function (x) { return x.indexOf('/') !== -1 ? 1 / parseFloat(x.split('/')[1]) : parseFloat(x); })(val($('s-t'))), iso = parseFloat(val($('s-iso')));
+        var ev = Math.log2(f * f / t) - Math.log2(iso / 100);
+        var dif = Math.round(parseFloat($('s-escena').value) - ev); // >0 = sobreexpuesta
+        var txt = dif === 0 ? 'bien expuesta' : (dif > 0 ? (dif >= 3 ? 'muy clara, quemada' : 'clara (+' + dif + ')') : (dif <= -3 ? 'muy oscura' : 'oscura (' + dif + ')'));
+        $('s-ver').textContent = txt;
+        var foto = $('s-foto');
+        foto.style.setProperty('--velo', dif > 0 ? 'rgba(255,255,255,' + Math.min(.92, dif * .3) + ')' : 'rgba(0,0,0,' + Math.min(.92, -dif * .3) + ')');
+        var efectos = [];
+        efectos.push(f <= 2.8 ? 'Fondo muy desenfocado: poca zona nítida.' : f >= 11 ? 'Casi todo nítido, de cerca a lejos.' : 'Zona nítida media.');
+        efectos.push(t >= 1 / 30 ? 'Velocidad lenta: la gente que anda saldrá movida, y quizá la foto entera.' : t >= 1 / 125 ? 'Gente quieta nítida; la que anda, quizá un poco movida.' : 'Movimiento congelado.');
+        efectos.push(iso >= 3200 ? 'Algo de grano: perfectamente usable.' : 'Imagen limpia, sin grano.');
+        $('s-efectos').innerHTML = efectos.map(function (x) { return '<li>' + x + '</li>'; }).join('');
+      }
+      ['s-escena', 's-f', 's-t', 's-iso'].forEach(function (id) { $(id).addEventListener('change', pintar); });
+      pintar();
+    })();
+
+    // Ejercicios hechos: solo se guardan en este navegador
+    (function () {
+      var CLAVE = 'md-manual-iniciacion';
+      var hechos = {};
+      try { hechos = JSON.parse(localStorage.getItem(CLAVE) || '{}') || {}; } catch (e) { hechos = {}; }
+      document.querySelectorAll('.ejercicio').forEach(function (el) {
+        var id = el.getAttribute('data-ej'), caja = el.querySelector('input');
+        caja.checked = !!hechos[id];
+        el.classList.toggle('hecho', caja.checked);
+        caja.addEventListener('change', function () {
+          hechos[id] = caja.checked;
+          el.classList.toggle('hecho', caja.checked);
+          try { localStorage.setItem(CLAVE, JSON.stringify(hechos)); } catch (e) { /* sin almacenamiento: no pasa nada */ }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
