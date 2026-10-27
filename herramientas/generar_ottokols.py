@@ -20,7 +20,7 @@ MASCOTAS = ['mascotas_l48usq']
 def enc(pid, w=1200):
     return f'{CLD}f_auto,q_auto,w_{w}/{pid}.jpg'
 
-NAV = [('/encargos/', 'Encargos'), ('/#sobre', 'Sobre mí'), ('/contacto/', 'Contacto')]
+NAV = [('/encargos/', 'Encargos'), ('/#sobre', 'Sobre mí'), ('/contacto/', 'Contacto'), ('/galeria/', 'Clientes')]
 RETRATOS = [('/actores/', 'Actores'), ('/retrato/', 'Retrato personal'), ('/parejas/', 'Parejas y bodas íntimas'), ('/mascotas/', 'Mascotas')]
 
 NEGOCIO = {
@@ -116,6 +116,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
           <li><a href="{MD}">Mirar Despacio</a></li>
           <li><a href="{MD}privacidad/">Privacidad</a></li>
           <li><a href="{MD}aviso-legal/">Aviso legal</a></li>
+          <li><a href="/galeria/">Área de clientes</a></li>
         </ul>
       </div>
       <p class="legal">© 2026 Otto Kols · Madrid</p>
@@ -311,7 +312,7 @@ cuerpo = f'''
     <section class="bloque">
       <div class="env">
         <h2>Precios</h2>
-        {precios([("Sesión de pareja o preboda", "90–140 €", "precio orientativo según la sesión"), ("Boda íntima", "a consultar", "ceremonias civiles y bodas pequeñas, donde sea")])}
+        {precios([("Sesión de pareja o preboda", "90–250 €", "precio orientativo según la sesión"), ("Boda íntima", "a consultar", "ceremonias civiles y bodas pequeñas, donde sea")])}
         <p class="sub" style="margin-top:16px">Me desplazo donde haga falta. Contadme fecha y lugar y os preparo un presupuesto.</p>
       </div>
     </section>

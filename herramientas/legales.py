@@ -63,7 +63,7 @@ def construir_legales(g, escribir, pagina):
 
         <h2>Cuánto tiempo los guardo</h2>
         <ul>
-          <li><strong>Inscripciones y contacto:</strong> mientras participes en Mirar Despacio. Si pasan dos años sin que vengas a nada ni me escribas, los borro.</li>
+          <li><strong>Inscripciones y contacto:</strong> mientras participes en Mirar Despacio. Si pasa un año sin que vengas a nada ni me escribas, los borro.</li>
           <li><strong>Mirar Despacio+:</strong> mientras tengas cuenta.</li>
           <li><strong>Fotos:</strong> las de las salidas se borran del servidor a los 90 días, salvo las que estén en el muro. Las de los retos, cuando hay tres retos más nuevos.</li>
           <li><strong>Compras y facturas:</strong> seis años, porque así lo exige la ley.</li>
