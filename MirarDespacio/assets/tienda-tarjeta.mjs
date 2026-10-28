@@ -50,6 +50,12 @@ export function bloquePreventa(pv) {
     <p class="producto-nota">Es una preventa: solo se fabrica si llegamos a ${pv.minimo} reservas${pv.hasta ? ' antes del ' + fechaLarga(pv.hasta) : ''}${faltan ? ` (faltan ${faltan})` : ''}. Pagas al reservar y, si no se llega, te devuelvo el dinero entero.</p></div>`;
 }
 
+// Quién lo ha hecho (ilustración, diseño, imprenta…). Sin créditos no sale nada.
+export function bloqueCreditos(lista) {
+  if (!lista || !lista.length) return '';
+  return `<div class="producto-creditos"><p class="antetitulo">Hecho a mano</p>${lista.map((c) => `<p><span>${esc(c.rol || 'Hecho por')}</span> ${c.enlace ? `<a href="${esc(c.enlace)}" target="_blank" rel="noopener">${esc(c.nombre)}</a>` : `<strong>${esc(c.nombre)}</strong>`}${c.nota ? `<em>${esc(c.nota)}</em>` : ''}</p>`).join('')}</div>`;
+}
+
 // i: posición en la página. sola: true en la página del propio producto (título h1, sin enlace)
 export function tarjeta(p, i, sola) {
   const tallas = p.variantes.filter((v) => v.nombre);
@@ -70,6 +76,7 @@ export function tarjeta(p, i, sola) {
     <p class="producto-precio"><span data-precio${cambia ? ' class="desde"' : ''}>${precioTexto(p)}</span>${pv && !agotado ? ' <span class="producto-estado">Preventa</span>' : agotado && !pv ? ' <span class="producto-estado">Agotado</span>' : pocas ? ' <span class="producto-estado">Quedan pocos</span>' : ''}</p>
     ${bloquePreventa(pv)}
     ${desc}
+    ${bloqueCreditos(p.creditos)}
     ${tallas.length && !agotado ? `<div class="producto-tallas" role="radiogroup" aria-label="${eleccion(p)}">` + tallas.map((v, k) => `<label class="${v.disponible ? '' : 'sin'}"><input type="radio" name="talla-${i}" value="${esc(v.nombre)}"${v.disponible ? '' : ' disabled'}${v.disponible && !tallas.slice(0, k).some((x) => x.disponible) ? ' checked' : ''}><span>${esc(v.nombre)}${cambia ? `<small>${eur(precioVar(p, v))}</small>` : ''}</span></label>`).join('') + '</div>' : ''}
     <div class="botones">${agotado ? `<a class="boton claro" data-avisar href="#">Avísame ${pv ? 'si vuelve' : 'cuando vuelva'}</a>` : `<a class="boton" data-comprar href="${p.enlacePago ? esc(p.enlacePago) : '#'}">${pv ? 'Reservar el mío' : p.enlacePago ? 'Comprar' : 'Lo quiero'}</a>`}</div>
     ${!agotado && p.bajoPedido ? `<p class="producto-nota">Bajo pedido · ${p.plazo ? esc(p.plazo.replace(/[.\s]+$/, '')) : 'lo preparo en cuanto me lo pides'}.</p>` : ''}

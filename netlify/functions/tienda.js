@@ -7,6 +7,7 @@
 //  · preventa: {minimo, reservadas, hasta, estado} si el producto solo se fabrica al llegar a un mínimo de reservas.
 //    estado: 'abierta' | 'conseguida' (ya se fabrica) | 'cerrada' (pasó la fecha sin llegar) | 'cancelada'.
 //    Mientras está abierta o conseguida se puede reservar (no lleva stock, como bajo pedido).
+//  · creditos: [{rol, nombre, enlace, nota}] quién lo ha hecho (vacío si no hay).
 // mirardespacio.es/api/tienda apunta aquí (mismo origen para la web). No se publica el stock exacto.
 const { db } = require('../lib/firestore');
 
@@ -47,6 +48,10 @@ async function productos() {
     return {
       id: d.id, slug: p.slug || slugDe(p.nombre), nombre: p.nombre || '', tipo: p.tipo || 'otro', descripcion: p.descripcion || '',
       precio: ps.length ? Math.min(...ps) : base, precioMax: ps.length ? Math.max(...ps) : base, envio: envioBase,
+      creditos: (p.creditos || []).filter((c) => c && c.nombre).slice(0, 8).map((c) => ({
+        rol: String(c.rol || '').slice(0, 60), nombre: String(c.nombre).slice(0, 80),
+        enlace: /^https:\/\/[^\s"<>]+$/.test(c.enlace || '') ? c.enlace : '', nota: String(c.nota || '').slice(0, 200),
+      })),
       bajoPedido: bajo && !preventa, plazo: bajo ? String(p.plazo || '').slice(0, 160) : '', preventa,
       estado: p.estado === 'venta' && hay && (!preventa || reservable) ? 'venta' : 'agotado',
       fotos: (p.fotos || []).map((f) => f.url).filter(Boolean),

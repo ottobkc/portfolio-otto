@@ -11,6 +11,8 @@
 //                 reservas antes de la fecha. No lleva stock (como bajo pedido); cada pedido suma sus unidades a
 //                 «reservadas» (y las resta si se cancela). estado: 'abierta' | 'conseguida' | 'cancelada'.
 //                 Se cobra al reservar: si se cancela la preventa, el CRM enseña a quién hay que devolver el dinero.
+//               · creditos: [{rol, nombre, enlace, nota}] quién lo ha hecho (ilustración, diseño, imprenta…).
+//                 Si hay alguno, la ficha de la web enseña el bloque «Hecho a mano»; si no, no sale nada.
 //   pedidos     número P-0001, cliente, líneas, envío, total, pago, estado, seguimiento, factura
 //   contadores  "pedidos": último número de pedido
 //
@@ -142,7 +144,7 @@ function pintarProductos() {
 }
 function editarProducto(id) {
   const p = id ? productos.find((x) => x.id === id) : null;
-  prodEditando = p ? JSON.parse(JSON.stringify(p)) : { id: null, nombre: '', tipo: 'zine', descripcion: '', precio: '', iva: 21, envio: '', estado: 'borrador', fotos: [], variantes: [{ nombre: '', stock: 0, precio: null, envio: null }], sku: '', enlacePago: '', bajoPedido: false, plazo: '', preventa: null };
+  prodEditando = p ? JSON.parse(JSON.stringify(p)) : { id: null, nombre: '', tipo: 'zine', descripcion: '', precio: '', iva: 21, envio: '', estado: 'borrador', fotos: [], variantes: [{ nombre: '', stock: 0, precio: null, envio: null }], sku: '', enlacePago: '', bajoPedido: false, plazo: '', preventa: null, creditos: [] };
   ver('productos');
   pintarEditorProducto();
   $('tdEditor').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -161,6 +163,11 @@ function leerProducto() {
     p.preventa = { activa: true, minimo: Math.max(1, Math.round(num($('tpPvMin') ? $('tpPvMin').value : antes.minimo))), hasta: $('tpPvHasta') ? $('tpPvHasta').value : (antes.hasta || ''),
       estado: antes.estado || 'abierta', reservadas: Number(antes.reservadas) || 0 };
   } else if (p.preventa) p.preventa = { ...p.preventa, activa: false };
+  // Créditos: las filas sin nombre se descartan
+  p.creditos = [...document.querySelectorAll('#tpCreditos .td-cred')].map((el) => {
+    const v = (k) => el.querySelector(`[data-k=${k}]`).value.trim();
+    return { rol: v('rol'), nombre: v('nombre'), enlace: v('enlace'), nota: v('nota') };
+  }).filter((c) => c.nombre);
   const opc = (el, k) => { const t = el.querySelector(`[data-k=${k}]`).value.trim(); return t === '' ? null : Math.max(0, r2(num(t))); };
   p.variantes = [...document.querySelectorAll('#tpVariantes .td-var')].map((el) => ({
     nombre: el.querySelector('[data-k=nombre]').value.trim(), stock: Math.max(0, Math.round(num(el.querySelector('[data-k=stock]').value))),
@@ -199,6 +206,9 @@ function pintarEditorProducto() {
         <label class="consent-toggle" style="margin-top:4px;"><input type="checkbox" id="tpBajo" ${p.bajoPedido ? 'checked' : ''} onchange="td.refrescar()"> Bajo pedido: sin stock, nunca se agota (se prepara cuando alguien lo compra)</label>
         <label class="consent-toggle"><input type="checkbox" id="tpPreventa" ${enPreventa(p) ? 'checked' : ''} onchange="td.refrescar()"> Preventa: solo se fabrica si se llega a un mínimo de reservas</label>
         ${enPreventa(p) ? pvEditor(p) : ''}
+        <div class="cx-etq">Hecho por <span class="person-meta">(si lo rellenas, sale en la ficha de la web)</span></div>
+        <div id="tpCreditos">${(p.creditos || []).map(credHtml).join('')}</div>
+        <button class="small secondary" type="button" onclick="td.masCredito()">+ Quién lo ha hecho</button>
         ${bajo(p) ? `<input id="tpPlazo" data-vivo placeholder="Plazo para la web (p. ej. Se imprime y te llega en 7-10 días)" value="${esc(p.plazo || '')}" style="margin-top:6px;">` : ''}
         <div class="cx-etq">${bajo(p) ? 'Tamaños o versiones' : 'Stock'} <span class="person-meta">(precio y envío vacíos = los del producto)</span></div>
         <div class="td-var td-var-cab${bajo(p) ? ' sin-stock' : ''}"><span>Variante</span><span>Precio</span><span>Envío</span><span>${bajo(p) ? '' : 'Stock'}</span><span></span></div>
@@ -214,6 +224,10 @@ function pintarEditorProducto() {
   </div>`;
 }
 // Bloque de la preventa en el editor: mínimo, fecha límite, contador y lo que se hace al cerrarla
+const credHtml = (c) => `<div class="td-cred"><div class="row"><input data-k="rol" placeholder="Qué ha hecho (p. ej. Ilustraciones)" value="${esc(c.rol)}">
+  <input data-k="nombre" placeholder="Nombre" value="${esc(c.nombre)}"><button class="small danger" type="button" onclick="this.closest('.td-cred').remove()" style="flex:0 0 auto;">✕</button></div>
+  <div class="row"><input data-k="enlace" placeholder="Su web o Instagram (https://…)" value="${esc(c.enlace)}"><input data-k="nota" placeholder="Una línea sobre el trabajo (opcional)" value="${esc(c.nota)}"></div></div>`;
+function masCredito() { leerProducto(); prodEditando.creditos = (prodEditando.creditos || []).concat({ rol: '', nombre: '', enlace: '', nota: '' }); pintarEditorProducto(); }
 function pvEditor(p) {
   const v = p.preventa, n = Number(v.reservadas) || 0, min = Number(v.minimo) || 1;
   const pasada = v.hasta && v.hasta < hoyISO() && v.estado === 'abierta';
@@ -629,7 +643,7 @@ function copiarDireccion(id) {
 }
 
 window.td = {
-  ver, pintar, editarProducto, cerrarProducto, cerrarPreventa, refrescar, masVariante, tallasCamiseta, tamanosPrint, moverFoto, quitarFoto, subirFotos, guardarProducto, borrarProducto,
+  ver, pintar, editarProducto, cerrarProducto, cerrarPreventa, masCredito, refrescar, masVariante, tallasCamiseta, tamanosPrint, moverFoto, quitarFoto, subirFotos, guardarProducto, borrarProducto,
   empezarPedido, pintarNuevo, leerNuevo, totalNuevo, cambiarLinea, proponerEnvio, envioAMano, masLineaPedido, quitarLinea, cancelarNuevo, elegirComprador, crearPedido,
   abrirPedido, cerrarPedido, estado, guardarSeguimiento, marcarPagado, hacerFactura, cancelar, copiarDireccion,
 };

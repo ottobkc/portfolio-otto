@@ -333,6 +333,12 @@ html.visor-abierto { overflow: hidden; }
 .producto-tallas label { cursor: pointer; }
 .producto-tallas input { position: absolute; opacity: 0; pointer-events: none; }
 .producto-tallas span { display: inline-block; min-width: 46px; padding: 8px 12px; text-align: center; border: 1px solid var(--linea); font-size: .95rem; }
+.producto-creditos { margin: 4px 0 20px; padding: 14px 0 2px; border-top: 1px solid var(--linea); max-width: 420px; }
+.producto-creditos .antetitulo { margin: 0 0 6px; }
+.producto-creditos p { margin: 0 0 8px; }
+.producto-creditos span { display: block; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--gris); }
+.producto-creditos a, .producto-creditos strong { font-family: var(--f-titulo); font-size: 1.2rem; font-weight: 400; color: var(--tinta); }
+.producto-creditos em { display: block; font-size: .92rem; color: var(--tinta-suave); }
 .preventa { margin: 0 0 18px; max-width: 420px; }
 .preventa-barra { height: 8px; background: var(--papel); border: 1px solid var(--linea); border-radius: 99px; overflow: hidden; }
 .preventa-barra i { display: block; height: 100%; background: linear-gradient(90deg, var(--naranja), var(--rosa)); border-radius: 99px; }
