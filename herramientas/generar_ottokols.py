@@ -302,7 +302,7 @@ cuerpo = f'''
         <p class="miga"><a href="/#retrato">Retrato</a> / Parejas</p>
         <h1>Parejas y <em>bodas íntimas.</em></h1>
         <p class="entradilla">Retratos de dos: una preboda, una pedida, un aniversario o una boda pequeña. Documental, sin coreografías, con tiempo para que os olvidéis de la cámara.</p>
-        {cta('parejas', 'Contarme vuestra idea')}
+        {cta('parejas', 'Contadme vuestra idea')}
       </div>
       <figure>{img('/fotos/boda1horiz.jpg', 'Pareja de novios caminando junto al mar', 1503, 1000, ' fetchpriority="high"')}</figure>
     </section>
