@@ -283,6 +283,7 @@
   #loginScreen .logo-login { width: 160px; margin-bottom: 24px; }
   #loginScreen .card { width: 100%; max-width: 340px; }
   #loginError { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 16px; }
+  .link-olvido { background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; cursor: pointer; padding: 6px 0 0; width: auto; box-shadow: none; }
   #syncStatus { position: fixed; top: calc(10px + env(safe-area-inset-top)); right: 16px; font-size: 12px; color: var(--muted); z-index: 50; background: var(--surface); padding: 2px 8px; border-radius: 10px; }
   #syncStatus:empty { display: none; }
 
@@ -344,6 +345,7 @@
     <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
     <button style="width:100%;" onclick="doLogin()">Entrar</button>
     <div id="loginError"></div>
+    <button type="button" class="link-olvido" onclick="olvidoContrasena()">¿Has olvidado la contraseña?</button>
   </div>
 </div>
 
@@ -749,7 +751,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc,
@@ -786,6 +788,16 @@ window.doLogin = function() {
     .catch(err => {
       errEl.textContent = 'Email o contraseña incorrectos.';
     });
+};
+
+// Manda el correo de Firebase para poner una contraseña nueva (sale de noreply@mirardespaciocrm.firebaseapp.com)
+window.olvidoContrasena = function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const errEl = document.getElementById('loginError');
+  if (!email) { errEl.textContent = 'Escribe tu email arriba y vuelve a pulsar.'; return; }
+  sendPasswordResetEmail(auth, email)
+    .then(() => { errEl.style.color = 'var(--muted)'; errEl.textContent = 'Si es tu email, te acaba de llegar un correo para poner una contraseña nueva (mira también en spam).'; })
+    .catch(() => { errEl.textContent = 'No se ha podido enviar ahora. Prueba en un rato.'; });
 };
 
 window.doLogout = function() {
