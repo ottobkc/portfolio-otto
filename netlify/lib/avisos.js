@@ -7,7 +7,7 @@ const { enviar, esc } = require('./correo');
 const { tarjeta, aTexto } = require('./plantillas-salida');
 
 const BAJA = 'https://ottokols.es/.netlify/functions/baja-avisos';
-const RETOS = 'https://ottokols.es/retos/';
+const RETOS = 'https://mirardespacio.es/retos/';
 
 function secreto() {
   const s = process.env.AVISOS_SECRET || process.env.FIREBASE_PRIVATE_KEY || '';
@@ -23,7 +23,8 @@ const urlBaja = (email, tipo) => `${BAJA}?tipo=${tipo}&e=${encodeURIComponent(St
 
 // Miembros MD+ con cuenta confirmada que no se han dado de baja de los avisos del reto
 async function miembrosConAvisos(context, fs) {
-  const usuarios = (await listar(context)).filter((u) => u.confirmada && u.roles.includes('member') && u.email);
+  // Con Identity solo contaban las invitaciones aceptadas. Con Firebase no hay nada que aceptar: todo MD+ recibe los avisos.
+  const usuarios = (await listar(context)).filter((u) => (u.confirmada || u.origen === 'firebase') && u.roles.includes('member') && u.email);
   const prefs = await fs.collection('preferencias').where('sinAvisosRetos', '==', true).get();
   const fuera = new Set(prefs.docs.map((d) => d.id));
   return usuarios.filter((u) => !fuera.has(u.email.toLowerCase()))

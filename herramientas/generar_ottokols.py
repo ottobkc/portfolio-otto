@@ -33,10 +33,10 @@ NEGOCIO = {
 
 TOKEN_REDIRECT = '''
   <script>
-    // Los enlaces de los emails de acceso a Mirar Despacio+ (invitación, recuperar contraseña…)
-    // llegan a la portada: se reenvían a la página de acceso, que es la que muestra el formulario.
+    // Enlaces de los correos antiguos de Netlify Identity (invitación, recuperar contraseña…): la zona de
+    // socios ahora está en mirardespacio.es y se entra con un enlace al correo, sin contraseña.
     if (/(recovery|invite|confirmation|email_change)_token=/.test(location.hash)) {
-      location.replace('/acceso.html' + location.hash);
+      location.replace('https://mirardespacio.es/acceso/');
     }
   </script>'''
 

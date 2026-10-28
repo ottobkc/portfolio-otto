@@ -8,6 +8,8 @@
 //                                             para no pasarse del tiempo máximo de una función)
 //  POST {accion:'unir-actividad', desde, cuantos} -> junta miembros_actividad/{idIdentity} en miembros_actividad/{uid}
 //                                             (se usa al final, cuando la gente ya entra por Firebase)
+//  POST {accion:'avisar', prueba}          -> correo «cambia la forma de entrar» a cada cuenta con acceso, una sola vez
+//                                             (marca avisoNuevoAcceso). Con prueba: true solo se lo manda a Otto.
 // Se puede repetir sin miedo: si una cuenta ya está copiada, solo se actualizan sus roles.
 const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
@@ -80,6 +82,31 @@ exports.handler = async (event, context) => {
       }
       await fs.collection('cambios_acceso').add({ tipo: 'migracion', desde, cuantos: tramo.length, fallos: hechos.filter((h) => !h.ok).length, fecha: FieldValue.serverTimestamp() });
       return res(200, { total: identity.length, siguiente: desde + tramo.length < identity.length ? desde + tramo.length : null, hechos });
+    }
+
+    if (b.accion === 'avisar') {
+      const { enviar } = require('../lib/correo');
+      const { correoCambio, destinoDe } = require('../lib/correos-socios');
+      if (b.prueba) {
+        const c = correoCambio({ email: ADMIN, a: 'socios' });
+        const ok = await enviar({ para: ADMIN, asunto: '[PRUEBA] ' + c.asunto, html: c.html, texto: c.texto });
+        return res(ok ? 200 : 500, { enviados: ok ? 1 : 0, prueba: true });
+      }
+      const pendientes = (await fs.collection('cuentas').get()).docs
+        .filter((d) => (d.data().roles || []).some((r) => r !== 'admin') && !d.data().avisoNuevoAcceso && d.data().email !== ADMIN)
+        .sort((a, x) => a.id.localeCompare(x.id));
+      const tramo = pendientes.slice(0, 8);
+      const hechos = [];
+      for (const d of tramo) {
+        const c = correoCambio({ email: d.data().email, a: destinoDe(d.data().roles || []) });
+        try {
+          if (!(await enviar({ para: d.data().email, asunto: c.asunto, html: c.html, texto: c.texto }))) throw new Error('sin-smtp');
+          await d.ref.set({ avisoNuevoAcceso: FieldValue.serverTimestamp() }, { merge: true });
+          hechos.push({ email: d.data().email, ok: true });
+        } catch (e) { hechos.push({ email: d.data().email, ok: false, error: e.message }); }
+      }
+      if (hechos.some((h) => !h.ok)) return res(200, { hechos, quedan: null, parado: true });
+      return res(200, { hechos, quedan: pendientes.length - tramo.length });
     }
 
     if (b.accion === 'unir-actividad') {

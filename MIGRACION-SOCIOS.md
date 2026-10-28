@@ -36,7 +36,8 @@ falta leer el correo de Otto (el enlace solo llega a su buzón).
 - La función edge comprueba la cookie antes de servir `/socios/`, `/retos/`, `/cuaderno/` y `/manuales/<id>/`.
 - Las páginas usan `/js/sesion.js`, que imita al widget de Identity (mismas llamadas), y llaman a las funciones
   de ottokols.es por `/api/f/*` (proxy de netlify.toml).
-- Las páginas se copian desde PortfolioOtto con `herramientas/mover_socios.py` hasta la fase 3.
+- Desde la fase 3, las páginas de la zona viven solo en MirarDespacio/ (socios/, manuales/, cuaderno/, retos/, subir/, js/)
+  y se editan ahí. ottokols.es solo redirige las direcciones antiguas.
 
 ## Pruebas en la Deploy Preview (fase 2)
 
@@ -55,3 +56,16 @@ Variable `SESION_SOCIOS` (la misma en los dos sitios): firma la cookie de sesió
 El webhook de Stripe llama a `T.invitarIdentity(context, email)` (lib/talleres.js). Al sincronizar con main,
 cambiar esa función por `require('./cuentas').invitarCon(context, email, 'plus')`: funciona igual en los dos modos.
 Los talleres pagados que dan manual usan `require('./cuentas').darManual(context, email, tallerId)`.
+
+## Fase 3, paso a paso
+
+1. Netlify → stalwart-panda-3d94db → Environment variables: `CUENTAS_MODO` = `firebase` (Production y Deploy Previews).
+2. Publicar la rama `socios-fase3` en main (solo construye ottokols.es).
+3. Comprobar: ottokols.es/acceso.html, /recursos.html, /manuales/atardecer/, /subir/?c=… llevan a mirardespacio.es; el CRM
+   lista las cuentas (Accesos → Cuentas) y cambiar un acceso funciona.
+4. CRM → Accesos → Cuentas: «4 · Unir la actividad antigua», «5a» (prueba) y «5b» (aviso a los socios).
+5. Firebase → Authentication → Configuración → Dominios autorizados: quitar `deploy-preview-2--mirar-despacio.netlify.app`.
+6. Pasada una semana sin problemas: Netlify → stalwart-panda → Identity → desactivarlo.
+
+Vuelta atrás de la fase 3: quitar `CUENTAS_MODO` y «Publish deploy» del deploy anterior de ottokols.es. Las cuentas de
+Identity siguen ahí hasta el paso 6.

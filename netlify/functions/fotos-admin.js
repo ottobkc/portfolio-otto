@@ -2,7 +2,7 @@
 // (Authorization: Bearer <idToken>) y aquí se comprueba que es la cuenta de administración.
 //
 //  POST {accion:'avisar', id}                 -> email al autor: "Otto ha comentado tu foto"
-//  POST {accion:'cuentas'}                    -> lista de cuentas de Netlify Identity con su acceso
+//  POST {accion:'cuentas'}                    -> lista de cuentas de la zona de socios con su acceso (lib/cuentas.js)
 //  POST {accion:'acceso', id, acceso}         -> acceso = 'plus' | 'fotos' | 'ninguno' (la cuenta no se borra)
 //  POST {accion:'invitar', email, acceso}     -> invita a alguien ('fotos' = solo cuaderno de fotos)
 //  POST {accion:'enlace', personId}           -> enlace personal para subir fotos sin cuenta (para copiar a WhatsApp)
@@ -25,10 +25,10 @@ const { SALIDA_DIAS, RETOS_GUARDADOS } = require('../lib/fotos-config');
 
 // La misma cuenta que tiene permiso en las reglas de Firestore (crm/firestore.rules)
 const ADMIN = (process.env.CRM_ADMIN || 'ottobkc@gmail.com').toLowerCase();
-const CUADERNO = 'https://ottokols.es/cuaderno/';
-const RETOS = 'https://ottokols.es/retos/';
+const CUADERNO = 'https://mirardespacio.es/cuaderno/';
+const RETOS = 'https://mirardespacio.es/retos/';
 const MURO = 'https://mirardespacio.es/muro/';
-const SUBIR = 'https://ottokols.es/subir/?c=';
+const SUBIR = 'https://mirardespacio.es/subir/?c=';
 
 // Clave del enlace personal (se crea una vez por persona y se reutiliza)
 async function claveDe(ref, p) {

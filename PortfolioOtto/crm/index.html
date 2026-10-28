@@ -548,12 +548,17 @@
     </div>
     <div class="card" id="migracionCard">
       <div class="card-title">Paso a Firebase (migración de las cuentas)</div>
-      <div class="person-meta">Copia las cuentas de Netlify Identity a Firebase sin tocar nada de Identity: la gente sigue entrando como siempre.
-        Se puede repetir las veces que quieras. Empieza siempre por «Descargar respaldo».</div>
+      <div class="person-meta">Pasos 1 a 3: copian las cuentas de Netlify Identity a Firebase sin tocar Identity (se pueden repetir).
+        Pasos 4 y 5: después de pasar al sistema nuevo. El 5 manda un correo a cada socio una sola vez: pruébalo antes contigo.</div>
       <div class="row" style="margin-top:8px;flex-wrap:wrap;">
         <button class="secondary" onclick="migracion('respaldo')">1 · Descargar respaldo</button>
         <button class="secondary" onclick="migracion('informe')">2 · Ver informe</button>
-        <button onclick="migracion('migrar')">3 · Copiar a Firebase</button>
+        <button class="secondary" onclick="migracion('migrar')">3 · Copiar a Firebase</button>
+      </div>
+      <div class="row" style="margin-top:8px;flex-wrap:wrap;">
+        <button class="secondary" onclick="migracion('unir')">4 · Unir la actividad antigua</button>
+        <button class="secondary" onclick="migracion('avisar-prueba')">5a · Mandarme el aviso de prueba</button>
+        <button onclick="migracion('avisar')">5b · Avisar a los socios del cambio</button>
       </div>
       <div class="person-meta" id="migracionEstado" style="margin-top:6px;"></div>
       <div id="migracionInforme"></div>
@@ -1273,7 +1278,7 @@ window.copiarEnlaceFotos = async function(personId) {
   } catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
-// Cuentas de la zona de miembros (Netlify Identity)
+// Cuentas de la zona de socios (lib/cuentas.js: Firebase + Firestore)
 const NOMBRE_ACCESO = { plus: 'MD+', fotos: 'Solo fotos', ninguno: 'Sin acceso', admin: 'Admin' };
 window.cargarCuentas = async function() {
   const est = document.getElementById('cuentasEstado');
@@ -1291,7 +1296,7 @@ window.pintarCuentas = function() {
     const div = document.createElement('div');
     div.className = 'person-row';
     div.innerHTML = `<div class="person-main">
-        <div class="person-name">${escapeHtml(c.nombre || c.email)} ${c.acceso === 'ninguno' ? '<span class="badge" style="background:#b5654f;">sin acceso</span>' : ''} ${c.confirmada ? '' : '<span class="badge" style="background:#7a756f;">invitación sin aceptar</span>'}</div>
+        <div class="person-name">${escapeHtml(c.nombre || c.email)} ${c.acceso === 'ninguno' ? '<span class="badge" style="background:#b5654f;">sin acceso</span>' : ''} ${c.confirmada ? '' : '<span class="badge" style="background:#7a756f;">aún no ha entrado</span>'}</div>
         <div class="person-meta">${escapeHtml(c.email)} · último login: ${c.ultimoLogin ? fechaTxt(new Date(c.ultimoLogin)) : '—'}</div></div>
       ${c.acceso === 'admin' ? '<span class="person-meta">Admin</span>' : `<select class="status-select" onchange="cambiarAcceso('${c.id}', this.value, this)">
         ${['plus', 'fotos', 'ninguno'].map(a => `<option value="${a}" ${c.acceso === a ? 'selected' : ''}>${NOMBRE_ACCESO[a]}</option>`).join('')}</select>`}`;
@@ -1339,6 +1344,35 @@ window.migracion = async function(accion) {
       a.download = 'respaldo-identity-' + r.fecha.slice(0, 10) + '.json';
       document.body.appendChild(a); a.click(); a.remove();
       est.textContent = `Respaldo hecho: ${r.total} cuentas (descargado y guardado también en Firestore, colección respaldo_identity) ✓`;
+      return;
+    }
+    if (accion === 'unir') {
+      let desde = 0, unidas = 0;
+      while (desde !== null) {
+        est.textContent = 'Uniendo la actividad…';
+        const r = await adminMigracion({ accion: 'unir-actividad', desde, cuantos: 20 });
+        unidas += r.unidas; desde = r.siguiente;
+      }
+      est.textContent = `Actividad unida: ${unidas} cuentas ✓`;
+      return;
+    }
+    if (accion === 'avisar-prueba') {
+      est.textContent = 'Enviando la prueba…';
+      await adminMigracion({ accion: 'avisar', prueba: true });
+      est.textContent = 'Te he mandado el aviso de prueba: míralo en tu correo ✓';
+      return;
+    }
+    if (accion === 'avisar') {
+      if (!confirm('¿Mandar a cada socio el correo «Cambia la forma de entrar»? Solo se manda una vez a cada uno.')) return;
+      let quedan = 1, enviados = 0, fallos = [];
+      while (quedan) {
+        est.textContent = `Enviando avisos… ${enviados} enviados`;
+        const r = await adminMigracion({ accion: 'avisar' });
+        enviados += r.hechos.filter(h => h.ok).length; fallos = fallos.concat(r.hechos.filter(h => !h.ok));
+        if (r.parado) break;
+        quedan = r.quedan;
+      }
+      est.textContent = fallos.length ? `Enviados ${enviados}. Se ha parado por un fallo: ${fallos.map(f => f.email + ' (' + f.error + ')').join(', ')}. Vuelve a pulsar cuando lo arreglemos: no se repite a quien ya lo recibió.` : `Aviso enviado a ${enviados} socios ✓`;
       return;
     }
     if (accion === 'migrar') {
