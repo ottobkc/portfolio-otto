@@ -46,12 +46,15 @@ function correoCambio({ email, a }) {
   const html = tarjeta({
     titulo: 'Cambia la forma de entrar · Mirar Despacio',
     nombre: '',
-    intro: [`Te escribo porque he cambiado la forma de entrar en ${destinoTxt(a)}: ahora está en <strong>mirardespacio.es</strong> y ya no hace falta contraseña.`],
-    filas: [['📧', 'Escribes tu email (' + esc(email) + ') y te mando un enlace para entrar.'], ['🔑', 'Sin contraseñas que recordar: tu contraseña antigua ya no hace falta.'],
-      ['📷', 'Tus fotos, comentarios, retos y manuales siguen donde estaban.']],
+    intro: [`He cambiado la forma de entrar en ${destinoTxt(a)}. Ahora está en <strong>mirardespacio.es</strong> y ya no necesitas contraseña: cada vez que quieras entrar, te mando un enlace a este correo.`,
+      'Es así de sencillo:'],
+    filas: [['1️⃣', 'Pulsa el botón de abajo. Se abre la página de acceso con tu email ya escrito.'],
+      ['2️⃣', 'Pulsa <em>Enviarme el enlace</em>. En un minuto te llega otro correo mío.'],
+      ['3️⃣', 'Abre ese correo en el mismo móvil u ordenador y pulsa <em>Entrar</em>. Ya estás dentro.']],
     calendario: null,
-    boton: { url, texto: 'Entrar con el sistema nuevo', antes: '' },
-    cuerpo: ['Los enlaces antiguos de ottokols.es te llevarán solos al sitio nuevo. Si algo no te funciona, contéstame a este correo y lo miro.'],
+    boton: { url, texto: 'Ir a la página de acceso', antes: '' },
+    cuerpo: ['No hace falta que me contestes con tu email: todo se hace desde esa página.',
+      'Tus fotos, comentarios, retos y manuales siguen donde estaban, y los enlaces antiguos de ottokols.es te llevan solos al sitio nuevo. Si algo no te funciona, contesta a este correo y lo miro.'],
   });
   return { asunto: 'Cambia la forma de entrar · Mirar Despacio', html, texto: aTexto(html) };
 }

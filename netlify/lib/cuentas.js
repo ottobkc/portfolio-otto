@@ -49,7 +49,7 @@ function desdeFirestore(d) {
   const c = d.data();
   return {
     id: d.id, email: c.email || '', nombre: c.nombre || '', roles: c.roles || [], confirmada: !!c.primeraEntrada,
-    creada: ms(c.creada), ultimoLogin: ms(c.ultimoLogin), identityId: c.identityId || null, origen: 'firebase',
+    creada: ms(c.creada), ultimoLogin: ms(c.ultimoLogin) || ms(c.ultimoLoginIdentity), identityId: c.identityId || null, origen: 'firebase',
   };
 }
 const conPermisos = (u) => u && {

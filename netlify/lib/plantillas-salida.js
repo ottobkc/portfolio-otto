@@ -7,10 +7,15 @@
 const { esc } = require('./correo');
 
 const LOGO = 'https://res.cloudinary.com/dybxateci/image/upload/v1785276700/logoMD_gizjap.png';
+// Las mismas letras que la web: Inter para el texto y Fraunces para los títulos. Apple Mail y el iPhone las
+// cargan; Gmail y Outlook no cargan letras externas y usan las de respaldo (Helvetica/Arial y Georgia).
+const TEXTO = "Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif";
+const TITULO = "Fraunces, Georgia, 'Times New Roman', serif";
+const FUENTES = '<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">';
 const CAL = 'https://ottokols.es/.netlify/functions/calendario';
 
 const p = (html, margen = '16px 0 0 0') =>
-  `<p style="font-size:16px; line-height:1.6; margin:${margen};">${html}</p>`;
+  `<p style="font-family:${TEXTO}; font-size:16px; line-height:1.6; margin:${margen};">${html}</p>`;
 
 // Fecha bonita a partir de fechaISO: "Domingo 11 de octubre"
 function fechaLarga(iso, respaldo) {
@@ -46,7 +51,7 @@ function enlacesCalendario(s) {
 
 const boton = (url, texto) => `<td style="padding: 0 6px;">
                   <a href="${url}"
-                     style="display:inline-block; padding:12px 20px; background-color:#1a1814; color:#ffffff; text-decoration:none; border-radius:8px; font-family: Helvetica, Arial, sans-serif; font-size:14px;">
+                     style="display:inline-block; padding:12px 20px; background-color:#1a1814; color:#ffffff; text-decoration:none; border-radius:8px; font-family:${TEXTO}; font-size:14px; font-weight:500;">
                     ${texto}
                   </a>
                 </td>`;
@@ -55,11 +60,11 @@ const boton = (url, texto) => `<td style="padding: 0 6px;">
 // o = { titulo, nombre, intro: [html], filas: [[emoji, html]], calendario: {google, apple}|null, boton: {url, texto, antes}|null, cuerpo: [html] }
 function tarjeta(o) {
   const filas = o.filas.map(([icono, txt], i) =>
-    `<p style="font-size:16px; margin:${i === o.filas.length - 1 ? '0' : '0 0 10px 0'}; color:#1a1814;">${icono} <strong>${txt}</strong></p>`).join('\n                  ');
+    `<p style="font-family:${TEXTO}; font-size:15px; line-height:1.5; margin:${i === o.filas.length - 1 ? '0' : '0 0 12px 0'}; color:#1a1814;">${icono}&nbsp; ${txt}</p>`).join('\n                  ');
   const cal = o.calendario ? `
         <tr>
           <td style="padding: 20px 32px 0 32px; color:#1a1814;">
-            <p style="font-size:16px; line-height:1.6; margin:0 0 12px 0; text-align:center;">
+            <p style="font-family:${TEXTO}; font-size:16px; line-height:1.6; margin:0 0 12px 0; text-align:center;">
               Pulsa aquí para añadirlo a tu calendario:
             </p>
             <table role="presentation" cellpadding="0" cellspacing="0" align="center">
@@ -73,7 +78,7 @@ function tarjeta(o) {
   const btn = o.boton ? `
         <tr>
           <td style="padding: 20px 32px 0 32px; color:#1a1814;">
-            ${o.boton.antes ? `<p style="font-size:16px; line-height:1.6; margin:0 0 12px 0; text-align:center;">${o.boton.antes}</p>` : ''}
+            ${o.boton.antes ? `<p style="font-family:${TEXTO}; font-size:16px; line-height:1.6; margin:0 0 12px 0; text-align:center;">${o.boton.antes}</p>` : ''}
             <table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>${boton(o.boton.url, o.boton.texto)}</tr></table>
           </td>
         </tr>` : '';
@@ -83,8 +88,9 @@ function tarjeta(o) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${o.titulo}</title>
+${FUENTES}
 </head>
-<body style="margin:0; padding:0; background-color:#f5f3ef; font-family: Georgia, 'Times New Roman', serif;">
+<body style="margin:0; padding:0; background-color:#f5f3ef; font-family:${TEXTO}; color:#1a1814;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ef; padding: 32px 16px;">
   <tr>
     <td align="center">
@@ -121,9 +127,9 @@ function tarjeta(o) {
         </tr>
         <tr>
           <td style="padding: 24px 32px 32px 32px; color:#1a1814;">
-            <p style="font-size:16px; line-height:1.6; margin:0;">
+            <p style="font-family:${TEXTO}; font-size:16px; line-height:1.6; margin:0;">
               Un abrazo,<br>
-              <strong>Otto</strong><br>
+              <span style="font-family:${TITULO}; font-size:20px;">Otto</span><br>
               <span style="color:#8a8378; font-size:14px;">Mirar Despacio</span>
             </p>
           </td>
@@ -140,13 +146,14 @@ function tarjeta(o) {
 // o = { titulo, nombre, cabecera, parrafos: [html], estado }
 function recibido(o) {
   const parrafos = o.parrafos.map((t, i) =>
-    `<p style="font-family: Georgia, serif; font-size:15px; color:#4a453d; line-height:1.7; margin:${i === o.parrafos.length - 1 ? '0' : '0 0 18px 0'};">${t}</p>`).join('\n      ');
+    `<p style="font-family:${TEXTO}; font-size:15px; color:#4a453d; line-height:1.7; margin:${i === o.parrafos.length - 1 ? '0' : '0 0 18px 0'};">${t}</p>`).join('\n      ');
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${o.titulo}</title>
+${FUENTES}
 </head>
 <body style="margin:0; padding:0; background-color:#e8e5df;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#e8e5df; padding:30px 0;">
@@ -156,14 +163,14 @@ function recibido(o) {
   <tr>
     <td style="background-color:#f5f3ef; padding:36px 40px 24px 40px; text-align:center; border-bottom:1px solid #e5e1d8;">
       <img src="${LOGO}" alt="Mirar Despacio" width="220" style="display:block; margin:0 auto; max-width:220px; height:auto;">
-      <div style="font-family: Georgia, serif; font-style:italic; font-size:14px; color:#8a6a45; margin-top:14px;">
+      <div style="font-family:${TITULO}; font-style:italic; font-size:15px; color:#8a6a45; margin-top:14px;">
         Fotografía callejera, sin prisa
       </div>
     </td>
   </tr>
   <tr>
     <td style="padding:40px 40px 20px 40px;">
-      <h1 style="font-family: Georgia, serif; font-size:24px; color:#1a1814; margin:0 0 20px 0; line-height:1.3;">
+      <h1 style="font-family:${TITULO}; font-weight:400; font-size:26px; color:#1a1814; margin:0 0 20px 0; line-height:1.3;">
         ${o.cabecera}
       </h1>
       ${parrafos}
@@ -174,10 +181,10 @@ function recibido(o) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a1814; border-radius:10px;">
         <tr>
           <td style="padding:26px 30px;">
-            <div style="font-family: Georgia, serif; font-size:12px; letter-spacing:1.5px; color:#c8a97a; text-transform:uppercase; margin-bottom:10px;">
+            <div style="font-family:${TEXTO}; font-size:12px; letter-spacing:1.5px; color:#c8a97a; text-transform:uppercase; margin-bottom:10px;">
               Estado
             </div>
-            <div style="font-family: Georgia, serif; font-size:18px; color:#f5f3ef;">
+            <div style="font-family:${TITULO}; font-size:19px; color:#f5f3ef;">
               ${o.estado}
             </div>
           </td>
@@ -187,19 +194,19 @@ function recibido(o) {
   </tr>
   <tr>
     <td style="padding:20px 40px 40px 40px;">
-      <p style="font-family: Georgia, serif; font-size:15px; color:#4a453d; line-height:1.7; margin:0 0 20px 0;">
+      <p style="font-family:${TEXTO}; font-size:15px; color:#4a453d; line-height:1.7; margin:0 0 20px 0;">
         Cualquier duda, respondes a este email sin problema.
       </p>
-      <p style="font-family: Georgia, serif; font-size:15px; color:#1a1814; margin:0;">
+      <p style="font-family:${TEXTO}; font-size:15px; color:#1a1814; margin:0;">
         Hasta pronto,<br>
-        <strong>Otto</strong><br>
+        <span style="font-family:${TITULO}; font-size:20px;">Otto</span><br>
         <em style="color:#c8a97a;">Mirar Despacio</em>
       </p>
     </td>
   </tr>
   <tr>
     <td style="background-color:#1a1814; padding:20px 40px; text-align:center;">
-      <div style="font-family: Georgia, serif; font-size:11px; color:#6b6558;">
+      <div style="font-family:${TEXTO}; font-size:11px; color:#6b6558;">
         Mirar Despacio · <a href="https://mirardespacio.es" style="color:#6b6558;">mirardespacio.es</a>
       </div>
     </td>
