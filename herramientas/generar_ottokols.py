@@ -314,23 +314,19 @@ cuerpo = f'''
       </div>
     </section>
     <section class="bloque">
-      <div class="env galeria dos">
-        {img('/fotos/boda2horiz.jpg', 'Novios con el ramo', 1740, 1170)}
-        {img('/fotos/boda1horiz.jpg', 'Pareja caminando junto al mar', 1503, 1000)}
-      </div>
-    </section>
-    <section class="bloque">
-      <div class="env">
-        <h2>Una pedida <em>en el Retiro.</em></h2>
-        <div class="galeria pedida">
-          {img('/fotos/pedida1vert.jpg', 'Él, de rodilla, le pide matrimonio en los jardines del Retiro', 1200, 1800)}
-          {img('/fotos/pedida2vert.jpg', 'La pareja abrazada a contraluz junto al estanque', 1200, 1800)}
-          {img('/fotos/pedida3horiz.jpg', 'Los dos sonríen enseñando el anillo', 1800, 1200, ' class="ancha"')}
+      <div class="env mezcla">
+        <div class="fila tres">
+          <figure class="etiquetada">{img('/fotos/pedida1vert.jpg', 'Él, de rodilla, le pide matrimonio en los jardines del Retiro', 1200, 1800, ' class="vert"')}<figcaption>pedida · el Retiro</figcaption></figure>
+          {img('/fotos/boda2horiz.jpg', 'Novios con el ramo', 1740, 1170)}
+          {img('/fotos/pedida2vert.jpg', 'La pareja abrazada a contraluz junto al estanque', 1200, 1800, ' class="vert"')}
         </div>
-        <figure class="cita">
-          <blockquote><p>«La verdad, todo fue fantástico, desde el primer contacto para acordar todo, incluso con un plan detallado por parte de Otto para que la experiencia sea <em>perfecta</em>. Agradezco muchísimo que haya sido él el responsable de grabar uno de los momentos más importantes de mi vida.»</p></blockquote>
-          <figcaption>Él, después de la pedida</figcaption>
-        </figure>
+        <div class="fila dos">
+          <figure class="etiquetada">{img('/fotos/boda1horiz.jpg', 'Pareja caminando junto al mar', 1503, 1000)}<figcaption>boda</figcaption></figure>
+          <figure class="con-globo">
+            {img('/fotos/pedida3horiz.jpg', 'Los dos sonríen enseñando el anillo', 1800, 1200)}
+            <figcaption class="globo"><p>«La verdad, todo fue fantástico, desde el primer contacto para acordar todo, incluso con un plan detallado por parte de Otto para que la experiencia sea <em>perfecta</em>. Agradezco muchísimo que haya sido él el responsable de grabar uno de los momentos más importantes de mi vida.»</p><span>Él, después de la pedida</span></figcaption>
+          </figure>
+        </div>
       </div>
     </section>
     <section class="bloque"><div class="env"><h2>Otros retratos</h2>{otros('/parejas/')}</div></section>'''
