@@ -4,6 +4,9 @@
 //           variantes:[{nombre, disponible, pocas, precio, envio}], enlacePago }]
 //  · precio es el más bajo de sus variantes ("desde"); precioMax, el más alto (iguales si no cambian).
 //  · bajoPedido: no tiene stock y nunca se agota (todas sus variantes están disponibles).
+//  · preventa: {minimo, reservadas, hasta, estado} si el producto solo se fabrica al llegar a un mínimo de reservas.
+//    estado: 'abierta' | 'conseguida' (ya se fabrica) | 'cerrada' (pasó la fecha sin llegar) | 'cancelada'.
+//    Mientras está abierta o conseguida se puede reservar (no lleva stock, como bajo pedido).
 // mirardespacio.es/api/tienda apunta aquí (mismo origen para la web). No se publica el stock exacto.
 const { db } = require('../lib/firestore');
 
@@ -18,7 +21,16 @@ async function productos() {
   const snap = await db().collection('productos').where('estado', 'in', ['venta', 'agotado']).get();
   const lista = snap.docs.map((d) => {
     const p = d.data();
-    const bajo = !!p.bajoPedido;
+    const hoy = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' }).slice(0, 10);
+    let preventa = null;
+    if (p.preventa && p.preventa.activa) {
+      const pv = p.preventa;
+      let est = ['conseguida', 'cancelada'].includes(pv.estado) ? pv.estado : 'abierta';
+      if (est === 'abierta' && pv.hasta && pv.hasta < hoy) est = 'cerrada';
+      preventa = { minimo: Math.max(1, Number(pv.minimo) || 1), reservadas: Math.max(0, Number(pv.reservadas) || 0), hasta: pv.hasta || '', estado: est };
+    }
+    const reservable = preventa && ['abierta', 'conseguida'].includes(preventa.estado);
+    const bajo = !!p.bajoPedido || !!reservable;
     const base = Number(p.precio) || 0, envioBase = Number(p.envio) || 0;
     const tiene = (x) => x != null && x !== '' && isFinite(Number(x));
     let vs = (p.variantes || []).map((v) => {
@@ -35,8 +47,8 @@ async function productos() {
     return {
       id: d.id, slug: p.slug || slugDe(p.nombre), nombre: p.nombre || '', tipo: p.tipo || 'otro', descripcion: p.descripcion || '',
       precio: ps.length ? Math.min(...ps) : base, precioMax: ps.length ? Math.max(...ps) : base, envio: envioBase,
-      bajoPedido: bajo, plazo: bajo ? String(p.plazo || '').slice(0, 160) : '',
-      estado: p.estado === 'venta' && hay ? 'venta' : 'agotado',
+      bajoPedido: bajo && !preventa, plazo: bajo ? String(p.plazo || '').slice(0, 160) : '', preventa,
+      estado: p.estado === 'venta' && hay && (!preventa || reservable) ? 'venta' : 'agotado',
       fotos: (p.fotos || []).map((f) => f.url).filter(Boolean),
       variantes: vs, enlacePago: /^https:\/\//.test(p.enlacePago || '') ? p.enlacePago : '',
       creado: p.creado && p.creado.toMillis ? p.creado.toMillis() : 0,

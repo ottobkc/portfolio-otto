@@ -7,6 +7,10 @@
 //                 prints (A4, A3… cada tamaño con su precio). El "precio" del producto es el más bajo ("desde").
 //               · bajoPedido: no lleva stock, nunca se agota y los pedidos no descuentan nada (las líneas
 //                 del pedido se guardan con bajoPedido: true para que al cancelar tampoco se devuelva).
+//               · preventa: {activa, minimo, hasta, estado, reservadas}. Solo se fabrica si se llega al mínimo de
+//                 reservas antes de la fecha. No lleva stock (como bajo pedido); cada pedido suma sus unidades a
+//                 «reservadas» (y las resta si se cancela). estado: 'abierta' | 'conseguida' | 'cancelada'.
+//                 Se cobra al reservar: si se cancela la preventa, el CRM enseña a quién hay que devolver el dinero.
 //   pedidos     número P-0001, cliente, líneas, envío, total, pago, estado, seguimiento, factura
 //   contadores  "pedidos": último número de pedido
 //
@@ -50,7 +54,11 @@ let nuevoPedido = null;    // líneas del pedido que se está creando
 
 const stockDe = (p) => (p.variantes || []).reduce((n, v) => n + (Number(v.stock) || 0), 0);
 const conTallas = (p) => (p.variantes || []).some((v) => v.nombre);
-const bajo = (p) => !!(p && p.bajoPedido);
+const enPreventa = (p) => !!(p && p.preventa && p.preventa.activa);
+// Sin stock: bajo pedido o en preventa (nunca se agota, los pedidos no descuentan unidades)
+const bajo = (p) => !!(p && (p.bajoPedido || enPreventa(p)));
+const ESTADOS_PV = { abierta: 'abierta', conseguida: 'conseguida: se fabrica', cancelada: 'cancelada' };
+const textoPv = (p) => { const v = p.preventa || {}; return `${Number(v.reservadas) || 0}/${Number(v.minimo) || 0}`; };
 // Precio y envío de una variante: los suyos si los tiene; si no, los del producto
 const tiene = (x) => x != null && x !== '' && isFinite(Number(x));
 const precioDe = (p, v) => (v && tiene(v.precio) && Number(v.precio) > 0 ? Number(v.precio) : num(p.precio));
@@ -126,7 +134,7 @@ function pintarProductos() {
       <div class="td-foto">${foto ? `<img src="${esc(mini(foto.url, 400))}" alt="" loading="lazy">` : '<span>sin foto</span>'}</div>
       <div class="td-info"><b>${esc(p.nombre)}</b>
         <div class="person-meta">${esc(TIPOS[p.tipo] || '')} · ${precioTxt(p)}</div>
-        <div style="margin-top:6px;"><span class="tag ${cl}">${et}</span>${bajo(p) ? '<span class="tag t-fotos">bajo pedido</span>' : `<span class="tag ${s === 0 ? 't-dup' : s <= POCO ? 't-man' : 't-off'}">${s} en stock</span>`}</div>
+        <div style="margin-top:6px;"><span class="tag ${cl}">${et}</span>${enPreventa(p) ? `<span class="tag ${p.preventa.estado === 'conseguida' ? 't-plus' : p.preventa.estado === 'cancelada' ? 't-dup' : 't-man'}">preventa ${textoPv(p)}</span>` : bajo(p) ? '<span class="tag t-fotos">bajo pedido</span>' : `<span class="tag ${s === 0 ? 't-dup' : s <= POCO ? 't-man' : 't-off'}">${s} en stock</span>`}</div>
         ${conTallas(p) ? `<div class="person-meta" style="margin-top:4px;">${(p.variantes || []).map((v) => `${esc(v.nombre)}: ${bajo(p) ? eur(precioDe(p, v)) : (Number(v.stock) || 0) + (tiene(v.precio) ? ' · ' + eur(precioDe(p, v)) : '')}`).join(' · ')}</div>` : ''}
       </div></div>`;
   }).join('') || '<div class="empty" style="padding:16px;">Aún no hay productos. Empieza por el zine o la baraja.</div>';
@@ -134,7 +142,7 @@ function pintarProductos() {
 }
 function editarProducto(id) {
   const p = id ? productos.find((x) => x.id === id) : null;
-  prodEditando = p ? JSON.parse(JSON.stringify(p)) : { id: null, nombre: '', tipo: 'zine', descripcion: '', precio: '', iva: 21, envio: '', estado: 'borrador', fotos: [], variantes: [{ nombre: '', stock: 0, precio: null, envio: null }], sku: '', enlacePago: '', bajoPedido: false, plazo: '' };
+  prodEditando = p ? JSON.parse(JSON.stringify(p)) : { id: null, nombre: '', tipo: 'zine', descripcion: '', precio: '', iva: 21, envio: '', estado: 'borrador', fotos: [], variantes: [{ nombre: '', stock: 0, precio: null, envio: null }], sku: '', enlacePago: '', bajoPedido: false, plazo: '', preventa: null };
   ver('productos');
   pintarEditorProducto();
   $('tdEditor').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -147,6 +155,12 @@ function leerProducto() {
   p.precio = vacio('tpPrecio'); p.iva = Number($('tpIva').value); p.envio = vacio('tpEnvio');
   p.estado = $('tpEstado').value; p.sku = $('tpSku').value.trim(); p.enlacePago = $('tpEnlace').value.trim();
   p.bajoPedido = $('tpBajo').checked; p.plazo = $('tpPlazo') ? $('tpPlazo').value.trim() : (p.plazo || '');
+  // Preventa: el contador y el estado no se tocan aquí (los cambian los pedidos y los botones de la preventa)
+  if ($('tpPreventa').checked) {
+    const antes = p.preventa || {};
+    p.preventa = { activa: true, minimo: Math.max(1, Math.round(num($('tpPvMin') ? $('tpPvMin').value : antes.minimo))), hasta: $('tpPvHasta') ? $('tpPvHasta').value : (antes.hasta || ''),
+      estado: antes.estado || 'abierta', reservadas: Number(antes.reservadas) || 0 };
+  } else if (p.preventa) p.preventa = { ...p.preventa, activa: false };
   const opc = (el, k) => { const t = el.querySelector(`[data-k=${k}]`).value.trim(); return t === '' ? null : Math.max(0, r2(num(t))); };
   p.variantes = [...document.querySelectorAll('#tpVariantes .td-var')].map((el) => ({
     nombre: el.querySelector('[data-k=nombre]').value.trim(), stock: Math.max(0, Math.round(num(el.querySelector('[data-k=stock]').value))),
@@ -182,7 +196,9 @@ function pintarEditorProducto() {
         <div class="td-fotos">${(p.fotos || []).map((f, i) => `<div class="td-mini"><img src="${esc(mini(f.url, 240))}" alt="">
           <div>${i ? `<button class="small secondary" type="button" onclick="td.moverFoto(${i},-1)" title="Antes">←</button>` : ''}${i < p.fotos.length - 1 ? `<button class="small secondary" type="button" onclick="td.moverFoto(${i},1)" title="Después">→</button>` : ''}<button class="small danger" type="button" onclick="td.quitarFoto(${i})" title="Quitar">✕</button></div></div>`).join('')}</div>
         <input type="file" id="tpFotos" accept="image/*" multiple onchange="td.subirFotos()">
-        <label class="consent-toggle" style="margin-top:4px;"><input type="checkbox" id="tpBajo" ${bajo(p) ? 'checked' : ''} onchange="td.refrescar()"> Bajo pedido: sin stock, nunca se agota (se prepara cuando alguien lo compra)</label>
+        <label class="consent-toggle" style="margin-top:4px;"><input type="checkbox" id="tpBajo" ${p.bajoPedido ? 'checked' : ''} onchange="td.refrescar()"> Bajo pedido: sin stock, nunca se agota (se prepara cuando alguien lo compra)</label>
+        <label class="consent-toggle"><input type="checkbox" id="tpPreventa" ${enPreventa(p) ? 'checked' : ''} onchange="td.refrescar()"> Preventa: solo se fabrica si se llega a un mínimo de reservas</label>
+        ${enPreventa(p) ? pvEditor(p) : ''}
         ${bajo(p) ? `<input id="tpPlazo" data-vivo placeholder="Plazo para la web (p. ej. Se imprime y te llega en 7-10 días)" value="${esc(p.plazo || '')}" style="margin-top:6px;">` : ''}
         <div class="cx-etq">${bajo(p) ? 'Tamaños o versiones' : 'Stock'} <span class="person-meta">(precio y envío vacíos = los del producto)</span></div>
         <div class="td-var td-var-cab${bajo(p) ? ' sin-stock' : ''}"><span>Variante</span><span>Precio</span><span>Envío</span><span>${bajo(p) ? '' : 'Stock'}</span><span></span></div>
@@ -196,6 +212,35 @@ function pintarEditorProducto() {
       ${p.id ? (vendidos ? `<span class="person-meta" style="flex:1 1 200px;align-self:center;">Tiene ${vendidos} pedido${vendidos > 1 ? 's' : ''}: para quitarlo de la venta, ponlo como «Retirado».</span>` : `<button class="danger" onclick="td.borrarProducto()">Borrar producto</button>`) : ''}
     </div>
   </div>`;
+}
+// Bloque de la preventa en el editor: mínimo, fecha límite, contador y lo que se hace al cerrarla
+function pvEditor(p) {
+  const v = p.preventa, n = Number(v.reservadas) || 0, min = Number(v.minimo) || 1;
+  const pasada = v.hasta && v.hasta < hoyISO() && v.estado === 'abierta';
+  const peds = pedidos.filter((x) => x.estado !== 'cancelado' && (x.lineas || []).some((l) => l.productoId === p.id && l.preventa));
+  const porDevolver = peds.filter((x) => x.pagado);
+  return `<div class="sub-panel" style="margin:6px 0 4px;">
+    <div class="row"><input id="tpPvMin" type="number" min="1" step="1" placeholder="Mínimo de reservas" value="${esc(v.minimo || '')}" title="Mínimo de unidades reservadas para fabricarlo">
+      <input id="tpPvHasta" type="date" value="${esc(v.hasta || '')}" title="Fecha límite de la preventa"></div>
+    <div class="person-meta">${n} de ${min} reservas (${Math.min(100, Math.round(n / min * 100))} %) · ${esc(ESTADOS_PV[v.estado] || 'abierta')}${pasada ? ' · <b style="color:var(--warn)">la fecha ya ha pasado: decide si se fabrica o no</b>' : ''}</div>
+    ${p.id && v.estado !== 'cancelada' ? `<div class="row" style="flex-wrap:wrap;margin-top:6px;">
+      ${v.estado !== 'conseguida' ? `<button class="small secondary" type="button" onclick="td.cerrarPreventa('conseguida')">Se fabrica (conseguida)</button>` : ''}
+      <button class="small danger" type="button" onclick="td.cerrarPreventa('cancelada')">No se fabrica (cancelar)</button></div>` : ''}
+    ${v.estado === 'cancelada' && porDevolver.length ? `<div class="person-meta" style="margin-top:6px;"><b>Devuelve el dinero a:</b> ${porDevolver.map((x) => `${esc(x.numero)} · ${esc(x.cliente.nombre || x.cliente.email)} · ${eur(x.total)}`).join('<br>')}</div>` : ''}
+  </div>`;
+}
+async function cerrarPreventa(estado) {
+  leerProducto();
+  const p = prodEditando; if (!p || !p.id) return;
+  const msg = estado === 'conseguida' ? '¿Marcar la preventa como conseguida? En la web saldrá «¡conseguido, se fabrica!» y se podrá seguir reservando.'
+    : '¿Cancelar la preventa? En la web dejará de poder reservarse y aquí verás a quién devolver el dinero. Los pedidos no se cancelan solos.';
+  if (!confirm(msg)) return;
+  try {
+    await updateDoc(doc(db, 'productos', p.id), { 'preventa.estado': estado, ...(estado === 'cancelada' ? { estado: 'agotado' } : {}) });
+    p.preventa.estado = estado; if (estado === 'cancelada') p.estado = 'agotado';
+    C.aviso(estado === 'conseguida' ? 'Preventa conseguida ✓' : 'Preventa cancelada');
+    pintarEditorProducto();
+  } catch (e) { C.aviso('Error: ' + e.message, true); }
 }
 function cerrarProducto() { prodEditando = null; $('tdEditor').innerHTML = ''; }
 function refrescar() { leerProducto(); pintarEditorProducto(); }
@@ -253,7 +298,9 @@ async function guardarProducto() {
   if (p.variantes.some((v) => !(precioDe(p, v) > 0))) return C.aviso('Pon el precio (en el producto o en cada tamaño)', true);
   p.precio = Math.min(...precios(p));
   p.envio = num(p.envio);
-  if (p.bajoPedido) { if (p.estado === 'agotado') p.estado = 'venta'; } else if (p.estado === 'venta' && !stockDe(p)) p.estado = 'agotado';
+  if (enPreventa(p) && (!(p.preventa.minimo >= 1) || !p.preventa.hasta)) return C.aviso('La preventa necesita el mínimo de reservas y la fecha límite', true);
+  if (enPreventa(p) && p.preventa.estado === 'cancelada') { if (p.estado === 'venta') p.estado = 'agotado'; }
+  else if (bajo(p)) { if (p.estado === 'agotado') p.estado = 'venta'; } else if (p.estado === 'venta' && !stockDe(p)) p.estado = 'agotado';
   const id = p.id || 'p-' + C.uid();
   // Dirección en la web (mirardespacio.es/tienda/<slug>/): se fija la primera vez y no cambia
   // aunque cambies el nombre, para no romper enlaces ni lo que ya ha indexado Google
@@ -428,14 +475,24 @@ async function crearPedido() {
       const variantes = {};
       ids.forEach((pid) => { if (!snaps[pid].exists()) throw new Error('Un producto ya no existe'); variantes[pid] = JSON.parse(JSON.stringify(snaps[pid].data().variantes || [])); });
       // Lo que manda es cómo está el producto ahora en la base de datos (bajo pedido o con stock)
-      const sinStock = (pid) => !!snaps[pid].data().bajoPedido;
+      const pv = (pid) => { const x = snaps[pid].data().preventa; return x && x.activa ? x : null; };
+      const sinStock = (pid) => !!snaps[pid].data().bajoPedido || !!pv(pid);
+      const reservas = {};
       lineas.forEach((l) => {
+        delete l.preventa;
+        if (pv(l.productoId)) { // preventa: suma reservas, no descuenta stock
+          if (pv(l.productoId).estado === 'cancelada') throw new Error(`La preventa de ${l.nombre} está cancelada`);
+          l.preventa = true; delete l.bajoPedido;
+          reservas[l.productoId] = (reservas[l.productoId] || 0) + Number(l.cantidad);
+          return;
+        }
         if (sinStock(l.productoId)) { l.bajoPedido = true; return; } // bajo pedido: no se descuenta nada
         delete l.bajoPedido;
         const v = variantes[l.productoId].find((x) => (x.nombre || '') === (l.variante || '')) || variantes[l.productoId][0];
         if (!v || (Number(v.stock) || 0) < l.cantidad) throw new Error(`No hay stock suficiente de ${l.nombre}${l.variante ? ' (' + l.variante + ')' : ''}`);
         v.stock = (Number(v.stock) || 0) - l.cantidad;
       });
+      Object.entries(reservas).forEach(([pid, n]) => tx.update(doc(db, 'productos', pid), { 'preventa.reservadas': (Number(pv(pid).reservadas) || 0) + n }));
       ids.filter((pid) => !sinStock(pid)).forEach((pid) => {
         const cambios = { variantes: variantes[pid] };
         if (snaps[pid].data().estado === 'venta' && !variantes[pid].some((v) => Number(v.stock) > 0)) cambios.estado = 'agotado';
@@ -445,7 +502,7 @@ async function crearPedido() {
       tx.set(doc(db, 'contadores', 'pedidos'), { ultimo: nn });
       const numero = 'P-' + String(nn).padStart(4, '0');
       tx.set(doc(db, 'pedidos', id), {
-        n: nn, numero, fecha: hoyISO(), creado: serverTimestamp(), origen: 'manual', estado: n.entrega === 'mano' && n.pagado ? 'entregado' : 'nuevo',
+        n: nn, numero, fecha: hoyISO(), creado: serverTimestamp(), origen: 'manual', estado: n.entrega === 'mano' && n.pagado && !lineas.some((l) => l.preventa) ? 'entregado' : 'nuevo', // la preventa aún no está fabricada
         cliente: { nombre: n.nombre, email: n.email, telefono: n.telefono, direccion: n.direccion || '', personId: n.personId || '' },
         entrega: n.entrega, lineas, envio: num(n.envio), total, metodo: n.metodo, pagado: false, notas: n.notas, stockDescontado: true,
       });
@@ -486,7 +543,7 @@ function pintarPedido() {
     <div style="margin:6px 0 10px;"><span class="tag ${cl}">${et}</span>${p.estado !== 'cancelado' ? (p.pagado ? `<span class="tag t-plus">pagado ${fechaES(p.fechaPago)}</span>` : '<span class="tag t-man">sin pagar</span>') : ''}</div>
     <div class="cx-dos">
       <div>
-        ${(p.lineas || []).map((l) => `<div class="cx-linea"><span>${l.cantidad} × ${esc(l.nombre)}${l.variante ? ' (' + esc(l.variante) + ')' : ''}${l.bajoPedido ? ' <span class="tag t-fotos">bajo pedido</span>' : ''}</span><span>${eur(l.cantidad * l.precio)}</span></div>`).join('')}
+        ${(p.lineas || []).map((l) => `<div class="cx-linea"><span>${l.cantidad} × ${esc(l.nombre)}${l.variante ? ' (' + esc(l.variante) + ')' : ''}${l.preventa ? ' <span class="tag t-man">preventa</span>' : ''}${l.bajoPedido ? ' <span class="tag t-fotos">bajo pedido</span>' : ''}</span><span>${eur(l.cantidad * l.precio)}</span></div>`).join('')}
         ${num(p.envio) ? `<div class="cx-linea"><span>Envío</span><span>${eur(p.envio)}</span></div>` : ''}
         <div class="cx-linea cx-total"><span>Total</span><span>${eur(p.total)}</span></div>
         ${p.notas ? `<div class="person-meta" style="margin-top:8px;">${esc(p.notas)}</div>` : ''}
@@ -539,13 +596,20 @@ async function cancelar(id) {
       const snap = await tx.get(ref);
       const d = snap.data();
       // Las líneas bajo pedido no descontaron stock: no se devuelve nada de ellas
-      const ids = d.stockDescontado ? [...new Set((d.lineas || []).filter((l) => !l.bajoPedido).map((l) => l.productoId))] : [];
+      const ids = d.stockDescontado ? [...new Set((d.lineas || []).filter((l) => !l.bajoPedido && !l.preventa).map((l) => l.productoId))] : [];
+      // Las de preventa restan sus reservas del contador
+      const idsPv = d.stockDescontado ? [...new Set((d.lineas || []).filter((l) => l.preventa).map((l) => l.productoId))] : [];
       const prods = {};
-      for (const pid of ids) prods[pid] = await tx.get(doc(db, 'productos', pid));
+      for (const pid of new Set([...ids, ...idsPv])) prods[pid] = await tx.get(doc(db, 'productos', pid));
+      idsPv.forEach((pid) => {
+        if (!prods[pid].exists() || !prods[pid].data().preventa) return;
+        const n = d.lineas.filter((l) => l.productoId === pid && l.preventa).reduce((a, l) => a + Number(l.cantidad), 0);
+        tx.update(doc(db, 'productos', pid), { 'preventa.reservadas': Math.max(0, (Number(prods[pid].data().preventa.reservadas) || 0) - n) });
+      });
       ids.forEach((pid) => {
         if (!prods[pid].exists()) return;
         const vs = JSON.parse(JSON.stringify(prods[pid].data().variantes || []));
-        d.lineas.filter((l) => l.productoId === pid && !l.bajoPedido).forEach((l) => {
+        d.lineas.filter((l) => l.productoId === pid && !l.bajoPedido && !l.preventa).forEach((l) => {
           const v = vs.find((x) => (x.nombre || '') === (l.variante || '')) || vs[0];
           if (v) v.stock = (Number(v.stock) || 0) + Number(l.cantidad);
         });
@@ -565,7 +629,7 @@ function copiarDireccion(id) {
 }
 
 window.td = {
-  ver, pintar, editarProducto, cerrarProducto, refrescar, masVariante, tallasCamiseta, tamanosPrint, moverFoto, quitarFoto, subirFotos, guardarProducto, borrarProducto,
+  ver, pintar, editarProducto, cerrarProducto, cerrarPreventa, refrescar, masVariante, tallasCamiseta, tamanosPrint, moverFoto, quitarFoto, subirFotos, guardarProducto, borrarProducto,
   empezarPedido, pintarNuevo, leerNuevo, totalNuevo, cambiarLinea, proponerEnvio, envioAMano, masLineaPedido, quitarLinea, cancelarNuevo, elegirComprador, crearPedido,
   abrirPedido, cerrarPedido, estado, guardarSeguimiento, marcarPagado, hacerFactura, cancelar, copiarDireccion,
 };

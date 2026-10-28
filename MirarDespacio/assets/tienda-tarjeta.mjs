@@ -28,10 +28,33 @@ export function envioTexto(p, v) {
 // Frase del envío dentro de la nota (se cambia al elegir tamaño)
 export const fraseEnvio = (p, v, pago) => { const t = envioTexto(p, v); return !t ? '' : pago ? 'Envío: ' + t + '.' : '; si no, el envío ' + (/^desde/.test(t) ? 'va ' : 'son ') + t; };
 
+// Preventa: se fabrica solo si se llega a un mínimo de reservas antes de una fecha.
+// Contador «18 de 30 reservas» con barra, días que quedan y qué pasa si no se llega.
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const fechaLarga = (iso) => { const [, m, d] = String(iso).split('-').map(Number); return d && m ? `${d} de ${MESES[m - 1]}` : ''; };
+function diasHasta(iso) {
+  const hoy = new Date(new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' }).slice(0, 10) + 'T12:00:00Z');
+  return Math.round((new Date(iso + 'T12:00:00Z') - hoy) / 864e5);
+}
+export function bloquePreventa(pv) {
+  if (!pv) return '';
+  const pct = Math.min(100, Math.round((pv.reservadas / pv.minimo) * 100));
+  const barra = `<div class="preventa-barra" role="progressbar" aria-valuemin="0" aria-valuemax="${pv.minimo}" aria-valuenow="${Math.min(pv.reservadas, pv.minimo)}" aria-label="Reservas"><i style="width:${pct}%"></i></div>`;
+  const cuenta = `<b>${pv.reservadas}</b> de ${pv.minimo} reservas`;
+  if (pv.estado === 'conseguida') return `<div class="preventa conseguida">${barra}<p>${cuenta} · <strong>¡conseguido, se fabrica!</strong> Aún puedes reservar el tuyo.</p></div>`;
+  if (pv.estado === 'cerrada' || pv.estado === 'cancelada') return `<div class="preventa">${barra}<p>${cuenta}. La preventa terminó sin llegar al mínimo: no se fabrica por ahora.</p></div>`;
+  const d = pv.hasta ? diasHasta(pv.hasta) : null;
+  const plazo = d == null ? '' : d <= 0 ? ' · <strong>último día</strong>' : ` · quedan ${d} ${d === 1 ? 'día' : 'días'}`;
+  const faltan = Math.max(0, pv.minimo - pv.reservadas);
+  return `<div class="preventa">${barra}<p>${cuenta}${plazo}</p>
+    <p class="producto-nota">Es una preventa: solo se fabrica si llegamos a ${pv.minimo} reservas${pv.hasta ? ' antes del ' + fechaLarga(pv.hasta) : ''}${faltan ? ` (faltan ${faltan})` : ''}. Pagas al reservar y, si no se llega, te devuelvo el dinero entero.</p></div>`;
+}
+
 // i: posición en la página. sola: true en la página del propio producto (título h1, sin enlace)
 export function tarjeta(p, i, sola) {
   const tallas = p.variantes.filter((v) => v.nombre);
   const agotado = p.estado !== 'venta';
+  const pv = p.preventa || null;
   const pocas = !agotado && !p.bajoPedido && !tallas.length && p.variantes.some((v) => v.pocas);
   const fotos = p.fotos || [];
   const titulo = sola ? `<h1>${esc(p.nombre)}</h1>` : `<h2><a href="${urlProducto(p)}">${esc(p.nombre)}</a></h2>`;
@@ -44,10 +67,11 @@ export function tarjeta(p, i, sola) {
   <div class="producto-fotos">${fotos.length ? `<img class="producto-foto" src="${esc(img(fotos[0], 'f_auto,q_auto,c_limit,w_1100'))}" alt="${esc(p.nombre)}"${i ? ' loading="lazy"' : ''}>` : '<div class="producto-foto vacia"></div>'}${fotos.length > 1 ? '<div class="producto-minis">' + fotos.map((f, k) => `<button type="button" aria-label="Ver foto ${k + 1}" data-f="${k}"${k ? '' : ' class="activa"'}><img src="${esc(img(f, 'f_auto,q_auto,c_fill,w_160,h_160'))}" alt="" loading="lazy"></button>`).join('') + '</div>' : ''}</div>
   <div class="producto-info">
     ${TIPOS[p.tipo] ? `<p class="antetitulo">${esc(TIPOS[p.tipo])}</p>` : ''}${titulo}
-    <p class="producto-precio"><span data-precio${cambia ? ' class="desde"' : ''}>${precioTexto(p)}</span>${agotado ? ' <span class="producto-estado">Agotado</span>' : pocas ? ' <span class="producto-estado">Quedan pocos</span>' : ''}</p>
+    <p class="producto-precio"><span data-precio${cambia ? ' class="desde"' : ''}>${precioTexto(p)}</span>${pv && !agotado ? ' <span class="producto-estado">Preventa</span>' : agotado && !pv ? ' <span class="producto-estado">Agotado</span>' : pocas ? ' <span class="producto-estado">Quedan pocos</span>' : ''}</p>
+    ${bloquePreventa(pv)}
     ${desc}
     ${tallas.length && !agotado ? `<div class="producto-tallas" role="radiogroup" aria-label="${eleccion(p)}">` + tallas.map((v, k) => `<label class="${v.disponible ? '' : 'sin'}"><input type="radio" name="talla-${i}" value="${esc(v.nombre)}"${v.disponible ? '' : ' disabled'}${v.disponible && !tallas.slice(0, k).some((x) => x.disponible) ? ' checked' : ''}><span>${esc(v.nombre)}${cambia ? `<small>${eur(precioVar(p, v))}</small>` : ''}</span></label>`).join('') + '</div>' : ''}
-    <div class="botones">${agotado ? `<a class="boton claro" data-avisar href="#">Avísame cuando vuelva</a>` : `<a class="boton" data-comprar href="${p.enlacePago ? esc(p.enlacePago) : '#'}">${p.enlacePago ? 'Comprar' : 'Lo quiero'}</a>`}</div>
+    <div class="botones">${agotado ? `<a class="boton claro" data-avisar href="#">Avísame ${pv ? 'si vuelve' : 'cuando vuelva'}</a>` : `<a class="boton" data-comprar href="${p.enlacePago ? esc(p.enlacePago) : '#'}">${pv ? 'Reservar el mío' : p.enlacePago ? 'Comprar' : 'Lo quiero'}</a>`}</div>
     ${!agotado && p.bajoPedido ? `<p class="producto-nota">Bajo pedido · ${p.plazo ? esc(p.plazo.replace(/[.\s]+$/, '')) : 'lo preparo en cuanto me lo pides'}.</p>` : ''}
     ${notaEnvio || ''}
     ${sola ? '' : `<p class="producto-nota"><a href="${urlProducto(p)}">Más detalles →</a></p>`}
@@ -60,7 +84,7 @@ export function tarjeta(p, i, sola) {
 // y una oferta por tamaño.
 export function schemaProducto(p, dom) {
   const url = dom + urlProducto(p);
-  const disp = (ok) => (ok ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock');
+  const disp = (ok) => (!ok ? 'https://schema.org/OutOfStock' : p.preventa ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock');
   const [a, b] = preciosDe(p);
   const tallas = (p.variantes || []).filter((v) => v.nombre);
   const base = {

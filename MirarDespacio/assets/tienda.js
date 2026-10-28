@@ -2,7 +2,7 @@
 // Normalmente la página llega ya escrita desde el servidor (función edge "tienda") con los datos
 // en #tienda-datos. Si no, los pide a /api/tienda y la pinta aquí. Sin productos, se queda el zine.
 // El ?v= se sube a mano cada vez que cambia tienda-tarjeta.mjs (el navegador guarda /assets 7 días)
-import { tarjeta, img, eur, precioVar, fraseEnvio, eleccion } from './tienda-tarjeta.mjs?v=2';
+import { tarjeta, img, eur, precioVar, fraseEnvio, eleccion } from './tienda-tarjeta.mjs?v=3';
 
 const caja = document.getElementById('tienda-productos');
 const EMAIL = (caja && caja.getAttribute('data-email')) || 'info@mirardespacio.es';
@@ -63,7 +63,7 @@ document.addEventListener('click', (e) => {
   try { if (window.umami) umami.track('tienda-quiero', { producto: p.nombre, talla }); } catch (x) { /* nada */ }
   if (p.enlacePago) return; // el enlace ya lleva al pago
   e.preventDefault();
-  const asunto = 'Quiero: ' + p.nombre + (talla ? ' (' + que + ')' : '');
-  const cuerpo = 'Hola, Otto:\n\nMe gustaría comprar ' + p.nombre + (talla ? ', ' + que : '') + ' (' + eur(precioVar(p, v)) + ').\n\nMe lo llevo en una salida / Me lo envías a: \n\nGracias.';
+  const asunto = (p.preventa ? 'Reserva (preventa): ' : 'Quiero: ') + p.nombre + (talla ? ' (' + que + ')' : '');
+  const cuerpo = 'Hola, Otto:\n\n' + (p.preventa ? 'Quiero reservar ' : 'Me gustaría comprar ') + p.nombre + (talla ? ', ' + que : '') + ' (' + eur(precioVar(p, v)) + ').\n\nMe lo llevo en una salida / Me lo envías a: \n\nGracias.';
   location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
 });
