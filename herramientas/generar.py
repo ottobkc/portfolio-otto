@@ -10,7 +10,7 @@ INSTAGRAM = 'https://instagram.com/ob.kc'
 EMAIL = 'info@mirardespacio.es'
 UMAMI = '8f2ba4b0-e3aa-4d28-b1ec-282e448736f8'
 FORMSPREE = 'https://formspree.io/f/mlgkdlno'
-ACCESO = 'https://ottokols.es/acceso.html'
+ACCESO = '/acceso/'
 HOY = '2026-09-29'
 
 import hashlib

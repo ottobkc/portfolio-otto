@@ -32,6 +32,12 @@ CAMBIOS = [
     ('/members/', '/socios/'),
     ('https://ottokols.es/js/agenda.js', '/js/agenda.js'),
     ('ottokols.es/manuales/<id>/', 'mirardespacio.es/manuales/<id>/'),
+    # Pies de página: la zona ya vive en mirardespacio.es
+    ('<p>ottokols.es<span class="dot">·</span>', '<p>mirardespacio.es<span class="dot">·</span>'),
+    ('<p>ottokols.es</p>', '<p>mirardespacio.es</p>'),
+    ('Mirar Despacio + · ottokols.es', 'Mirar Despacio + · mirardespacio.es'),
+    ('<a href="/">ottokols.es</a>', '<a href="/">mirardespacio.es</a>'),
+    ('mailto:info@ottokols.es', 'mailto:info@mirardespacio.es'),
 ]
 # Cambios concretos de una página (lo que no se resuelve con buscar y reemplazar)
 ESPECIALES = {

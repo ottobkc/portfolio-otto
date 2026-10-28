@@ -620,7 +620,7 @@ def construir(g):
 
 
 AGENDA_JS = '''
-  <script src="https://ottokols.es/js/agenda.js"></script>
+  <script src="/js/agenda.js"></script>
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8, pasadas: true });</script>'''
 MURO_JS = '''
   <script src="/assets/muro.js"></script>'''

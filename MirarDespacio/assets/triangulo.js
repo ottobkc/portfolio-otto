@@ -1,4 +1,4 @@
-// Practica con el triángulo · mirardespacio.es/juegos/triangulo/ (y la versión MD+ en ottokols.es/members/triangulo.html)
+// Practica con el triángulo · mirardespacio.es/juegos/triangulo/ (y la versión MD+ en /socios/triangulo.html)
 // Simulador del triángulo de exposición: ISO, velocidad y diafragma. Todo se calcula en el navegador;
 // la física y la puntuación están en triangulo-nucleo.js (las comparte con el servidor).
 // Si la página define window.TRIANGULO_PLUS antes de cargar este archivo, se añaden los retos de MD+.
@@ -215,7 +215,7 @@ function drawLevels(){
     const st=best["l"+i]?"★".repeat(best["l"+i]):"";
     b.innerHTML=`${i+1}. ${lv.title}${lv.plus?` <span class="tag">MD+</span>`:""}${st?` <span class="st">${st}</span>`:""}`;b.onclick=()=>loadLevel(i);nav.appendChild(b)});
   if(!PLUS)LOCKED.forEach((t,i)=>{const b=document.createElement("button");b.className="lvl locked";b.title="Solo para miembros de Mirar Despacio+";
-    b.innerHTML=`${LEVELS.length+i+1}. ${t} <span class="tag">MD+</span>`;b.onclick=()=>{location.href="https://ottokols.es/members/triangulo.html"};nav.appendChild(b)});
+    b.innerHTML=`${LEVELS.length+i+1}. ${t} <span class="tag">MD+</span>`;b.onclick=()=>{location.href="/socios/triangulo.html"};nav.appendChild(b)});
 }
 function setMode(m){
   mode=m;
