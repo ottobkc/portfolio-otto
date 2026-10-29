@@ -95,3 +95,15 @@
   for = "/js/*"
   [headers.values]
     Cache-Control = "public, max-age=300"
+
+# App de socios (instalable): el service worker siempre fresco
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/app.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"

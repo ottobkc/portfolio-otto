@@ -13,6 +13,7 @@
 //   /manuales/<id>/*           -> taller-<id> o admin. Ser MD+ NO da acceso.
 //   /manuales/* (cualquier otra) -> solo admin
 //   /api/socios/enlace         -> pide el enlace para entrar (lo manda ottokols.es)
+//   /api/socios/codigo         -> {email, codigo}: el código del correo -> {enlace} para entrar sin salir de la app
 //   /api/socios/sesion         -> {idToken} de Firebase -> crea la cookie y devuelve el acceso
 //   /api/socios/salir          -> borra la cookie
 // Si algo falla aquí, Netlify devuelve error y NO sirve la página (onError: 'fail').
@@ -106,6 +107,11 @@ async function api(request, context, que) {
     return json(await r.json().catch(() => ({})), r.status);
   }
 
+  if (que === 'codigo') {
+    const r = await llamarFuncion(request, context, { accion: 'codigo', email: String(b.email || '').slice(0, 160), codigo: String(b.codigo || '').slice(0, 12) });
+    return json(await r.json().catch(() => ({})), r.status);
+  }
+
   if (que === 'sesion') {
     const token = String(b.idToken || '');
     if (!token || token.length > 4096) return json({ error: 'sesion' }, 401);
@@ -122,7 +128,7 @@ async function api(request, context, que) {
 
 export default async (request, context) => {
   const url = new URL(request.url);
-  const a = url.pathname.match(/^\/api\/socios\/(enlace|sesion|salir)\/?$/);
+  const a = url.pathname.match(/^\/api\/socios\/(enlace|codigo|sesion|salir)\/?$/);
   if (a) return api(request, context, a[1]);
 
   const regla = reglaPara(url.pathname);

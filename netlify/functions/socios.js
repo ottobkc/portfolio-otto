@@ -5,6 +5,9 @@
 //
 //  POST {accion:'enlace', email, a}  -> si el email tiene cuenta con algún acceso, le manda el enlace para entrar.
 //                                       Siempre responde lo mismo (no se puede averiguar quién es socio).
+//  POST {accion:'codigo', email, codigo} -> el código de 6 cifras del mismo correo (vale 15 min, un solo uso, 5 intentos):
+//                                       devuelve {enlace} para entrar sin salir de la app (en el iPhone la app instalada
+//                                       no comparte sesión con Safari, así que el enlace del correo no le sirve).
 //  POST {accion:'quien', entrada}    (Authorization: Bearer <idToken de Firebase>)
 //                                    -> {uid, email, nombre, roles}. Con entrada: true apunta el login.
 const { db, FieldValue, registrar, conLimite } = require('../lib/firestore');
@@ -21,6 +24,8 @@ function deLaEdge(event) {
   const dada = String((event.headers || {})['x-md-clave'] || '');
   return clave.length >= 32 && dada.length === clave.length && crypto.timingSafeEqual(Buffer.from(dada), Buffer.from(clave));
 }
+const huella = (s) => crypto.createHmac('sha256', process.env.SESION_SOCIOS || 'md').update(String(s)).digest('hex');
+const CODIGO_MIN = 15;
 const DESTINO_OK = /^(socios|cuaderno|retos|manual-[a-z0-9-]{1,30})$/;
 
 exports.handler = async (event, context) => {
@@ -47,7 +52,10 @@ exports.handler = async (event, context) => {
         const web = /^https:\/\/((www\.)?mirardespacio\.es|([a-z0-9-]+--)?mirar-despacio\.netlify\.app)$/.test(b.web || '') ? b.web : WEB;
         const vuelta = `${web}/acceso/?e=${encodeURIComponent(email)}${a ? '&a=' + encodeURIComponent(a) : ''}`;
         const enlace = await fb.enlaceEntrada(email, vuelta);
-        const c = correoEnlace({ email, enlace, a });
+        // Código de 6 cifras para entrar desde la app (se guarda solo su huella, nunca el código)
+        const codigo = String(crypto.randomInt(0, 1e6)).padStart(6, '0');
+        await fs.collection('codigos_acceso').doc(huella('e:' + email)).set({ h: huella(email + ':' + codigo), enlace, expira: Date.now() + CODIGO_MIN * 60e3, intentos: 0 });
+        const c = correoEnlace({ email, enlace, a, codigo });
         const ok = await enviar({ para: email, asunto: c.asunto, html: c.html, texto: c.texto });
         if (!ok) { console.error('socios: sin SMTP'); return res(500, { error: 'correo' }); }
       } else {
@@ -55,6 +63,24 @@ exports.handler = async (event, context) => {
         await fs.collection('cambios_acceso').add({ tipo: 'enlace-sin-cuenta', email, fecha: FieldValue.serverTimestamp() }).catch(() => {});
       }
       return res(200, { ok: true });
+    }
+
+    if (b.accion === 'codigo') {
+      const email = fb.normal(b.email);
+      const codigo = String(b.codigo || '').replace(/\D/g, '');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || codigo.length !== 6) return res(400, { error: 'datos' });
+      if (!(await permitir(fs, { headers: { 'x-nf-client-connection-ip': ip } }, 'codigo', 10))) return res(429, { error: 'demasiadas' });
+      const ref = fs.collection('codigos_acceso').doc(huella('e:' + email));
+      const snap = await ref.get();
+      const d = snap.exists ? snap.data() : null;
+      if (!d || d.expira < Date.now() || (d.intentos || 0) >= 5) { if (d) await ref.delete().catch(() => {}); return res(400, { error: 'caducado' }); }
+      const a = Buffer.from(huella(email + ':' + codigo)), z = Buffer.from(String(d.h));
+      if (a.length !== z.length || !crypto.timingSafeEqual(a, z)) {
+        await ref.set({ intentos: (d.intentos || 0) + 1 }, { merge: true });
+        return res(400, { error: 'codigo', quedan: Math.max(0, 4 - (d.intentos || 0)) });
+      }
+      await ref.delete();
+      return res(200, { enlace: d.enlace });
     }
 
     if (b.accion === 'quien') {

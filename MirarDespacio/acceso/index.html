@@ -25,6 +25,10 @@
     input[type=email] { width:100%; padding:14px 18px; border-radius:999px; border:1px solid var(--linea); background:#fff;
            font:1rem "Inter",sans-serif; color:var(--tinta); margin-bottom:10px; }
     input[type=email]:focus { outline:2px solid var(--tinta); outline-offset:1px; }
+    #codigo { width:100%; padding:12px 18px; border-radius:999px; border:1px solid var(--linea); background:#fff; font:500 1.35rem "Inter",sans-serif;
+           letter-spacing:.3em; text-align:center; color:var(--tinta); margin-bottom:10px; }
+    #codigo:focus { outline:2px solid var(--tinta); outline-offset:1px; }
+    #porCodigo { margin-top:6px; }
     button, a.boton { display:block; width:100%; padding:14px 20px; border-radius:999px; font:500 1rem "Inter",sans-serif;
            cursor:pointer; text-decoration:none; margin-bottom:10px; border:1px solid var(--tinta); }
     button { background:var(--tinta); color:var(--crema); }
@@ -37,6 +41,11 @@
     footer a { color:inherit; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es" data-exclude-search="true"></script>
+  <link rel="manifest" href="/app.webmanifest">
+  <meta name="theme-color" content="#1a1814">
+  <link rel="apple-touch-icon" href="/assets/app-180.png">
+  <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
   <main>
@@ -48,6 +57,11 @@
       <label for="email">Tu email (el mismo con el que te apuntaste)</label>
       <input type="email" id="email" name="email" autocomplete="email" required placeholder="tu@email.com">
       <button type="submit" id="enviar">Enviarme el enlace</button>
+    </form>
+    <form id="porCodigo" hidden>
+      <label for="codigo">¿Usas la app en el móvil? Escribe aquí el código de 6 cifras del correo</label>
+      <input type="text" id="codigo" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" placeholder="000 000" required>
+      <button type="submit" class="claro" id="entrarCodigo">Entrar con el código</button>
     </form>
     <form id="confirmar" hidden>
       <label for="email2">Para terminar de entrar, escribe tu email</label>
@@ -73,6 +87,8 @@
       var q = new URLSearchParams(location.search);
       var A = q.get('a') || '';
       var EMAIL = (q.get('e') || '').trim().toLowerCase();
+      // ¿Abierta como app instalada? (en el iPhone no comparte sesión con Safari: se entra con el código)
+      var APP = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
       var estado = $('estado');
       var S = window.mdSesion;
       var DESTINOS = { socios: '/socios/', retos: '/retos/', cuaderno: '/cuaderno/' };
@@ -158,6 +174,8 @@
             if (r.status === 429) throw new Error('demasiadas');
             if (!r.ok) throw new Error('error');
             texto('Listo. Si <b>' + esc(email) + '</b> tiene acceso, te acaba de llegar un correo con el enlace para entrar. Mira también en spam o promociones.');
+            $('porCodigo').hidden = false;
+            if (APP) { $('pedir').hidden = true; $('codigo').focus(); texto('Te acabo de mandar un correo a <b>' + esc(email) + '</b>. Copia aquí el código de 6 cifras (si pulsas el enlace, se abriría el navegador y no la app).'); }
             try { if (window.umami) umami.track('acceso-enlace'); } catch (e) { /* nada */ }
           })
           .catch(function (e) {
@@ -166,10 +184,53 @@
           .then(function () { $('enviar').disabled = false; });
       });
 
+      // Entrar con el código del correo (la app instalada en el iPhone no comparte sesión con Safari)
+      $('porCodigo').addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var email = ($('email').value || EMAIL || '').trim().toLowerCase();
+        var cod = $('codigo').value.replace(/\D/g, '');
+        if (!email) { texto('Escribe primero tu email arriba.'); $('pedir').hidden = false; return; }
+        $('entrarCodigo').disabled = true; texto('Comprobando…');
+        fetch('/api/socios/codigo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, codigo: cod }) })
+          .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw Object.assign(new Error(j.error || 'error'), { j: j }); return j; }); })
+          .then(function (j) { try { if (window.umami) umami.track('acceso-codigo'); } catch (e) { /* nada */ } entrarCon(email, j.enlace); })
+          .catch(function (e) {
+            $('entrarCodigo').disabled = false;
+            texto(e.message === 'codigo' ? 'Ese código no es correcto. Revísalo' + (e.j && e.j.quedan != null ? ' (te quedan ' + e.j.quedan + ' intentos)' : '') + '.'
+              : e.message === 'caducado' ? 'Ese código ya no vale. Pide otro correo aquí arriba.' : e.message === 'demasiadas' ? 'Demasiados intentos. Espera un rato.' : 'No se ha podido comprobar. Prueba otra vez.');
+            if (e.message === 'caducado') { $('pedir').hidden = false; $('porCodigo').hidden = true; }
+          });
+      });
+
       $('salir').addEventListener('click', function () {
         intentos(0);
         S.logout().then(function () { fuera('Has cerrado sesión.'); });
       });
+
+      // Entra con un enlace de Firebase: el del correo (la dirección actual) o el que devuelve el código
+      function entrarCon(mail, enlace) {
+        texto('Entrando…');
+        S._cargar().then(function (F) {
+          return F.signInWithEmailLink(S._auth(), mail, enlace);
+        }).then(function (cred) {
+          try { localStorage.removeItem('md_email'); } catch (e) { /* nada */ }
+          // Quita el código del enlace de la barra de direcciones (no se puede usar dos veces)
+          var limpia = new URLSearchParams(location.search);
+          ['oobCode', 'mode', 'apiKey', 'lang', 'continueUrl'].forEach(function (k) { limpia.delete(k); });
+          history.replaceState(null, '', location.pathname + (limpia.toString() ? '?' + limpia : ''));
+          return S._sesionServidor(cred.user, true);
+        }).then(function (d) {
+          // Se entra con lo que acaba de devolver el servidor (no hay que esperar a la sesión de Firebase:
+          // si la página ya la había comprobado antes, sin sesión, ese aviso ya pasó)
+          intentos(0);
+          $('porCodigo').hidden = true;
+          dentro({ email: d.email, app_metadata: { roles: d.roles || [] } });
+        }).catch(function (e) {
+          console.warn(e);
+          var caducado = /expired|invalid-action-code/.test(e.code || '');
+          fuera(caducado ? 'Ese enlace ya se ha usado o ha caducado. Pide otro aquí abajo.' : (e.sinCuenta ? 'Tu email no tiene ninguna cuenta activa. Si crees que es un error, escríbeme a info@mirardespacio.es.' : 'No se ha podido entrar con ese enlace. Pide otro aquí abajo.'));
+        });
+      }
 
       // ¿Viene del enlace del correo?
       S._cargar().then(function (F) {
@@ -178,25 +239,7 @@
           var guardado = '';
           try { guardado = localStorage.getItem('md_email') || ''; } catch (e) { /* nada */ }
           var email = EMAIL || guardado;
-          var entrar = function (mail) {
-            texto('Entrando…');
-            F.signInWithEmailLink(auth, mail, location.href).then(function (cred) {
-              try { localStorage.removeItem('md_email'); } catch (e) { /* nada */ }
-              // Quita el código del enlace de la barra de direcciones (no se puede usar dos veces)
-              var limpia = new URLSearchParams(location.search);
-              ['oobCode', 'mode', 'apiKey', 'lang', 'continueUrl'].forEach(function (k) { limpia.delete(k); });
-              history.replaceState(null, '', location.pathname + (limpia.toString() ? '?' + limpia : ''));
-              return S._sesionServidor(cred.user, true);
-            }).then(function () {
-              intentos(0);
-              S._arrancar();
-              S.on('init', function (u) { if (u) dentro(u); else fuera('Tu email no tiene ninguna cuenta activa. Si crees que es un error, escríbeme a info@mirardespacio.es.'); });
-            }).catch(function (e) {
-              console.warn(e);
-              var caducado = /expired|invalid-action-code/.test(e.code || '');
-              fuera(caducado ? 'Ese enlace ya se ha usado o ha caducado. Pide otro aquí abajo.' : (e.sinCuenta ? 'Tu email no tiene ninguna cuenta activa. Si crees que es un error, escríbeme a info@mirardespacio.es.' : 'No se ha podido entrar con ese enlace. Pide otro aquí abajo.'));
-            });
-          };
+          var entrar = function (mail) { entrarCon(mail, location.href); };
           if (email) entrar(email);
           else {
             // Abierto en otro dispositivo: se pide el email para comprobar que es suyo

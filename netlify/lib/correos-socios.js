@@ -10,12 +10,13 @@ const QUE = {
 const destinoTxt = (a) => (/^manual-/.test(a || '') ? 'el manual de tu taller' : QUE[a] || 'tu zona de Mirar Despacio');
 
 // El enlace para entrar (caduca: Firebase lo da válido unas horas y de un solo uso)
-function correoEnlace({ email, enlace, a }) {
+function correoEnlace({ email, enlace, a, codigo }) {
   const html = tarjeta({
     titulo: 'Tu enlace para entrar · Mirar Despacio',
     nombre: '',
     intro: [`Aquí tienes tu enlace para entrar en ${destinoTxt(a)}. No hace falta contraseña: pulsas el botón y estás dentro.`],
-    filas: [['📧', esc(email)], ['⏳', 'Sirve una sola vez y caduca en unas horas.'], ['📱', 'Ábrelo en el mismo móvil u ordenador donde quieras entrar.']],
+    filas: [['📧', esc(email)], ['⏳', 'Sirve una sola vez y caduca en unas horas.'], ['📱', 'Ábrelo en el mismo móvil u ordenador donde quieras entrar.'],
+      ...(codigo ? [['🔢', `¿Tienes Mirar Despacio instalada en el móvil? Escribe este código en la app: <span style="font-size:20px; letter-spacing:4px; font-weight:600;">${codigo.slice(0, 3)} ${codigo.slice(3)}</span> <span style="color:#8a8378; font-size:13px;">(vale 15 minutos)</span>`]] : [])],
     calendario: null,
     boton: { url: enlace, texto: 'Entrar en Mirar Despacio', antes: '' },
     cuerpo: [`Si caduca, pide otro en <a href="${WEB}/acceso/" style="color:#e8347a;">mirardespacio.es/acceso</a>.`,
