@@ -3,8 +3,9 @@
 # -----------------------------------------------
 [build]
   publish = "PortfolioOtto"
-  # Solo construye si cambia algo de ottokols.es (los cambios de MirarDespacio/ no gastan build aquí)
-  ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- PortfolioOtto netlify netlify.toml package.json package-lock.json"
+  # Solo construye si cambia algo de ottokols.es (los cambios de MirarDespacio/ no gastan build aquí,
+  # salvo el núcleo del juego del triángulo, que también usa la función del servidor)
+  ignore  = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- PortfolioOtto netlify netlify.toml package.json package-lock.json MirarDespacio/assets/triangulo-nucleo.js"
 
 # La clave web de Firebase (AIza…) es pública por diseño: va en el navegador y la
 # protegen las reglas de Firestore. El escáner de secretos de Netlify (plan Pro) la
@@ -28,9 +29,6 @@
   schedule = "0 6 * * 1"
 
 # -----------------------------------------------
-# HEADERS /members/ — sin indexar
-# -----------------------------------------------
-# -----------------------------------------------
 # SEGURIDAD — en todas las páginas
 # Que ninguna otra web pueda meter estas páginas en un marco, HTTPS siempre, etc.
 # -----------------------------------------------
@@ -43,37 +41,6 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=()"
-
-[[headers]]
-  for = "/members/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-
-[[headers]]
-  for = "/recursos.html"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-
-[[headers]]
-  for = "/emails/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-
-[[headers]]
-  for = "/retos/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-
-[[headers]]
-  for = "/cuaderno/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-
-[[headers]]
-  for = "/subir/*"
-  [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-    Referrer-Policy = "no-referrer"
 
 # Galerías privadas de clientes: sin indexar y sin pasar la URL (lleva el código) a otras webs
 [[headers]]
@@ -88,97 +55,102 @@
     X-Robots-Tag = "noindex, nofollow"
 
 # -----------------------------------------------
-# ÁREA DE MIEMBROS — protección en el servidor
-# Solo entra quien tiene sesión de Netlify Identity con rol "member".
-# El rol lo pone el CRM (o el pago) al invitar; quien se registre sin invitación entra sin acceso.
+# ZONA DE SOCIOS — ahora vive en mirardespacio.es
+# (protegida allí por la función edge «socios»; ver MIGRACION-SOCIOS.md)
+# Las direcciones antiguas se mandan a las nuevas con 301 (se conserva ?a=… y el #foto-…).
+# Ojo: hay chuletas impresas con QR a ottokols.es/acceso.html: esta regla no se quita nunca.
 # -----------------------------------------------
 [[redirects]]
-  from       = "/members/*"
-  to         = "/members/:splat"
-  status     = 200
-  force      = true
-  conditions = {Role = ["member", "admin"]}
-
-[[redirects]]
-  from   = "/members/*"
-  to     = "/acceso.html"
-  status = 302
+  from   = "/acceso.html"
+  to     = "https://mirardespacio.es/acceso/"
+  status = 301
   force  = true
-
-[[redirects]]
-  from       = "/recursos.html"
-  to         = "/recursos.html"
-  status     = 200
-  force      = true
-  conditions = {Role = ["member", "admin"]}
 
 [[redirects]]
   from   = "/recursos.html"
-  to     = "/acceso.html"
-  status = 302
+  to     = "https://mirardespacio.es/socios/"
+  status = 301
   force  = true
 
-# Reto del mes: solo Mirar Despacio+ (también la suscripción online, sin salidas)
 [[redirects]]
-  from       = "/retos/*"
-  to         = "/retos/:splat"
-  status     = 200
-  force      = true
-  conditions = {Role = ["member", "admin"]}
-
-[[redirects]]
-  from   = "/retos/*"
-  to     = "/acceso.html?a=retos"
-  status = 302
+  from   = "/members"
+  to     = "https://mirardespacio.es/socios/"
+  status = 301
   force  = true
 
-# Fotos de las salidas: lo abren los miembros MD+ y también quien solo tiene acceso
-# "participante" (gente de las salidas que sube sus fotos sin ser MD+).
 [[redirects]]
-  from       = "/cuaderno/*"
-  to         = "/cuaderno/:splat"
-  status     = 200
-  force      = true
-  conditions = {Role = ["member", "participante", "admin"]}
+  from   = "/members/*"
+  to     = "https://mirardespacio.es/socios/:splat"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/cuaderno"
+  to     = "https://mirardespacio.es/cuaderno/"
+  status = 301
+  force  = true
 
 [[redirects]]
   from   = "/cuaderno/*"
-  to     = "/acceso.html?a=cuaderno"
-  status = 302
+  to     = "https://mirardespacio.es/cuaderno/:splat"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/retos"
+  to     = "https://mirardespacio.es/retos/"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/retos/*"
+  to     = "https://mirardespacio.es/retos/:splat"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/subir"
+  to     = "https://mirardespacio.es/subir/"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/subir/*"
+  to     = "https://mirardespacio.es/subir/:splat"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/manuales"
+  to     = "https://mirardespacio.es/manuales/"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/manuales/*"
+  to     = "https://mirardespacio.es/manuales/:splat"
+  status = 301
   force  = true
 
 # Copias antiguas de las herramientas que estaban abiertas en la raíz
 [[redirects]]
   from   = "/composicion.html"
-  to     = "/members/composicion.html"
-  status = 301
-[[redirects]]
-  from   = "/dof-calculator.html"
-  to     = "/members/dof-calculator.html"
-  status = 301
-[[redirects]]
-  from   = "/receta-fotografica.html"
-  to     = "/members/receta-fotografica.html"
-  status = 301
-[[redirects]]
-  from   = "/simulador-visual.html"
-  to     = "/members/simulador-visual.html"
-  status = 301
-
-# -----------------------------------------------
-# REDIRECTS — mirardespacio.es (antiguo)
-# Dejan de aplicarse en cuanto mirardespacio.es se quite de este sitio
-# y se añada al nuevo sitio de Netlify. Se pueden borrar después.
-# -----------------------------------------------
-[[redirects]]
-  from   = "https://mirardespacio.es/*"
-  to     = "https://ottokols.es/salidas.html?utm_source=mirardespacio&utm_medium=redirect&utm_campaign=dominio_directo"
+  to     = "https://mirardespacio.es/socios/composicion.html"
   status = 301
   force  = true
-
 [[redirects]]
-  from   = "https://www.mirardespacio.es/*"
-  to     = "https://ottokols.es/salidas.html?utm_source=mirardespacio&utm_medium=redirect&utm_campaign=dominio_directo"
+  from   = "/dof-calculator.html"
+  to     = "https://mirardespacio.es/socios/dof-calculator.html"
+  status = 301
+  force  = true
+[[redirects]]
+  from   = "/receta-fotografica.html"
+  to     = "https://mirardespacio.es/socios/receta-fotografica.html"
+  status = 301
+  force  = true
+[[redirects]]
+  from   = "/simulador-visual.html"
+  to     = "https://mirardespacio.es/socios/simulador-visual.html"
   status = 301
   force  = true
 

@@ -4,7 +4,12 @@
     "stripe": "En Stripe → Enlaces de pago, crea un enlace por cada cosa que se vende y copia aquí su URL completa (https://buy.stripe.com/...). En modo de prueba empiezan por https://buy.stripe.com/test_... : cuando pases a real, cambia cada enlace por el real. Marca en cada enlace 'Recoger el nombre del cliente' para que el nombre llegue al CRM. Vacío = el botón abre un email.",
     "ediciones": "Una edición = un taller con fecha. Crea en Stripe un enlace de pago por edición (precio único) y, en sus opciones, 'Limitar el número de pagos' = plazas. Pon aquí su URL en 'pago' y 'activa': true. Cuando se llena, la web lo cierra sola. Cuando pase, pon 'activa': false. 'hora' de la edición manda sobre la del taller (el atardecer cambia de hora según la época del año). 'minimo' (en el taller) es el número mínimo de plazas para hacerlo: se decide 72 horas antes.",
     "regalos": "Los bonos regalo son enlaces de pago de Stripe sin límite (precio único). Quien lo recibe elige luego la edición en mirardespacio.es/regalo/.",
-    "plus": "Mirar Despacio+: los dos niveles son enlaces de pago de Stripe con precio RECURRENTE mensual. 'url' es la URL de cada enlace. 'portal' es el enlace al portal de clientes de Stripe (Configuración → Facturación → Portal de clientes → Activar enlace): ahí cada socio cambia la tarjeta, ve sus recibos o se da de baja."
+    "plus": "Mirar Despacio+: los dos niveles son enlaces de pago de Stripe con precio RECURRENTE mensual. 'url' es la URL de cada enlace. 'portal' es el enlace al portal de clientes de Stripe (Configuración → Facturación → Portal de clientes → Activar enlace): ahí cada socio cambia la tarjeta, ve sus recibos o se da de baja.",
+    "precios": "'precio' es lo que se cobra ahora (el del enlace de pago). Si hay 'precioNormal', la web lo enseña tachado al lado, con el texto de 'ofertas'. Para quitar una oferta: pon el precio normal en 'precio', borra 'precioNormal' y cambia el enlace de pago por uno con el precio nuevo."
+  },
+  "ofertas": {
+    "talleres": "Precio de lanzamiento para las primeras ediciones.",
+    "plus": "Precio de lanzamiento hasta el 31 de diciembre. Si te unes ahora, lo mantienes mientras sigas."
   },
   "talleres": [
     {
@@ -25,13 +30,14 @@
         "Revisión de fotos al final, tomando algo"
       ],
       "incluye": [
-        "Manual impreso de fotografía nocturna",
-        "Dos consumiciones al terminar",
+        "Manual del taller en la web y chuleta impresa de bolsillo",
+        "Una consumición al terminar (café, caña o refresco)",
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
       "bonoPago": "",
-      "minimo": 4
+      "minimo": 4,
+      "precioNormal": 75
     },
     {
       "id": "atardecer",
@@ -51,13 +57,14 @@
         "Revisión de fotos al final, tomando algo"
       ],
       "incluye": [
-        "Manual impreso de luz de atardecer",
-        "Una consumición (café, infusión o refresco)",
+        "Manual del taller en la web y chuleta impresa de bolsillo",
+        "Una consumición al terminar (café, caña o refresco)",
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
       "bonoPago": "",
-      "minimo": 4
+      "minimo": 4,
+      "precioNormal": 60
     },
     {
       "id": "iniciacion",
@@ -77,12 +84,14 @@
         "Primeras fotos de calle, sin vergüenza"
       ],
       "incluye": [
-        "Manual impreso de iniciación",
+        "Manual del taller en la web y chuleta impresa de bolsillo",
+        "Un café (o infusión o refresco) mientras vemos la teoría",
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
       "bonoPago": "",
-      "minimo": 4
+      "minimo": 4,
+      "precioNormal": 50
     },
     {
       "id": "composicion",
@@ -103,26 +112,17 @@
         "Revisión de fotos al final"
       ],
       "incluye": [
-        "Manual impreso de composición",
+        "Manual del taller en la web y chuleta impresa de bolsillo",
+        "Un café (o infusión o refresco) mientras vemos la teoría",
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
       "bonoPago": "",
-      "minimo": 4
+      "minimo": 4,
+      "precioNormal": 50
     }
   ],
   "ediciones": [
-    {
-      "id": "atardecer-2026-11-28",
-      "taller": "atardecer",
-      "fecha": "Sábado 28 de noviembre",
-      "hora": "16:30",
-      "fechaISO": "2026-11-28T16:30:00+01:00",
-      "fechaFinISO": "2026-11-28T19:30:00+01:00",
-      "zona": "Centro",
-      "pago": "",
-      "activa": false
-    },
     {
       "id": "nocturna-2026-12-12",
       "taller": "nocturna",
@@ -130,6 +130,17 @@
       "hora": "19:00",
       "fechaISO": "2026-12-12T19:00:00+01:00",
       "fechaFinISO": "2026-12-12T22:30:00+01:00",
+      "zona": "Centro",
+      "pago": "",
+      "activa": false
+    },
+    {
+      "id": "atardecer-2026-12-19",
+      "taller": "atardecer",
+      "fecha": "Sábado 19 de diciembre",
+      "hora": "16:30",
+      "fechaISO": "2026-12-19T16:30:00+01:00",
+      "fechaFinISO": "2026-12-19T19:30:00+01:00",
       "zona": "Centro",
       "pago": "",
       "activa": false
@@ -160,11 +171,13 @@
   "plus": {
     "sinSalidas": {
       "precio": 20,
-      "url": ""
+      "url": "",
+      "precioNormal": 25
     },
     "conSalidas": {
-      "precio": 30,
-      "url": ""
+      "precio": 35,
+      "url": "",
+      "precioNormal": 45
     },
     "portal": ""
   },
@@ -173,15 +186,17 @@
       "id": "plus-1",
       "meses": 1,
       "nivel": "con-salidas",
-      "precio": 30,
-      "pago": ""
+      "precio": 35,
+      "pago": "",
+      "precioNormal": 45
     },
     {
       "id": "plus-3",
       "meses": 3,
       "nivel": "con-salidas",
-      "precio": 85,
-      "pago": ""
+      "precio": 95,
+      "pago": "",
+      "precioNormal": 120
     }
   ]
 }

@@ -204,7 +204,7 @@ async function correoBienvenidaPlus({ email, nombre, hasta, regalo, nivel, porta
     filas: [['✨', 'Mirar Despacio+' + (nivel === 'con-salidas' ? ' con salidas' : '')], ...(hasta ? [['⏳', 'Acceso hasta el ' + esc(hasta)]] : [])],
     calendario: null,
     cuerpo: [
-      'En unos minutos te llegará otro correo para <strong>crear tu contraseña</strong> de la zona de miembros. Si ya tenías cuenta, entra directamente en ottokols.es/acceso.html.',
+      'Para entrar en la zona de miembros no hace falta contraseña: ve a <a href="https://mirardespacio.es/acceso/?a=socios">mirardespacio.es/acceso</a>, escribe este mismo email y te llega un enlace para entrar. Si es tu primera vez, en unos minutos te llegará también ese correo.',
       nivel === 'con-salidas' ? 'Las salidas están incluidas: cuando te apuntes a una, tendrás plaza.' : '',
       !regalo && portal ? `Sin permanencia: para cambiar la tarjeta, ver tus recibos o darte de baja, entra en <a href="${esc(portal)}">tu área de pagos</a> con este mismo email.` : '',
       'Si tienes cualquier duda, contesta a este correo.',
@@ -220,12 +220,11 @@ async function avisoOtto(asunto, filas, responderA) {
   return enviar({ para: process.env.AVISO_A || remitente(), asunto, html, texto: aTexto(html), responderA });
 }
 
-// ---------- Acceso a la zona de miembros (Netlify Identity) ----------
-// Invita al email si aún no tiene cuenta. El rol "member" lo pone identity-signup al aceptar.
-// Invita a la zona de miembros con acceso MD+ completo. Si la persona ya tenía cuenta
-// (por ejemplo, de "solo fotos"), le sube el acceso a MD+.
+// ---------- Acceso a la zona de miembros ----------
+// Da acceso MD+ completo (cuentas de Firebase, ver netlify/lib/cuentas.js). Si no tenía cuenta se
+// crea y le llega el correo para entrar; si ya tenía (p. ej. solo cuaderno), se le sube a MD+.
 async function invitarIdentity(context, email) {
-  return require('./identidad').invitarCon(context, email, 'plus');
+  return require('./cuentas').invitarCon(context, email, 'plus');
 }
 
 function sumarMeses(base, meses) {

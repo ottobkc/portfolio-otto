@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Recursos · Mirar Despacio +</title>
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #f5f3ef;
+      --bg2:       #eeecea;
+      --bg3:       #e6e3de;
+      --ink:       #1a1814;
+      --ink-faint: #4a4742;
+      --muted:     #7a756f;
+      --accent:    #c8a97a;
+      --accent2:   #5a8a5e;
+      --md-orange: #e8821a;
+      --md-pink:   #e8347a;
+      --border:    #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans:  'Jost', sans-serif;
+      --max: 960px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-weight: 300;
+      font-size: clamp(14px, 1.5vw, 16px);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100svh;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    nav {
+      background: rgba(245,243,239,0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; color: var(--ink); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-back {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--ink); }
+    .btn-logout-nav {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      padding: 0.4rem 0.9rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-logout-nav:hover { border-color: var(--ink); color: var(--ink); }
+
+    .page-header {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 4rem 2rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--md-orange);
+      margin-bottom: 0.75rem;
+    }
+    .page-header h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+    .page-header h1 em { font-style: italic; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; }
+    .page-header p { color: var(--muted); font-size: 0.92rem; }
+    #welcomeUser { background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text; font-weight: 400; }
+
+    .content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    .resources-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      margin-bottom: 3.5rem;
+    }
+
+    .resource-card {
+      background: var(--bg2);
+      padding: 1.75rem;
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      transition: background 0.2s;
+      color: inherit;
+    }
+    .resource-card:hover { background: var(--bg3); }
+
+    /* Tool cards — same grid but with launch arrow */
+    .tool-card {
+      background: var(--bg2);
+      padding: 1.75rem;
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      transition: background 0.2s;
+      color: inherit;
+      position: relative;
+    }
+    .tool-card:hover { background: var(--bg3); }
+    .tool-card .launch-arrow {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--md-orange);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .tool-card:hover .launch-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .resource-icon {
+      width: 40px; height: 40px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: var(--md-orange);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+    .tool-icon {
+      width: 40px; height: 40px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--md-orange);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+    .resource-body h3 {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 400;
+      margin-bottom: 0.3rem;
+      color: var(--ink);
+    }
+    .resource-body p { font-size: 0.8rem; color: var(--muted); line-height: 1.55; margin-bottom: 0.5rem; }
+    .resource-tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--md-orange);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+    }
+    .tool-tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--md-orange);
+      border: 1px solid var(--accent);
+      padding: 2px 7px;
+      background: rgba(200,169,122,0.06);
+    }
+
+    .coming-soon {
+      border: 1px dashed var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      background: var(--bg2);
+    }
+
+    footer {
+      background: var(--ink);
+      padding: 2rem;
+    }
+    .footer-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .footer-brand { font-family: var(--font-serif); font-size: 0.95rem; color: var(--bg); }
+    .footer-meta { font-size: 0.73rem; color: var(--muted); display: flex; gap: 1.5rem; }
+    .footer-meta a { color: var(--muted); }
+    .footer-meta a:hover { color: var(--bg); }
+
+    /* ── Cheatlists grid (3 columnas) ── */
+    .cheatlists-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-bottom: 3.5rem;
+    }
+    .cheatlist-card {
+      background: var(--bg2);
+      padding: 1.4rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: background 0.2s;
+      color: inherit;
+      position: relative;
+    }
+    .cheatlist-card:hover { background: var(--bg3); }
+    .cheatlist-icon {
+      font-size: 0.75rem;
+      color: var(--md-orange);
+      letter-spacing: 0.08em;
+      margin-bottom: 0.15rem;
+    }
+    .cheatlist-card h3 {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+    .cheatlist-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+    .print-tag {
+      display: inline-block;
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--md-orange);
+      border: 1px solid rgba(90,138,94,0.3);
+      padding: 1px 6px;
+      margin-top: auto;
+    }
+    .cheatlist-card .launch-arrow {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      font-size: 0.78rem;
+      color: var(--md-orange);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .cheatlist-card:hover .launch-arrow { opacity: 1; transform: translateX(0); }
+
+    [hidden] { display: none !important; }
+    .reto-banner { display: grid; grid-template-columns: 1.4fr 1fr; gap: 1px; margin-bottom: 3.5rem; }
+    .reto-banner > a { padding: 1.9rem; display: block; position: relative; }
+    .reto-banner .rb-reto { background: var(--ink); color: var(--bg); }
+    .reto-banner .rb-reto::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); }
+    .reto-banner .rb-cuaderno { background: var(--bg2); }
+    .reto-banner .rb-salidas { grid-column: 1 / -1; padding: 1.2rem 1.9rem; }
+    .reto-banner .rb-salidas h3 { font-size: 1.15rem; }
+    .reto-banner small { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+    .reto-banner .rb-cuaderno small { color: var(--md-orange); }
+    .reto-banner h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.5rem; margin: .4rem 0 .5rem; }
+    .reto-banner p { font-size: .9rem; color: #b8b1a4; }
+    .reto-banner .rb-cuaderno p { color: var(--muted); }
+    .reto-banner .ir { display: inline-block; margin-top: 1rem; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; border-bottom: 1px solid currentColor; }
+    @media (max-width: 700px) { .reto-banner { grid-template-columns: 1fr; } }
+    [hidden] { display: none !important; }
+
+    /* Bloques plegables: al abrir uno se cierra el anterior */
+    .bloque { border-top: 1px solid var(--border); }
+    .bloque:last-of-type { border-bottom: 1px solid var(--border); }
+    .bloque summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .3rem 1rem; padding: 1.35rem .25rem; }
+    .bloque summary::-webkit-details-marker { display: none; }
+    .b-tit { font-family: var(--font-serif); font-size: 1.35rem; color: var(--ink); }
+    .b-desc { grid-column: 1; grid-row: 2; font-size: .85rem; color: var(--muted); }
+    .b-n { grid-row: 1 / span 2; font-size: .72rem; letter-spacing: .12em; color: var(--muted); border: 1px solid var(--border); border-radius: 20px; padding: .1rem .6rem; }
+    .b-flecha { grid-row: 1 / span 2; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); position: relative; transition: transform .25s, background .2s; }
+    .b-flecha::before { content: ''; position: absolute; left: 12px; top: 10px; width: 8px; height: 8px; border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); transform: rotate(45deg); }
+    .bloque[open] .b-flecha { transform: rotate(180deg); background: var(--ink); }
+    .bloque[open] .b-flecha::before { border-color: var(--bg); }
+    .bloque summary:hover .b-tit { background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .b-cuerpo { padding: .2rem 0 2rem; animation: abrir .3s ease; }
+    .b-cuerpo .resources-grid, .b-cuerpo .cheatlists-grid { margin-bottom: 0; }
+    @keyframes abrir { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .bloques-fin { height: 3rem; }
+
+    /* Inscripción anticipada */
+    .anticipada { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--md-pink); padding: 1.6rem 1.8rem; margin: -2rem 0 3rem; }
+    .anticipada small { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--md-pink); }
+    .anticipada h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; margin: .3rem 0 .4rem; }
+    .anticipada p { color: var(--muted); font-size: .92rem; }
+    .anticipada form { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: 1rem; }
+    .anticipada input[type=text], .anticipada input[type=tel] { border: 1px solid var(--border); background: var(--bg); padding: .6rem .7rem; font: inherit; }
+    .anticipada label.ck { grid-column: 1 / -1; display: flex; gap: .5rem; font-size: .85rem; color: var(--ink-faint); }
+    .anticipada button { grid-column: 1 / -1; justify-self: start; border: 0; padding: .8rem 1.4rem; background: linear-gradient(90deg, var(--md-orange), var(--md-pink)); color: #fff; letter-spacing: .1em; text-transform: uppercase; font-size: .75rem; cursor: pointer; font-family: var(--font-sans); }
+    .anticipada .msg { grid-column: 1 / -1; font-size: .9rem; }
+    @media (max-width: 600px) { .anticipada form { grid-template-columns: 1fr; } .anticipada { padding: 1.3rem 1.1rem; } }
+    @media (max-width: 700px) {
+      .cheatlists-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .resources-grid { grid-template-columns: 1fr; }
+      .cheatlists-grid { grid-template-columns: 1fr; }
+      .page-header, .content { padding-left: 1.25rem; padding-right: 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
+  <link rel="manifest" href="/app.webmanifest">
+  <meta name="theme-color" content="#1a1814">
+  <link rel="apple-touch-icon" href="/assets/app-180.png">
+  <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo">Mirar Despacio +</span>
+    <div class="nav-right">
+      <a href="https://mirardespacio.es/" class="nav-back">← Mirar Despacio</a>
+      <button class="btn-logout-nav" id="logoutBtn">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <p class="page-label">Área exclusiva · Mirar Despacio +</p>
+    <h1>Tus <em>recursos.</em></h1>
+    <p>Hola, <span id="welcomeUser"></span>. Aquí tienes todo el contenido exclusivo de tu suscripción.</p>
+  </div>
+
+  <div class="content">
+
+    <!-- ── Reto del mes y cuaderno ── -->
+    <div class="reto-banner">
+      <a href="/retos/" class="rb-reto" id="rbReto">
+        <small id="rbEtiqueta">Reto del mes</small>
+        <h3 id="rbTitulo">Un tema nuevo cada mes</h3>
+        <p id="rbTexto">Una excusa para salir a mirar, vivas donde vivas. Cuando cierra, ves cómo lo han resuelto los demás.</p>
+        <span class="ir">Ir al reto →</span>
+      </a>
+      <a href="/retos/" class="rb-cuaderno" id="rbRacha">
+        <small>Tus retos</small>
+        <h3 id="rbCifras">Tus retos</h3>
+        <p id="rbCuaderno">Aquí están todos los retos en los que has participado.</p>
+        <span class="ir">Ver tus retos →</span>
+      </a>
+      <a href="/cuaderno/" class="rb-cuaderno rb-salidas" id="rbSalidas" hidden>
+        <small>Salidas por Madrid</small>
+        <h3 id="rbSalTit">Fotos de las salidas</h3>
+        <p id="rbSalTxt">Tus fotos de las salidas a las que vienes, todas juntas.</p>
+        <span class="ir">Subir fotos de salidas →</span>
+      </a>
+    </div>
+
+    <!-- ── Inscripción anticipada (solo MD+) ── -->
+    <div class="anticipada" id="anticipada" hidden></div>
+
+    <details class="bloque" name="bloques" id="b-agenda" open>
+      <summary><span class="b-tit">Próximas fechas</span><span class="b-desc">Salidas, talleres y el cierre del reto</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+    <div id="agenda"></div>
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-manuales" hidden>
+      <summary><span class="b-tit">Manuales de los talleres</span><span class="b-desc" id="bManualesDesc">Teoría, ajustes y retos para casa</span><span class="b-n" id="bManualesN"></span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+<div class="resources-grid" id="listaManuales"></div>
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-herr">
+      <summary><span class="b-tit">Herramientas</span><span class="b-desc">Calculadoras, simuladores y ejercicios</span><span class="b-n">7</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="resources-grid">
+
+      <a href="/socios/receta-fotografica.html" class="tool-card">
+        <div class="tool-icon">◈</div>
+        <div class="resource-body">
+          <h3>Receta Fotográfica</h3>
+          <p>Dinos qué foto quieres hacer — cámara, objetivo, luz, escena — y te devolvemos los ajustes exactos con explicación IA.</p>
+          <span class="tool-tag">Interactivo · IA</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/simulador-visual.html" class="tool-card">
+        <div class="tool-icon">⊙</div>
+        <div class="resource-body">
+          <h3>Simulador Visual</h3>
+          <p>Mueve apertura, velocidad, ISO y focal en tiempo real y observa cómo cambia la exposición, el bokeh y el movimiento en escena.</p>
+          <span class="tool-tag">Interactivo</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/dof-calculator.html" class="tool-card">
+        <div class="tool-icon">⟷</div>
+        <div class="resource-body">
+          <h3>Profundidad de Campo</h3>
+          <p>Calculadora precisa de zona nítida con visualizador de escena. Incluye distancia hiperfocal para cualquier sensor y focal.</p>
+          <span class="tool-tag">Calculadora</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/triangulo.html" class="tool-card">
+        <div class="tool-icon">△</div>
+        <div class="resource-body">
+          <h3>Practica con el triángulo</h3>
+          <p>El juego de exposición con tres retos solo para miembros (concierto, larga exposición y teatro) y el ranking del reto del día entre MD+.</p>
+          <span class="tool-tag">Juego · Exposición</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/composicion.html" class="tool-card">
+        <div class="tool-icon">⬡</div>
+        <div class="resource-body">
+          <h3>Composición</h3>
+          <p>Sube tu foto y coloca el sujeto y el horizonte arrastrando. Recibe análisis de tercios, espacio de mirada y peso visual.</p>
+          <span class="tool-tag">Análisis · Tu foto</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/generador-retos.html" class="tool-card">
+        <div class="tool-icon">⚄</div>
+        <div class="resource-body">
+          <h3>Generador de Retos</h3>
+          <p>Un sujeto, una técnica, una limitación, un objetivo. Aleatorio o filtrado por modo. Guarda los que quieras para usarlos en la próxima salida.</p>
+          <span class="tool-tag">Interactivo</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/app-iluminacion.html" class="tool-card">
+        <div class="tool-icon">◑</div>
+        <div class="resource-body">
+          <h3>Simulador de iluminación</h3>
+          <p>Coloca flashes, reflectores, softbox y sujeto en el estudio. Ve cómo interactúa la luz. Clamshell, pasillo, beauty, Rembrandt, fondo blanco y lienzo libre.</p>
+          <span class="tool-tag">Interactivo · Arrastrable</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/banco-ejercicios.html" class="tool-card">
+        <div class="tool-icon">◫</div>
+        <div class="resource-body">
+          <h3>Banco de Ejercicios</h3>
+          <p>Ejercicios con estructura real. Con instrucciones, variaciones y para qué sirve cada uno. Filtrables por categoría.</p>
+          <span class="tool-tag">Referencia</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+    </div>
+
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-guias">
+      <summary><span class="b-tit">Guías rápidas</span><span class="b-desc">Una página para imprimir y llevar</span><span class="b-n">9</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="cheatlists-grid">
+
+      <a href="/socios/cheatlists/guia-calle.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Fotografía callejera</h3>
+        <p>Mentalidad, ajustes, composición, luz y errores frecuentes en una página.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/guia-nocturna.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Fotografía nocturna</h3>
+        <p>Ajustes con y sin trípode, fuentes de luz que buscar, errores del ruido.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/guia-retrato-urbano.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Retrato urbano</h3>
+        <p>Luz natural, relación con el sujeto, focales, fondo y contexto.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/guia-composicion.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Composición fotográfica</h3>
+        <p>Tercios, líneas, marcos, peso visual y equilibrio. Con diagrama.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/guia-sin-fotos.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Cuando no encuentras fotos</h3>
+        <p>Palancas reales para salir del bloqueo. Sin frases de motivación.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/guia-luz-mala.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Cuando la luz es mala</h3>
+        <p>Sol duro, cielo blanco, interior oscuro, lluvia. Cada condición tiene sus fotos.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/checklist-salidas.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Checklist de salida</h3>
+        <p>Equipo, configuración, mentalidad. Antes y después. Con espacio de notas.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/workflow-edicion.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Workflow de edición</h3>
+        <p>7 pasos en orden. Del importar al exportar. Con reglas de oro al final.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+      <a href="/socios/cheatlists/guia-flash.html" class="cheatlist-card" target="_blank">
+        <span class="cheatlist-icon">⊕</span>
+        <h3>Flash de mano</h3>
+        <p>Número guía, ley del cuadrado inverso, velocidad de sync, TTL vs manual. Con tabla de ejemplos.</p>
+        <span class="print-tag">Imprimir · A4</span>
+        <span class="launch-arrow">↗</span>
+      </a>
+
+    </div>
+
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-donde">
+      <summary><span class="b-tit">Dónde y cuándo ir</span><span class="b-desc">Localizaciones y mapas de luz de Madrid</span><span class="b-n">2</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="resources-grid">
+
+      <a href="/socios/localizaciones.html" class="tool-card">
+        <div class="tool-icon">◎</div>
+        <div class="resource-body">
+          <h3>Localizaciones · Madrid</h3>
+          <p>Lavapiés, Gran Vía, Retiro, Malasaña, Debod, La Latina. Mejor hora, focal, dificultad y consejo específico para cada una.</p>
+          <span class="tool-tag">Referencia</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <a href="/socios/mapas-luz.html" class="tool-card">
+        <div class="tool-icon">◐</div>
+        <div class="resource-body">
+          <h3>Mapas de luz</h3>
+          <p>Hora dorada, sol duro, nublado, hora azul, noche urbana. Qué buscar, cómo componer, cómo editar y errores frecuentes en cada condición.</p>
+          <span class="tool-tag">Referencia</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+    </div>
+
+      </div>
+    </details>
+    <details class="bloque" name="bloques" id="b-mas">
+      <summary><span class="b-tit">Aprender mirando</span><span class="b-desc">Análisis de fotos famosas y pack legal</span><span class="b-flecha" aria-hidden="true"></span></summary>
+      <div class="b-cuerpo">
+
+<div class="resources-grid">
+
+      <a href="/socios/analisis-fotos.html" class="tool-card" style="grid-column:1/-1;">
+        <div class="tool-icon">◉</div>
+        <div class="resource-body">
+          <h3>Análisis de fotografías famosas</h3>
+          <p>HCB, Vivian Maier, Saul Leiter, Alex Webb. Qué está pasando en la foto, por qué funciona y qué te llevas a la calle. Sin reverencia innecesaria.</p>
+          <span class="tool-tag">Análisis editorial</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+    </div>
+
+
+<div class="resources-grid">
+
+      <a href="/socios/pack-legal.html" class="tool-card">
+        <div class="tool-icon">§</div>
+        <div class="resource-body">
+          <h3>Pack legal para fotógrafos</h3>
+          <p>Qué puedes fotografiar en España, derechos de imagen, menores, qué hacer si te piden borrar y modelo de autorización imprimible.</p>
+          <span class="tool-tag">Referencia · España</span>
+        </div>
+        <span class="launch-arrow">→</span>
+      </a>
+
+      <div class="coming-soon" style="display:flex; align-items:center; justify-content:center;">
+        Más recursos en preparación
+      </div>
+
+    </div>
+
+      </div>
+    </details>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-brand">Otto Kols · Fotógrafo</span>
+      <div class="footer-meta">
+        <span>© 2026 · Madrid</span>
+        <a href="/">mirardespacio.es</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/sesion.js"></script>
+  <script src="/js/acceso.js" data-init="no"></script>
+  <script src="/js/agenda.js"></script>
+  <script src="/js/medallas.js"></script>
+  <script>
+    var isPreview = !/mirar/.test(window.location.hostname);
+
+    // Manuales de los talleres: cada persona ve los suyos (rol "taller-<id>"); el admin, todos
+    var MANUALES = [
+      { id: 'atardecer', titulo: 'Callejera al atardecer', icono: '☼', texto: 'Leer la luz que baja, medir cuando cambia cada minuto, siluetas y la hora azul.' },
+      { id: 'nocturna', titulo: 'Callejera nocturna', icono: '✦', texto: 'Las luces de la ciudad, ISO alto sin miedo, escaparates, reflejos y movimiento.' },
+      { id: 'composicion', titulo: 'Composición en la calle', icono: '⊞', texto: 'Encuadre, líneas, capas, vacío y romper reglas a propósito. Vale con el móvil.' },
+      { id: 'iniciacion', titulo: 'Primeros pasos', icono: '◎', texto: 'Los botones que importan y el triángulo de exposición, con simulador.' },
+    ];
+    function pintarManuales(roles) {
+      var admin = roles.indexOf('admin') !== -1;
+      var mios = MANUALES.filter(function (m) { return admin || roles.indexOf('taller-' + m.id) !== -1; });
+      var bloque = document.getElementById('b-manuales');
+      if (!mios.length) { bloque.hidden = true; return; }
+      document.getElementById('bManualesN').textContent = mios.length;
+      if (admin) document.getElementById('bManualesDesc').textContent = 'Como admin ves todos';
+      document.getElementById('listaManuales').innerHTML = mios.map(function (m) {
+        return '<a href="/manuales/' + m.id + '/" class="tool-card"><div class="tool-icon">' + m.icono + '</div><div class="resource-body">' +
+          '<h3>' + m.titulo + '</h3><p>' + m.texto + '</p><span class="tool-tag">Manual del taller · retos para casa</span></div><span class="launch-arrow">→</span></a>';
+      }).join('');
+      bloque.hidden = false;
+    }
+    function rolesDe(token) {
+      try { var p = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); return (p.app_metadata && p.app_metadata.roles) || []; }
+      catch (e) { return []; }
+    }
+
+    netlifyIdentity.on('init', function(user) {
+      if (!user && !isPreview) {
+        window.location.replace('/acceso/');
+      } else if (user) {
+        document.getElementById('welcomeUser').textContent =
+          user.user_metadata?.full_name || user.email;
+        pintarManuales((user.app_metadata && user.app_metadata.roles) || []);
+        // jwt(true) pide un pase nuevo: así se ven los manuales recién dados sin cerrar sesión
+        user.jwt(true).then(function () { var u2 = netlifyIdentity.currentUser(); pintarManuales((u2 && u2.app_metadata.roles) || []); }).catch(function () {});
+      }
+    });
+    netlifyIdentity.init();
+
+    // Reto del mes y resumen del cuaderno
+    (function cargarReto() {
+      var u = netlifyIdentity.currentUser();
+      if (!u) return setTimeout(cargarReto, 400);
+      u.jwt().then(function (t) {
+        return fetch('/api/f/fotos', { headers: { Authorization: 'Bearer ' + t } });
+      }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        // Calendario: salidas y talleres, más el último día del reto
+        var extra = d && d.reto && !d.reto.bloqueado && d.reto.cierre ? [{ tipo: 'reto', titulo: 'Cierra el reto: ' + d.reto.titulo,
+          inicio: new Date(d.reto.cierre + 'T20:00:00').toISOString(), url: '/retos/' }] : [];
+        MDAgenda.pintar(document.getElementById('agenda'), { extra: extra, anticipadas: true }).then(anticipada);
+        if (d) document.getElementById('welcomeUser').insertAdjacentHTML('afterend', MDMedallas.junto(d.total, d.mejorRacha, 20));
+        if (!d) return;
+        var esc = function (s) { var e = document.createElement('i'); e.textContent = s || ''; return e.innerHTML; };
+        if (d.reto && !d.reto.bloqueado) {
+          var mia = d.mias.some(function (f) { return f.tipo === 'reto' && f.refId === d.reto.id; });
+          var dias = d.reto.cierre ? Math.ceil((new Date(d.reto.cierre + 'T23:59:59') - Date.now()) / 864e5) : null;
+          document.getElementById('rbEtiqueta').textContent = 'Reto del mes' + (dias != null ? ' · ' + (dias <= 0 ? 'último día' : 'quedan ' + dias + ' días') : '');
+          document.getElementById('rbTitulo').textContent = d.reto.titulo;
+          document.getElementById('rbTexto').textContent = mia ? '✓ Ya has mandado tu foto. ' + d.reto.participantes + ' fotos enviadas este mes.' :
+            (d.reto.enunciado || '').slice(0, 160) + ((d.reto.enunciado || '').length > 160 ? '…' : '');
+        }
+        var retosMios = d.mias.filter(function (f) { return f.tipo === 'reto'; });
+        var com = retosMios.filter(function (f) { return f.estado === 'comentada'; }).length;
+        if (retosMios.length) {
+          document.getElementById('rbCifras').textContent = retosMios.length + (retosMios.length === 1 ? ' reto hecho' : ' retos hechos');
+          document.getElementById('rbCuaderno').textContent = d.racha ? 'Llevas ' + d.racha + (d.racha === 1 ? ' reto' : ' retos seguidos') + '. No rompas la racha.' : 'Aquí están todos los retos en los que has participado.';
+        }
+        // Fotos de salidas: solo si viene a salidas (las online no lo ven)
+        var deSalidas = d.mias.filter(function (f) { return f.tipo !== 'reto'; }).length;
+        if (d.salidas.length || deSalidas) {
+          document.getElementById('rbSalidas').hidden = false;
+          if (d.salidas.length) document.getElementById('rbSalTxt').textContent = 'Tienes ' + (d.salidas.length === 1 ? 'una salida reciente' : d.salidas.length + ' salidas recientes') + ' para subir fotos.';
+        }
+      }).catch(function () { MDAgenda.pintar(document.getElementById('agenda'), { anticipadas: true }).then(anticipada); });
+
+      // Bloques: solo uno abierto a la vez (para navegadores sin <details name>)
+      document.querySelectorAll('details.bloque').forEach(function (d) {
+        d.addEventListener('toggle', function () {
+          if (d.open) document.querySelectorAll('details.bloque').forEach(function (o) { if (o !== d) o.open = false; });
+        });
+      });
+
+      // Salida que todavía no se ha anunciado en público: los de MD+ se apuntan antes
+      function anticipada(eventos) {
+        var s = (eventos || []).filter(function (e) { return e.anticipada; })[0];
+        var caja = document.getElementById('anticipada');
+        if (!s) return;
+        var esc = function (t) { var e = document.createElement('i'); e.textContent = t || ''; return e.innerHTML; };
+        var f = new Date(s.inicio).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+        var pub = new Date(s.publicaDesde).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' });
+        var u = netlifyIdentity.currentUser() || {};
+        var nombre = ((u.user_metadata && u.user_metadata.full_name) || '').split(' ');
+        caja.hidden = false;
+        caja.innerHTML = '<small>Solo para Mirar Despacio+ · se anuncia en público el ' + pub + '</small>' +
+          '<h3>' + esc(s.titulo) + '</h3><p>' + esc(f.charAt(0).toUpperCase() + f.slice(1)) + ' h. Todavía no lo sabe nadie más: reserva tu plaza antes de que se publique.</p>' +
+          '<form id="formAnticipada"><input type="text" name="nombre" placeholder="Nombre" required value="' + esc(nombre[0] || '') + '">' +
+          '<input type="text" name="apellidos" placeholder="Apellidos" required value="' + esc(nombre.slice(1).join(' ')) + '">' +
+          '<input type="tel" name="telefono" placeholder="Teléfono (opcional)">' +
+          '<label class="ck"><input type="checkbox" name="acepta_imagen" value="si" required> <span>Acepto que las fotos del grupo puedan usarse para dar a conocer Mirar Despacio en la web y en redes.</span></label>' +
+          '<label class="ck"><input type="checkbox" name="acepta_novedades" value="si"> <span>Quiero recibir por email novedades de Mirar Despacio (talleres y actividades nuevas). Opcional.</span></label>' +
+          '<label class="ck"><input type="checkbox" name="acepta_datos" value="si" required> <span>Acepto que se usen mis datos para gestionar la inscripción (<a href="https://mirardespacio.es/privacidad/" target="_blank">privacidad</a>).</span></label>' +
+          '<button type="submit">Reservar mi plaza</button><p class="msg" id="msgAnticipada"></p></form>';
+        document.getElementById('formAnticipada').addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var datos = Object.fromEntries(new FormData(this)); datos.anticipada = 'si';
+          var m = document.getElementById('msgAnticipada'), b = this.querySelector('button');
+          b.disabled = true; m.textContent = 'Reservando…';
+          netlifyIdentity.currentUser().jwt().then(function (t) {
+            return fetch('/api/f/inscripcion', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t }, body: JSON.stringify(datos) });
+          }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error); return j; }); }).then(function (j) {
+            caja.querySelector('form').outerHTML = '<p style="color:#5a8a5e;margin-top:1rem;"><strong>' + (j.yaEstaba ? 'Ya estabas apuntado.' : '¡Plaza reservada!') + '</strong> Te llega un email con los detalles.</p>';
+          }).catch(function () { m.textContent = 'No se ha podido reservar. Prueba otra vez o escríbeme.'; b.disabled = false; });
+        });
+      }
+    })();
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      netlifyIdentity.logout();
+      window.location.replace('/acceso/');
+    });
+  </script>
+  <script src="/js/instalar.js" defer></script>
+</body>
+</html>

@@ -74,16 +74,16 @@ def construir_legales(g, escribir, pagina):
         <h2>Con quién se comparten</h2>
         <p>Con nadie para su propio uso. Para que la web funcione uso servicios que guardan o tratan los datos por mí y solo para esto:</p>
         <ul>
-          <li><strong>Netlify:</strong> la web y las cuentas de la zona de miembros.</li>
-          <li><strong>Google Firebase:</strong> la lista de inscripciones, los miembros, el muro, el mapa de pegatinas y el ranking del juego.</li>
+          <li><strong>Netlify:</strong> la web.</li>
+          <li><strong>Google Firebase:</strong> las cuentas para entrar en la zona de miembros, la lista de inscripciones, los miembros, el muro, el mapa de pegatinas y el ranking del juego.</li>
           <li><strong>Cloudinary:</strong> las fotos.</li>
           <li><strong>Brevo:</strong> el envío de emails.</li>
           <li><strong>Formspree:</strong> algunos formularios de contacto.</li>
-          <li><strong>Stripe</strong> y, en algunos casos, <strong>Ko-fi:</strong> los pagos. Los datos de tu tarjeta los tratan ellos; yo nunca los veo.</li>
+          <li><strong>Stripe:</strong> los pagos. Los datos de tu tarjeta los tratan ellos; yo nunca los veo.</li>
           <li><strong>WhatsApp:</strong> la comunidad, si das tu teléfono para entrar.</li>
           <li><strong>Mi gestoría</strong>, para la contabilidad, y <strong>Hacienda</strong> u otras administraciones cuando la ley lo exija.</li>
         </ul>
-        <p>Algunos de estos servicios guardan datos fuera de la Unión Europea, sobre todo en Estados Unidos. Lo hacen con las garantías que exige la normativa: el Marco de Privacidad de Datos entre la UE y EE. UU. o las cláusulas contractuales tipo de la Comisión Europea. Ko-fi está en el Reino Unido, que la UE considera con un nivel de protección adecuado.</p>
+        <p>Algunos de estos servicios guardan datos fuera de la Unión Europea, sobre todo en Estados Unidos. Lo hacen con las garantías que exige la normativa: el Marco de Privacidad de Datos entre la UE y EE. UU. o las cláusulas contractuales tipo de la Comisión Europea.</p>
 
         <h2>Cookies</h2>
         <p>Esta web no usa cookies de publicidad ni de seguimiento, por eso no te sale ningún aviso para aceptarlas:</p>

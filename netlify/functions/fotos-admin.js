@@ -2,30 +2,33 @@
 // (Authorization: Bearer <idToken>) y aquí se comprueba que es la cuenta de administración.
 //
 //  POST {accion:'avisar', id}                 -> email al autor: "Otto ha comentado tu foto"
-//  POST {accion:'cuentas'}                    -> lista de cuentas de Netlify Identity con su acceso
+//  POST {accion:'cuentas'}                    -> lista de cuentas de la zona de socios con su acceso (lib/cuentas.js)
 //  POST {accion:'acceso', id, acceso}         -> acceso = 'plus' | 'fotos' | 'ninguno' (la cuenta no se borra)
 //  POST {accion:'invitar', email, acceso}     -> invita a alguien ('fotos' = solo cuaderno de fotos)
 //  POST {accion:'enlace', personId}           -> enlace personal para subir fotos sin cuenta (para copiar a WhatsApp)
 //  POST {accion:'plus-alta', personId, meses, nivel, desde} / {accion:'plus-baja', personId, dejarFotos} / {accion:'plus-prueba', personId}
 //  POST {accion:'avisar-reto', retoId}       -> email «nuevo reto» a los miembros MD+
+//  POST {accion:'confirmacion', signupId}     -> le manda el mismo correo que la web (plaza / lista de espera / sin fecha)
 //  POST {accion:'enlaces', eventId, reenviar} -> manda por email su enlace a la gente de esa salida
 //        (si en la salida hay alguien marcado como "asistió", solo a los que asistieron)
 const crypto = require('crypto');
 const { verificarToken } = require('../lib/sesion-firebase');
 const { db, FieldValue } = require('../lib/firestore');
-const { listarUsuarios, ponerRoles, rolesPara, invitarCon } = require('../lib/identidad');
+const cuentas = require('../lib/cuentas');
+const { rolesPara, invitarCon, accesoDe } = cuentas;
 const { enviar, esc } = require('../lib/correo');
 const { tarjeta, aTexto } = require('../lib/plantillas-salida');
+const inscripcion = require('./inscripcion');
 const { miembrosConAvisos, correoReto, enviarATodos } = require('../lib/avisos');
 const plus = require('../lib/plus');
 const { SALIDA_DIAS, RETOS_GUARDADOS } = require('../lib/fotos-config');
 
 // La misma cuenta que tiene permiso en las reglas de Firestore (crm/firestore.rules)
 const ADMIN = (process.env.CRM_ADMIN || 'ottobkc@gmail.com').toLowerCase();
-const CUADERNO = 'https://ottokols.es/cuaderno/';
-const RETOS = 'https://ottokols.es/retos/';
+const CUADERNO = 'https://mirardespacio.es/cuaderno/';
+const RETOS = 'https://mirardespacio.es/retos/';
 const MURO = 'https://mirardespacio.es/muro/';
-const SUBIR = 'https://ottokols.es/subir/?c=';
+const SUBIR = 'https://mirardespacio.es/subir/?c=';
 
 // Clave del enlace personal (se crea una vez por persona y se reutiliza)
 async function claveDe(ref, p) {
@@ -53,7 +56,6 @@ function correoEnlace(p, ev, url) {
 }
 
 const res = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
-const accesoDe = (roles) => (roles.includes('admin') ? 'admin' : roles.includes('member') ? 'plus' : roles.includes('participante') ? 'fotos' : 'ninguno');
 
 // Enlace a la foto concreta (abre su hilo para responder)
 function enlaceFoto(f) {
@@ -88,11 +90,12 @@ function correoComentario(f) {
     cuerpo: [
       'Si quieres contestarme o preguntarme algo, pulsa el botón y escríbelo en el hilo de la foto: solo lo vemos tú y yo.',
       enMuro
-        ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde tu cuaderno.`
+        ? `Además la he colgado en el <a href="${MURO}" style="color:#e8347a;">muro de Mirar Despacio</a>${f.destacada ? ', como foto destacada' : ''}. Si prefieres que no esté, puedes quitarla desde ${f.tipo === 'taller' ? 'el manual del taller' : 'tu cuaderno'}.`
         : 'Sigue subiendo: cuantas más vea, mejor te puedo decir hacia dónde tirar.',
       `<span style="font-size:13px;color:#8a8378;">${f.tipo === 'reto'
         ? `Las fotos de los retos se guardan mientras estén entre los ${RETOS_GUARDADOS} últimos`
-        : `Las fotos de las salidas se guardan ${SALIDA_DIAS} días`}${enMuro ? ' (las del muro, siempre)' : ''}. Si quieres conservarla con el comentario, usa el botón «Guardar para Instagram» y quedará en tu móvil.</span>`,
+        : f.tipo === 'taller' ? `Las fotos de los ejercicios del taller se guardan ${SALIDA_DIAS} días`
+        : `Las fotos de las salidas se guardan ${SALIDA_DIAS} días`}${enMuro ? ' (las del muro, siempre)' : ''}.${f.tipo === 'taller' ? '' : ' Si quieres conservarla con el comentario, usa el botón «Guardar para Instagram» y quedará en tu móvil.'}</span>`,
     ],
   });
   return { asunto: 'Te he comentado una foto · Mirar Despacio', html, texto: aTexto(html) };
@@ -166,23 +169,21 @@ exports.handler = async (event, context) => {
     }
 
     if (b.accion === 'cuentas') {
-      const lista = await listarUsuarios(context);
-      return res(200, lista.map((u) => {
-        const roles = (u.app_metadata && u.app_metadata.roles) || [];
-        return {
-          id: u.id, email: u.email, nombre: (u.user_metadata && u.user_metadata.full_name) || '',
-          acceso: accesoDe(roles), confirmada: !!u.confirmed_at, creada: u.created_at, ultimoLogin: u.last_sign_in_at || null,
-        };
-      }));
+      const lista = await cuentas.listar(context);
+      return res(200, lista.map((u) => ({
+        id: u.id, email: u.email, nombre: u.nombre,
+        acceso: accesoDe(u.roles), manuales: cuentas.manualesDe(u.roles),
+        confirmada: u.confirmada, creada: u.creada, ultimoLogin: u.ultimoLogin,
+      })));
     }
 
     if (b.accion === 'acceso') {
       if (!['plus', 'fotos', 'ninguno'].includes(b.acceso)) return res(400, { error: 'acceso' });
-      const u = (await listarUsuarios(context)).find((x) => x.id === b.id);
+      const u = await cuentas.porId(context, String(b.id || ''));
       if (!u) return res(404, { error: 'no-existe' });
-      const actuales = (u.app_metadata && u.app_metadata.roles) || [];
+      const actuales = u.roles;
       if (actuales.includes('admin')) return res(400, { error: 'es-admin' });
-      await ponerRoles(context, u.id, rolesPara(actuales, b.acceso));
+      await cuentas.ponerRoles(context, u, rolesPara(actuales, b.acceso));
       await fs.collection('cambios_acceso').add({
         userId: u.id, email: u.email, antes: accesoDe(actuales), ahora: b.acceso, fecha: FieldValue.serverTimestamp(),
       });
@@ -205,12 +206,39 @@ exports.handler = async (event, context) => {
       return res(200, { url: SUBIR + (await claveDe(ref, snap.data())) });
     }
 
+    // El mismo correo que manda la web al apuntarse, para quien se añade o se mueve desde el CRM
+    if (b.accion === 'confirmacion') {
+      const sRef = fs.collection('signups').doc(String(b.signupId || ''));
+      const sSnap = await sRef.get();
+      if (!sSnap.exists) return res(404, { error: 'no-existe' });
+      const su = sSnap.data();
+      const pSnap = await fs.collection('people').doc(su.personId).get();
+      const p = pSnap.exists ? pSnap.data() : null;
+      if (!p || !p.email) return res(400, { error: 'sin-email' });
+      const evSnap = await fs.collection('events').doc(su.eventId).get();
+      const ev = evSnap.exists ? evSnap.data() : {};
+      const salida = await inscripcion._salidaDeEvento(su.eventId, ev);
+      let posicion = 0;
+      if (su.status === 'espera') {
+        const q = await fs.collection('signups').where('eventId', '==', su.eventId).where('status', '==', 'espera').get();
+        const orden = q.docs.map((d) => ({ id: d.id, t: (d.data().createdAt && d.data().createdAt.toMillis) ? d.data().createdAt.toMillis() : 0 })).sort((a, z) => a.t - z.t);
+        posicion = orden.findIndex((x) => x.id === sSnap.id) + 1;
+      }
+      const r = { status: su.status === 'espera' ? 'espera' : 'confirmado', yaEstaba: false, posicion, plazas: Number(ev.plazas) || inscripcion._PLAZAS };
+      const c = inscripcion._correoPersona({ nombre: p.name || '' }, salida, r);
+      const ok = await enviar({ para: p.email, asunto: c.asunto, html: c.html, texto: aTexto(c.html) });
+      if (!ok) return res(502, { error: 'correo' });
+      await sRef.update({ confirmacionEnviadaEn: FieldValue.serverTimestamp() });
+      return res(200, { ok: true, email: p.email, asunto: c.asunto });
+    }
+
     if (b.accion === 'enlaces') {
       const evSnap = await fs.collection('events').doc(String(b.eventId || '')).get();
       if (!evSnap.exists) return res(404, { error: 'no-existe' });
       const ev = evSnap.data();
       const q = await fs.collection('signups').where('eventId', '==', evSnap.id).get();
-      let lista = q.docs.filter((d) => d.data().status !== 'espera');
+      // Ni lista de espera, ni bajas, ni no presentados
+      let lista = q.docs.filter((d) => !['espera', 'baja', 'no-presentado'].includes(d.data().status));
       if (lista.some((d) => d.data().attended)) lista = lista.filter((d) => d.data().attended);
       let enviados = 0, saltados = 0, sinEmail = 0;
       for (const s of lista) {

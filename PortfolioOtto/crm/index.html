@@ -7,226 +7,328 @@
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1a1814">
+<meta name="theme-color" content="#e8821a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Tema: 'claro' | 'oscuro' | sin guardar = automático (sigue al sistema). Se aplica antes de pintar.
+  (function () { try { var t = localStorage.getItem('crm-tema'); if (t === 'claro' || t === 'oscuro') document.documentElement.setAttribute('data-tema', t); } catch (e) {} })();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MD CRM">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
 <style>
+  /* ===== Temas =====
+     Claro «Hora dorada»: menú con el degradado de la marca, contenido sobre blanco.
+     Oscuro «Cuarto oscuro»: ciruela oscuro con el naranja de la luz de laboratorio.
+     El botón del menú alterna claro / oscuro / automático (sigue al sistema). */
   :root {
-    --ink: #1a1814;
-    --panel: #23201b;
-    --cream: #f5f3ef;
-    --gold: #c8a97a;
-    --dim: #a8a49c;
-    --danger: #b5654f;
-    --ok: #7a9e7e;
+    --sb-bg: linear-gradient(185deg, #ef9a2c 0%, #e8821a 38%, #e8347a 100%);
+    --sb-fg: rgba(255,255,255,.88); --sb-dim: rgba(255,255,255,.66); --sb-act-bg: #fff; --sb-act-fg: #c2451f; --sb-mark: transparent; --sb-badge: rgba(255,255,255,.22);
+    --bg: #ffffff; --surface: #ffffff; --surface-2: #fafaf9; --text: #1a1814; --muted: #77716a; --line: #ececea; --line-2: #dedcd8; --hover: #fff7f0;
+    --acc: #e8347a; --acc-ink: #ffffff; --acc-soft: rgba(232,52,122,.10); --acc2: #e8821a;
+    --ok: #2f7d4f; --ok-soft: #e5f3ea; --warn: #b88a1e; --warn-soft: #fbf3dc; --danger: #c8432c; --danger-soft: #fdeae6;
+    --input-bg: #ffffff; --shadow: 0 1px 2px rgba(26,24,20,.04); --fotos: #5a45a8; --fotos-soft: #f1ecff;
+    --head-font: 'Fraunces', Georgia, serif;
+    color-scheme: light;
   }
+  :root[data-tema="oscuro"] {
+    --sb-bg: #1b1320; --sb-fg: #d5c7ce; --sb-dim: #8f7d89; --sb-act-bg: rgba(255,106,61,.15); --sb-act-fg: #ffb59c; --sb-mark: #ff6a3d; --sb-badge: rgba(255,255,255,.12);
+    --bg: #231a27; --surface: #2c2131; --surface-2: #33273a; --text: #f3e9e4; --muted: #b09fa9; --line: #3b2e40; --line-2: #4a3b50; --hover: #33273a;
+    --acc: #ff6a3d; --acc-ink: #1b1320; --acc-soft: rgba(255,106,61,.14); --acc2: #f2b46b;
+    --ok: #8fcf9f; --ok-soft: rgba(143,207,159,.14); --warn: #f2c486; --warn-soft: rgba(242,180,107,.14); --danger: #ff8a73; --danger-soft: rgba(255,106,61,.14);
+    --input-bg: #2a1f2e; --shadow: none; --fotos: #b9c0ff; --fotos-soft: rgba(160,170,255,.14);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema]) {
+      --sb-bg: #1b1320; --sb-fg: #d5c7ce; --sb-dim: #8f7d89; --sb-act-bg: rgba(255,106,61,.15); --sb-act-fg: #ffb59c; --sb-mark: #ff6a3d; --sb-badge: rgba(255,255,255,.12);
+      --bg: #231a27; --surface: #2c2131; --surface-2: #33273a; --text: #f3e9e4; --muted: #b09fa9; --line: #3b2e40; --line-2: #4a3b50; --hover: #33273a;
+      --acc: #ff6a3d; --acc-ink: #1b1320; --acc-soft: rgba(255,106,61,.14); --acc2: #f2b46b;
+      --ok: #8fcf9f; --ok-soft: rgba(143,207,159,.14); --warn: #f2c486; --warn-soft: rgba(242,180,107,.14); --danger: #ff8a73; --danger-soft: rgba(255,106,61,.14);
+      --input-bg: #2a1f2e; --shadow: none; --fotos: #b9c0ff; --fotos-soft: rgba(160,170,255,.14);
+      color-scheme: dark;
+    }
+  }
+  /* Nombres antiguos que siguen usando algunas partes del código */
+  :root, :root[data-tema] { --ink: var(--bg); --panel: var(--surface); --cream: var(--text); --gold: var(--acc); --dim: var(--muted); }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0;
-    background: var(--ink);
-    color: var(--cream);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 15px;
-  }
-  body { padding: 20px 14px 60px; padding-top: calc(20px + env(safe-area-inset-top)); }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 400 14px/1.45 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--acc); }
+  h1 { font: 300 32px/1.05 var(--head-font); letter-spacing: -.01em; margin: 0; }
 
-  h1 {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 24px;
-    font-weight: 400;
-    margin: 0 0 2px;
-  }
-  .subtitle { color: var(--dim); font-size: 13px; margin-bottom: 18px; }
-
-  .tabs {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 18px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    overflow-x: auto;
-  }
-  .tab {
-    padding: 10px 14px;
-    color: var(--dim);
-    font-size: 14px;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-  }
-  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  /* ===== Estructura: menú lateral + contenido ===== */
+  #app { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+  .sb { background: var(--sb-bg); color: var(--sb-fg); padding: 22px 14px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 2px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sb .logo { display: block; width: 132px; margin: 0 8px 24px; }
+  .sb .item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 8px; color: var(--sb-fg); font-size: 14px; cursor: pointer; position: relative; text-decoration: none; border: 0; background: none; text-align: left; width: 100%; font-family: inherit; }
+  .sb .item:hover { background: rgba(255,255,255,.08); }
+  .sb .item .ico { width: 18px; text-align: center; opacity: .85; flex: none; }
+  .sb .item.active { background: var(--sb-act-bg); color: var(--sb-act-fg); font-weight: 600; }
+  .sb .item.active::before { content: ''; position: absolute; left: -14px; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--sb-mark); }
+  .sb .item .badge { margin: 0 0 0 auto; background: var(--sb-badge); color: inherit; font-size: 11px; padding: 1px 7px; }
+  .sb .item.prox { color: var(--sb-dim); cursor: default; }
+  .sb .item.prox:hover { background: none; }
+  .sb .item.prox .b { margin-left: auto; font-size: 11px; padding: 0 7px; border-radius: 10px; border: 1px solid currentColor; }
+  .sb .sep { height: 1px; background: currentColor; opacity: .14; margin: 10px 8px; }
+  .sb .pie { margin-top: auto; padding: 10px 12px 0; display: grid; gap: 8px; }
+  .sb .tema { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--sb-fg); font: 500 13px 'Inter', sans-serif; cursor: pointer; }
+  .sb .salir { color: var(--sb-dim); font-size: 12px; background: none; border: 0; text-align: left; padding: 4px 12px; cursor: pointer; font-family: inherit; }
+  main.contenido { padding: 26px 36px 60px; min-width: 0; }
+  .cabecera { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 20px; min-height: 40px; }
+  .cabecera .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .m-top, .m-bar { display: none; }
 
   .view { display: none; }
   .view.active { display: block; }
 
-  .card {
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 14px;
-  }
-  .card-title { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin-bottom: 10px; }
+  /* ===== Piezas ===== */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card-title { font: 500 17px/1.2 var(--head-font); color: var(--text); margin: 0 0 10px; }
+  details.card > summary { list-style: none; }
+  details.card > summary::-webkit-details-marker { display: none; }
 
-  input, select, textarea {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.05);
-    color: var(--cream);
-    font-size: 16px;
-    font-family: inherit;
-  }
-  select { color-scheme: dark; }
-  option { background: var(--panel); color: var(--cream); }
-  button {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: none;
-    background: var(--gold);
-    color: var(--ink);
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  button.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--cream); }
-  button.danger { background: transparent; border: 1px solid rgba(181,101,79,0.4); color: var(--danger); }
-  button.small { padding: 6px 10px; font-size: 12px; }
+  input, select, textarea { width: 100%; padding: 9px 12px; margin-bottom: 8px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--input-bg); color: var(--text); font: 15px 'Inter', sans-serif; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--acc-soft); border-color: var(--acc); }
+  input[type="checkbox"], input[type="radio"] { width: auto; margin: 0; accent-color: var(--acc); }
+  option, optgroup { background: var(--surface); color: var(--text); }
+  button { padding: 9px 15px; border-radius: 10px; border: 1px solid transparent; background: var(--acc); color: var(--acc-ink); font: 600 13px 'Inter', sans-serif; cursor: pointer; }
+  button:hover { filter: brightness(1.05); }
+  button:focus-visible, .sb .item:focus-visible { outline: 2px solid var(--acc2); outline-offset: 2px; }
+  button.secondary { background: transparent; border-color: var(--line-2); color: var(--text); }
+  button.secondary:hover { background: var(--surface-2); filter: none; }
+  button.danger { background: transparent; border-color: var(--danger-soft); color: var(--danger); }
+  button.small { padding: 5px 10px; font-size: 12px; }
+  button[disabled] { opacity: .5; cursor: default; }
 
   .row { display: flex; gap: 8px; }
   .row > * { flex: 1; }
 
-  .event-item {
-    background: var(--panel);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .event-name { font-weight: 500; }
-  .event-meta { font-size: 12px; color: var(--dim); margin-top: 2px; }
-  .event-count { color: var(--gold); font-size: 13px; }
+  .event-item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .event-item:hover { background: var(--hover); }
+  .event-name { font-weight: 600; }
+  .event-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .event-count { color: var(--acc); font-size: 13px; font-weight: 600; }
 
-  .person-row {
-    background: var(--panel);
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .person-row { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
   .person-row.confirmado { border-left: 3px solid var(--ok); }
-  .person-row.pendiente { border-left: 3px solid var(--gold); }
+  .person-row.pendiente { border-left: 3px solid var(--warn); }
   .person-row.espera { border-left: 3px solid var(--danger); }
+  .person-row.baja, .person-row.no-presentado { border-left: 3px solid var(--line-2); opacity: .6; }
+  .person-row.baja .person-name, .person-row.no-presentado .person-name { text-decoration: line-through; text-decoration-color: var(--muted); }
   .person-main { flex: 1; min-width: 0; }
-  .person-name { font-size: 14px; font-weight: 500; }
-  .person-meta { font-size: 11px; color: var(--dim); }
-  .badge {
-    font-size: 10px;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: rgba(200,169,122,0.15);
-    color: var(--gold);
-    display: inline-block;
-    margin-right: 4px;
-  }
-  .attend-check {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    font-size: 13px;
-  }
-  .attend-check.checked { background: var(--ok); border-color: var(--ok); color: var(--ink); }
+  .person-name { font-size: 14px; font-weight: 600; }
+  .person-meta { font-size: 12px; color: var(--muted); }
+  .tag { font-size: 12px; padding: 2px 9px; border-radius: 20px; display: inline-block; margin-right: 4px; white-space: nowrap; }
+  .t-plus { background: var(--ok-soft); color: var(--ok); } .t-fotos { background: var(--fotos-soft); color: var(--fotos); }
+  .t-man { background: var(--warn-soft); color: var(--warn); } .t-off { background: var(--surface-2); color: var(--muted); } .t-dup { background: var(--danger-soft); color: var(--danger); }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--acc-soft); color: var(--acc); display: inline-block; margin-right: 4px; font-weight: 500; }
+  .badge[style*="background"] { color: #fff; }
+  .attend-check { width: 24px; height: 24px; border-radius: 7px; border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 13px; }
+  .attend-check.checked { background: var(--ok); border-color: var(--ok); color: var(--bg); }
 
-  .empty { color: var(--dim); font-style: italic; padding: 10px 0; font-size: 13px; }
-  .back-link { color: var(--gold); font-size: 13px; margin-bottom: 12px; cursor: pointer; display: inline-block; }
+  .empty { color: var(--muted); padding: 12px 0; font-size: 13px; }
+  .back-link { color: var(--acc); font-size: 13px; margin-bottom: 12px; cursor: pointer; display: inline-block; font-weight: 500; }
 
-  .stat-grid { display: flex; gap: 10px; margin-bottom: 14px; }
-  .stat-box { flex: 1; background: var(--panel); border-radius: 10px; padding: 12px; text-align: center; }
-  .stat-num { font-size: 22px; color: var(--gold); font-weight: 600; }
-  .stat-label { font-size: 11px; color: var(--dim); margin-top: 2px; }
-
-  .status-select { width: auto; padding: 6px 8px; font-size: 12px; margin-bottom: 0; }
+  .stat-grid { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat-box { flex: 1; min-width: 96px; background: var(--surface-2); border-radius: 12px; padding: 12px; text-align: center; }
+  .stat-num { font: 500 26px/1.1 var(--head-font); color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .status-select { width: auto; padding: 6px 8px; font-size: 13px; margin-bottom: 0; }
 
   .trial-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
-  .trial-badge {
-    font-size: 11px;
-    padding: 3px 9px;
-    border-radius: 10px;
-    display: inline-block;
-    font-weight: 600;
-  }
-  .trial-badge.active { background: rgba(122,158,126,0.18); color: var(--ok); }
-  .trial-badge.soon { background: rgba(200,169,122,0.2); color: var(--gold); }
-  .trial-badge.expired { background: rgba(181,101,79,0.18); color: var(--danger); }
-  .trial-btn {
-    font-size: 11px;
-    padding: 4px 9px;
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background: transparent;
-    color: var(--dim);
-    cursor: pointer;
-  }
+  .trial-badge { font-size: 11px; padding: 3px 9px; border-radius: 10px; display: inline-block; font-weight: 600; }
+  .trial-badge.active { background: var(--ok-soft); color: var(--ok); }
+  .trial-badge.soon { background: var(--warn-soft); color: var(--warn); }
+  .trial-badge.expired { background: var(--danger-soft); color: var(--danger); }
+  .trial-btn { font-size: 12px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: transparent; color: var(--text); cursor: pointer; font-weight: 500; }
+  .trial-btn:hover { background: var(--surface-2); filter: none; }
 
   .datos-persona { margin: 8px 0 4px; }
   .datos-persona input { margin-top: 6px; }
-  .consent-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: var(--dim);
-    cursor: pointer;
-  }
+  .consent-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); cursor: pointer; margin-top: 6px; }
   .consent-toggle input { width: auto; margin: 0; }
-
-  .sub-panel {
-    margin-top: 8px;
-    padding: 10px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px;
-  }
+  .sub-panel { margin-top: 8px; padding: 12px; background: var(--surface-2); border-radius: 10px; }
   .sub-panel input[type="date"] { font-size: 12px; padding: 6px 8px; }
   .sub-panel-row { display: flex; gap: 6px; align-items: center; }
-
   textarea.export-box { min-height: 90px; font-size: 13px; }
-  .copy-hint { font-size: 12px; color: var(--dim); margin-top: 4px; }
+  .copy-hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-  /* Login screen */
-  #loginScreen {
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+  /* Juegos */
+  .juegos-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  .juego-col { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; }
+  .juego-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .juego-cab h3 { margin: 0; font: 500 19px var(--head-font); }
+  .juego-cab a { font-size: 12px; text-decoration: none; }
+  .stat-grid.mini { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+  .stat-grid.mini .stat-box { padding: 8px 4px; min-width: 0; }
+  .stat-grid.mini .stat-num { font-size: 20px; }
+  .juego-lista { max-height: 380px; overflow-y: auto; }
+  .juego-mas { margin-top: 14px; }
+  .juego-mas summary { cursor: pointer; }
+  @media (max-width: 1000px) { .juegos-cols { grid-template-columns: 1fr; } .juego-lista { max-height: 300px; } }
+
+  /* Personas en una línea */
+  .persona { background: var(--surface); border-bottom: 1px solid var(--line); }
+  #peopleList, #suscripcionesList { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  #peopleList .persona:last-child, #suscripcionesList .persona:last-child { border-bottom: 0; }
+  #peopleList:empty, #suscripcionesList:empty { display: none; }
+  .persona.abierta { background: var(--hover); }
+  .persona-linea { display: grid; grid-template-columns: minmax(150px, 1.15fr) minmax(0, 1.4fr) auto minmax(0, 1fr) 14px; gap: 12px; align-items: center; padding: 11px 16px; cursor: pointer; font-size: 13px; }
+  .persona-linea:hover { background: var(--hover); }
+  .persona-nombre { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-chips { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-salidas { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .persona-email { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-flecha { color: var(--muted); }
+  .ficha-persona { padding: 4px 16px 18px; }
+  .ficha-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 28px; margin-top: 8px; }
+  .ficha-titulo { font: 500 16px var(--head-font); color: var(--text); margin: 8px 0 8px; }
+
+  /* Sub-pestañas (Accesos y MD+) */
+  .subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .subtab { padding: 7px 14px; border-radius: 20px; background: var(--surface-2); color: var(--text); font: 500 13px 'Inter', sans-serif; border: 0; cursor: pointer; }
+  .subtab.on { background: var(--text); color: var(--bg); }
+  .subvista { display: none; }
+  .subvista.on { display: block; }
+
+
+  /* ===== Contabilidad y tienda ===== */
+  .cx-vista { display: none; } .cx-vista.on { display: block; }
+  .cx-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .cx-dos > .card { margin-bottom: 14px; }
+  .cx-linea { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
+  .cx-linea span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cx-total { border-top: 1px solid var(--line-2); margin-top: 4px; padding-top: 8px; font-weight: 700; font-size: 15px; }
+  .cx-modelo { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; font-size: 13px; }
+  .cx-modelo > div:first-child { margin-bottom: 6px; }
+  .cx-avisos { display: grid; gap: 6px; margin-top: 4px; }
+  .cx-aviso { background: var(--warn-soft); color: var(--text); border-radius: 10px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+  .cx-aviso:hover { filter: brightness(.98); }
+  .cx-etq { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; font-weight: 600; }
+  .cx-lista { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .cx-lista:empty { display: none; }
+  .cx-fila { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; gap: 14px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 13px; cursor: pointer; }
+  .cx-fila:last-child { border-bottom: 0; }
+  .cx-fila:hover { background: var(--hover); }
+  #cxListaCob .cx-fila, #cxListaSus .cx-fila { cursor: default; }
+  #cxListaSus .cx-fila { grid-template-columns: minmax(0, 1fr) auto auto auto; }
+  #cxListaGas .cx-fila { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+  .cx-num { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 82px; }
+  .cx-quien { min-width: 0; } .cx-quien b, .cx-quien .person-meta { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cx-fecha { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cx-tags { white-space: nowrap; text-align: right; }
+  .cx-imp { font-weight: 600; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 80px; }
+  .cx-acc { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .cx-editor { border-color: var(--acc); box-shadow: 0 0 0 3px var(--acc-soft); }
+  .fx-cab, .fx-linea { display: grid; grid-template-columns: minmax(0, 1fr) 70px 100px 120px 34px; gap: 6px; align-items: start; }
+  .fx-cab { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .fx-linea input, .fx-linea select { margin-bottom: 6px; }
+  .td-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .td-prod { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: pointer; }
+  .td-prod:hover { border-color: var(--line-2); background: var(--hover); }
+  .td-foto { aspect-ratio: 4 / 3; background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
+  .td-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .td-info { padding: 10px 12px 12px; }
+  .td-fotos { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .td-mini { width: 104px; } .td-mini img { width: 104px; height: 104px; object-fit: cover; border-radius: 8px; display: block; margin-bottom: 4px; }
+  .td-mini div { display: flex; gap: 3px; } .td-mini button { padding: 2px 7px; }
+  .td-var { display: grid; grid-template-columns: minmax(0, 1fr) 84px 74px 74px 34px; gap: 6px; align-items: start; }
+  .td-var-cab { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .td-var.sin-stock { grid-template-columns: minmax(0, 1fr) 84px 74px 34px; }
+  .td-var.sin-stock [data-k="stock"], .td-var-cab.sin-stock span:nth-child(4) { display: none; }
+  .td-lped { display: grid; grid-template-columns: minmax(0, 1fr) auto 70px 34px; gap: 6px; align-items: start; }
+  .td-lped select[data-k="variante"] { width: auto; }
+  .td-stock { align-self: center; margin-bottom: 8px; white-space: nowrap; }
+
+  /* Factura (vista e impresión) */
+  #cxImpresion { display: none; position: fixed; inset: 0; z-index: 100; overflow: auto; background: rgba(20,14,22,.6); padding: 20px 12px 40px; }
+  .fp-barra { max-width: 800px; margin: 0 auto 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .fp-barra .person-meta { color: #f3e9e4; }
+  .fp { max-width: 800px; margin: 0 auto; background: #fff; color: #1a1814; padding: 48px 52px; border-radius: 4px; font: 13px/1.5 'Inter', sans-serif; }
+  .fp-cab { display: flex; justify-content: space-between; gap: 30px; margin-bottom: 30px; }
+  .fp-logo { width: 150px; display: block; margin-bottom: 18px; }
+  .fp-marca { font: 600 15px 'Inter', sans-serif; letter-spacing: .28em; margin-bottom: 18px; }
+  .fp-tit { font: 300 30px/1.1 'Fraunces', Georgia, serif; }
+  .fp-num { font-weight: 700; font-size: 15px; margin-top: 4px; }
+  .fp-fecha { color: #77716a; }
+  .fp-emisor { text-align: right; color: #3d3833; }
+  .fp-cliente { border-top: 1px solid #ececea; border-bottom: 1px solid #ececea; padding: 14px 0; margin-bottom: 22px; }
+  .fp-etq { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #77716a; margin-bottom: 4px; font-weight: 600; }
+  .fp-tabla { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .fp-tabla th { text-align: left; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #77716a; border-bottom: 1px solid #1a1814; padding: 6px 4px; font-weight: 600; }
+  .fp-tabla td { padding: 8px 4px; border-bottom: 1px solid #ececea; vertical-align: top; }
+  .fp-tabla .d { text-align: right; white-space: nowrap; }
+  .fp-totales { margin-left: auto; width: 300px; max-width: 100%; }
+  .fp-totales div { display: flex; justify-content: space-between; padding: 3px 0; }
+  .fp-total { border-top: 1px solid #1a1814; margin-top: 6px; padding-top: 8px !important; font-weight: 700; font-size: 16px; }
+  .fp-nota { margin-top: 18px; color: #3d3833; font-size: 12px; }
+  .fp-pie { margin-top: 40px; color: #77716a; font-size: 11px; text-align: center; }
+  @media print {
+    @page { size: A4; margin: 14mm; }
+    body.cx-imprimiendo > *:not(#cxImpresion) { display: none !important; }
+    body.cx-imprimiendo { background: #fff; }
+    #cxImpresion { position: static; background: none; padding: 0; overflow: visible; }
+    .fp-barra { display: none !important; }
+    .fp { padding: 0; max-width: none; border-radius: 0; }
   }
-  #loginScreen img { width: 140px; margin-bottom: 24px; }
+  @media (max-width: 1000px) { .cx-dos { grid-template-columns: 1fr; gap: 0; } }
+
+  /* Login */
+  #loginScreen { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; background: var(--sb-bg); }
+  #loginScreen .logo-login { width: 160px; margin-bottom: 24px; }
   #loginScreen .card { width: 100%; max-width: 340px; }
   #loginError { color: var(--danger); font-size: 13px; margin-top: 8px; min-height: 16px; }
-  #syncStatus {
-    position: fixed;
-    top: calc(8px + env(safe-area-inset-top));
-    right: 14px;
-    font-size: 11px;
-    color: var(--dim);
-    z-index: 50;
+  .link-olvido { background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; cursor: pointer; padding: 6px 0 0; width: auto; box-shadow: none; }
+  #syncStatus { position: fixed; top: calc(10px + env(safe-area-inset-top)); right: 16px; font-size: 12px; color: var(--muted); z-index: 50; background: var(--surface); padding: 2px 8px; border-radius: 10px; }
+  #syncStatus:empty { display: none; }
+
+  /* ===== Móvil ===== */
+  @media (max-width: 820px) {
+    #app { grid-template-columns: 1fr; }
+    .sb { position: fixed; inset: 0 auto 0 0; width: 260px; z-index: 60; transform: translateX(-105%); transition: transform .2s ease; }
+    .sb.abierto { transform: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); }
+    .m-top { display: flex; align-items: center; gap: 12px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; background: var(--sb-bg); position: sticky; top: 0; z-index: 40; }
+    .m-top img { width: 104px; }
+    .m-top button { margin-left: auto; background: transparent; color: var(--sb-fg); font-size: 20px; padding: 4px 8px; }
+    main.contenido { padding: 18px 14px calc(90px + env(safe-area-inset-bottom)); }
+    .cabecera { margin-bottom: 14px; } h1 { font-size: 27px; }
+    .m-bar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; justify-content: space-around; padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
+    .m-bar button { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; color: var(--muted); font: 500 11px 'Inter', sans-serif; padding: 4px 6px; position: relative; }
+    .m-bar button b { font-size: 18px; font-weight: 400; }
+    .m-bar button.active { color: var(--acc); }
+    .m-bar .badge { position: absolute; top: 0; right: 0; font-size: 10px; padding: 0 5px; }
+    #syncStatus { top: auto; bottom: calc(76px + env(safe-area-inset-bottom)); right: 12px; }
+    .persona-linea { grid-template-columns: 1fr auto 14px; padding: 11px 14px; }
+    .persona-chips { grid-column: 1 / -1; grid-row: 2; }
+    .persona-email { display: none; }
+    .ficha-grid { grid-template-columns: 1fr; gap: 8px; }
+    .foto-crm { grid-template-columns: 1fr !important; }
+    .row { flex-wrap: wrap; }
+    .row > select, .row > input { flex: 1 1 140px; }
+    .stat-box { min-width: calc(50% - 5px); }
+    .stat-grid.mini .stat-box { min-width: 0; }
+
+    .cx-fila, #cxListaGas .cx-fila, #cxListaSus .cx-fila { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 11px 14px; }
+    .cx-fila .cx-num, .cx-fila .cx-fecha { grid-column: 1; font-size: 12px; min-width: 0; }
+    .cx-fila .cx-quien { grid-column: 1; }
+    .cx-fila .cx-tags { grid-column: 1 / -1; text-align: left; white-space: normal; }
+    .cx-fila .cx-imp { grid-column: 2; grid-row: 1; min-width: 0; }
+    .cx-fila .cx-acc { grid-column: 1 / -1; justify-content: flex-start; }
+    .fx-cab { display: none; }
+    .fx-linea { grid-template-columns: 1fr 1fr 1fr 34px; padding-bottom: 8px; border-bottom: 1px dashed var(--line-2); margin-bottom: 8px; }
+    .fx-linea [data-k="concepto"] { grid-column: 1 / -1; }
+    .td-productos { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .td-lped { grid-template-columns: 1fr 70px 34px; } .td-lped select[data-k="producto"] { grid-column: 1 / -1; }
+    .td-var { grid-template-columns: 1fr 1fr 1fr 34px; padding-bottom: 8px; border-bottom: 1px dashed var(--line-2); margin-bottom: 8px; }
+    .td-var [data-k="nombre"] { grid-column: 1 / -1; } .td-var-cab { display: none; }
+    .td-var.sin-stock [data-k="stock"] { display: none; } .td-var.sin-stock { grid-template-columns: 1fr 1fr 34px; }
+    .fp { padding: 28px 20px; } .fp-cab { flex-direction: column; gap: 14px; } .fp-emisor { text-align: left; }
   }
-  @media (max-width: 640px) { .foto-crm { grid-template-columns: 1fr !important; } }
 </style>
 </head>
 <body>
@@ -235,33 +337,53 @@
 
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
+  <img class="logo-login" src="/assets/logo-md-blanco.png" alt="Mirar Despacio">
   <div class="card">
-    <h1 style="text-align:center;">Mirar Despacio</h1>
-    <div class="subtitle" style="text-align:center;">CRM privado</div>
+    <h1 style="text-align:center;font-size:26px;">CRM</h1>
+    <div class="person-meta" style="text-align:center;margin:6px 0 14px;">Solo para Otto</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="username">
     <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
     <button style="width:100%;" onclick="doLogin()">Entrar</button>
     <div id="loginError"></div>
+    <button type="button" class="link-olvido" onclick="olvidoContrasena()">¿Has olvidado la contraseña?</button>
   </div>
 </div>
+
+<!-- MÓVIL: barra superior (abre el menú) y barra inferior con lo más usado -->
+<div class="m-top" id="mTop" style="display:none"><img src="/assets/logo-md-blanco.png" alt="Mirar Despacio"><button type="button" aria-label="Abrir el menú" onclick="abrirMenu()">☰</button></div>
+<nav class="m-bar" id="mBar" style="display:none" aria-label="Accesos rápidos">
+  <button type="button" data-tab="salidas" class="active"><b>◷</b>Salidas</button>
+  <button type="button" data-tab="personas"><b>◍</b>Personas</button>
+  <button type="button" data-tab="fotos"><b>▣</b>Fotos<span id="fotosPendientesM" class="badge" style="display:none"></span></button>
+  <button type="button" data-tab="accesos"><b>⚿</b>Accesos</button>
+  <button type="button" onclick="abrirMenu()"><b>☰</b>Más</button>
+</nav>
 
 <!-- MAIN APP (hidden until logged in) -->
 <div id="app" style="display:none;">
 
-  <h1>Mirar Despacio</h1>
-  <div class="subtitle">Control de salidas y personas</div>
+  <nav class="sb" id="menu" aria-label="Secciones del CRM">
+    <img class="logo" src="/assets/logo-md-blanco.png" alt="Mirar Despacio">
+    <button class="item active" data-tab="salidas"><span class="ico">◷</span>Salidas</button>
+    <button class="item" data-tab="personas"><span class="ico">◍</span>Personas</button>
+    <button class="item" data-tab="fotos"><span class="ico">▣</span>Fotos <span id="fotosPendientes" class="badge" style="display:none"></span></button>
+    <button class="item" data-tab="accesos"><span class="ico">⚿</span>Accesos y MD+</button>
+    <button class="item" data-tab="juego"><span class="ico">◇</span>Juegos</button>
+    <button class="item" data-tab="pegatinas"><span class="ico">⌖</span>Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></button>
+    <a class="item" href="galerias.html"><span class="ico">▤</span>Galerías de clientes</a>
+    <button class="item" data-tab="exportar"><span class="ico">⇩</span>Exportar</button>
+    <div class="sep"></div>
+    <button class="item" data-tab="contabilidad"><span class="ico">€</span>Contabilidad <span id="contaPendientes" class="badge" style="display:none" title="Cargos de suscripciones esta semana"></span></button>
+    <button class="item" data-tab="tienda"><span class="ico">◫</span>Tienda <span id="tiendaPendientes" class="badge" style="display:none" title="Pedidos por preparar"></span></button>
+    <button class="item" data-tab="regalos"><span class="ico">✧</span>Regalos</button>
+    <div class="pie">
+      <button class="tema" id="botonTema" type="button" onclick="cambiarTema()"></button>
+      <button class="salir" type="button" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
 
-  <div class="tabs">
-    <div class="tab active" data-tab="salidas">Salidas</div>
-    <div class="tab" data-tab="personas">Personas</div>
-    <div class="tab" data-tab="accesos">Accesos</div>
-    <div class="tab" data-tab="fotos">Fotos <span id="fotosPendientes" class="badge" style="display:none"></span></div>
-    <div class="tab" data-tab="pegatinas">Pegatinas <span id="pegPendientes" class="badge" style="display:none"></span></div>
-    <div class="tab" data-tab="ingresos">Ingresos</div>
-    <div class="tab" data-tab="juego">Juego</div>
-    <div class="tab" data-tab="exportar">Exportar</div>
-    <a href="galerias.html" style="padding:10px 14px;color:var(--gold);font-size:14px;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent">Galerías de clientes ↗</a>
-  </div>
+  <main class="contenido">
+  <div class="cabecera"><div><h1 id="tituloVista">Salidas</h1><div class="sub" id="subVista"></div></div></div>
 
   <!-- SALIDAS LIST VIEW -->
   <div class="view active" id="view-salidas">
@@ -287,6 +409,8 @@
         <div class="stat-box"><div class="stat-num" id="statPendientes">0</div><div class="stat-label">pendientes</div></div>
         <div class="stat-box"><div class="stat-num" id="statEspera">0</div><div class="stat-label">lista espera</div></div>
         <div class="stat-box"><div class="stat-num" id="statAsistieron">0</div><div class="stat-label">asistieron</div></div>
+        <div class="stat-box"><div class="stat-num" id="statBajas">0</div><div class="stat-label">bajas avisadas</div></div>
+        <div class="stat-box"><div class="stat-num" id="statNoPresentados">0</div><div class="stat-label">no presentados</div></div>
       </div>
       <div class="row" style="align-items:center;margin-top:12px;">
         <label class="person-meta" for="eventPlazas" style="white-space:nowrap;">Plazas (las inscripciones de la web pasan a lista de espera al llenarse)</label>
@@ -309,8 +433,9 @@
       </div>
       <div class="person-meta" id="enlacesEstado"></div>
     </div>
-    <div class="card">
-      <div class="card-title">Añadir persona a esta salida</div>
+    <details class="card">
+      <summary class="card-title" style="cursor:pointer;margin:0;">+ Añadir persona a esta salida</summary>
+      <div style="margin-top:10px;">
       <input type="text" id="rosterName" placeholder="Nombre">
       <input type="text" id="rosterApellidos" placeholder="Apellidos (opcional)">
       <input type="text" id="rosterEmail" placeholder="Email (opcional)">
@@ -321,47 +446,93 @@
         <option value="espera">Lista de espera</option>
       </select>
       <button onclick="addToRoster()">Añadir</button>
-    </div>
+      </div>
+    </details>
     <div class="card-title">Lista (toca el check para pasar lista el día del evento)</div>
     <div id="rosterList"></div>
   </div>
 
   <!-- PERSONAS VIEW -->
   <div class="view" id="view-personas">
-    <div class="card">
-      <div class="card-title">Nueva persona</div>
-      <input type="text" id="newPersonName" placeholder="Nombre">
-      <input type="text" id="newPersonApellidos" placeholder="Apellidos (opcional)">
-      <input type="text" id="newPersonEmail" placeholder="Email (opcional)">
-      <input type="tel" id="newPersonTelefono" placeholder="Teléfono (opcional)">
-      <button onclick="createPersonDirect()">Añadir persona</button>
-    </div>
+    <details class="card">
+      <summary class="card-title" style="cursor:pointer;margin:0;">+ Nueva persona</summary>
+      <div style="margin-top:10px;">
+        <input type="text" id="newPersonName" placeholder="Nombre">
+        <input type="text" id="newPersonApellidos" placeholder="Apellidos (opcional)">
+        <input type="text" id="newPersonEmail" placeholder="Email (opcional)">
+        <input type="tel" id="newPersonTelefono" placeholder="Teléfono (opcional)">
+        <button onclick="createPersonDirect()">Añadir persona</button>
+      </div>
+    </details>
     <div class="card">
       <input type="text" id="searchPeople" placeholder="Buscar por nombre, apellidos, email o teléfono..." oninput="renderPeople()">
       <div class="row" style="margin-top:8px;align-items:center;">
         <select id="filtroPersonas" onchange="renderPeople()">
           <option value="">Todas las personas</option>
-          <option value="plus">MD+ activos</option>
-          <option value="pronto">MD+ que termina esta semana</option>
-          <option value="revisar">MD+ por revisar (puestos a mano)</option>
-          <option value="novedades">Aceptan novedades por email</option>
+          <optgroup label="Mirar Despacio+">
+            <option value="plus">MD+ activos</option>
+            <option value="pronto">MD+ que termina esta semana</option>
+            <option value="revisar">MD+ por revisar (puestos a mano)</option>
+          </optgroup>
+          <optgroup label="Acceso a la zona de miembros">
+            <option value="acc-plus">Con acceso MD+</option>
+            <option value="acc-fotos">Solo subida de fotos (sin MD+)</option>
+            <option value="acc-manual">Con algún manual de taller</option>
+            <option value="acc-off">Con cuenta, pero sin acceso (deshabilitada)</option>
+            <option value="acc-sin">Sin cuenta</option>
+          </optgroup>
+          <optgroup label="Otros">
+            <option value="novedades">Aceptan novedades por email</option>
+            <option value="sin-imagen">Sin consentimiento de imagen</option>
+            <option value="duplicados">Fichas duplicadas</option>
+          </optgroup>
         </select>
+        <select id="ordenPersonas" onchange="renderPeople()">
+          <option value="asistidas">Más asistencias</option>
+          <option value="apuntadas">Más inscripciones</option>
+          <option value="nombre">Nombre</option>
+          <option value="recientes">Recién añadidas</option>
+        </select>
+        <span class="person-meta" id="cuentaPersonas"></span>
         <button class="secondary" onclick="copiarNovedades()">Copiar emails de novedades</button>
       </div>
     </div>
     <div id="peopleList"></div>
   </div>
 
-  <!-- ACCESOS VIEW (área de miembros Mirar Despacio+) -->
+  <!-- ACCESOS Y MD+ : cuentas, suscripciones, manuales, retos del mes y actividad en un solo sitio -->
   <div class="view" id="view-accesos">
-    <div class="card">
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="accHoy">0</div><div class="stat-label">entran hoy</div></div>
-        <div class="stat-box"><div class="stat-num" id="acc7">0</div><div class="stat-label">últimos 7 días</div></div>
-        <div class="stat-box"><div class="stat-num" id="acc30">0</div><div class="stat-label">últimos 30 días</div></div>
-        <div class="stat-box"><div class="stat-num" id="accInactivos">0</div><div class="stat-label">sin entrar +30 días</div></div>
-      </div>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num" id="mdActivos">0</div><div class="stat-label">MD+ activos</div></div>
+      <div class="stat-box"><div class="stat-num" id="mdPrueba">0</div><div class="stat-label">en prueba</div></div>
+      <div class="stat-box"><div class="stat-num" id="mdPronto">0</div><div class="stat-label">terminan esta semana</div></div>
+      <div class="stat-box"><div class="stat-num" id="mdRevisar">0</div><div class="stat-label">por revisar</div></div>
     </div>
+    <div class="subtabs" role="tablist">
+      <button class="subtab on" data-sub="md" onclick="verSub('md')">Mirar Despacio+</button>
+      <button class="subtab" data-sub="cuentas" onclick="verSub('cuentas')">Cuentas</button>
+      <button class="subtab" data-sub="manuales" onclick="verSub('manuales')">Manuales de talleres</button>
+      <button class="subtab" data-sub="retos" onclick="verSub('retos')">Retos del mes</button>
+      <button class="subtab" data-sub="actividad" onclick="verSub('actividad')">Actividad</button>
+    </div>
+
+    <div class="subvista on" id="sub-md">
+      <div class="row" style="align-items:center;margin-bottom:10px;">
+        <select id="filtroMD" onchange="renderSuscripciones()" style="max-width:280px;margin:0;">
+          <option value="activos">Activos (suscripción y prueba)</option>
+          <option value="pronto">Terminan esta semana</option>
+          <option value="revisar">Por revisar (puestos a mano)</option>
+          <option value="prueba">En prueba</option>
+          <option value="bajas">Bajas y caducados</option>
+          <option value="todos">Todos los que han tenido MD+</option>
+        </select>
+        <span class="person-meta" id="cuentaMD"></span>
+      </div>
+      <div class="person-meta" style="margin-bottom:10px;">Pincha en una persona para renovar, dar de baja o ver su acceso. Para dar de alta a alguien nuevo, búscalo en Personas o invítalo desde Cuentas.</div>
+      <div id="suscripcionesList"></div>
+    </div>
+
+    <div class="subvista" id="sub-cuentas">
     <div class="card">
       <div class="card-title">Cuentas y acceso</div>
       <div class="person-meta">Quitar el acceso no borra nada: la cuenta, sus fotos y sus comentarios se quedan, y puedes devolvérselo cuando quieras.
@@ -378,43 +549,42 @@
       <div class="person-meta" id="cuentasEstado"></div>
       <div id="cuentasList"></div>
     </div>
-    <div class="card-title">Miembros (toca uno para ver su historial)</div>
-    <div id="miembrosList"></div>
-    <div class="card-title" style="margin-top:18px;">Últimos movimientos</div>
-    <div id="accesosList"></div>
-  </div>
-
-  <!-- FOTOS VIEW (cuaderno de fotos, retos y muro) -->
-  <div class="view" id="view-fotos">
-    <div class="card">
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="fPend">0</div><div class="stat-label">por comentar</div></div>
-        <div class="stat-box"><div class="stat-num" id="fCom">0</div><div class="stat-label">comentadas</div></div>
-        <div class="stat-box"><div class="stat-num" id="fMuro">0</div><div class="stat-label">en el muro</div></div>
-        <div class="stat-box"><div class="stat-num" id="fGente">0</div><div class="stat-label">personas</div></div>
+    <div class="card" id="migracionCard">
+      <div class="card-title">Paso a Firebase (migración de las cuentas)</div>
+      <div class="person-meta">Pasos 1 a 3: copian las cuentas de Netlify Identity a Firebase sin tocar Identity (se pueden repetir).
+        Pasos 4 y 5: después de pasar al sistema nuevo. El 5 manda un correo a cada socio una sola vez: pruébalo antes contigo.</div>
+      <div class="row" style="margin-top:8px;flex-wrap:wrap;">
+        <button class="secondary" onclick="migracion('respaldo')">1 · Descargar respaldo</button>
+        <button class="secondary" onclick="migracion('informe')">2 · Ver informe</button>
+        <button class="secondary" onclick="migracion('migrar')">3 · Copiar a Firebase</button>
       </div>
-      <div class="person-meta" style="margin-top:8px;">Limpieza automática cada lunes: las fotos de salidas se archivan a los 90 días y las de retos cuando hay 3 retos cerrados más nuevos. Las del muro no se tocan nunca.</div>
-      <div class="person-meta" style="margin-top:8px;">Muro público: <a href="https://mirardespacio.es/muro/" target="_blank">mirardespacio.es/muro</a> · Al guardar un comentario se le avisa por email. Si la persona lo permite y marcas «Al muro», sale publicada con tu comentario.</div>
+      <div class="row" style="margin-top:8px;flex-wrap:wrap;">
+        <button class="secondary" onclick="migracion('unir')">4 · Unir la actividad antigua</button>
+        <button class="secondary" onclick="migracion('avisar-prueba')">5a · Mandarme el aviso de prueba</button>
+        <button onclick="migracion('avisar')">5b · Avisar a los socios del cambio</button>
+      </div>
+      <div class="person-meta" id="migracionEstado" style="margin-top:6px;"></div>
+      <div id="migracionInforme"></div>
     </div>
-    <div class="row" style="margin-bottom:10px;">
-      <select id="fotosFiltro" onchange="renderFotos()">
-        <option value="pendiente">Por comentar</option>
-        <option value="respuestas">Con respuesta nueva</option>
-        <option value="comentada">Comentadas</option>
-        <option value="muro">En el muro</option>
-        <option value="anonimas">Sin nombre (Anónimo)</option>
-        <option value="todas">Todas</option>
-      </select>
-      <select id="fotosTipo" onchange="renderFotos()">
-        <option value="">Retos y salidas</option>
-        <option value="reto">Solo retos (MD+)</option>
-        <option value="salida">Solo salidas</option>
-      </select>
-      <input type="text" id="fotosBuscar" placeholder="Buscar persona o salida…" oninput="renderFotos()">
     </div>
-    <div id="fotosList"></div>
 
-    <div class="card" style="margin-top:22px;">
+    <div class="subvista" id="sub-manuales">
+    <div class="card">
+      <div class="card-title">Manuales de talleres</div>
+      <div class="person-meta">Cada manual solo lo abre quien tiene acceso a ese manual. Se da solo al pagar una plaza o canjear un bono de ese taller; aquí puedes dárselo a mano (acompañantes, invitados…). No depende de MD+: aunque se le acabe el mes, el manual se queda. Si la persona no tiene cuenta, le llega la invitación para crear su contraseña.</div>
+      <div class="row" style="margin-top:8px;">
+        <input type="email" id="manualEmail" placeholder="Email">
+        <select id="manualTaller"></select>
+        <button onclick="darManualCRM()">Dar acceso</button>
+      </div>
+      <div class="row" style="margin-top:8px;"><button class="secondary" onclick="cargarManuales()">Ver quién tiene acceso</button></div>
+      <div class="person-meta" id="manualesEstado"></div>
+      <div id="manualesList"></div>
+    </div>
+    </div>
+
+    <div class="subvista" id="sub-retos">
+    <div class="card">
       <div class="card-title">Reto del mes (solo MD+)</div>
       <div class="person-meta" style="margin-bottom:6px;">Al crearlo, pulsa «✉️ Avisar» para mandar el email a los miembros. Tres días antes del cierre se manda solo un recordatorio a quien no ha enviado foto, y al día siguiente del cierre el aviso de la galería.</div>
       <input type="hidden" id="retoId">
@@ -429,6 +599,56 @@
       <div class="row"><button onclick="guardarReto()">Guardar reto</button><button class="secondary" onclick="limpiarReto()">Nuevo</button></div>
     </div>
     <div id="retosList"></div>
+    </div>
+
+    <div class="subvista" id="sub-actividad">
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="accHoy">0</div><div class="stat-label">entran hoy</div></div>
+        <div class="stat-box"><div class="stat-num" id="acc7">0</div><div class="stat-label">últimos 7 días</div></div>
+        <div class="stat-box"><div class="stat-num" id="acc30">0</div><div class="stat-label">últimos 30 días</div></div>
+        <div class="stat-box"><div class="stat-num" id="accInactivos">0</div><div class="stat-label">sin entrar +30 días</div></div>
+      </div>
+    </div>
+    <div class="card-title">Miembros (toca uno para ver su historial)</div>
+    <div id="miembrosList"></div>
+    <div class="card-title" style="margin-top:18px;">Últimos movimientos</div>
+    <div id="accesosList"></div>
+    </div>
+  </div>
+
+  <!-- FOTOS VIEW (cuaderno de fotos, retos y muro) -->
+  <div class="view" id="view-fotos">
+    <div class="card">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="fPend">0</div><div class="stat-label">por comentar</div></div>
+        <div class="stat-box"><div class="stat-num" id="fCom">0</div><div class="stat-label">comentadas o vistas</div></div>
+        <div class="stat-box"><div class="stat-num" id="fMuro">0</div><div class="stat-label">en el muro</div></div>
+        <div class="stat-box"><div class="stat-num" id="fGente">0</div><div class="stat-label">personas</div></div>
+      </div>
+      <div class="person-meta" style="margin-top:8px;">Limpieza automática cada lunes: las fotos de salidas se archivan a los 90 días y las de retos cuando hay 3 retos cerrados más nuevos. Las del muro no se tocan nunca.</div>
+      <div class="person-meta" style="margin-top:8px;">Muro público: <a href="https://mirardespacio.es/muro/" target="_blank">mirardespacio.es/muro</a> · Al guardar un comentario se le avisa por email. Si la persona lo permite y marcas «Al muro», sale publicada con tu comentario.</div>
+    </div>
+    <div class="row" style="margin-bottom:10px;">
+      <select id="fotosFiltro" onchange="renderFotos()">
+        <option value="pendiente">Por comentar</option>
+        <option value="respuestas">Con respuesta nueva</option>
+        <option value="comentada">Comentadas</option>
+        <option value="vista">Vistas sin comentar</option>
+        <option value="muro">En el muro</option>
+        <option value="anonimas">Sin nombre (Anónimo)</option>
+        <option value="todas">Todas</option>
+      </select>
+      <select id="fotosTipo" onchange="renderFotos()">
+        <option value="">Retos, salidas y talleres</option>
+        <option value="reto">Solo retos (MD+)</option>
+        <option value="salida">Solo salidas</option>
+        <option value="taller">Solo talleres</option>
+      </select>
+      <input type="text" id="fotosBuscar" placeholder="Buscar persona o salida…" oninput="renderFotos()">
+    </div>
+    <div id="fotosList"></div>
+
   </div>
 
   <!-- PEGATINAS VIEW (mapa de mirardespacio.es/salidas) -->
@@ -453,59 +673,52 @@
 
   <!-- JUEGO VIEW (mirardespacio.es/juego) -->
   <div class="view" id="view-juego">
-    <div class="card">
-      <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num" id="juegoJugadores">0</div><div class="stat-label">jugadores</div></div>
-        <div class="stat-box"><div class="stat-num" id="juegoPartidas">0</div><div class="stat-label">partidas</div></div>
-        <div class="stat-box"><div class="stat-num" id="juegoHoy">0</div><div class="stat-label">jugaron hoy</div></div>
-        <div class="stat-box"><div class="stat-num" id="juegoSemana">0</div><div class="stat-label">últimos 7 días</div></div>
-      </div>
+    <div class="juegos-cols">
+      <!-- Juego del fotógrafo (mirardespacio.es/juego) -->
+      <section class="juego-col">
+        <div class="juego-cab"><h3>Juego del fotógrafo</h3><a href="https://mirardespacio.es/juego/" target="_blank" rel="noopener">abrir ↗</a></div>
+        <div class="stat-grid mini">
+          <div class="stat-box"><div class="stat-num" id="juegoJugadores">0</div><div class="stat-label">jugadores</div></div>
+          <div class="stat-box"><div class="stat-num" id="juegoPartidas">0</div><div class="stat-label">partidas</div></div>
+          <div class="stat-box"><div class="stat-num" id="juegoHoy">0</div><div class="stat-label">hoy</div></div>
+          <div class="stat-box"><div class="stat-num" id="juegoSemana">0</div><div class="stat-label">7 días</div></div>
+        </div>
+        <div class="card-title">Ranking (top 30)</div>
+        <div class="person-meta" style="margin-bottom:6px;">Si alguien pone un nombre ofensivo o una puntuación sospechosa, bórrala del ranking.</div>
+        <div id="rankingCRM" class="juego-lista"></div>
+        <details class="juego-mas">
+          <summary class="card-title">Jugadores (los últimos primero)</summary>
+          <input type="text" id="buscarJugador" placeholder="Buscar jugador…" oninput="renderJugadores()">
+          <div id="jugadoresCRM" class="juego-lista"></div>
+        </details>
+      </section>
+
+      <!-- Practica con el triángulo (mirardespacio.es/juegos/triangulo y la versión MD+) -->
+      <section class="juego-col">
+        <div class="juego-cab"><h3>Practica con el triángulo</h3><a href="https://mirardespacio.es/juegos/triangulo/" target="_blank" rel="noopener">abrir ↗</a></div>
+        <div class="stat-grid mini">
+          <div class="stat-box"><div class="stat-num" id="triJugadores">0</div><div class="stat-label">jugadores</div></div>
+          <div class="stat-box"><div class="stat-num" id="triMiembros">0</div><div class="stat-label">de MD+</div></div>
+          <div class="stat-box"><div class="stat-num" id="triHoy">0</div><div class="stat-label">hoy</div></div>
+          <div class="stat-box"><div class="stat-num" id="triSemana">0</div><div class="stat-label">7 días</div></div>
+        </div>
+        <div class="person-meta" id="triRetos" style="margin:4px 0 8px;"></div>
+        <div class="card-title">Ranking de miembros · reto de hoy</div>
+        <div id="triRanking" class="juego-lista"></div>
+        <details class="juego-mas">
+          <summary class="card-title">Miembros que juegan (los últimos primero)</summary>
+          <div class="person-meta" style="margin-bottom:6px;">Quien juega en mirardespacio.es sin cuenta es anónimo (solo se sabe que es el mismo navegador). Los de MD+ salen con su nombre.</div>
+          <div id="triMiembrosCRM" class="juego-lista"></div>
+        </details>
+      </section>
     </div>
-    <div class="card-title">Ranking (top 30)</div>
-    <div class="person-meta" style="margin-bottom:8px;">Si alguien pone un nombre ofensivo o una puntuación sospechosa, bórrala del ranking.</div>
-    <div id="rankingCRM"></div>
-    <div class="card-title" style="margin-top:18px;">Jugadores (los últimos primero)</div>
-    <input type="text" id="buscarJugador" placeholder="Buscar jugador…" oninput="renderJugadores()">
-    <div id="jugadoresCRM"></div>
   </div>
 
-  <!-- INGRESOS VIEW (control de ingresos y gastos) -->
-  <div class="view" id="view-ingresos">
-    <div class="card">
-      <div class="row" style="align-items:center;">
-        <select id="ingPeriodo" onchange="renderIngresos()"></select>
-      </div>
-      <div class="stat-grid" style="margin-top:12px;">
-        <div class="stat-box"><div class="stat-num" id="ingTotal">0 €</div><div class="stat-label">ingresos</div></div>
-        <div class="stat-box"><div class="stat-num" id="gasTotal">0 €</div><div class="stat-label">gastos</div></div>
-        <div class="stat-box"><div class="stat-num" id="netoTotal">0 €</div><div class="stat-label">diferencia</div></div>
-      </div>
-      <div id="ingCategorias"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Apuntar un movimiento</div>
-      <div class="row">
-        <select id="movTipo"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select>
-        <input type="date" id="movFecha">
-        <input type="number" id="movImporte" placeholder="Importe €" step="0.01" min="0">
-      </div>
-      <div class="row">
-        <select id="movCategoria"></select>
-        <select id="movMetodo"><option value="bizum">Bizum</option><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="tarjeta">Tarjeta</option><option value="stripe">Stripe</option></select>
-      </div>
-      <input type="text" id="movConcepto" placeholder="Concepto (p. ej. Tutoría 2h · Marta, Objetivo 35mm…)">
-      <input type="text" id="movQuien" placeholder="Cliente o proveedor (opcional)">
-      <button onclick="guardarMovimiento()">Apuntar</button>
-      <div class="person-meta">Los pagos de Stripe (talleres, regalos, Mirar Despacio+) se apuntan solos.</div>
-    </div>
-    <div class="card-title">Movimientos del periodo</div>
-    <div id="movList"></div>
-    <div class="card" style="margin-top:18px;">
-      <button class="secondary" onclick="descargarMovimientos()">Descargar CSV del periodo (para la gestoría)</button>
-    </div>
-    <div class="card-title" style="margin-top:18px;">Bonos regalo</div>
-    <div id="bonosList"></div>
-  </div>
+  <!-- CONTABILIDAD y TIENDA: las pintan contabilidad.js y tienda.js -->
+  <div class="view" id="view-contabilidad"></div>
+  <div class="view" id="view-tienda"></div>
+  <!-- REGALOS: bonos regalo vendidos (talleres y MD+) -->
+  <div class="view" id="view-regalos"><div id="bonosList"></div></div>
 
   <!-- EXPORTAR VIEW -->
   <div class="view" id="view-exportar">
@@ -535,16 +748,17 @@
     </div>
   </div>
 
+</main>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc,
-  query, orderBy, limit, where, updateDoc, serverTimestamp, getDocs, arrayUnion
+  query, orderBy, limit, where, updateDoc, serverTimestamp, getDocs, arrayUnion, deleteField
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -560,6 +774,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Contabilidad y tienda van en sus propios archivos; usan esta misma sesión y estas utilidades
+window.crm = { db, auth, personas: () => people, aviso: (t, e) => setSyncStatus(t, e), esc: (s) => escapeHtml(s), uid: () => uid() };
+let modulos = null;
+function cargarModulos() {
+  if (!modulos) modulos = Promise.all([import('./contabilidad.js'), import('./tienda.js')]);
+  return modulos;
+}
+
 window.doLogin = function() {
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -569,6 +791,16 @@ window.doLogin = function() {
     .catch(err => {
       errEl.textContent = 'Email o contraseña incorrectos.';
     });
+};
+
+// Manda el correo de Firebase para poner una contraseña nueva (sale de noreply@mirardespaciocrm.firebaseapp.com)
+window.olvidoContrasena = function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const errEl = document.getElementById('loginError');
+  if (!email) { errEl.textContent = 'Escribe tu email arriba y vuelve a pulsar.'; return; }
+  sendPasswordResetEmail(auth, email)
+    .then(() => { errEl.style.color = 'var(--muted)'; errEl.textContent = 'Si es tu email, te acaba de llegar un correo para poner una contraseña nueva (mira también en spam).'; })
+    .catch(() => { errEl.textContent = 'No se ha podido enviar ahora. Prueba en un rato.'; });
 };
 
 window.doLogout = function() {
@@ -581,25 +813,30 @@ let signups = [];
 let currentEventId = null;
 let unsubEvents = null, unsubPeople = null, unsubSignups = null;
 let miembrosAct = [], accesos = [], unsubMiembros = null, unsubAccesos = null, miembroAbierto = null;
-let movimientos = [], bonos = [], unsubIngresos = null, unsubBonos = null;
+let bonos = [], unsubBonos = null;
 let pegatinas = [], unsubPegatinas = null;
 let fotos = [], retos = [], cuentas = [];
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    document.getElementById('app').style.display = '';
+    document.getElementById('mTop').style.display = '';
+    document.getElementById('mBar').style.display = '';
     attachListeners();
+    cargarModulos().then(([c, t]) => { c.iniciar(); t.iniciar(); }).catch(e => setSyncStatus('No se pudo cargar contabilidad/tienda: ' + e.message, true));
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
+    document.getElementById('mTop').style.display = 'none';
+    document.getElementById('mBar').style.display = 'none';
     if (unsubEvents) unsubEvents();
     if (unsubPeople) unsubPeople();
     if (unsubSignups) unsubSignups();
     if (unsubMiembros) unsubMiembros();
     if (unsubAccesos) unsubAccesos();
     if (unsubPegatinas) unsubPegatinas();
-    if (unsubIngresos) unsubIngresos();
+    if (modulos) modulos.then(([c, t]) => { c.detener(); t.detener(); });
     if (unsubBonos) unsubBonos();
   }
 });
@@ -607,8 +844,10 @@ onAuthStateChanged(auth, (user) => {
 function setSyncStatus(text, isError) {
   const el = document.getElementById('syncStatus');
   el.textContent = text;
-  el.style.color = isError ? '#b5654f' : '';
-  if (text && !isError) setTimeout(() => { el.textContent = ''; }, 1500);
+  el.style.color = isError ? 'var(--danger)' : '';
+  // Un aviso nuevo cancela el borrado del anterior (si no, un «Guardado» borraría el error que llega después)
+  clearTimeout(setSyncStatus.t);
+  if (text) setSyncStatus.t = setTimeout(() => { el.textContent = ''; }, isError ? 9000 : 1800);
 }
 
 function attachListeners() {
@@ -620,16 +859,25 @@ function attachListeners() {
   });
   unsubPeople = onSnapshot(collection(db, 'people'), (snap) => {
     people = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderPeople();
+    renderPeople(); if (window.renderSuscripciones) renderSuscripciones();
     if (currentEventId) renderRoster();
   });
   unsubMiembros = onSnapshot(collection(db, 'miembros_actividad'), (snap) => {
-    miembrosAct = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Las de la cuenta antigua de Identity ya unidas a la nueva de Firebase no se cuentan dos veces
+    miembrosAct = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(m => !m.unidaA);
     renderAccesos();
   }, () => {});
   unsubAccesos = onSnapshot(query(collection(db, 'accesos'), orderBy('fecha', 'desc'), limit(300)), (snap) => {
     accesos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderAccesos();
+  }, () => {});
+  onSnapshot(query(collection(db, 'triangulo_jugadores'), orderBy('ultimaVez', 'desc'), limit(1000)), (snap) => {
+    triJugadores = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTriangulo();
+  }, () => {});
+  onSnapshot(query(collection(db, 'triangulo_ranking'), where('dia', '==', claveHoyMadrid())), (snap) => {
+    triRanking = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTriangulo();
   }, () => {});
   onSnapshot(collection(db, 'jugadores'), (snap) => {
     jugadores = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -660,10 +908,6 @@ function attachListeners() {
     pegatinas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderPegatinas();
   }, () => {});
-  unsubIngresos = onSnapshot(collection(db, 'ingresos'), (snap) => {
-    movimientos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderIngresos();
-  }, () => {});
   unsubBonos = onSnapshot(collection(db, 'bonos'), (snap) => {
     bonos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderBonos();
@@ -671,27 +915,47 @@ function attachListeners() {
   unsubSignups = onSnapshot(collection(db, 'signups'), (snap) => {
     signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderEvents();
-    renderPeople();
+    renderPeople(); if (window.renderSuscripciones) renderSuscripciones();
     if (currentEventId) renderRoster();
   });
 }
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-// ---------- TABS ----------
-document.querySelectorAll('.tab').forEach(t => {
+// ---------- SECCIONES (menú lateral y barra del móvil) ----------
+const TITULOS = {
+  salidas: ['Salidas', 'Crea salidas y pasa lista'], 'event-detail': ['Salidas', ''], personas: ['Personas', ''],
+  fotos: ['Fotos', 'Cuadernos, retos, talleres y muro'], accesos: ['Accesos y Mirar Despacio+', 'Cuentas, suscripciones, manuales y retos del mes'],
+  juego: ['Juegos', ''], pegatinas: ['Pegatinas', 'El mapa de las salidas'], exportar: ['Exportar', 'Copias y listados'],
+  contabilidad: ['Contabilidad', 'Facturas, cobros, gastos y suscripciones'], tienda: ['Tienda', 'Productos, stock y pedidos'],
+  regalos: ['Regalos', 'Bonos regalo vendidos: talleres y Mirar Despacio+'],
+};
+document.querySelectorAll('[data-tab]').forEach(t => {
   t.addEventListener('click', () => showTab(t.dataset.tab));
 });
+window.abrirMenu = function() { document.getElementById('menu').classList.add('abierto'); };
+document.addEventListener('click', (e) => {
+  const m = document.getElementById('menu');
+  if (m.classList.contains('abierto') && !m.contains(e.target) && !e.target.closest('.m-top button, .m-bar button:not([data-tab])')) m.classList.remove('abierto');
+});
 window.showTab = function(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  const seccion = name === 'event-detail' ? 'salidas' : name;
+  document.querySelectorAll('[data-tab]').forEach(t => t.classList.toggle('active', t.dataset.tab === seccion));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
+  const [tit, sub] = TITULOS[name] || [name, ''];
+  document.getElementById('tituloVista').textContent = tit;
+  document.getElementById('subVista').textContent = sub;
+  document.getElementById('menu').classList.remove('abierto');
+  window.scrollTo(0, 0);
   if (name === 'personas') renderPeople();
   if (name === 'exportar') updateExport();
-  if (name === 'accesos') renderAccesos();
+  if (name === 'accesos') { let sub = 'md'; try { sub = sessionStorage.getItem('crm-sub') || 'md'; } catch (e) {} verSub(sub); }
   if (name === 'pegatinas') renderPegatinas();
   if (name === 'fotos') { renderFotos(); renderRetos(); }
-  if (name === 'ingresos') { renderIngresos(); renderBonos(); }
+  if (name === 'contabilidad') cargarModulos().then(([c]) => c.mostrar());
+  if (name === 'tienda') cargarModulos().then(([, t]) => t.mostrar());
+  if (name === 'regalos') renderBonos();
 };
 
 // ---------- FOTOS (cuaderno, retos, muro) ----------
@@ -760,14 +1024,14 @@ window.renderFotos = function() {
   const conResp = fotos.filter(f => f.sinLeer);
   b.style.display = (pend.length + conResp.length) ? '' : 'none'; b.textContent = pend.length + conResp.length;
   document.getElementById('fPend').textContent = pend.length;
-  document.getElementById('fCom').textContent = fotos.filter(f => f.estado === 'comentada').length;
+  document.getElementById('fCom').textContent = fotos.filter(f => f.estado === 'comentada' || f.estado === 'vista').length;
   document.getElementById('fMuro').textContent = fotos.filter(f => f.enMuro).length;
   document.getElementById('fGente').textContent = new Set(fotos.map(f => f.email)).size;
   const filtro = document.getElementById('fotosFiltro').value;
   const q = (document.getElementById('fotosBuscar').value || '').toLowerCase();
   let lista = fotos.filter(f => filtro === 'todas' ? true : filtro === 'muro' ? f.enMuro : filtro === 'anonimas' ? esAnonima(f) : filtro === 'respuestas' ? !!f.sinLeer : f.estado === filtro);
   const tipo = document.getElementById('fotosTipo').value;
-  if (tipo) lista = lista.filter(f => (f.tipo === 'reto') === (tipo === 'reto'));
+  if (tipo) lista = lista.filter(f => (f.tipo || 'salida') === tipo);
   if (q) lista = lista.filter(f => [f.nombreMuro, f.nombreCuenta, f.email, f.refNombre].join(' ').toLowerCase().includes(q));
   lista.sort((a, b) => filtro === 'pendiente' ? fms(a.creada) - fms(b.creada) : fms(b.creada) - fms(a.creada));
   // Lo que estás escribiendo o marcando (comentario, "Al muro", "Destacada") se conserva
@@ -783,7 +1047,7 @@ window.renderFotos = function() {
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;" class="foto-crm">
         ${f.archivada ? '<div class="empty">Imagen archivada (limpieza automática)</div>' : `<a href="${escapeHtml(f.url)}" target="_blank"><img src="${escapeHtml(mini(f.url, 700))}" style="width:100%;display:block;border-radius:6px;" loading="lazy"></a>`}
         <div>
-          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''} ${f.sinLeer ? '<span class="badge" style="background:#1a7f4b;">💬 respuesta nueva</span>' : ''}</div>
+          <div class="person-name">${escapeHtml(f.nombreCuenta || f.nombreMuro || f.email)} ${f.estado === 'vista' ? '<span class="badge" style="background:#7a756f;">vista sin comentar</span>' : ''} ${f.tipo === 'reto' ? '<span class="badge">reto</span>' : f.tipo === 'taller' ? '<span class="badge" style="background:#e8821a;">taller</span>' : ''} ${f.enMuro ? '<span class="badge" style="background:#e8347a;">en el muro</span>' : ''} ${f.sinLeer ? '<span class="badge" style="background:#1a7f4b;">💬 respuesta nueva</span>' : ''}</div>
           <div class="person-meta">${escapeHtml(f.refNombre || '')} · ${fechaTxt(fechaDe(f.creada))} · ${otras} foto(s) suyas · ${f.origen === 'enlace' ? 'por enlace' : 'con cuenta'}</div>
           <div class="person-meta">Firma en el muro: ${escapeHtml(f.nombreMuro || '')} · ${f.publicable ? 'permite el muro' : '<b>no quiere salir en el muro</b>'}${f.tipo === 'reto' ? ' · ' + (f.compartir ? 'la ven los miembros' : 'no la comparte con los miembros') : ''}</div>
           ${f.texto ? `<p style="margin:8px 0;"><span class="person-meta">Reto / nota:</span> <em>“${escapeHtml(f.texto)}”</em></p>` : '<div class="person-meta" style="margin:8px 0;">No ha dicho de qué reto es.</div>'}
@@ -796,6 +1060,9 @@ window.renderFotos = function() {
           <div class="row" style="margin-top:6px;">
             <button onclick="guardarComentario('${f.id}', true)">${f.estado === 'pendiente' ? 'Guardar y avisar' : 'Guardar y volver a avisar'}</button>
             <button class="secondary" onclick="guardarComentario('${f.id}', false)">Guardar sin avisar</button>
+            ${f.estado === 'pendiente' ? `<button class="secondary" onclick="marcarVista('${f.id}')" title="La quita de «Por comentar» sin escribir nada ni avisar. Para la persona sale como «Vista ✓».">✓ No necesita comentario</button>` : ''}
+            ${f.estado === 'vista' ? `<button class="secondary" onclick="desmarcarVista('${f.id}')">Volver a «por comentar»</button>` : ''}
+            ${f.sinLeer ? `<button class="secondary" onclick="marcarLeida('${f.id}')" title="Su respuesta no necesita contestación: la quita de «Con respuesta nueva»">✓ Respuesta leída</button>` : ''}
             <button class="small danger" onclick="borrarFoto('${f.id}')">✕</button>
           </div>
           ${f.avisadoEn ? `<div class="person-meta">Avisado: ${fechaTxt(fechaDe(f.avisadoEn))}</div>` : ''}
@@ -815,8 +1082,8 @@ window.renderFotos = function() {
 const fechaHilo = ms => { const d = new Date(ms); return isNaN(d) ? '' : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }); };
 function bloqueHilo(f) {
   if (!f.comentario) return '';
-  const msgs = (f.hilo || []).map(m => `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;white-space:pre-line;color:#1a1814;${m.de === 'otto' ? 'background:#fdecf3;border-left:3px solid #e8347a;' : 'background:#f0eee9;margin-left:24px;'}"><span class="person-meta" style="color:#6b655a;">${m.de === 'otto' ? 'Tú' : escapeHtml(f.nombreCuenta || f.nombreMuro || 'Ella/él')} · ${fechaHilo(m.en)}${m.origen === 'correo' ? ' · por correo' : ''}</span><br>${escapeHtml(m.texto)}</div>`).join('');
-  return `<div style="margin-top:10px;border-top:1px dashed #cfc9bd;padding-top:8px;">
+  const msgs = (f.hilo || []).map(m => `<div style="margin:6px 0;padding:7px 10px;border-radius:8px;white-space:pre-line;color:var(--text);${m.de === 'otto' ? 'background:var(--acc-soft);border-left:3px solid var(--acc);' : 'background:var(--surface-2);margin-left:24px;'}"><span class="person-meta">${m.de === 'otto' ? 'Tú' : escapeHtml(f.nombreCuenta || f.nombreMuro || 'Ella/él')} · ${fechaHilo(m.en)}${m.origen === 'correo' ? ' · por correo' : ''}</span><br>${escapeHtml(m.texto)}</div>`).join('');
+  return `<div style="margin-top:10px;border-top:1px dashed var(--line-2);padding-top:8px;">
     <div class="person-meta"><b>Hilo con ${escapeHtml((f.nombreCuenta || f.nombreMuro || 'esta persona').split(' ')[0])}</b> (solo lo veis vosotros dos)${f.sinLeer ? ` · <a href="#" onclick="marcarLeida('${f.id}');return false;">marcar como leída</a>` : ''}</div>
     ${msgs}
     <textarea id="resp-${f.id}" rows="3" placeholder="Escribe aquí: «Enviar respuesta» se lo manda por email y queda en su cuaderno…" style="width:100%;margin-top:6px;"></textarea>
@@ -855,6 +1122,17 @@ window.anadirRecibida = async function(id) {
     await updateDoc(doc(db, 'fotos', id), { hilo: arrayUnion({ de: 'persona', texto, en, origen: 'correo' }), sinLeer: false });
     setSyncStatus('Añadida al hilo ✓');
   } catch (e) { const t2 = document.getElementById('resp-' + id); if (t2) t2.value = texto; setSyncStatus('Error: ' + e.message, true); }
+};
+
+// Fotos que no necesitan comentario: salen de «Por comentar» sin escribir nada ni mandar email
+window.marcarVista = async function(id) {
+  setSyncStatus('Guardando…');
+  try { await updateDoc(doc(db, 'fotos', id), { estado: 'vista', vistaEn: serverTimestamp() }); setSyncStatus('Marcada como vista ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+window.desmarcarVista = async function(id) {
+  try { await updateDoc(doc(db, 'fotos', id), { estado: 'pendiente', vistaEn: null }); setSyncStatus('Vuelve a «por comentar»'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 window.marcarLeida = async function(id) {
@@ -957,6 +1235,62 @@ window.enviarEnlacesFotos = async function(reenviar) {
     est.textContent = `Enviados: ${r.enviados}` + (r.saltados ? ` · ya lo tenían: ${r.saltados}` : '') + (r.sinEmail ? ` · sin email: ${r.sinEmail}` : '');
   } catch (e) { est.textContent = 'Error: ' + e.message; }
 };
+// Le manda el mismo correo que la web (para quien se añade o se mueve desde el CRM)
+window.enviarConfirmacion = async function(signupId) {
+  const s = signups.find(x => x.id === signupId);
+  const p = s && people.find(x => x.id === s.personId);
+  if (!s || !p || !p.email) return;
+  const tipo = s.status === 'espera' ? 'de lista de espera' : (s.eventId === 'web-sin-fecha' ? 'de plaza (aún sin fecha)' : 'de plaza');
+  const aviso = s.confirmacionEnviadaEn ? '\n\nOjo: ya se le mandó una vez.' : '';
+  if (!confirm(`¿Mandar a ${nombreCompleto(p)} (${p.email}) el correo ${tipo}?${aviso}`)) return;
+  setSyncStatus('Enviando…');
+  try {
+    await admin({ accion: 'confirmacion', signupId });
+    setSyncStatus('Correo enviado ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
+// Fichas con el mismo email (pasa cuando alguien se equivoca al escribirlo y luego se corrige a mano)
+const emailNorm = e => String(e || '').trim().toLowerCase();
+function duplicadosDe(p) {
+  const e = emailNorm(p.email);
+  return e ? people.filter(o => o.id !== p.id && emailNorm(o.email) === e) : [];
+}
+
+// Junta «quitar» dentro de «quedar»: rellena los datos que falten, pasa sus inscripciones y borra la ficha sobrante
+window.fusionarPersonas = async function(quedarId, quitarId) {
+  const a = people.find(x => x.id === quedarId);
+  const b = people.find(x => x.id === quitarId);
+  if (!a || !b) return;
+  if (!confirm(`Se queda la ficha «${nombreCompleto(a)}» y se borra «${nombreCompleto(b)}».\n\nLos datos que falten se copian, y sus inscripciones pasan a la ficha que se queda. ¿Seguimos?`)) return;
+  setSyncStatus('Fusionando…');
+  try {
+    const cambios = {};
+    for (const k of ['name', 'apellidos', 'telefono', 'instagram', 'claveFotos']) if (!a[k] && b[k]) cambios[k] = b[k];
+    if (b.name && a.name && b.name.length > a.name.length && b.name.toLowerCase().startsWith(a.name.toLowerCase())) cambios.name = b.name;
+    if (!a.consentImagen && b.consentImagen) cambios.consentImagen = true;
+    if (!a.aceptaNovedades && b.aceptaNovedades) { cambios.aceptaNovedades = true; if (b.novedadesDesde) cambios.novedadesDesde = b.novedadesDesde; }
+    if (!a.plusHasta && b.plusHasta) { for (const k of ['plusHasta', 'plusNivel', 'subscription']) if (b[k] !== undefined) cambios[k] = b[k]; }
+    if (Object.keys(cambios).length) await setDoc(doc(db, 'people', a.id), cambios, { merge: true });
+    // Inscripciones: si ya estaban las dos en la misma salida, se queda la mejor (confirmado > pendiente > espera; asistió gana)
+    const rango = st => ({ confirmado: 5, pendiente: 4, espera: 3, 'no-presentado': 2, baja: 1 }[st] || 0);
+    for (const sb of signups.filter(x => x.personId === b.id)) {
+      const sa = signups.find(x => x.personId === a.id && x.eventId === sb.eventId);
+      if (!sa) { await updateDoc(doc(db, 'signups', sb.id), { personId: a.id }); continue; }
+      const mejor = { status: rango(sb.status) > rango(sa.status) ? sb.status : sa.status, attended: !!(sa.attended || sb.attended) };
+      await updateDoc(doc(db, 'signups', sa.id), mejor);
+      await deleteDoc(doc(db, 'signups', sb.id));
+    }
+    // Fotos subidas con la ficha sobrante
+    try {
+      const fq = await getDocs(query(collection(db, 'fotos'), where('personaId', '==', b.id)));
+      for (const f of fq.docs) await updateDoc(f.ref, { personaId: a.id });
+    } catch (e) { console.warn('fotos al fusionar:', e); }
+    await deleteDoc(doc(db, 'people', b.id));
+    setSyncStatus('Fichas fusionadas ✓');
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+};
+
 window.copiarEnlaceFotos = async function(personId) {
   try {
     const r = await admin({ accion: 'enlace', personId });
@@ -967,7 +1301,7 @@ window.copiarEnlaceFotos = async function(personId) {
   } catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
-// Cuentas de la zona de miembros (Netlify Identity)
+// Cuentas de la zona de socios (lib/cuentas.js: Firebase + Firestore)
 const NOMBRE_ACCESO = { plus: 'MD+', fotos: 'Solo fotos', ninguno: 'Sin acceso', admin: 'Admin' };
 window.cargarCuentas = async function() {
   const est = document.getElementById('cuentasEstado');
@@ -985,7 +1319,7 @@ window.pintarCuentas = function() {
     const div = document.createElement('div');
     div.className = 'person-row';
     div.innerHTML = `<div class="person-main">
-        <div class="person-name">${escapeHtml(c.nombre || c.email)} ${c.acceso === 'ninguno' ? '<span class="badge" style="background:#b5654f;">sin acceso</span>' : ''} ${c.confirmada ? '' : '<span class="badge" style="background:#7a756f;">invitación sin aceptar</span>'}</div>
+        <div class="person-name">${escapeHtml(c.nombre || c.email)} ${c.acceso === 'ninguno' ? '<span class="badge" style="background:#b5654f;">sin acceso</span>' : ''} ${c.confirmada ? '' : '<span class="badge" style="background:#7a756f;">aún no ha entrado</span>'}</div>
         <div class="person-meta">${escapeHtml(c.email)} · último login: ${c.ultimoLogin ? fechaTxt(new Date(c.ultimoLogin)) : '—'}</div></div>
       ${c.acceso === 'admin' ? '<span class="person-meta">Admin</span>' : `<select class="status-select" onchange="cambiarAcceso('${c.id}', this.value, this)">
         ${['plus', 'fotos', 'ninguno'].map(a => `<option value="${a}" ${c.acceso === a ? 'selected' : ''}>${NOMBRE_ACCESO[a]}</option>`).join('')}</select>`}`;
@@ -1011,117 +1345,136 @@ window.invitarCuenta = async function() {
   } catch (e) { document.getElementById('cuentasEstado').textContent = 'Error: ' + e.message; }
 };
 
-// ---------- INGRESOS Y GASTOS ----------
-const CAT_INGRESO = { 'taller': 'Talleres', 'tutoria': 'Tutorías', 'sesion': 'Sesiones de fotos', 'encargo': 'Encargos', 'salida': 'Salidas (aportaciones)',
-  'mirar-despacio-plus': 'Mirar Despacio+', 'regalo-taller': 'Regalos de talleres', 'regalo-plus': 'Regalos de MD+', 'zine': 'Zine', 'marca': 'Marcas y colaboraciones',
-  'podcast': 'Podcast (Podimo…)', 'donativo': 'Donativos', 'otros': 'Otros', 'revisar': '⚠️ A revisar' };
-const CAT_GASTO = { 'equipo': 'Equipo fotográfico', 'imprenta': 'Imprenta y material', 'consumiciones': 'Consumiciones de talleres', 'software': 'Software y webs',
-  'publicidad': 'Publicidad', 'transporte': 'Transporte', 'gestoria': 'Gestoría', 'cuota': 'Cuota de autónomos', 'otros-gasto': 'Otros gastos' };
-const nombreCat = (c) => CAT_INGRESO[c] || CAT_GASTO[c] || c || '—';
-const eur = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-const fechaMov = (m) => m.fechaManual ? new Date(m.fechaManual + 'T12:00:00') : (fechaDe(m.fecha) || new Date());
-
-function rellenarSelectores() {
-  const per = document.getElementById('ingPeriodo');
-  if (!per.options.length) {
-    const hoy = new Date(), y = hoy.getFullYear(), tq = Math.floor(hoy.getMonth() / 3) + 1;
-    const ops = [['mes', 'Este mes'], ['T' + tq + '-' + y, `${tq}º trimestre ${y}`]];
-    for (let q = tq - 1; q >= 1; q--) ops.push(['T' + q + '-' + y, `${q}º trimestre ${y}`]);
-    for (let q = 4; q >= 1; q--) ops.push(['T' + q + '-' + (y - 1), `${q}º trimestre ${y - 1}`]);
-    ops.push(['A-' + y, 'Año ' + y], ['A-' + (y - 1), 'Año ' + (y - 1)], ['todo', 'Todo']);
-    per.innerHTML = ops.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
-    document.getElementById('movFecha').value = new Date().toISOString().slice(0, 10);
-    document.getElementById('movTipo').onchange = rellenarCategorias;
-    rellenarCategorias();
-  }
-}
-function rellenarCategorias() {
-  const cats = document.getElementById('movTipo').value === 'gasto' ? CAT_GASTO : CAT_INGRESO;
-  document.getElementById('movCategoria').innerHTML = Object.entries(cats).filter(([k]) => k !== 'revisar').map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
-}
-function enPeriodo(d, per) {
-  if (per === 'todo') return true;
-  const hoy = new Date();
-  if (per === 'mes') return d.getFullYear() === hoy.getFullYear() && d.getMonth() === hoy.getMonth();
-  const [k, y] = per.split('-');
-  if (d.getFullYear() !== Number(y)) return false;
-  if (k === 'A') return true;
-  return Math.floor(d.getMonth() / 3) + 1 === Number(k.slice(1));
-}
-function movimientosPeriodo() {
-  const per = document.getElementById('ingPeriodo').value || 'mes';
-  return movimientos.filter(m => enPeriodo(fechaMov(m), per)).sort((a, b) => fechaMov(b) - fechaMov(a));
-}
-
-window.renderIngresos = function() {
-  if (!document.getElementById('ingPeriodo')) return;
-  rellenarSelectores();
-  const lista = movimientosPeriodo();
-  const ing = lista.filter(m => m.tipo !== 'gasto'), gas = lista.filter(m => m.tipo === 'gasto');
-  const suma = (l) => l.reduce((n, m) => n + (Number(m.importe) || 0), 0);
-  document.getElementById('ingTotal').textContent = eur(suma(ing));
-  document.getElementById('gasTotal').textContent = eur(suma(gas));
-  document.getElementById('netoTotal').textContent = eur(suma(ing) - suma(gas));
-  const porCat = {};
-  lista.forEach(m => { const k = (m.tipo === 'gasto' ? '− ' : '') + nombreCat(m.categoria); porCat[k] = (porCat[k] || 0) + (Number(m.importe) || 0); });
-  document.getElementById('ingCategorias').innerHTML = Object.entries(porCat).sort((a, b) => b[1] - a[1])
-    .map(([k, v]) => `<div class="person-meta" style="display:flex;justify-content:space-between;padding:3px 0;"><span>${escapeHtml(k)}</span><span>${eur(v)}</span></div>`).join('');
-  const el = document.getElementById('movList');
-  el.innerHTML = lista.length ? '' : '<div class="empty">Sin movimientos en este periodo</div>';
-  lista.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'person-row';
-    div.innerHTML = `<div class="person-main">
-        <div class="person-name">${m.tipo === 'gasto' ? '−' : '+'} ${eur(m.importe)} · ${escapeHtml(m.concepto || nombreCat(m.categoria))}</div>
-        <div class="person-meta">${fechaMov(m).toLocaleDateString('es-ES')} · ${escapeHtml(nombreCat(m.categoria))} · ${escapeHtml(m.metodo || '')}${m.nombre || m.email || m.quien ? ' · ' + escapeHtml(m.quien || m.nombre || m.email) : ''}${m.origen === 'auto' ? ' · automático' : ''}</div>
-      </div>
-      <button class="small danger" onclick="borrarMovimiento('${m.id}')">✕</button>`;
-    el.appendChild(div);
+// Migración de las cuentas de Identity a Firebase (función migrar-cuentas)
+async function adminMigracion(cuerpo) {
+  const token = await auth.currentUser.getIdToken();
+  const r = await fetch('/.netlify/functions/migrar-cuentas', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(cuerpo),
   });
-};
-
-window.guardarMovimiento = async function() {
-  const importe = parseFloat(document.getElementById('movImporte').value);
-  if (!(importe > 0)) { setSyncStatus('Pon un importe', true); return; }
-  const mov = {
-    tipo: document.getElementById('movTipo').value,
-    fechaManual: document.getElementById('movFecha').value || new Date().toISOString().slice(0, 10),
-    fecha: serverTimestamp(),
-    importe, moneda: 'EUR',
-    categoria: document.getElementById('movCategoria').value,
-    metodo: document.getElementById('movMetodo').value,
-    concepto: document.getElementById('movConcepto').value.trim(),
-    quien: document.getElementById('movQuien').value.trim(),
-    origen: 'manual',
-  };
-  setSyncStatus('Guardando…');
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('error ' + r.status));
+  return j;
+}
+const NOMBRE_ROL = r => r === 'member' ? 'MD+' : r === 'participante' ? 'Solo fotos' : r === 'admin' ? 'Admin' : /^taller-/.test(r) ? 'Manual ' + (MANUALES_CRM[r.slice(7)] || r.slice(7)) : r;
+window.migracion = async function(accion) {
+  const est = document.getElementById('migracionEstado'), caja = document.getElementById('migracionInforme');
   try {
-    await setDoc(doc(db, 'ingresos', 'm-' + uid()), mov);
-    document.getElementById('movImporte').value = '';
-    document.getElementById('movConcepto').value = '';
-    document.getElementById('movQuien').value = '';
-    setSyncStatus('Guardado ✓');
-  } catch (err) { setSyncStatus('Error: ' + err.message, true); }
+    if (accion === 'respaldo') {
+      est.textContent = 'Haciendo el respaldo…';
+      const r = await adminMigracion({ accion: 'respaldo' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' }));
+      a.download = 'respaldo-identity-' + r.fecha.slice(0, 10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      est.textContent = `Respaldo hecho: ${r.total} cuentas (descargado y guardado también en Firestore, colección respaldo_identity) ✓`;
+      return;
+    }
+    if (accion === 'unir') {
+      let desde = 0, unidas = 0;
+      while (desde !== null) {
+        est.textContent = 'Uniendo la actividad…';
+        const r = await adminMigracion({ accion: 'unir-actividad', desde, cuantos: 20 });
+        unidas += r.unidas; desde = r.siguiente;
+      }
+      est.textContent = `Actividad unida: ${unidas} cuentas ✓`;
+      return;
+    }
+    if (accion === 'avisar-prueba') {
+      est.textContent = 'Enviando la prueba…';
+      await adminMigracion({ accion: 'avisar', prueba: true });
+      est.textContent = 'Te he mandado el aviso de prueba: míralo en tu correo ✓';
+      return;
+    }
+    if (accion === 'avisar') {
+      if (!confirm('¿Mandar a cada socio el correo «Cambia la forma de entrar»? Solo se manda una vez a cada uno.')) return;
+      let quedan = 1, enviados = 0, fallos = [];
+      while (quedan) {
+        est.textContent = `Enviando avisos… ${enviados} enviados`;
+        const r = await adminMigracion({ accion: 'avisar' });
+        enviados += r.hechos.filter(h => h.ok).length; fallos = fallos.concat(r.hechos.filter(h => !h.ok));
+        if (r.parado) break;
+        quedan = r.quedan;
+      }
+      est.textContent = fallos.length ? `Enviados ${enviados}. Se ha parado por un fallo: ${fallos.map(f => f.email + ' (' + f.error + ')').join(', ')}. Vuelve a pulsar cuando lo arreglemos: no se repite a quien ya lo recibió.` : `Aviso enviado a ${enviados} socios ✓`;
+      return;
+    }
+    if (accion === 'migrar') {
+      if (!confirm('¿Copiar las cuentas de Identity a Firebase? No cambia nada para la gente: siguen entrando como siempre.')) return;
+      let desde = 0, fallos = [], total = 0;
+      while (desde !== null) {
+        est.textContent = `Copiando… ${desde}${total ? ' de ' + total : ''}`;
+        const r = await adminMigracion({ accion: 'migrar', desde, cuantos: 10 });
+        total = r.total; fallos = fallos.concat(r.hechos.filter(h => !h.ok)); desde = r.siguiente;
+      }
+      est.textContent = fallos.length ? `Copiadas con ${fallos.length} fallos: ${fallos.map(f => f.email + ' (' + f.error + ')').join(', ')}` : `Copiadas ${total} cuentas ✓`;
+    }
+    est.textContent = (accion === 'informe' ? '' : est.textContent + ' · ') + 'Cargando informe…';
+    const r = await adminMigracion({ accion: 'informe' });
+    est.textContent = est.textContent.replace(/ ?·? ?Cargando informe…$/, '');
+    const marca = { copiada: '<span class="tag t-plus">copiada</span>', 'roles-distintos': '<span class="tag t-man">roles distintos</span>', pendiente: '<span class="tag t-off">pendiente</span>' };
+    caja.innerHTML = `<div class="person-meta" style="margin:8px 0;"><b>${r.total}</b> cuentas en Identity · <b>${r.conAcceso}</b> con algún acceso · <b>${r.copiadas}</b> ya copiadas a Firebase
+        ${r.sinCrm ? ` · <b>${r.sinCrm}</b> con acceso pero sin ficha en Personas (revisa que el email sea el mismo)` : ''}
+        ${r.repetidos.length ? `<br><b style="color:var(--warn)">Emails repetidos en Identity: ${r.repetidos.map(escapeHtml).join(', ')}</b>` : ''}</div>` +
+      r.filas.map(f => `<div class="person-row"><div class="person-main"><div class="person-name">${escapeHtml(f.nombre || f.email)} ${marca[f.firebase] || ''}${f.enCrm ? '' : ' <span class="tag t-dup">sin ficha</span>'}</div>
+        <div class="person-meta">${escapeHtml(f.email)} · ${f.roles.length ? f.roles.map(NOMBRE_ROL).map(escapeHtml).join(', ') : 'sin acceso'}${f.confirmada ? '' : ' · invitación sin aceptar'}</div></div></div>`).join('');
+  } catch (e) { est.textContent = 'Error: ' + e.message; }
 };
 
-window.borrarMovimiento = async function(id) {
-  if (!confirm('¿Borrar este movimiento?')) return;
-  try { await deleteDoc(doc(db, 'ingresos', id)); setSyncStatus('Borrado'); } catch (err) { setSyncStatus('Error: ' + err.message, true); }
+// Manuales de talleres (acceso por taller, función manuales-admin)
+const MANUALES_CRM = { atardecer: 'Callejera al atardecer', nocturna: 'Callejera nocturna', iniciacion: 'Primeros pasos', composicion: 'Composición en la calle' };
+let manualesDatos = [];
+(function () {
+  const sel = document.getElementById('manualTaller');
+  if (sel) sel.innerHTML = Object.entries(MANUALES_CRM).map(([id, t]) => `<option value="${id}">${escapeHtml(t)}</option>`).join('') + '<option value="todos">Todos los manuales</option>';
+})();
+async function adminManuales(cuerpo) {
+  const token = await auth.currentUser.getIdToken();
+  const r = await fetch('/.netlify/functions/manuales-admin', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(cuerpo),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('error ' + r.status));
+  return j;
+}
+window.cargarManuales = async function() {
+  const est = document.getElementById('manualesEstado');
+  est.textContent = 'Cargando…';
+  try { manualesDatos = (await adminManuales({ accion: 'lista' })).manuales || []; est.textContent = ''; pintarManuales(); }
+  catch (e) { est.textContent = 'Error: ' + e.message; }
+};
+window.pintarManuales = function() {
+  const el = document.getElementById('manualesList');
+  el.innerHTML = manualesDatos.map(m => `<div class="card-title" style="margin-top:12px;">${escapeHtml(m.titulo)} · ${m.personas.length} ${m.listo ? '' : '<span class="badge" style="background:#7a756f;">manual aún sin publicar</span>'}</div>` +
+    (m.personas.length ? m.personas.map(p => `<div class="person-row"><div class="person-main">
+        <div class="person-name">${escapeHtml(p.nombre || p.email)} ${p.confirmada ? '' : '<span class="badge" style="background:#7a756f;">invitación sin aceptar</span>'}</div>
+        <div class="person-meta">${escapeHtml(p.email)}</div></div>
+        <button class="secondary" onclick="quitarManualCRM('${m.id}', '${p.id}')">Quitar</button></div>`).join('') : '<div class="person-meta">Nadie todavía</div>')).join('');
+};
+window.darManualCRM = async function() {
+  const email = document.getElementById('manualEmail').value.trim();
+  const taller = document.getElementById('manualTaller').value;
+  const est = document.getElementById('manualesEstado');
+  if (!email) return;
+  try {
+    const ids = taller === 'todos' ? Object.keys(MANUALES_CRM) : [taller];
+    let r;
+    for (const t of ids) { est.textContent = 'Dando acceso a ' + MANUALES_CRM[t] + '…'; r = await adminManuales({ accion: 'dar', email, taller: t }); }
+    est.textContent = (ids.length > 1 ? 'Acceso a los ' + ids.length + ' manuales ✓' : ({ invitado: 'Acceso dado ✓ (no tenía cuenta: le llega la invitación)', 'ya-existe': 'Acceso dado ✓ a su cuenta', 'ya-tenia': 'Ya tenía acceso a ese manual' }[r.estado] || ('Resultado: ' + r.estado)))
+      + ' · si tiene la sesión abierta, verá los manuales al recargar su página de MD+';
+    document.getElementById('manualEmail').value = '';
+    if (manualesDatos.length) cargarManuales();
+  } catch (e) { est.textContent = 'Error: ' + e.message; }
+};
+window.quitarManualCRM = async function(taller, id) {
+  const m = manualesDatos.find(x => x.id === taller); const p = m && m.personas.find(x => x.id === id);
+  if (!confirm(`¿Quitar a ${p ? p.email : 'esta persona'} el acceso al manual «${MANUALES_CRM[taller]}»? Su cuenta y lo demás se quedan.`)) return;
+  try { await adminManuales({ accion: 'quitar', id, taller }); cargarManuales(); setSyncStatus('Acceso al manual quitado ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
-window.descargarMovimientos = function() {
-  const rows = [['Fecha', 'Tipo', 'Categoria', 'Concepto', 'Importe', 'Metodo', 'Cliente/Proveedor', 'Email', 'Origen', 'Ref']];
-  movimientosPeriodo().slice().reverse().forEach(m => rows.push([
-    fechaMov(m).toLocaleDateString('es-ES'), m.tipo === 'gasto' ? 'gasto' : 'ingreso', nombreCat(m.categoria), m.concepto || '',
-    String(m.importe || 0).replace('.', ','), m.metodo || '', m.quien || m.nombre || '', m.email || '', m.origen || '', m.pagoId || m.kofiId || m.id,
-  ]));
-  const csv = '\ufeff' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-  a.download = 'mirar-despacio-movimientos-' + (document.getElementById('ingPeriodo').value || 'mes') + '.csv';
-  a.click();
-};
 
+
+// ---------- REGALOS (bonos) ----------
 window.renderBonos = function() {
   const el = document.getElementById('bonosList');
   if (!el) return;
@@ -1140,7 +1493,6 @@ window.renderBonos = function() {
     el.appendChild(div);
   });
 };
-
 // ---------- PEGATINAS ----------
 let jugadores = [];
 window.renderJugadores = function() {
@@ -1165,6 +1517,57 @@ window.renderJugadores = function() {
     </div>`;
     el.appendChild(div);
   });
+};
+
+// ---------- PRACTICA CON EL TRIÁNGULO ----------
+let triJugadores = [], triRanking = [];
+const RETOS_TRI = { l0: 'Ventana', l1: 'Perro', l2: 'Gran Vía', l3: 'Concierto (MD+)', l4: 'Puente (MD+)', l5: 'Teatro (MD+)' };
+function claveHoyMadrid() {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .formatToParts(new Date()).filter(x => x.type !== 'literal').map(x => [x.type, +x.value]));
+  return p.year * 10000 + p.month * 100 + p.day;
+}
+function renderTriangulo() {
+  const el = document.getElementById('triMiembrosCRM');
+  if (!el) return;
+  const ahora = Date.now(), dia = 864e5;
+  const f = j => fechaDe(j.ultimaVez) || new Date(0);
+  const miembros = triJugadores.filter(j => j.miembro);
+  document.getElementById('triJugadores').textContent = triJugadores.length;
+  document.getElementById('triMiembros').textContent = miembros.length;
+  document.getElementById('triHoy').textContent = triJugadores.filter(j => f(j).toDateString() === new Date().toDateString()).length;
+  document.getElementById('triSemana').textContent = triJugadores.filter(j => ahora - f(j) < 7 * dia).length;
+  // Por reto: cuántos lo han jugado y cuántos lo han resuelto con 3 estrellas (85 o más)
+  document.getElementById('triRetos').innerHTML = Object.entries(RETOS_TRI).map(([k, n]) => {
+    const jug = triJugadores.filter(j => j.mejor && j.mejor[k] != null);
+    return jug.length ? `<b>${n}</b>: ${jug.length} (${jug.filter(j => j.mejor[k] >= 85).length} con ★★★)` : '';
+  }).filter(Boolean).join(' · ') || 'Todavía no hay partidas.';
+  // Ranking de hoy
+  const rk = document.getElementById('triRanking');
+  const filas = triRanking.slice().sort((a, b) => b.puntos - a.puntos || fms(a.en) - fms(b.en));
+  rk.innerHTML = filas.length ? '' : '<div class="empty">Hoy no ha disparado ningún miembro</div>';
+  filas.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main"><div class="person-name">${i + 1}. ${escapeHtml(r.nombre || r.email)} · ${r.puntos} puntos</div>
+      <div class="person-meta">${escapeHtml(r.email || '')}</div></div>
+      <button class="small danger" title="Quitar del ranking de hoy" onclick="borrarRankingTri('${r.id}')">✕</button>`;
+    rk.appendChild(div);
+  });
+  // Miembros que juegan
+  el.innerHTML = miembros.length ? '' : '<div class="empty">Ningún miembro ha jugado todavía</div>';
+  miembros.sort((a, b) => f(b) - f(a)).forEach(j => {
+    const tres = Object.values(j.mejor || {}).filter(v => v >= 85).length;
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main"><div class="person-name">${escapeHtml(j.nombre || j.email)}</div>
+      <div class="person-meta">${j.partidas || 0} disparo(s) · ${tres} reto(s) con ★★★ · ${j.diasDelReto || 0} reto(s) del día · última vez ${fechaTxt(fechaDe(j.ultimaVez))}</div></div>`;
+    el.appendChild(div);
+  });
+}
+window.borrarRankingTri = async function(id) {
+  if (!confirm('¿Quitar este disparo del ranking de hoy?')) return;
+  try { await deleteDoc(doc(db, 'triangulo_ranking', id)); setSyncStatus('Quitado'); } catch (err) { setSyncStatus('Error: ' + err.message, true); }
 };
 
 window.borrarRanking = async function(id) {
@@ -1300,7 +1703,7 @@ function lineaAcceso(a, conNombre) {
   const quien = conNombre ? `<strong>${escapeHtml(a.nombre || a.email || '¿?')}</strong> · ` : '';
   const que = a.tipo === 'pagina' || a.tipo === 'salida'
     ? `${TIPO_TXT[a.tipo]} <em>${escapeHtml(nombrePagina(a.ruta))}</em>` : TIPO_TXT[a.tipo] || a.tipo;
-  return `<div class="person-meta" style="padding:6px 0;border-bottom:1px solid #2e2a23;">${quien}${que}<span style="float:right;">${fechaTxt(fechaDe(a.fecha))}</span></div>`;
+  return `<div class="person-meta" style="padding:7px 0;border-bottom:1px solid var(--line);">${quien}${que}<span style="float:right;">${fechaTxt(fechaDe(a.fecha))}</span></div>`;
 }
 window.toggleMiembro = function(id) {
   miembroAbierto = miembroAbierto === id ? null : id;
@@ -1374,7 +1777,7 @@ function renderEvents() {
   }
   const sorted = [...events].sort((a,b) => (b.date||'').localeCompare(a.date||''));
   sorted.forEach(ev => {
-    const count = signups.filter(s => s.eventId === ev.id && s.status !== 'espera').length;
+    const count = signups.filter(s => s.eventId === ev.id && !['espera', 'baja', 'no-presentado'].includes(s.status)).length;
     const div = document.createElement('div');
     div.className = 'event-item';
     div.onclick = () => openEvent(ev.id);
@@ -1392,9 +1795,10 @@ function renderEvents() {
 window.openEvent = function(id) {
   currentEventId = id;
   showTab('event-detail');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   const ev = events.find(e => e.id === id);
-  document.getElementById('eventDetailTitle').textContent = `${ev.name} — ${ev.date || 'sin fecha'}`;
+  document.getElementById('eventDetailTitle').textContent = 'Resumen';
+  document.getElementById('tituloVista').textContent = ev.name || 'Salida';
+  document.getElementById('subVista').textContent = (ev.date ? new Date(ev.date + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Sin fecha') + (ev.location ? ' · ' + ev.location : '');
   document.getElementById('eventPlazas').value = ev.plazas || 10;
   const mover = document.getElementById('moverLista');
   mover.style.display = id === 'web-sin-fecha' ? 'block' : 'none';
@@ -1529,14 +1933,17 @@ function renderRoster() {
       div.innerHTML = `
         <div class="attend-check ${s.attended ? 'checked' : ''}" onclick="toggleAttended('${s.id}')">${s.attended ? '✓' : ''}</div>
         <div class="person-main">
-          <div class="person-name">${escapeHtml(nombreCompleto(person))} ${timesAttended > 1 ? `<span class="badge">repite ×${timesAttended}</span>` : ''}</div>
+          <div class="person-name">${escapeHtml(nombreCompleto(person))} ${timesAttended > 1 ? `<span class="badge" title="Salidas a las que consta que ha venido (marcadas como asistió)">ha venido ${timesAttended} veces</span>` : ''}</div>
           <div class="person-meta">${escapeHtml(person.email || '')}${telefonoHtml(person.telefono)}</div>
         </div>
         <select class="status-select" onchange="changeStatus('${s.id}', this.value)">
           <option value="pendiente" ${s.status==='pendiente'?'selected':''}>Pendiente</option>
           <option value="confirmado" ${s.status==='confirmado'?'selected':''}>Confirmado</option>
           <option value="espera" ${s.status==='espera'?'selected':''}>Espera</option>
+          <option value="baja" ${s.status==='baja'?'selected':''}>Baja (avisó)</option>
+          <option value="no-presentado" ${s.status==='no-presentado'?'selected':''}>No presentado</option>
         </select>
+        ${person.email ? `<button class="small secondary" title="${s.confirmacionEnviadaEn ? 'Confirmación ya enviada. Pulsa para reenviarla' : 'Enviarle el mismo correo que manda la web (plaza, lista de espera o sin fecha)'}" onclick="enviarConfirmacion('${s.id}')">${s.confirmacionEnviadaEn ? '✉️✓' : '✉️'}</button>` : ''}
         ${person.email ? `<button class="small secondary" title="Copiar su enlace para subir fotos (para mandarlo por WhatsApp)" onclick="copiarEnlaceFotos('${person.id}')">📷</button>` : ''}
         <button class="small danger" onclick="removeSignup('${s.id}')">✕</button>
       `;
@@ -1547,22 +1954,43 @@ function renderRoster() {
   document.getElementById('statPendientes').textContent = list.filter(s => s.status === 'pendiente').length;
   document.getElementById('statEspera').textContent = list.filter(s => s.status === 'espera').length;
   document.getElementById('statAsistieron').textContent = list.filter(s => s.attended).length;
+  document.getElementById('statBajas').textContent = list.filter(s => s.status === 'baja').length;
+  document.getElementById('statNoPresentados').textContent = list.filter(s => s.status === 'no-presentado').length;
 }
 
+// Solo se guardan los campos que cambian (nunca la inscripción entera)
 window.toggleAttended = async function(signupId) {
   const s = signups.find(s => s.id === signupId);
   if (!s) return;
+  const vino = !s.attended;
+  const cambios = { attended: vino };
+  // Si vino, no puede ser baja ni no presentado
+  if (vino && ['baja', 'no-presentado', 'espera'].includes(s.status)) cambios.status = 'confirmado';
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'signups', signupId), { ...s, attended: !s.attended });
-  setSyncStatus('Guardado ✓');
+  try { await updateDoc(doc(db, 'signups', signupId), cambios); setSyncStatus('Guardado ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); }
 };
 
 window.changeStatus = async function(signupId, status) {
   const s = signups.find(s => s.id === signupId);
   if (!s) return;
+  const cambios = { status, estadoCambiadoEn: serverTimestamp() };
+  if (status === 'baja' || status === 'no-presentado') cambios.attended = false;
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'signups', signupId), { ...s, status });
-  setSyncStatus('Guardado ✓');
+  try { await updateDoc(doc(db, 'signups', signupId), cambios); setSyncStatus('Guardado ✓'); }
+  catch (e) { setSyncStatus('Error: ' + e.message, true); return; }
+  // Si alguien se da de baja y hay lista de espera, ofrece pasar al primero a confirmado
+  const ev = events.find(e => e.id === s.eventId) || {};
+  const futura = !ev.date || ev.date >= new Date().toISOString().slice(0, 10);
+  if (status === 'baja' && s.status !== 'espera' && futura) {
+    const espera = signups.filter(x => x.eventId === s.eventId && x.status === 'espera')
+      .sort((a, b) => msDe(a.createdAt) - msDe(b.createdAt));
+    const primero = espera[0] && people.find(p => p.id === espera[0].personId);
+    if (primero && confirm(`Se ha liberado una plaza. ¿Pasar a ${nombreCompleto(primero)} (primera de la lista de espera) a confirmado?\n\nDespués podrás mandarle el correo de plaza con el botón ✉️.`)) {
+      try { await updateDoc(doc(db, 'signups', espera[0].id), { status: 'confirmado', desdeEsperaEn: serverTimestamp() }); setSyncStatus(`${nombreCompleto(primero)} pasa a confirmado ✓`); }
+      catch (e) { setSyncStatus('Error: ' + e.message, true); }
+    }
+  }
 };
 
 window.removeSignup = async function(signupId) {
@@ -1593,64 +2021,187 @@ window.createPersonDirect = async function() {
 
 // ---------- PEOPLE VIEW ----------
 window.renderPeople = renderPeople; // lo usan el buscador y el filtro (oninput/onchange)
+// Personas: una línea por persona; al pinchar se abre su ficha completa.
+window.personasAbiertas = window.personasAbiertas || new Set();
+const msDe = (t) => (t && t.toMillis ? t.toMillis() : t ? new Date(t).getTime() : 0) || 0;
+function accesoCuenta(p) {
+  if (!cuentasCargadas || !p.email) return null;
+  return cuentasPorEmail[String(p.email).toLowerCase()] || { acceso: 'sin-cuenta' };
+}
+function chipsPersona(p, e, c) {
+  const chips = [];
+  if (e.activo) chips.push(`<span class="tag t-plus">MD+${e.tipo === 'prueba' ? ' prueba' : e.nivel === 'online' ? ' online' : ''}${e.hasta ? ' hasta ' + fechaCorta(e.hasta) : ''}</span>`);
+  else if (e.revisar) chips.push('<span class="tag t-dup">MD+ por revisar</span>');
+  if (c && c.acceso === 'fotos') chips.push('<span class="tag t-fotos">Solo fotos</span>');
+  if (c && c.acceso === 'ninguno' && !(c.manuales || []).length) chips.push('<span class="tag t-off">Cuenta sin acceso</span>');
+  if (c && (c.manuales || []).length) chips.push(`<span class="tag t-man">${c.manuales.length} manual${c.manuales.length > 1 ? 'es' : ''}</span>`);
+  if (c && c.acceso !== 'sin-cuenta' && c.confirmada === false) chips.push('<span class="tag t-off">Invitación sin aceptar</span>');
+  if (duplicadosDe(p).length) chips.push('<span class="tag t-dup">Duplicada</span>');
+  return chips.join(' ');
+}
+function fichaPersona(p, psignups) {
+  const salidas = psignups.map(s => ({ s, ev: events.find(x => x.id === s.eventId) || {} }))
+    .sort((a, b) => String(b.ev.date || '').localeCompare(String(a.ev.date || '')));
+  const lineaSalida = ({ s, ev }) => `<div class="person-meta" style="padding:3px 0;">${ev.date ? fechaCorta(ev.date) : 'sin fecha'} · ${escapeHtml(ev.name || 'Salida')}${ev.location ? ' · ' + escapeHtml(ev.location) : ''} —
+    ${s.attended ? '<b style="color:var(--ok);">vino</b>' : s.status === 'espera' ? 'lista de espera' : s.status === 'baja' || s.status === 'cancelado' ? 'se dio de baja (avisó)' : s.status === 'no-presentado' ? '<span style="color:var(--danger);">no se presentó</span>' : ev.date && ev.date < new Date().toISOString().slice(0, 10) ? '<span style="color:var(--danger);">no consta que viniera</span>' : 'apuntada'}</div>`;
+  return `
+    <div class="ficha-persona">
+      ${duplicadosDe(p).map(o => `<div class="person-meta" style="margin:0 0 8px;padding:8px 10px;border-radius:8px;background:rgba(232,130,26,.12);">
+        ⚠️ Hay otra ficha con el mismo email: <strong>${escapeHtml(nombreCompleto(o))}</strong> (${signups.filter(s => s.personId === o.id).length} inscripción(es)).
+        <button class="small secondary" style="margin-left:6px;" onclick="fusionarPersonas('${p.id}','${o.id}')">Quedarme con esta y fusionar la otra</button>
+      </div>`).join('')}
+      <div class="ficha-grid">
+        <div>
+          <div class="ficha-titulo">Datos</div>
+          <input type="text" placeholder="Nombre" value="${escapeAttr(p.name)}" onchange="guardarDato('${p.id}','name',this.value)">
+          <input type="text" placeholder="Apellidos" value="${escapeAttr(p.apellidos)}" onchange="guardarDato('${p.id}','apellidos',this.value)">
+          <input type="text" placeholder="Email" value="${escapeAttr(p.email)}" onchange="guardarDato('${p.id}','email',this.value)">
+          <input type="tel" placeholder="Teléfono" value="${escapeAttr(p.telefono)}" onchange="guardarDato('${p.id}','telefono',this.value)">
+          <input type="text" placeholder="Instagram" value="${escapeAttr(p.instagram)}" onchange="guardarDato('${p.id}','instagram',this.value)">
+          <div class="person-meta">${p.telefono && waLink(p.telefono) ? `<a href="${waLink(p.telefono)}" target="_blank" rel="noopener" style="color:inherit">Abrir WhatsApp</a> · ` : ''}Origen: ${escapeHtml(p.origen || 'a mano')}${msDe(p.createdAt) ? ' · ficha creada el ' + new Date(msDe(p.createdAt)).toLocaleDateString('es-ES') : ''}</div>
+          <label class="consent-toggle"><input type="checkbox" ${p.consentImagen ? 'checked' : ''} onchange="guardarCampo('${p.id}','consentImagen',this.checked)"> Consentimiento de uso de imagen</label>
+          <label class="consent-toggle"><input type="checkbox" ${p.aceptaNovedades ? 'checked' : ''} onchange="guardarNovedades('${p.id}',this.checked)"> Acepta novedades por email${p.novedadesDesde ? ` <span class="person-meta">(desde ${new Date(p.novedadesDesde).toLocaleDateString('es-ES')})</span>` : ''}</label>
+        </div>
+        <div>
+          <div class="ficha-titulo">Mirar Despacio+ y acceso</div>
+          <div class="sub-panel">${mdPanelHtml(p)}</div>
+          <div class="ficha-titulo" style="margin-top:12px;">Salidas y talleres (${psignups.length})</div>
+          ${salidas.length ? salidas.map(lineaSalida).join('') : '<div class="person-meta">Ninguna todavía</div>'}
+        </div>
+      </div>
+      <div style="text-align:right;margin-top:8px;"><button class="small danger" onclick="deletePerson('${p.id}')">Borrar ficha</button></div>
+    </div>`;
+}
 function renderPeople() {
   const search = (document.getElementById('searchPeople')?.value || '').toLowerCase();
   const el = document.getElementById('peopleList');
   if (!el) return;
-  el.innerHTML = '';
   const filtro = document.getElementById('filtroPersonas')?.value || '';
+  const orden = document.getElementById('ordenPersonas')?.value || 'asistidas';
+  if (!cuentasCargadas) cargarCuentasPersonas();
+  const conteo = (p) => {
+    const ps = signups.filter(s => s.personId === p.id);
+    return { ps, apuntadas: ps.filter(s => !['espera', 'cancelado', 'baja'].includes(s.status)).length, vino: ps.filter(s => s.attended).length, falto: ps.filter(s => s.status === 'no-presentado').length };
+  };
   let filtered = people.filter(p =>
-    [p.name, p.apellidos, p.email, p.telefono].some(v => (v || '').toLowerCase().includes(search))
+    [p.name, p.apellidos, p.email, p.telefono, p.instagram].some(v => (v || '').toLowerCase().includes(search))
   ).filter(p => {
     const e = estadoPlus(p);
+    const c = accesoCuenta(p);
     if (filtro === 'plus') return e.activo;
     if (filtro === 'pronto') return e.activo && e.hasta && e.hasta <= new Date(Date.now() + 7*864e5).toISOString().slice(0,10);
     if (filtro === 'revisar') return e.revisar;
     if (filtro === 'novedades') return p.aceptaNovedades;
+    if (filtro === 'sin-imagen') return !p.consentImagen;
+    if (filtro === 'duplicados') return duplicadosDe(p).length > 0;
+    if (filtro.startsWith('acc-')) {
+      if (!c) return filtro === 'acc-sin' && !p.email;
+      if (filtro === 'acc-plus') return c.acceso === 'plus' || c.acceso === 'admin';
+      if (filtro === 'acc-fotos') return c.acceso === 'fotos';
+      if (filtro === 'acc-manual') return (c.manuales || []).length > 0;
+      if (filtro === 'acc-off') return c.acceso === 'ninguno' && !(c.manuales || []).length;
+      if (filtro === 'acc-sin') return c.acceso === 'sin-cuenta';
+    }
     return true;
   });
-  if (!cuentasCargadas) cargarCuentasPersonas();
-  filtered.sort((a,b) => {
-    const countA = signups.filter(s => s.personId === a.id).length;
-    const countB = signups.filter(s => s.personId === b.id).length;
-    return countB - countA;
+  const datos = new Map(filtered.map(p => [p.id, conteo(p)]));
+  filtered.sort((a, b) => {
+    const A = datos.get(a.id), B = datos.get(b.id);
+    if (orden === 'nombre') return nombreCompleto(a).localeCompare(nombreCompleto(b), 'es');
+    if (orden === 'recientes') return msDe(b.createdAt) - msDe(a.createdAt);
+    if (orden === 'apuntadas') return B.apuntadas - A.apuntadas || B.vino - A.vino;
+    return B.vino - A.vino || B.apuntadas - A.apuntadas;
   });
-  if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty">Sin resultados</div>';
-    return;
-  }
-  filtered.forEach(p => {
-    const psignups = signups.filter(s => s.personId === p.id);
-    const attended = psignups.filter(s => s.attended).length;
-    const div = document.createElement('div');
-    div.className = 'person-row';
-    div.style.flexDirection = 'column';
-    div.style.alignItems = 'stretch';
-    div.innerHTML = `
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div class="person-main">
-          <div class="person-name">${escapeHtml(nombreCompleto(p))} ${attended > 1 ? `<span class="badge">${attended} salidas</span>` : ''} ${estadoPlus(p).activo ? `<span class="badge" style="background:#5a7a5d;">MD+</span>` : ''}</div>
-          <div class="person-meta">${escapeHtml(p.email || 'sin email')}${telefonoHtml(p.telefono)} · apuntado a ${psignups.length} salida(s)</div>
-        </div>
-        <button class="small danger" onclick="deletePerson('${p.id}')">✕</button>
+  const cuenta = document.getElementById('cuentaPersonas');
+  if (cuenta) cuenta.textContent = filtered.length + ' de ' + people.length + (filtro.startsWith('acc-') && !cuentasCargadas ? ' · cargando cuentas…' : '');
+  if (filtered.length === 0) { el.innerHTML = '<div class="empty">Sin resultados</div>'; return; }
+  el.innerHTML = filtered.map(p => {
+    const { ps, apuntadas, vino, falto } = datos.get(p.id);
+    const abierta = personasAbiertas.has(p.id);
+    const e = estadoPlus(p), c = accesoCuenta(p);
+    return `<div class="persona ${abierta ? 'abierta' : ''}">
+      <div class="persona-linea" onclick="togglePersona('${p.id}')">
+        <span class="persona-nombre">${escapeHtml(nombreCompleto(p) || p.email || 'Sin nombre')}</span>
+        <span class="persona-chips">${chipsPersona(p, e, c)}${p.aceptaNovedades ? ' <span title="Acepta novedades por email">✉️</span>' : ''}</span>
+        <span class="persona-salidas" title="${apuntadas} inscripciones (sin contar lista de espera ni cancelaciones) · ha venido a ${vino}">${apuntadas ? `${apuntadas} apuntada${apuntadas > 1 ? 's' : ''} · vino a ${vino}${falto ? ` · <span style="color:var(--danger);">faltó a ${falto}</span>` : ''}` : '—'}</span>
+        <span class="persona-email">${escapeHtml(p.email || '')}</span>
+        <span class="persona-flecha">${abierta ? '▾' : '▸'}</span>
       </div>
-      <details class="datos-persona" ${datosAbiertos.has(p.id) ? 'open' : ''} ontoggle="this.open ? datosAbiertos.add('${p.id}') : datosAbiertos.delete('${p.id}')">
-        <summary class="person-meta" style="cursor:pointer;">Editar datos</summary>
-        <input type="text" placeholder="Nombre" value="${escapeAttr(p.name)}" onchange="guardarDato('${p.id}','name',this.value)">
-        <input type="text" placeholder="Apellidos" value="${escapeAttr(p.apellidos)}" onchange="guardarDato('${p.id}','apellidos',this.value)">
-        <input type="text" placeholder="Email" value="${escapeAttr(p.email)}" onchange="guardarDato('${p.id}','email',this.value)">
-        <input type="tel" placeholder="Teléfono" value="${escapeAttr(p.telefono)}" onchange="guardarDato('${p.id}','telefono',this.value)">
-      </details>
-      <div class="sub-panel">${mdPanelHtml(p)}</div>
-      <label class="consent-toggle">
-        <input type="checkbox" ${p.consentImagen ? 'checked' : ''} onchange="toggleConsent('${p.id}', this.checked)">
-        Consentimiento de uso de imagen
-      </label>
-      ${p.aceptaNovedades ? '<div class="person-meta">✉️ Acepta novedades por email</div>' : ''}
-    `;
-    el.appendChild(div);
-  });
+      ${abierta ? fichaPersona(p, ps) : ''}
+    </div>`;
+  }).join('');
 }
+window.togglePersona = function(id) {
+  if (personasAbiertas.has(id)) personasAbiertas.delete(id); else personasAbiertas.add(id);
+  renderPeople(); renderSuscripciones();
+};
+// Sub-pestañas de Accesos y MD+
+window.verSub = function(sub) {
+  document.querySelectorAll('#view-accesos .subtab').forEach(b => b.classList.toggle('on', b.dataset.sub === sub));
+  document.querySelectorAll('#view-accesos .subvista').forEach(v => v.classList.toggle('on', v.id === 'sub-' + sub));
+  try { sessionStorage.setItem('crm-sub', sub); } catch (e) {}
+  if (sub === 'md') renderSuscripciones();
+  if (sub === 'cuentas' && !cuentas.length) cargarCuentas();
+  if (sub === 'manuales' && typeof manualesDatos !== 'undefined' && !manualesDatos.length) cargarManuales();
+  if (sub === 'retos') renderRetos();
+  if (sub === 'actividad') renderAccesos();
+};
+// Mirar Despacio+: todas las suscripciones en una lista, con su ficha al pinchar
+window.renderSuscripciones = function() {
+  const el = document.getElementById('suscripcionesList');
+  if (!el) return;
+  const hoyISO = new Date().toISOString().slice(0, 10), semana = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+  const conMD = people.filter(p => p.subscription || p.trialStart);
+  const est = new Map(conMD.map(p => [p.id, estadoPlus(p)]));
+  const activos = conMD.filter(p => est.get(p.id).activo);
+  const set = (id, n) => { const x = document.getElementById(id); if (x) x.textContent = n; };
+  set('mdActivos', activos.filter(p => est.get(p.id).tipo === 'suscripcion').length);
+  set('mdPrueba', activos.filter(p => est.get(p.id).tipo === 'prueba').length);
+  set('mdPronto', activos.filter(p => est.get(p.id).hasta && est.get(p.id).hasta <= semana).length);
+  set('mdRevisar', conMD.filter(p => est.get(p.id).revisar).length);
+  const f = document.getElementById('filtroMD')?.value || 'activos';
+  const lista = conMD.filter(p => {
+    const e = est.get(p.id);
+    if (f === 'activos') return e.activo;
+    if (f === 'pronto') return e.activo && e.hasta && e.hasta <= semana;
+    if (f === 'revisar') return e.revisar;
+    if (f === 'prueba') return e.activo && e.tipo === 'prueba';
+    if (f === 'bajas') return !e.activo;
+    return true;
+  }).sort((a, b) => String(est.get(a.id).hasta || '9999').localeCompare(String(est.get(b.id).hasta || '9999')));
+  set('cuentaMD', lista.length + (lista.length === 1 ? ' persona' : ' personas'));
+  if (!cuentasCargadas) cargarCuentasPersonas();
+  el.innerHTML = lista.length ? lista.map(p => {
+    const e = est.get(p.id), c = accesoCuenta(p), abierta = personasAbiertas.has(p.id);
+    const ps = signups.filter(s => s.personId === p.id);
+    const quedan = e.hasta ? Math.ceil((new Date(e.hasta + 'T23:59:59') - Date.now()) / 864e5) : null;
+    const plazo = !e.hasta ? 'sin fecha' : e.activo ? (quedan <= 7 ? `<b style="color:var(--warn)">quedan ${quedan} días</b>` : 'hasta el ' + fechaCorta(e.hasta)) : 'terminó el ' + fechaCorta(e.hasta);
+    return `<div class="persona ${abierta ? 'abierta' : ''}">
+      <div class="persona-linea" onclick="togglePersona('${p.id}')">
+        <span class="persona-nombre">${escapeHtml(nombreCompleto(p) || p.email || 'Sin nombre')}</span>
+        <span class="persona-chips">${chipsPersona(p, e, c)}</span>
+        <span class="persona-salidas">${plazo}</span>
+        <span class="persona-email">${escapeHtml(p.email || '')}</span>
+        <span class="persona-flecha">${abierta ? '▾' : '▸'}</span>
+      </div>
+      ${abierta ? fichaPersona(p, ps) : ''}
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:16px;">Nadie en esta lista.</div>';
+};
+// Guarda solo ese campo (nunca reescribe la ficha entera: así no se pisan datos que haya
+// escrito la web o el servidor mientras tanto, como la casilla de novedades)
+window.guardarCampo = async function(personId, campo, valor) {
+  setSyncStatus('Guardando…');
+  try { await setDoc(doc(db, 'people', personId), { [campo]: valor }, { merge: true }); setSyncStatus('Guardado ✓'); }
+  catch (err) { setSyncStatus('Error: ' + err.message, true); }
+};
+window.guardarNovedades = async function(personId, valor) {
+  setSyncStatus('Guardando…');
+  try {
+    await setDoc(doc(db, 'people', personId), valor ? { aceptaNovedades: true, novedadesDesde: new Date().toISOString(), novedadesOrigen: 'crm' } : { aceptaNovedades: false, novedadesBaja: new Date().toISOString() }, { merge: true });
+    setSyncStatus('Guardado ✓');
+  } catch (err) { setSyncStatus('Error: ' + err.message, true); }
+};
 
 const TRIAL_DAYS = 30;
 
@@ -1688,7 +2239,7 @@ window.toggleConsent = async function(personId, value) {
   if (!p) return;
   setSyncStatus('Guardando…');
   try {
-    await setDoc(doc(db, 'people', personId), { ...p, consentImagen: value });
+    await setDoc(doc(db, 'people', personId), { consentImagen: value }, { merge: true });
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error guardando consentimiento:', err);
@@ -1705,7 +2256,7 @@ async function cargarCuentasPersonas() {
   try {
     const lista = await admin({ accion: 'cuentas' });
     cuentasPorEmail = Object.fromEntries(lista.map(c => [String(c.email).toLowerCase(), c]));
-    renderPeople();
+    renderPeople(); if (window.renderSuscripciones) renderSuscripciones();
   } catch (e) { console.warn('cuentas', e.message); }
 }
 function estadoPlus(p) {
@@ -1738,6 +2289,8 @@ function mdPanelHtml(p) {
     <div class="sub-panel-row" style="flex-wrap:wrap;">
       <select id="mdMeses_${p.id}" style="width:auto;"><option value="1">1 mes</option><option value="3">3 meses</option><option value="6">6 meses</option><option value="12">12 meses</option></select>
       <select id="mdNivel_${p.id}" style="width:auto;"><option value="salidas" ${e.nivel !== 'online' ? 'selected' : ''}>Con salidas</option><option value="online" ${e.nivel === 'online' ? 'selected' : ''}>Online</option></select>
+      <input id="mdImporte_${p.id}" inputmode="decimal" placeholder="€ cobrados" value="${ultimoCobroPlus(p)}" style="width:96px;margin:0;" title="Lo que te ha pagado (se apunta en Contabilidad). Vacío = no se apunta">
+      <select id="mdMetodo_${p.id}" style="width:auto;"><option value="bizum">Bizum</option><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="stripe">Stripe</option></select>
       <button class="trial-btn" onclick="mdAlta('${p.id}')">${e.activo && e.tipo === 'suscripcion' ? 'Renovar' : 'Dar de alta'}</button>
       ${!e.activo ? `<button class="trial-btn" onclick="mdAccion('${p.id}','plus-prueba')">Prueba 30 días</button>` : ''}
       ${e.activo || e.revisar ? `<button class="trial-btn" onclick="mdBaja('${p.id}')">Dar de baja</button>` : ''}
@@ -1750,7 +2303,13 @@ async function mdAccion(personId, accion, extra = {}) {
     const txt = { invitado: 'invitación enviada', 'ya-existe': 'acceso actualizado', hecho: 'acceso actualizado', 'sin-cuenta': 'no tenía cuenta', 'sin-identity': 'OJO: no se pudo cambiar el acceso', error: 'OJO: error al cambiar el acceso' }[r.acceso] || r.acceso;
     setSyncStatus('Guardado ✓ · ' + txt, /OJO/.test(txt));
     cargarCuentasPersonas();
-  } catch (e) { setSyncStatus('Error: ' + e.message, true); }
+    return true;
+  } catch (e) { setSyncStatus('Error: ' + e.message, true); return false; }
+}
+// Importe del último cobro de MD+ de esa persona (para proponerlo al renovar)
+function ultimoCobroPlus(p) {
+  const m = window.cx && window.cx.ultimoCobroPlus ? window.cx.ultimoCobroPlus(p) : null;
+  return m ? String(m.importe).replace('.', ',') : '';
 }
 window.mdAccion = mdAccion;
 window.mdAlta = function(personId) {
@@ -1761,7 +2320,17 @@ window.mdAlta = function(personId) {
   if (!p.email) { alert('Ponle un email primero.'); return; }
   if (!confirm(`${e.activo && e.tipo === 'suscripcion' ? 'Renovar' : 'Dar de alta'} MD+ (${nivel === 'online' ? 'online' : 'con salidas'}) ${meses} mes(es) a ${nombreCompleto(p)}?` +
     (cuentasPorEmail[String(p.email).toLowerCase()] ? '' : '\n\nNo tiene cuenta: le llegará un email para crear su contraseña.'))) return;
-  mdAccion(personId, 'plus-alta', { meses: Number(meses), nivel });
+  const importe = parseFloat(String(document.getElementById('mdImporte_' + personId).value || '').replace(',', '.')) || 0;
+  const metodo = document.getElementById('mdMetodo_' + personId).value;
+  mdAccion(personId, 'plus-alta', { meses: Number(meses), nivel }).then(async (hecho) => {
+    if (!hecho || !(importe > 0)) return;
+    try {
+      const [c] = await cargarModulos();
+      await c.apuntarCobro({ importe, metodo, categoria: 'mirar-despacio-plus', personId, email: p.email || '', quien: nombreCompleto(p),
+        concepto: `Mirar Despacio+ ${nivel === 'online' ? 'online' : 'con salidas'} · ${meses} ${Number(meses) === 1 ? 'mes' : 'meses'}`, meses: Number(meses), nivelPlus: nivel });
+      setSyncStatus(`Guardado ✓ · cobro de ${importe.toLocaleString('es-ES')} € apuntado en Contabilidad`);
+    } catch (e) { setSyncStatus('Acceso renovado, pero no se pudo apuntar el cobro: ' + e.message, true); }
+  });
 };
 window.mdBaja = function(personId) {
   const p = people.find(x => x.id === personId);
@@ -1818,9 +2387,8 @@ window.activateSub = async function(personId) {
   setSyncStatus('Guardando…');
   try {
     await setDoc(doc(db, 'people', personId), {
-      ...p,
       subscription: { active: true, since, until: untilDate.toISOString().slice(0,10) }
-    });
+    }, { merge: true });
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error activando suscripción:', err);
@@ -1833,7 +2401,7 @@ window.deactivateSub = async function(personId) {
   if (!p) return;
   setSyncStatus('Guardando…');
   try {
-    await setDoc(doc(db, 'people', personId), { ...p, subscription: { active: false } });
+    await setDoc(doc(db, 'people', personId), { subscription: { active: false } }, { merge: true });
     setSyncStatus('Guardado ✓');
   } catch (err) {
     console.error('Error desactivando suscripción:', err);
@@ -1845,16 +2413,15 @@ window.grantTrial = async function(personId) {
   const p = people.find(p => p.id === personId);
   if (!p) return;
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'people', personId), { ...p, trialStart: new Date().toISOString() });
+  await setDoc(doc(db, 'people', personId), { trialStart: new Date().toISOString() }, { merge: true });
   setSyncStatus('Guardado ✓');
 };
 
 window.revokeTrial = async function(personId) {
   const p = people.find(p => p.id === personId);
   if (!p) return;
-  const { trialStart, ...rest } = p;
   setSyncStatus('Guardando…');
-  await setDoc(doc(db, 'people', personId), rest);
+  await updateDoc(doc(db, 'people', personId), { trialStart: deleteField() });
   setSyncStatus('Guardado ✓');
 };
 
@@ -1904,7 +2471,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso'];
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);
@@ -1978,5 +2545,29 @@ function escapeHtml(str) {
 window.trialControlHtml = trialControlHtml;
 </script>
 
+<script>
+  // Botón de tema: claro → oscuro → automático
+  (function () {
+    var NOMBRES = { claro: '☀  Tema claro', oscuro: '☾  Tema oscuro', auto: '◐  Tema automático' };
+    function actual() { return document.documentElement.getAttribute('data-tema') || 'auto'; }
+    function pintar() {
+      var b = document.getElementById('botonTema'); if (b) b.textContent = NOMBRES[actual()];
+      var oscuro = actual() === 'oscuro' || (actual() === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', oscuro ? '#1b1320' : '#e8821a');
+    }
+    window.cambiarTema = function () {
+      var sig = { claro: 'oscuro', oscuro: 'auto', auto: 'claro' }[actual()];
+      if (sig === 'auto') document.documentElement.removeAttribute('data-tema'); else document.documentElement.setAttribute('data-tema', sig);
+      try { if (sig === 'auto') localStorage.removeItem('crm-tema'); else localStorage.setItem('crm-tema', sig); } catch (e) {}
+      pintar();
+    };
+    if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', pintar);
+    pintar();
+    // El contador de fotos por comentar también en la barra del móvil
+    var o = document.getElementById('fotosPendientes'), m = document.getElementById('fotosPendientesM');
+    if (o && m && window.MutationObserver) new MutationObserver(function () { m.textContent = o.textContent; m.style.display = o.style.display; })
+      .observe(o, { attributes: true, childList: true, characterData: true, subtree: true });
+  })();
+</script>
 </body>
 </html>

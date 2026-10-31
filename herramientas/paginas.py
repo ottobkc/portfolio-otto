@@ -193,7 +193,7 @@ def construir(g):
         <ol class="episodios">
 {lista}
         </ol>
-        <p style="margin-top:28px;">La temporada terminó convertida en <a href="/zine/">un zine impreso</a> con las fotos y las ideas que más resonaron.</p>
+        <p style="margin-top:28px;">La temporada terminó convertida en <a href="/tienda/">un zine impreso</a> con las fotos y las ideas que más resonaron.</p>
       </div>
     </section>'''
     podcast_schema = {
@@ -419,6 +419,10 @@ def construir(g):
     # ------------------------------------------------------------ TALLERES
     import json as _json, os as _os
     td = _json.load(open(_os.path.join(_os.path.dirname(__file__), '..', 'MirarDespacio', 'talleres-data.json')))
+    def precio_html(x):
+        # Precio actual y, si hay oferta, el normal tachado delante (lo mismo pinta talleres.js)
+        n = x.get('precioNormal')
+        return (f'<s class="antes">{n} €</s> ' if n and n > x['precio'] else '') + f"{x['precio']} €"
     def tarjeta_taller(i, t):
         temas = ''.join(f'<li>{html.escape(x)}</li>' for x in t['temas'])
         incluye = ''.join(f'<li>{html.escape(x)}</li>' for x in t['incluye'])
@@ -427,7 +431,7 @@ def construir(g):
             <span class="num">0{i}</span>
             <h3>{html.escape(t['titulo'])}</h3>
             <p class="sub">{html.escape(t['subtitulo'])}</p>
-            <p class="precio" data-taller-precio="{t['id']}">{t['precio']} €</p>
+            <p class="precio" data-taller-precio="{t['id']}">{precio_html(t)}</p>{f'<p class="oferta">{html.escape(td["ofertas"]["talleres"])}</p>' if t.get('precioNormal') and td.get('ofertas', {}).get('talleres') else ''}
             <ul class="datos"><li><span>Duración</span><span>{html.escape(t['duracion'])}</span></li><li><span>Grupo</span><span>{t['plazas']} personas como mucho</span></li></ul>
             <p style="margin-top:14px;">{html.escape(t['descripcion'])}</p>
             <p class="aviso">{html.escape(t['nivel'])}.</p>
@@ -496,8 +500,8 @@ def construir(g):
         cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS))
 
     # ------------------------------------------------------------ REGALO
-    regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{t['precio']} €</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
-    regalos_p = ''.join(f"""<li><span>Mirar Despacio+ · {r['meses']} {'mes' if r['meses'] == 1 else 'meses'}{' con salidas' if r['nivel'] == 'con-salidas' else ''}</span><span><span data-regalo-plus-precio="{r['id']}">{r['precio']} €</span> · <a data-regalo-plus="{r['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20Mirar%20Despacio%2B">Regalar</a></span></li>""" for r in td['regalosPlus'])
+    regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{precio_html(t)}</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
+    regalos_p = ''.join(f"""<li><span>Mirar Despacio+ · {r['meses']} {'mes' if r['meses'] == 1 else 'meses'}{' con salidas' if r['nivel'] == 'con-salidas' else ''}</span><span><span data-regalo-plus-precio="{r['id']}">{precio_html(r)}</span> · <a data-regalo-plus="{r['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20Mirar%20Despacio%2B">Regalar</a></span></li>""" for r in td['regalosPlus'])
     cuerpo = f"""
     <section class="portada" id="regalo">
       <div class="envoltura estrecho">
@@ -555,25 +559,38 @@ def construir(g):
         'Regala un taller de fotografía callejera o unos meses de Mirar Despacio+, o canjea el código de tu regalo.',
         cuerpo, extra_pie=TALLERES_JS))
 
-    # ------------------------------------------------------------ ZINE
+    # ------------------------------------------------------------ TIENDA
+    # Los productos salen del CRM (sección Tienda) a través de /api/tienda: cada producto nuevo
+    # aparece solo. Mientras no haya ninguno a la venta se ve el bloque fijo del zine.
     cuerpo = f'''
     <section class="portada">
       <div class="envoltura estrecho">
-        <p class="antetitulo">Zine · Temporada 1</p>
-        <h1>El <em>zine.</em></h1>
-        <p class="entradilla">La primera temporada del podcast, en papel. Un zine A5 de 36 páginas, grapado, con fotos de calle y las ideas que más resonaron en los 20 episodios.</p>
-        <ul class="datos" style="max-width:460px;">
-          <li><span>Formato</span><span>A5 · 36 páginas · grapado</span></li>
-          <li><span>Disponibilidad</span><span>Quedan ejemplares</span></li>
-          <li><span>Precio</span><span>12 € en mano en las salidas</span></li>
-        </ul>
-        <p style="margin-top:24px;">Si vienes a una salida te lo llevo en mano y te ahorras el envío. Si no, escríbeme y vemos cómo hacértelo llegar.</p>
-        {''.join(f'<img src="{cld(u, "f_auto,q_auto,w_1000")}" alt="Páginas del zine de Mirar Despacio" loading="lazy" style="margin-top:20px;width:100%;">' for u in ZINE_FOTOS)}
-        <div class="botones"><a class="boton" href="mailto:{EMAIL}?subject=Quiero%20un%20zine">Quiero uno</a><a class="boton claro" href="/salidas/">Próxima salida</a></div>
+        <p class="antetitulo">Tienda</p>
+        <h1>Cosas para <em>mirar despacio.</em></h1>
+        <p class="entradilla">El zine, la baraja de retos y lo que vaya saliendo de las salidas y el podcast. Hecho despacio, en Madrid.</p>
+      </div>
+    </section>
+    <section class="seccion" style="padding-top:0;">
+      <div class="envoltura">
+        <div id="tienda-productos" class="productos" data-email="{EMAIL}" hidden></div>
+        <div id="tienda-fijo" class="estrecho" style="margin:0 auto;">
+          <p class="antetitulo">Zine · Temporada 1</p>
+          <h2>El <em>zine.</em></h2>
+          <p>La primera temporada del podcast, en papel. Un zine A5 de 36 páginas, grapado, con fotos de calle y las ideas que más resonaron en los 20 episodios.</p>
+          <ul class="datos" style="max-width:460px;">
+            <li><span>Formato</span><span>A5 · 36 páginas · grapado</span></li>
+            <li><span>Disponibilidad</span><span>Quedan ejemplares</span></li>
+            <li><span>Precio</span><span>12 € en mano en las salidas</span></li>
+          </ul>
+          <p style="margin-top:24px;">Si vienes a una salida te lo llevo en mano y te ahorras el envío. Si no, escríbeme y vemos cómo hacértelo llegar.</p>
+          {''.join(f'<img src="{cld(u, "f_auto,q_auto,w_1000")}" alt="Páginas del zine de Mirar Despacio" loading="lazy" style="margin-top:20px;width:100%;">' for u in ZINE_FOTOS)}
+          <div class="botones"><a class="boton" href="mailto:{EMAIL}?subject=Quiero%20un%20zine">Quiero uno</a><a class="boton claro" href="/salidas/">Próxima salida</a></div>
+        </div>
       </div>
     </section>'''
-    escribir('/zine/', pagina('/zine/', 'Zine de fotografía callejera · Mirar Despacio',
-        'Zine impreso de Mirar Despacio: la primera temporada del podcast de fotografía callejera en 36 páginas de fotos e ideas. A5, grapado, 12 €.', cuerpo))
+    escribir('/tienda/', pagina('/tienda/', 'Tienda · Zine y baraja de fotografía callejera · Mirar Despacio',
+        'Tienda de Mirar Despacio: el zine impreso de fotografía callejera, la baraja de retos y otras cosas para mirar despacio. Hecho en Madrid.', cuerpo,
+        extra_pie=f'\n  <script type="module" src="{g["v"]("tienda.js")}"></script>'))
 
     # ------------------------------------------------------------ MIRAR DESPACIO+
     cuerpo = f'''
@@ -592,13 +609,14 @@ def construir(g):
     <section class="seccion" id="niveles">
       <div class="envoltura">
         <div class="rejilla-2">
-          <div class="tarjeta"><h3>Mirar Despacio+</h3><p class="precio"><span data-plus-precio="sinSalidas">{td['plus']['sinSalidas']['precio']} €</span><small> /mes</small></p>
-            <ul class="lista" style="margin-top:14px;"><li>Retos y guías cada mes</li><li>Feedback de tus fotos</li><li>Grupo privado</li><li>Herramientas y tarjetas de misión</li></ul>
+          <div class="tarjeta"><h3>Mirar Despacio+</h3><p class="precio"><span data-plus-precio="sinSalidas">{precio_html(td['plus']['sinSalidas'])}</span><small> /mes</small></p>
+            <ul class="lista" style="margin-top:14px;"><li>Retos y guías cada mes</li><li>Feedback de tus fotos</li><li>Grupo privado</li><li>Herramientas, guías y agenda</li></ul>
             <a class="boton" data-plus-url="sinSalidas" data-umami-event="plus-interes" href="mailto:{EMAIL}?subject=Me%20interesa%20Mirar%20Despacio%2B">Me interesa</a></div>
-          <div class="tarjeta"><h3>Mirar Despacio+ <em>con salidas</em></h3><p class="precio"><span data-plus-precio="conSalidas">{td['plus']['conSalidas']['precio']} €</span><small> /mes</small></p>
+          <div class="tarjeta"><h3>Mirar Despacio+ <em>con salidas</em></h3><p class="precio"><span data-plus-precio="conSalidas">{precio_html(td['plus']['conSalidas'])}</span><small> /mes</small></p>
             <ul class="lista" style="margin-top:14px;"><li>Todo lo anterior</li><li><strong>Plaza asegurada en todas las salidas</strong>, sin aportación</li><li>Te enteras de las fechas antes que nadie</li></ul>
             <a class="boton color" data-plus-url="conSalidas" data-umami-event="plus-interes" href="mailto:{EMAIL}?subject=Me%20interesa%20Mirar%20Despacio%2B%20con%20salidas">Me interesa</a></div>
         </div>
+        {f'<p class="oferta" style="margin-top:22px;">{html.escape(td["ofertas"]["plus"])}</p>' if td.get('ofertas', {}).get('plus') and td['plus']['sinSalidas'].get('precioNormal') else ''}
         <p style="margin-top:22px;">Sin permanencia: te das de baja cuando quieras<a data-plus-portal hidden href="#">, tú mismo desde tu área de pagos</a>. ¿Es para otra persona? <a href="/regalo/">Regala Mirar Despacio+</a>.</p>
         <p class="acepta-condiciones">Al suscribirte aceptas las <a href="/condiciones/">condiciones de venta</a>. Se cobra cada mes hasta que te des de baja.</p>
       </div>
@@ -723,7 +741,7 @@ def construir(g):
 TALLERES_JS = '''
   <script src="/assets/talleres.js"></script>'''
 AGENDA_JS = '''
-  <script src="https://ottokols.es/js/agenda.js"></script>
+  <script src="/js/agenda.js"></script>
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8, pasadas: true });</script>'''
 MURO_JS = '''
   <script src="/assets/muro.js"></script>'''

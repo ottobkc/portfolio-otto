@@ -24,8 +24,10 @@
 
   fetch('/talleres-data.json').then(function (r) { return r.json(); }).then(function (d) {
     // Precios y enlaces (así basta con cambiar el JSON)
-    $$('[data-taller-precio]').forEach(function (e) { var t = buscar(d.talleres, e.dataset.tallerPrecio); if (t) e.textContent = t.precio + ' €'; });
-    $$('[data-plus-precio]').forEach(function (e) { var p = d.plus && d.plus[e.dataset.plusPrecio]; if (p) e.textContent = p.precio + ' €'; });
+    // Precio actual y, si hay oferta, el normal tachado delante (igual que lo escribe paginas.py)
+    function precio(x) { return (x.precioNormal > x.precio ? '<s class="antes">' + x.precioNormal + ' €</s> ' : '') + x.precio + ' €'; }
+    $$('[data-taller-precio]').forEach(function (e) { var t = buscar(d.talleres, e.dataset.tallerPrecio); if (t) e.innerHTML = precio(t); });
+    $$('[data-plus-precio]').forEach(function (e) { var p = d.plus && d.plus[e.dataset.plusPrecio]; if (p) e.innerHTML = precio(p); });
     $$('[data-plus-url]').forEach(function (a) {
       var k = a.dataset.plusUrl, p = d.plus && d.plus[k];
       if (p && enlacePago(a, p.url, 'plus_' + k, 'plus-unirme')) a.textContent = 'Unirme';
@@ -35,7 +37,7 @@
     });
     $$('[data-bono]').forEach(function (a) { var t = buscar(d.talleres, a.dataset.bono); if (t) enlacePago(a, t.bonoPago, 'bonotaller_' + t.id, 'regalo-taller-comprar'); });
     $$('[data-regalo-plus]').forEach(function (a) { var r = buscar(d.regalosPlus, a.dataset.regaloPlus); if (r) enlacePago(a, r.pago, 'bonoplus_' + r.id, 'regalo-plus-comprar'); });
-    $$('[data-regalo-plus-precio]').forEach(function (e) { var r = buscar(d.regalosPlus, e.dataset.regaloPlusPrecio); if (r) e.textContent = r.precio + ' €'; });
+    $$('[data-regalo-plus-precio]').forEach(function (e) { var r = buscar(d.regalosPlus, e.dataset.regaloPlusPrecio); if (r) e.innerHTML = precio(r); });
 
     var cajas = $$('[data-ediciones]');
     var plazas = cajas.length || $('#regalo') ? fetch(API + '?plazas=1').then(function (r) { return r.json(); }).catch(function () { return {}; }) : Promise.resolve({});

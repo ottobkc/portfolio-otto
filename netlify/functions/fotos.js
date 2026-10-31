@@ -2,7 +2,8 @@
 //
 //  GET  ?muro=1            -> público: fotos ya comentadas por Otto que su autor deja publicar
 //  GET  (con sesión)       -> {yo, reto, salidas, mias, racha, limites}
-//  POST (con sesión) {accion:'subir', tipo:'salida'|'reto', refId, url, ancho, alto, texto, nombreMuro, publicable}
+//  POST (con sesión) {accion:'subir', tipo:'salida'|'reto'|'taller', refId, url, ancho, alto, texto, nombreMuro, publicable}
+//  GET  (con sesión) ?taller=<id> -> {yo, mias}: sus fotos de los ejercicios de después de ese taller
 //  POST (con sesión) {accion:'borrar', id}             -> solo mientras está pendiente
 //  POST (con sesión) {accion:'publicable', id, valor}  -> el autor decide si sale en el muro
 //  POST (con sesión) {accion:'avisos', valor}         -> MD+: recibir o no los emails del reto
@@ -13,14 +14,27 @@
 // Las fotos se suben directamente del navegador a Cloudinary (ya reducidas a 2000 px);
 // aquí se comprueba de verdad lo que ocupan antes de guardarlas.
 // Quién entra:
-//  - con sesión de Netlify Identity: rol member (MD+), participante (solo fotos) o admin
+//  - con sesión (Firebase; durante la migración también Netlify Identity): rol member (MD+), participante (solo fotos) o admin
 //  - SIN cuenta, con su enlace personal ottokols.es/subir/?c=<clave> (lo manda Otto desde el CRM
 //    a la gente de cada salida). Es la forma fácil: sin contraseñas. Solo fotos de salidas.
+//  - con sesión y solo el manual de un taller (rol "taller-<id>"): únicamente las fotos de los
+//    ejercicios de después de ESE taller (tipo 'taller', refId '<id>-<n>'), desde la página del manual.
 // Las fotos de cada persona se reconocen por su email, entre por donde entre.
 const { db, FieldValue, conLimite } = require('../lib/firestore');
-const { usuarioDe } = require('../lib/identidad');
+const { usuarioDe } = require('../lib/cuentas');
 const { enviar, esc, remitente } = require('../lib/correo');
 const { SALIDA_DIAS, RETOS_GUARDADOS } = require('../lib/fotos-config');
+const { MANUALES, urlManual } = require('../lib/manuales');
+
+// ¿Puede subir fotos de los ejercicios de este taller? (tiene su manual, o es Otto)
+const tieneManual = (yo, id) => !!(MANUALES[id] && yo && (yo.admin || (yo.manuales || []).includes(id)));
+// refId de un ejercicio de taller: '<taller>-<n>' -> {id, n, titulo} o null
+function ejercicioTaller(refId) {
+  const m = /^([a-z0-9]+)-(\d{1,2})$/.exec(String(refId || ''));
+  if (!m || !MANUALES[m[1]]) return null;
+  const titulo = (MANUALES[m[1]].despues || [])[Number(m[2]) - 1];
+  return titulo ? { id: m[1], n: Number(m[2]), titulo } : null;
+}
 
 const MAX_BYTES = 6 * 1024 * 1024;
 const POR_SALIDA = 5;
@@ -78,7 +92,9 @@ async function salidasDe(fs, yo) {
   const [todas, q] = await Promise.all([
     salidasRecientes(fs), fs.collection('signups').where('personId', '==', personaId).get(),
   ]);
-  const suyas = new Set(q.docs.map((d) => d.data()).filter((x) => x.status !== 'espera').map((x) => x.eventId));
+  // Fotos de una salida: solo quien no estaba en espera ni se dio de baja (un no presentado puede tener
+  // el estado mal puesto; si sube fotos es que vino, así que se le deja)
+  const suyas = new Set(q.docs.map((d) => d.data()).filter((x) => x.status !== 'espera' && x.status !== 'baja').map((x) => x.eventId));
   return todas.filter((s) => suyas.has(s.id));
 }
 
@@ -208,10 +224,31 @@ exports.handler = async (event, context) => {
 
     let cuerpo = {};
     if (event.httpMethod === 'POST') cuerpo = JSON.parse(event.body || '{}');
-    const yo = usuarioDe(context) || (await porClave(fs, qs.c || cuerpo.clave));
-    if (!yo || !yo.fotos || !yo.email) return res(h, 401, { error: 'sesion' });
+    const yo = (await usuarioDe(event, context)) || (await porClave(fs, qs.c || cuerpo.clave));
+    if (!yo || !yo.email || !(yo.fotos || (yo.manuales || []).length)) return res(h, 401, { error: 'sesion' });
+    // Quien solo tiene el manual de un taller entra aquí únicamente para sus ejercicios de después
+    const soloManual = !yo.fotos;
+    const esDeTaller = (event.httpMethod === 'GET' && qs.taller) || (cuerpo.accion === 'subir' && cuerpo.tipo === 'taller')
+      || ['borrar', 'publicable', 'responder'].includes(cuerpo.accion);
+    if (soloManual && !esDeTaller) return res(h, 403, { error: 'solo-manual' });
     const misFotos = async () => (await fs.collection('fotos').where('email', '==', yo.email).get())
       .docs.map((d) => ({ id: d.id, ...d.data() }));
+
+    // ---------- Ejercicios de después de un taller (desde la página del manual) ----------
+    if (event.httpMethod === 'GET' && qs.taller) {
+      const id = String(qs.taller);
+      if (!tieneManual(yo, id)) return res(h, 403, { error: 'sin-manual' });
+      const mias = (await misFotos()).filter((f) => f.tipo === 'taller' && f.url && !f.archivada && String(f.refId || '').startsWith(id + '-'));
+      return res(h, 200, {
+        yo: { nombre: yo.nombre, nombreCorto: yo.nombreCorto || (yo.nombre || '').split(' ')[0], email: yo.email },
+        mias: mias.sort((a, b) => ms(b.creada) - ms(a.creada)).map((f) => ({
+          id: f.id, refId: f.refId, url: mini(f.url, 900), grande: mini(f.url, 1800), texto: f.texto || '', estado: f.estado,
+          comentario: f.comentario || '', publicable: !!f.publicable, enMuro: !!f.enMuro, nombreMuro: f.nombreMuro || '',
+          creada: ms(f.creada), hilo: (f.hilo || []).map((m) => ({ de: m.de, texto: m.texto, en: m.en })),
+        })),
+        limites: { mb: MAX_BYTES / 1048576 },
+      });
+    }
 
     // ---------- Mi cuaderno ----------
     if (event.httpMethod === 'GET') {
@@ -316,7 +353,9 @@ exports.handler = async (event, context) => {
     }
 
     if (b.accion !== 'subir') return res(h, 400, { error: 'accion' });
-    const tipo = b.tipo === 'reto' ? 'reto' : 'salida';
+    const tipo = b.tipo === 'reto' ? 'reto' : b.tipo === 'taller' ? 'taller' : 'salida';
+    if (soloManual && tipo !== 'taller') return res(h, 403, { error: 'solo-manual' });
+    let enlace = null;
     const refId = String(b.refId || '');
     const url = String(b.url || '');
     let refNombre = '';
@@ -332,6 +371,14 @@ exports.handler = async (event, context) => {
       refNombre = r.data().titulo || 'Reto';
       refFecha = r.data().cierre || r.data().inicio || hoy();
       docId = `${refId}_${yo.id}`; // una foto por reto (se puede cambiar mientras no esté comentada)
+      const previa = mias.find((f) => f.id === docId);
+      if (previa && previa.estado !== 'pendiente') return res(h, 400, { error: 'ya-comentada' });
+    } else if (tipo === 'taller') {
+      const ej = ejercicioTaller(refId);
+      if (!ej || !tieneManual(yo, ej.id)) return res(h, 403, { error: 'sin-manual' });
+      refNombre = `Taller ${MANUALES[ej.id].titulo} · ${ej.titulo}`;
+      enlace = urlManual(ej.id);
+      docId = `${refId}_${yo.id}`; // una foto por ejercicio (se puede cambiar mientras no esté comentada)
       const previa = mias.find((f) => f.id === docId);
       if (previa && previa.estado !== 'pendiente') return res(h, 400, { error: 'ya-comentada' });
     } else {
@@ -354,6 +401,7 @@ exports.handler = async (event, context) => {
       publicable: !!b.publicable,
       compartir: tipo === 'reto' && !!b.compartir,
       estado: 'pendiente', comentario: '', enMuro: false, destacada: false,
+      ...(enlace ? { enlace } : {}),
       creada: FieldValue.serverTimestamp(),
     };
     const ref = docId ? fs.collection('fotos').doc(docId) : fs.collection('fotos').doc();

@@ -33,10 +33,10 @@ NEGOCIO = {
 
 TOKEN_REDIRECT = '''
   <script>
-    // Los enlaces de los emails de acceso a Mirar Despacio+ (invitación, recuperar contraseña…)
-    // llegan a la portada: se reenvían a la página de acceso, que es la que muestra el formulario.
+    // Enlaces de los correos antiguos de Netlify Identity (invitación, recuperar contraseña…): la zona de
+    // socios ahora está en mirardespacio.es y se entra con un enlace al correo, sin contraseña.
     if (/(recovery|invite|confirmation|email_change)_token=/.test(location.hash)) {
-      location.replace('/acceso.html' + location.hash);
+      location.replace('https://mirardespacio.es/acceso/');
     }
   </script>'''
 
@@ -74,7 +74,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
   <script type="application/ld+json">
 {ld}
   </script>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}"></script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
 </head>
 <body>
   <a class="oculto" href="#contenido">Saltar al contenido</a>
@@ -187,7 +187,7 @@ cuerpo = f'''
         <div class="retratos">
           <a class="destacado" href="/actores/">{img('/fotos/retrato1vert.jpg', 'Retrato de actriz en blanco y negro', 934, 1400)}<div class="etq"><span>casting y book</span><span>desde 80 €</span></div><h3>Actores</h3><p>Book y fotos para casting.</p></a>
           <a href="/retrato/">{img('/fotos/retrato3vert.jpg', 'Retrato de una mujer apoyada en una pared naranja', 934, 1400)}<div class="etq"><span>personal</span><span>90–140 €</span></div><h3>Retrato</h3><p>Para ti, tu web o simplemente porque sí.</p></a>
-          <a href="/parejas/">{img('/fotos/boda1horiz.jpg', 'Pareja de novios caminando junto al mar', 1503, 1000)}<div class="etq"><span>dos personas</span><span>desde 90 €</span></div><h3>Parejas y bodas íntimas</h3><p>Preboda, aniversario o una boda pequeña.</p></a>
+          <a href="/parejas/">{img('/fotos/boda1horiz.jpg', 'Pareja de novios caminando junto al mar', 1503, 1000)}<div class="etq"><span>dos personas</span><span>desde 90 €</span></div><h3>Parejas y bodas íntimas</h3><p>Preboda, pedida, aniversario o una boda pequeña.</p></a>
           <a href="/mascotas/">{img('/fotos/walliot.jpg', 'Retrato de un carlino', 1400, 934)}<div class="etq"><span>mascotas</span><span>70–80 €</span></div><h3>Mascotas</h3><p>A su ritmo y en su sitio favorito.</p></a>
         </div>
       </div>
@@ -302,8 +302,8 @@ cuerpo = f'''
       <div>
         <p class="miga"><a href="/#retrato">Retrato</a> / Parejas</p>
         <h1>Parejas y <em>bodas íntimas.</em></h1>
-        <p class="entradilla">Retratos de dos: una preboda, un aniversario o una boda pequeña. Documental, sin coreografías, con tiempo para que os olvidéis de la cámara.</p>
-        {cta('parejas', 'Contarme vuestra idea')}
+        <p class="entradilla">Retratos de dos: una preboda, una pedida, un aniversario o una boda pequeña. Documental, sin coreografías, con tiempo para que os olvidéis de la cámara.</p>
+        {cta('parejas', 'Contadme vuestra idea')}
       </div>
       <figure>{img('/fotos/boda1horiz.jpg', 'Pareja de novios caminando junto al mar', 1503, 1000, ' fetchpriority="high"')}</figure>
     </section>
@@ -315,9 +315,16 @@ cuerpo = f'''
       </div>
     </section>
     <section class="bloque">
-      <div class="env galeria dos">
-        {img('/fotos/boda2horiz.jpg', 'Novios con el ramo', 1740, 1170)}
-        {img('/fotos/boda1horiz.jpg', 'Pareja caminando junto al mar', 1503, 1000)}
+      <div class="env mezcla">
+        <div class="fila tres">
+          <figure class="foto">{img('/fotos/pedida1vert.jpg', 'Él, de rodilla, le pide matrimonio en los jardines del Retiro', 1200, 1800, ' class="vert"')}<span class="etq-foto">pedida · el Retiro</span></figure>
+          <figure class="foto">{img('/fotos/boda2horiz.jpg', 'Novios con el ramo', 1740, 1170)}<span class="etq-foto">boda</span></figure>
+          <figure class="foto">{img('/fotos/pedida2vert.jpg', 'La pareja abrazada a contraluz junto al estanque', 1200, 1800, ' class="vert"')}<span class="etq-foto">pedida · el Retiro</span></figure>
+        </div>
+        <div class="fila dos">
+          <figure class="foto">{img('/fotos/boda1horiz.jpg', 'Pareja caminando junto al mar', 1503, 1000)}<span class="etq-foto">boda</span></figure>
+          <figure class="foto">{img('/fotos/pedida3horiz.jpg', 'Los dos sonríen enseñando el anillo', 1800, 1200)}<span class="etq-foto">pedida · el Retiro</span><figcaption class="globo"><p>«La verdad, todo fue fantástico, desde el primer contacto para acordar todo, incluso con un plan detallado por parte de Otto para que la experiencia sea <em>perfecta</em>. Agradezco muchísimo que haya sido él el responsable de grabar uno de los momentos más importantes de mi vida.»</p><span>Él</span></figcaption></figure>
+        </div>
       </div>
     </section>
     <section class="bloque"><div class="env"><h2>Otros retratos</h2>{otros('/parejas/')}</div></section>'''

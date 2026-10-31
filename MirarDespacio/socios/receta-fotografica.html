@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Receta Fotográfica · Mirar Despacio +</title>
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --ink: #1a1814; --muted: #7a756f;
+      --accent: #c8a97a; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce;
+      --font-serif: Georgia, 'Times New Roman', serif;
+      --font-sans: 'Jost', sans-serif;
+    }
+    body { background: var(--bg); font-family: var(--font-sans); font-weight: 300; -webkit-font-smoothing: antialiased; }
+    #app-loading {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100svh; color: var(--muted); font-size: 0.85rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    #app-root { display: none; }
+    nav {
+      background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 60px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+    .nav-logo { font-family: var(--font-serif); font-size: 1rem; color: var(--ink); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-back {
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--ink); }
+    .btn-logout-nav {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; font-family: var(--font-sans); padding: 0.4rem 0.9rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-logout-nav:hover { border-color: var(--ink); color: var(--ink); }
+    @media (max-width: 600px) { nav { padding: 0 1.25rem; } }
+  </style>
+  <!-- Umami Analytics -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
+  <link rel="manifest" href="/app.webmanifest">
+  <meta name="theme-color" content="#1a1814">
+  <link rel="apple-touch-icon" href="/assets/app-180.png">
+  <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+
+  <div id="app-loading">Verificando acceso…</div>
+
+  <div id="app-root">
+    <nav>
+      <span class="nav-logo">Mirar Despacio +</span>
+      <div class="nav-right">
+        <a href="/socios/" class="nav-back">← Recursos</a>
+        <button class="btn-logout-nav" id="logoutBtn">Cerrar sesión</button>
+      </div>
+    </nav>
+    <div id="react-mount"></div>
+  </div>
+
+  <script src="/js/sesion.js"></script>
+  <script src="/js/acceso.js" data-init="no"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
+
+  <script>
+    function showApp() {
+      document.getElementById('app-loading').style.display = 'none';
+      document.getElementById('app-root').style.display = 'block';
+    }
+
+    // En preview/localhost Identity no carga: mostramos el contenido directamente
+    var isPreview = !/mirar/.test(window.location.hostname);
+    if (isPreview) { showApp(); }
+
+    // Blindaje: si el script de Netlify Identity no llega a cargar, antes esto
+    // lanzaba un ReferenceError que detenía todos los scripts siguientes —
+    // incluido el que monta React — dejando la página en blanco sin aviso.
+    try {
+      if (typeof netlifyIdentity === "undefined") {
+        throw new Error("netlifyIdentity no disponible");
+      }
+      netlifyIdentity.on('init', function(user) {
+        if (!user && !isPreview) {
+          window.location.replace('/acceso/');
+        } else {
+          showApp();
+        }
+      });
+      netlifyIdentity.init();
+    } catch (e) {
+      console.warn('Netlify Identity no disponible, mostrando contenido sin verificación de sesión en cliente:', e);
+      showApp();
+    }
+
+    const logoutBtnEl = document.getElementById('logoutBtn');
+    logoutBtnEl && logoutBtnEl.addEventListener('click', () => {
+      if (typeof netlifyIdentity !== "undefined") netlifyIdentity.logout();
+      window.location.replace('/socios/#acceso');
+    });
+  </script>
+
+  <script type="text/plain" id="receta-jsx-source">
+    const { useState, useCallback } = React;
+
+
+
+const C = {
+  bg:      "#f5f3ef",
+  surface: "#ffffff",
+  text:    "#1a1814",
+  muted:   "#8a7f72",
+  gold:    "#c8a97a",
+  goldDim: "#e0cba8",
+  goldDeep:"#a8845a",
+  ink:     "#2e2b25",
+  good:    "#4a7c59",
+  bad:     "#8c3a2e",
+};
+
+// ─── Camera database ──────────────────────────────────────────────────────────
+const CAMERAS = [
+  // ── Genéricos (sensor / perfil) ───────────────────────────────────────────
+  { id:"ff_basic",   label:"Full Frame · básico",      sensor:"FF",     mp:24, maxISO:25600,  ibis:false },
+  { id:"ff_ibis",    label:"Full Frame · con IBIS",    sensor:"FF",     mp:24, maxISO:51200,  ibis:true  },
+  { id:"ff_highiso", label:"Full Frame · alta ISO",    sensor:"FF",     mp:12, maxISO:204800, ibis:true  },
+  { id:"ff_highres", label:"Full Frame · alta res.",   sensor:"FF",     mp:61, maxISO:32000,  ibis:true  },
+  { id:"apsc_basic", label:"APS-C · básica",           sensor:"APSC",   mp:24, maxISO:25600,  ibis:false },
+  { id:"apsc_ibis",  label:"APS-C · con IBIS",         sensor:"APSC",   mp:26, maxISO:51200,  ibis:true  },
+  { id:"mft_basic",  label:"Micro 4/3 · básica",       sensor:"MFT",    mp:20, maxISO:25600,  ibis:false },
+  { id:"mft_ibis",   label:"Micro 4/3 · con IBIS",     sensor:"MFT",    mp:20, maxISO:102400, ibis:true  },
+  { id:"mobile",     label:"Móvil",                    sensor:"MOBILE", mp:12, maxISO:6400,   ibis:true  },
+  // ── Sony ──────────────────────────────────────────────────────────────────
+  { id:"a7rII",   label:"Sony A7R II",    sensor:"FF",   mp:42, maxISO:25600,  ibis:true  },
+  { id:"a7III",   label:"Sony A7 III",   sensor:"FF",   mp:24, maxISO:51200,  ibis:true  },
+  { id:"a7IV",    label:"Sony A7 IV",    sensor:"FF",   mp:33, maxISO:51200,  ibis:true  },
+  { id:"a7sIII",  label:"Sony A7S III",  sensor:"FF",   mp:12, maxISO:409600, ibis:true  },
+  { id:"a7rV",    label:"Sony A7R V",    sensor:"FF",   mp:61, maxISO:32000,  ibis:true  },
+  { id:"a1",      label:"Sony A1",       sensor:"FF",   mp:50, maxISO:51200,  ibis:true  },
+  { id:"a6700",   label:"Sony A6700",    sensor:"APSC", mp:26, maxISO:51200,  ibis:true  },
+  { id:"a6400",   label:"Sony A6400",    sensor:"APSC", mp:24, maxISO:32000,  ibis:false },
+  { id:"zve10ii", label:"Sony ZV-E10 II",sensor:"APSC", mp:26, maxISO:51200,  ibis:false },
+  // ── Canon ─────────────────────────────────────────────────────────────────
+  { id:"r5ii",  label:"Canon EOS R5 II", sensor:"FF",   mp:45, maxISO:51200,  ibis:true  },
+  { id:"r6ii",  label:"Canon EOS R6 II", sensor:"FF",   mp:24, maxISO:204800, ibis:true  },
+  { id:"r7",    label:"Canon EOS R7",    sensor:"APSC", mp:32, maxISO:32000,  ibis:true  },
+  { id:"r50",   label:"Canon EOS R50",   sensor:"APSC", mp:24, maxISO:32000,  ibis:false },
+  // ── Nikon ─────────────────────────────────────────────────────────────────
+  { id:"z6iii", label:"Nikon Z6 III",    sensor:"FF",   mp:24, maxISO:64000,  ibis:true  },
+  { id:"z6ii",  label:"Nikon Z6 II",     sensor:"FF",   mp:24, maxISO:51200,  ibis:true  },
+  { id:"z8",    label:"Nikon Z8",        sensor:"FF",   mp:45, maxISO:51200,  ibis:true  },
+  { id:"z50ii", label:"Nikon Z50 II",    sensor:"APSC", mp:21, maxISO:51200,  ibis:false },
+  // ── Fujifilm ──────────────────────────────────────────────────────────────
+  { id:"xt5",    label:"Fujifilm X-T5",   sensor:"APSC", mp:40, maxISO:51200, ibis:true  },
+  { id:"xh2s",   label:"Fujifilm X-H2S",  sensor:"APSC", mp:26, maxISO:51200, ibis:true  },
+  { id:"x100vi", label:"Fujifilm X100VI", sensor:"APSC", mp:40, maxISO:51200, ibis:true  },
+  // ── MFT ───────────────────────────────────────────────────────────────────
+  { id:"gh7",   label:"Panasonic GH7",     sensor:"MFT", mp:25, maxISO:25600,  ibis:true },
+  { id:"om1ii", label:"OM System OM-1 II", sensor:"MFT", mp:20, maxISO:102400, ibis:true },
+  // ── Leica / Pentax ────────────────────────────────────────────────────────
+  { id:"leicaQ3", label:"Leica Q3",        sensor:"FF",   mp:60, maxISO:100000, ibis:true  },
+  { id:"k3iii",   label:"Pentax K-3 III",  sensor:"APSC", mp:26, maxISO:819200, ibis:true  },
+  { id:"k50",     label:"Pentax K-50",     sensor:"APSC", mp:16, maxISO:51200,  ibis:false },
+];
+// ─── Lens database ────────────────────────────────────────────────────────────
+const LENSES = [
+  // ── Genéricos FF ──────────────────────────────────────────────────────────
+  { id:"g_14f28",    label:"★ 14mm f/2.8",          focal:14,  maxAp:2.8 },
+  { id:"g_18f28",    label:"★ 18mm f/2.8",          focal:18,  maxAp:2.8 },
+  { id:"g_24f14",    label:"★ 24mm f/1.4",          focal:24,  maxAp:1.4 },
+  { id:"g_24f28",    label:"★ 24mm f/2.8",          focal:24,  maxAp:2.8 },
+  { id:"g_28f18",    label:"★ 28mm f/1.8",          focal:28,  maxAp:1.8 },
+  { id:"g_28f45",    label:"★ 28mm f/4.5",          focal:28,  maxAp:4.5 },
+  { id:"g_35f14",    label:"★ 35mm f/1.4",          focal:35,  maxAp:1.4 },
+  { id:"g_35f18",    label:"★ 35mm f/1.8",          focal:35,  maxAp:1.8 },
+  { id:"g_50f14",    label:"★ 50mm f/1.4",          focal:50,  maxAp:1.4 },
+  { id:"g_50f18",    label:"★ 50mm f/1.8",          focal:50,  maxAp:1.8 },
+  { id:"g_85f14",    label:"★ 85mm f/1.4",          focal:85,  maxAp:1.4 },
+  { id:"g_85f18",    label:"★ 85mm f/1.8",          focal:85,  maxAp:1.8 },
+  { id:"g_135f18",   label:"★ 135mm f/1.8",         focal:135, maxAp:1.8 },
+  { id:"g_1635f28",  label:"★ 16-35mm f/2.8",       focal:24,  maxAp:2.8, zoom:true },
+  { id:"g_1635f4",   label:"★ 16-35mm f/4",         focal:24,  maxAp:4.0, zoom:true },
+  { id:"g_2470f28",  label:"★ 24-70mm f/2.8",       focal:50,  maxAp:2.8, zoom:true },
+  { id:"g_2470f4",   label:"★ 24-70mm f/4",         focal:50,  maxAp:4.0, zoom:true },
+  { id:"g_24105f4",  label:"★ 24-105mm f/4",        focal:70,  maxAp:4.0, zoom:true },
+  { id:"g_70200f28", label:"★ 70-200mm f/2.8",      focal:135, maxAp:2.8, zoom:true },
+  { id:"g_70200f4",  label:"★ 70-200mm f/4",        focal:135, maxAp:4.0, zoom:true },
+  // ── Genéricos APS-C ───────────────────────────────────────────────────────
+  { id:"g_apsc_16f14",  label:"★ 16mm f/1.4 APS-C (≈24mm)",  focal:16, maxAp:1.4 },
+  { id:"g_apsc_23f14",  label:"★ 23mm f/1.4 APS-C (≈35mm)",  focal:23, maxAp:1.4 },
+  { id:"g_apsc_23f2",   label:"★ 23mm f/2 APS-C (≈35mm)",    focal:23, maxAp:2.0 },
+  { id:"g_apsc_33f14",  label:"★ 33mm f/1.4 APS-C (≈50mm)",  focal:33, maxAp:1.4 },
+  { id:"g_apsc_56f12",  label:"★ 56mm f/1.2 APS-C (≈85mm)",  focal:56, maxAp:1.2 },
+  { id:"g_apsc_kit",    label:"★ 18-55mm f/3.5 APS-C (kit)", focal:35, maxAp:3.5, zoom:true },
+  { id:"g_apsc_1670f4", label:"★ 16-70mm f/4 APS-C",         focal:40, maxAp:4.0, zoom:true },
+  { id:"g_apsc_55200",  label:"★ 55-200mm f/4.5 APS-C",      focal:120,maxAp:4.5, zoom:true },
+  // ── Genéricos MFT ─────────────────────────────────────────────────────────
+  { id:"g_mft_17f18",   label:"★ 17mm f/1.8 MFT (≈34mm)",    focal:17, maxAp:1.8 },
+  { id:"g_mft_25f14",   label:"★ 25mm f/1.4 MFT (≈50mm)",    focal:25, maxAp:1.4 },
+  { id:"g_mft_425f175", label:"★ 42.5mm f/1.7 MFT (≈85mm)",  focal:42, maxAp:1.7 },
+  { id:"g_mft_1260f28", label:"★ 12-60mm f/2.8 MFT",         focal:35, maxAp:2.8, zoom:true },
+  // ── Objetivos específicos ──────────────────────────────────────────────────
+  { id:"viltrox85",  label:"Viltrox 85mm f/2 EVO",            focal:85,  maxAp:1.8 },
+  { id:"viltrox28",  label:"Viltrox 28mm f/4.5",              focal:28,  maxAp:4.5 },
+  { id:"sam18f28",   label:"Samyang 18mm f/2.8",              focal:18,  maxAp:2.8 },
+  { id:"50f18f",     label:"Sony 50mm f/1.8",                 focal:50,  maxAp:1.8 },
+  { id:"24105f4g",   label:"Sony 24-105mm f/4 G",             focal:70,  maxAp:4.0, zoom:true },
+  { id:"20f18g",     label:"Sony 20mm f/1.8 G",               focal:20,  maxAp:1.8 },
+  { id:"24f14gm",    label:"Sony 24mm f/1.4 GM",              focal:24,  maxAp:1.4 },
+  { id:"35f14gm",    label:"Sony 35mm f/1.4 GM",              focal:35,  maxAp:1.4 },
+  { id:"35f18f",     label:"Sony 35mm f/1.8",                 focal:35,  maxAp:1.8 },
+  { id:"50f14gm",    label:"Sony 50mm f/1.4 GM",              focal:50,  maxAp:1.4 },
+  { id:"50f14sig",   label:"Sigma 50mm f/1.4 Art",            focal:50,  maxAp:1.4 },
+  { id:"85f14gm",    label:"Sony 85mm f/1.4 GM",              focal:85,  maxAp:1.4 },
+  { id:"85f18f",     label:"Sony 85mm f/1.8",                 focal:85,  maxAp:1.8 },
+  { id:"135f18gm",   label:"Sony 135mm f/1.8 GM",             focal:135, maxAp:1.8 },
+  { id:"90f28macro", label:"Sony 90mm f/2.8 Macro G",         focal:90,  maxAp:2.8 },
+  { id:"2470gm2",    label:"Sony 24-70mm f/2.8 GM II",        focal:50,  maxAp:2.8, zoom:true },
+  { id:"2470f4",     label:"Sony 24-70mm f/4 ZA",             focal:50,  maxAp:4.0, zoom:true },
+  { id:"1635gm2",    label:"Sony 16-35mm f/2.8 GM II",        focal:24,  maxAp:2.8, zoom:true },
+  { id:"70200gm2",   label:"Sony 70-200mm f/2.8 GM II",       focal:135, maxAp:2.8, zoom:true },
+  { id:"70200f4g2",  label:"Sony 70-200mm f/4 G II",          focal:135, maxAp:4.0, zoom:true },
+  { id:"14f18sam",   label:"Samyang 14mm f/2.8",              focal:14,  maxAp:2.8 },
+  { id:"xf_23f14",   label:"Fuji XF 23mm f/1.4",             focal:23,  maxAp:1.4 },
+  { id:"xf_56f12",   label:"Fuji XF 56mm f/1.2",             focal:56,  maxAp:1.2 },
+  { id:"xf_1855",    label:"Fuji XF 18-55mm f/2.8-4",        focal:35,  maxAp:3.5, zoom:true },
+  { id:"12f2mft",    label:"12mm f/2 (MFT)",                  focal:12,  maxAp:2.0 },
+  { id:"r_2470f28",  label:"Canon RF 24-70mm f/2.8 L",        focal:50,  maxAp:2.8, zoom:true },
+  { id:"z_2470f28",  label:"Nikon Z 24-70mm f/2.8 S",         focal:50,  maxAp:2.8, zoom:true },
+];
+const LIGHT_SITUATIONS = [
+  { id:"sol_pleno",    label:"Sol pleno mediodía",       ev:15, icon:"☀" },
+  { id:"sol_suave",    label:"Sol suave / cielo abierto",ev:13, icon:"🌤" },
+  { id:"nublado",      label:"Nublado / difuso",          ev:12, icon:"☁" },
+  { id:"sombra",       label:"Sombra en exterior",        ev:11, icon:"🌿" },
+  { id:"dorada",       label:"Hora dorada",               ev:11, icon:"🌅" },
+  { id:"atardecer",    label:"Atardecer / contraluz",     ev:10, icon:"🌇" },
+  { id:"magica",       label:"Hora azul / crepúsculo",    ev:8,  icon:"🌆" },
+  { id:"noche_urbana", label:"Noche urbana",              ev:6,  icon:"🌃" },
+  { id:"interior_bien",label:"Interior bien iluminado",   ev:9,  icon:"💡" },
+  { id:"interior_osc", label:"Interior oscuro / bar",     ev:6,  icon:"🕯" },
+  { id:"escenario",    label:"Escenario / concierto",     ev:7,  icon:"🎤" },
+  { id:"estudio",      label:"Estudio con flash",         ev:13, icon:"📸" },
+];
+
+const SUBJECTS = [
+  { id:"retrato",     label:"Retrato — persona quieta"      },
+  { id:"retrato_mov", label:"Retrato — persona caminando"   },
+  { id:"calle",       label:"Fotografía callejera"          },
+  { id:"deporte",     label:"Deporte / acción rápida"       },
+  { id:"paisaje",     label:"Paisaje / arquitectura"        },
+  { id:"nocturno",    label:"Nocturno / larga exposición"   },
+  { id:"macro",       label:"Macro / detalle"               },
+  { id:"evento",      label:"Evento social / boda"          },
+];
+
+const DOF_INTENTS = [
+  { id:"maximo_bokeh", label:"Máximo bokeh",          apBias:-2 },
+  { id:"bokeh_suave",  label:"Desenfoque suave",       apBias:-1 },
+  { id:"fondo_rec",    label:"Fondo reconocible",      apBias:+1 },
+  { id:"todo_nitido",  label:"Todo nítido",            apBias:+2 },
+];
+
+// ─── Exposure engine ──────────────────────────────────────────────────────────
+const AP_STOPS  = [1.0,1.2,1.4,1.8,2.0,2.8,3.5,4.0,5.6,7.1,8.0,11,16,22];
+const SH_STOPS  = [1/8000,1/4000,1/2000,1/1000,1/500,1/400,1/320,1/250,1/200,
+                   1/160,1/125,1/100,1/80,1/60,1/50,1/40,1/30,1/25,1/20,
+                   1/15,1/10,1/8,1/6,1/5,1/4,0.3,0.5,0.8,1,1.6,2,3.2,5,8,13,20,30];
+const ISO_STOPS = [100,125,160,200,250,320,400,500,640,800,1000,1250,1600,2000,
+                   2500,3200,4000,5000,6400,8000,10000,12800,16000,20000,25600,51200];
+
+function evAt(ap, sh, iso) {
+  return Math.log2((ap * ap) / sh) - Math.log2(iso / 100);
+}
+
+function fmtShutter(s) {
+  if (!s || isNaN(s)) return "—";
+  if (s >= 1) return `${s}"`;
+  return `1/${Math.round(1/s)}`;
+}
+function fmtAp(a) {
+  if (!a) return "—";
+  return `f/${a % 1 === 0 ? a : a.toFixed(1)}`;
+}
+
+function computeRecipe(camera, lens, light, subject, dofIntent) {
+  const targetEV   = light.ev;
+  const crop       = { FF:1, APSC:1.5, MFT:2, MOBILE:6 }[camera.sensor] || 1;
+  const effFocal   = lens.focal * crop;
+  const ibisBenefit= camera.ibis ? 3 : 0;
+
+  const movementMin = {
+    // Retrato: aunque la persona esté "quieta", respira, parpadea y se mueve
+    // sutilmente — el IBIS no compensa eso (solo el temblor de la cámara).
+    // Usamos un piso razonable (1/60) y permitimos que la regla de la mano
+    // alzada exija más en focales largas, pero sin el beneficio del IBIS.
+    retrato:     Math.min(1/60, 1/effFocal),
+    retrato_mov: 1/250,
+    calle:       1/250,
+    deporte:     1/1000,
+    // Paisaje y similares: sujeto verdaderamente estático, aquí sí beneficia el IBIS.
+    paisaje:     1 / (effFocal / Math.pow(2, ibisBenefit)),
+    nocturno:    null,
+    macro:       1 / (effFocal * 2),
+    evento:      1/200,
+  }[subject.id] ?? null;
+
+  // Aperture selection
+  const wideIdx    = AP_STOPS.findIndex(a => a >= lens.maxAp);
+  const sweetIdx   = Math.min(wideIdx + 2, AP_STOPS.length - 1);
+  const { apBias } = dofIntent;
+  let apIdx = apBias <= -2 ? wideIdx
+            : apBias === -1 ? Math.max(wideIdx, sweetIdx - 1)
+            : apBias === 1  ? sweetIdx + 1
+            : sweetIdx + 3;
+  apIdx = Math.max(wideIdx, Math.min(AP_STOPS.length - 1, apIdx));
+  const aperture = AP_STOPS[apIdx];
+
+  // ISO / shutter solve
+  // No nos conformamos con el primer ISO que tenga buen EV: para sujetos con
+  // movimiento (retrato, calle, deporte...) preferimos subir ISO si eso da un
+  // margen de seguridad real de velocidad, no solo "pasar por encima" del límite.
+  let best = null;
+  for (let i = 0; i < ISO_STOPS.length; i++) {
+    const iso = ISO_STOPS[i];
+    if (iso > camera.maxISO) break;
+    const neededSh = (aperture * aperture) / Math.pow(2, targetEV + Math.log2(iso / 100));
+    let shIdx = SH_STOPS.findIndex(s => s >= neededSh);
+    if (shIdx < 0) shIdx = SH_STOPS.length - 1;
+    if (shIdx > 0) {
+      const eH = Math.abs(Math.log2(SH_STOPS[shIdx]   / neededSh));
+      const eL = Math.abs(Math.log2(SH_STOPS[shIdx-1] / neededSh));
+      if (eL < eH) shIdx--;
+    }
+    const shutter = SH_STOPS[shIdx];
+    if (movementMin !== null && shutter > movementMin * 1.15) continue; // skip if too slow (shutter value too large in seconds)
+    const evErr = Math.abs(evAt(aperture, shutter, iso) - targetEV);
+    // Margen de seguridad real: cuánto más rápida es esta velocidad que el límite
+    // mínimo necesario. Con poco margen (shutter cerca de movementMin) seguimos
+    // probando ISOs más altos en busca de más seguridad, aunque el EV ya sea bueno.
+    const safetyMargin = movementMin !== null ? movementMin / shutter : Infinity; // >1 = margen cómodo
+    if (!best || evErr < best.evError - 0.05) best = { aperture, shutter, iso, evError:evErr, safetyMargin };
+    if (evErr < 0.6 && safetyMargin >= 1.8) break; // EV correcto Y velocidad con margen real de seguridad
+  }
+  if (!best) best = { aperture, shutter:1/125, iso:400, evError:99 };
+
+
+  // Alternatives
+  function nearestSh(ap, iso) {
+    const needed = (ap * ap) / Math.pow(2, targetEV + Math.log2(iso / 100));
+    let idx = SH_STOPS.findIndex(s => s >= needed);
+    if (idx < 0) return SH_STOPS.length - 1;
+    if (idx > 0) {
+      if (Math.abs(Math.log2(SH_STOPS[idx-1]/needed)) < Math.abs(Math.log2(SH_STOPS[idx]/needed))) idx--;
+    }
+    return Math.max(0, Math.min(SH_STOPS.length-1, idx));
+  }
+
+  const alts = [];
+  if (apIdx > wideIdx) {
+    const altAp = AP_STOPS[apIdx - 1];
+    alts.push({ label:"Más bokeh", aperture:altAp, shutter:SH_STOPS[nearestSh(altAp, best.iso)], iso:best.iso,
+      note:"Diafragma más abierto — mayor separación del fondo." });
+  }
+  if (apIdx < AP_STOPS.length - 3) {
+    const altAp2 = AP_STOPS[apIdx + 2];
+    const altIso = Math.min(best.iso * 2, camera.maxISO);
+    alts.push({ label:"Más profundidad", aperture:altAp2, shutter:SH_STOPS[nearestSh(altAp2, altIso)], iso:altIso,
+      note:"Diafragma más cerrado — más zona nítida, objetivo en su punto dulce." });
+  }
+
+  return { main:best, alts, wideIdx, apIdx, effFocal };
+}
+
+// Nota: la explicación con IA (vía API de Anthropic) se quitó por ahora.
+// Cada llamada a la API tiene un coste real aparte de cualquier suscripción
+// de claude.ai, y se reactivará si/cuando el modelo de pago de Mirar Despacio+
+// esté en marcha. La receta numérica (computeRecipe) no depende de esto.
+
+// ─── Visual Scene ─────────────────────────────────────────────────────────────
+function RecipeScene({ recipe, light, subject, dofIntent }) {
+  if (!recipe) return null;
+  const { aperture, shutter, iso } = recipe.main;
+
+  // Derived visual properties
+  const blur    = Math.max(0, Math.min(1, (2.8 / aperture - 0.3) / 2.5));
+  const motion  = shutter < 1/500 ? 0 : shutter > 1/30 ? 1 : (shutter - 1/500)/(1/30 - 1/500);
+  const grain   = Math.max(0, Math.min(1, Math.log2(iso/100)/7));
+  // diff = evAt - light.ev
+  // diff > 0: settings EV > scene EV → not enough light reaching sensor → underexposed (dark)
+  // diff < 0: settings EV < scene EV → too much light → overexposed (bright)
+  const evDiff  = evAt(aperture, shutter, iso) - light.ev;
+  const bright  = Math.max(0.05, Math.min(2.2, Math.pow(2, -evDiff) * 0.9));
+  const darkOv  = bright < 1 ? `rgba(0,0,0,${(1-bright)*0.75})` : "transparent";
+  const lightOv = bright > 1 ? `rgba(255,255,255,${(bright-1)*0.5})` : "transparent";
+
+  const LIGHTS_MAP = {
+    sol_pleno:    { skyT:"#5ab0f0", skyB:"#a8d8f8", groundC:"#c8b99a" },
+    sol_suave:    { skyT:"#72bff5", skyB:"#b8e0ff", groundC:"#c4b490" },
+    nublado:      { skyT:"#90a4ae", skyB:"#cfd8dc", groundC:"#b0a888" },
+    sombra:       { skyT:"#78909c", skyB:"#b0bec5", groundC:"#a09878" },
+    dorada:       { skyT:"#e64a19", skyB:"#ffcc80", groundC:"#c4a070" },
+    atardecer:    { skyT:"#bf360c", skyB:"#ff8a65", groundC:"#8d6e63" },
+    magica:       { skyT:"#1a237e", skyB:"#3949ab", groundC:"#455a64" },
+    noche_urbana: { skyT:"#0d0d1a", skyB:"#1a1a2e", groundC:"#111" },
+    interior_bien:{ skyT:"#37474f", skyB:"#546e7a", groundC:"#3e2723" },
+    interior_osc: { skyT:"#1a1108", skyB:"#2d1f0e", groundC:"#1a0f00" },
+    escenario:    { skyT:"#1a0030", skyB:"#4a0080", groundC:"#0d0d0d" },
+    estudio:      { skyT:"#f5f5f5", skyB:"#eeeeee", groundC:"#e0e0e0" },
+  };
+  const lc = LIGHTS_MAP[light.id] || LIGHTS_MAP["nublado"];
+  const W=480, H=240, cx=W/2;
+
+  return (
+    <div style={{ position:"relative", borderRadius:10, overflow:"hidden",
+      boxShadow:"0 4px 20px rgba(0,0,0,0.15)" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ display:"block", width:"100%", height:"auto" }}>
+        <defs>
+          <filter id="bgbr"><feGaussianBlur stdDeviation={blur * 10}/></filter>
+          <linearGradient id="rsky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={lc.skyT}/>
+            <stop offset="100%" stopColor={lc.skyB}/>
+          </linearGradient>
+          <radialGradient id="rvign" cx="50%" cy="50%" r="70%">
+            <stop offset="60%" stopColor="transparent"/>
+            <stop offset="100%" stopColor={`rgba(0,0,0,${0.28 + grain*0.3})`}/>
+          </radialGradient>
+        </defs>
+
+        {/* Background (blurred by DoF) */}
+        <g filter={blur > 0.08 ? "url(#bgbr)" : undefined}>
+          <rect x={0} y={0} width={W} height={H*0.65} fill="url(#rsky)"/>
+          {/* Buildings */}
+          {[30,60,95,130,165,200,240,285,325,365,400,430,455].map((x,i) => {
+            const h = 50 + (i*37)%70;
+            return <rect key={i} x={x} y={H*0.65-h} width={22+i%3*8} height={h}
+              fill={light.id==="noche_urbana"?"#0d1018":"#3a3530"} opacity={light.id==="noche_urbana"?0.95:0.5}/>;
+          })}
+          {light.id === "noche_urbana" && [70,180,300,410].map((x,i) => (
+            <g key={i}>
+              <line x1={x} y1={H*0.65} x2={x} y2={H*0.65-35} stroke="#666" strokeWidth="2"/>
+              <circle cx={x} cy={H*0.65-35} r={4} fill="#ffe082"/>
+              <circle cx={x} cy={H*0.65-35} r={14} fill="#ffe082" opacity={0.1}/>
+            </g>
+          ))}
+          <rect x={0} y={H*0.65} width={W} height={H*0.35} fill={lc.groundC}/>
+        </g>
+
+        {/* Subject silhouette */}
+        <g transform={`translate(${cx}, ${H*0.65})`}>
+          {/* Shadow */}
+          {light.id !== "noche_urbana" && (
+            <ellipse cx={10} cy={2} rx={12} ry={5} fill="rgba(0,0,0,0.2)"/>
+          )}
+          {/* Motion trails */}
+          {motion > 0.05 && [1,2,3].map(i => (
+            <ellipse key={i} cx={-25-i*18} cy={-45} rx={8+i*4} ry={30}
+              fill={lc.groundC} opacity={motion*0.4/i}/>
+          ))}
+          {/* Person */}
+          <line x1={-8}  y1={0}    x2={-11} y2={-55} stroke={C.ink} strokeWidth={8} strokeLinecap="round"/>
+          <line x1={8}   y1={0}    x2={11}  y2={-55} stroke={C.ink} strokeWidth={8} strokeLinecap="round"/>
+          <rect x={-15}  y={-110}  width={30} height={55} rx={6} fill={C.ink}/>
+          <line x1={-15} y1={-100} x2={-30} y2={-85} stroke={C.ink} strokeWidth={7} strokeLinecap="round"/>
+          <rect x={-42}  y={-95}   width={16} height={11} rx={3} fill={C.ink}/>
+          <circle cx={-34} cy={-90} r={3.5} fill="#888"/>
+          <line x1={15}  y1={-100} x2={26}  y2={-88} stroke={C.ink} strokeWidth={7} strokeLinecap="round"/>
+          <circle cx={0}  cy={-127} r={18}  fill={C.ink}/>
+        </g>
+
+        {/* Exposure overlays */}
+        <rect x={0} y={0} width={W} height={H} fill={darkOv}  style={{pointerEvents:"none"}}/>
+        <rect x={0} y={0} width={W} height={H} fill={lightOv} style={{pointerEvents:"none"}}/>
+        <rect x={0} y={0} width={W} height={H} fill="url(#rvign)" style={{pointerEvents:"none"}}/>
+      </svg>
+
+      {/* Settings overlay */}
+      <div style={{ position:"absolute", top:8, left:10, display:"flex", gap:6, flexWrap:"wrap" }}>
+        {[fmtAp(aperture), fmtShutter(shutter), `ISO ${iso}`].map(v => (
+          <span key={v} style={{ background:"rgba(26,24,20,0.72)", color:"#f5f3ef",
+            fontSize:11, padding:"3px 8px", borderRadius:4, fontFamily:"monospace" }}>{v}</span>
+        ))}
+      </div>
+
+      {/* Effect badges */}
+      <div style={{ position:"absolute", bottom:8, right:8,
+        display:"flex", flexDirection:"column", alignItems:"flex-end", gap:3 }}>
+        {blur > 0.15 && <Badge color={C.gold} label={blur>0.6?"Bokeh fuerte":"Bokeh suave"}/>}
+        {motion > 0.08 && <Badge color="#90caf9" label={motion>0.6?"Movimiento difuso":"Movimiento leve"}/>}
+        {grain > 0.3 && <Badge color="#ce93d8" label={grain>0.65?"Grano fuerte":"Grano moderado"}/>}
+        {bright < 0.55 && <Badge color="#ef9a9a" label="Subexpuesto"/>}
+        {bright > 1.5 && <Badge color="#ffe082" label="Sobreexpuesto"/>}
+      </div>
+    </div>
+  );
+}
+
+function Badge({ color, label }) {
+  return (
+    <span style={{ background:"rgba(26,24,20,0.72)", color,
+      borderLeft:`2px solid ${color}`, fontSize:10,
+      padding:"2px 7px", borderRadius:"0 4px 4px 0",
+      letterSpacing:"0.06em", textTransform:"uppercase" }}>
+      {label}
+    </span>
+  );
+}
+
+// ─── UI components ────────────────────────────────────────────────────────────
+function Sel({ label, options, value, onChange, renderOpt }) {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:5 }}>
+      <span style={{ fontSize:10, letterSpacing:"0.13em", textTransform:"uppercase", color:C.muted }}>
+        {label}
+      </span>
+      <select value={value} onChange={e => onChange(e.target.value)} style={{
+        background:C.bg, border:`1.5px solid ${C.goldDim}`, borderRadius:8,
+        padding:"9px 32px 9px 10px", fontSize:13, color:C.text,
+        fontFamily:"'Jost','Inter',sans-serif", fontWeight:300,
+        cursor:"pointer", outline:"none", appearance:"none", width:"100%",
+        backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c8a97a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
+        backgroundRepeat:"no-repeat", backgroundPosition:"right 10px center",
+      }}>
+        {options.map(o => (
+          <option key={o.id} value={o.id}>{renderOpt ? renderOpt(o) : o.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function KPI({ label, value }) {
+  return (
+    <div style={{ background:C.bg, borderRadius:10, padding:"14px 10px",
+      textAlign:"center", flex:1, minWidth:0 }}>
+      <div style={{ fontSize:26, fontWeight:400, color:C.text,
+        letterSpacing:"-0.02em", lineHeight:1, wordBreak:"break-all" }}>{value}</div>
+      <div style={{ fontSize:9, color:C.muted, textTransform:"uppercase",
+        letterSpacing:"0.12em", marginTop:5 }}>{label}</div>
+    </div>
+  );
+}
+
+function AltCard({ alt }) {
+  return (
+    <div style={{ background:C.bg, borderRadius:8, padding:"11px 13px",
+      borderLeft:`3px solid ${C.goldDim}` }}>
+      <div style={{ fontSize:10, color:C.gold, textTransform:"uppercase",
+        letterSpacing:"0.1em", marginBottom:5 }}>{alt.label}</div>
+      <div style={{ display:"flex", gap:12, marginBottom:5, flexWrap:"wrap" }}>
+        {[fmtAp(alt.aperture), fmtShutter(alt.shutter), `ISO ${alt.iso}`].map(v => (
+          <span key={v} style={{ fontSize:14, fontWeight:400, color:C.text,
+            fontFamily:"monospace" }}>{v}</span>
+        ))}
+      </div>
+      <p style={{ fontSize:12, color:C.muted, margin:0, lineHeight:1.5 }}>{alt.note}</p>
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+function RecetaFotografica() {
+  const [cameraId,  setCamera]  = useState("a7rII");
+  const [lensId,    setLens]    = useState("viltrox85");
+  const [lightId,   setLight]   = useState("atardecer");
+  const [subjectId, setSubject] = useState("retrato");
+  const [dofId,     setDof]     = useState("bokeh_suave");
+  const [result,    setResult]  = useState(null);
+  const [loading,   setLoading] = useState(false);
+
+  const camera  = CAMERAS.find(c => c.id === cameraId);
+  const lens    = LENSES.find(l => l.id === lensId);
+  const light   = LIGHT_SITUATIONS.find(l => l.id === lightId);
+  const subject = SUBJECTS.find(s => s.id === subjectId);
+  const dof     = DOF_INTENTS.find(d => d.id === dofId);
+
+  const handleGenerate = useCallback(() => {
+    setLoading(true);
+    const recipe = computeRecipe(camera, lens, light, subject, dof);
+    setResult(recipe);
+    setLoading(false);
+  }, [camera, lens, light, subject, dof]);
+
+  const crop = { FF:1, APSC:1.5, MFT:2, MOBILE:6 }[camera.sensor] || 1;
+
+  return (
+    <div style={{ fontFamily:"'Jost','Inter',sans-serif", fontWeight:300,
+      background:C.bg, color:C.text, minHeight:"100vh",
+      padding:"24px 14px 52px", boxSizing:"border-box" }}>
+
+      <div style={{ textAlign:"center", marginBottom:24 }}>
+        <p style={{ fontSize:10, letterSpacing:"0.2em", textTransform:"uppercase",
+          color:C.gold, margin:"0 0 5px" }}>Mirar Despacio +</p>
+        <h1 style={{ fontSize:24, fontWeight:300, margin:"0 0 5px", letterSpacing:"0.02em" }}>
+          Receta Fotográfica
+        </h1>
+        <p style={{ fontSize:13, color:C.muted, margin:0 }}>
+          Dinos qué foto quieres hacer. Te decimos cómo configurar la cámara.
+        </p>
+      </div>
+
+      <div style={{ maxWidth:680, margin:"0 auto", display:"flex", flexDirection:"column", gap:14 }}>
+
+        {/* Selectors */}
+        <div style={{ background:C.surface, borderRadius:12, padding:"18px 16px" }}>
+          <p style={{ fontSize:10, letterSpacing:"0.13em", textTransform:"uppercase",
+            color:C.muted, margin:"0 0 14px" }}>Tu equipo y situación</p>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px 16px" }}>
+            <Sel label="Cámara"   options={CAMERAS}           value={cameraId}  onChange={setCamera}  />
+            <Sel label="Objetivo" options={LENSES}            value={lensId}    onChange={setLens}    />
+            <Sel label="Luz"      options={LIGHT_SITUATIONS}  value={lightId}   onChange={setLight}
+              renderOpt={o => `${o.icon} ${o.label}`}/>
+            <Sel label="Escena"   options={SUBJECTS}          value={subjectId} onChange={setSubject} />
+          </div>
+          <div style={{ marginTop:12 }}>
+            <Sel label="Profundidad de campo" options={DOF_INTENTS} value={dofId} onChange={setDof}/>
+          </div>
+        </div>
+
+        {/* Sensor strip */}
+        <div style={{ background:C.surface, borderRadius:9, padding:"9px 14px",
+          display:"flex", gap:16, flexWrap:"wrap", fontSize:11, color:C.muted }}>
+          {[
+            { k:"Sensor",       v:camera.sensor },
+            { k:"IBIS",         v:camera.ibis ? "Sí" : "No" },
+            { k:"ISO máx",      v:camera.maxISO.toLocaleString() },
+            { k:"Focal equiv.", v:`${Math.round(lens.focal * crop)}mm` },
+            { k:"Apert. máx",   v:fmtAp(lens.maxAp) },
+          ].map(d => (
+            <span key={d.k} style={{ whiteSpace:"nowrap" }}>
+              <span style={{ fontSize:9, textTransform:"uppercase", letterSpacing:"0.08em" }}>{d.k} </span>
+              <strong style={{ color:C.text, fontWeight:400 }}>{d.v}</strong>
+            </span>
+          ))}
+        </div>
+
+        {/* Button */}
+        <button onClick={handleGenerate} disabled={loading} style={{
+          background: loading ? C.goldDim : C.gold, color:"#fff",
+          border:"none", borderRadius:10, padding:"13px 24px",
+          fontSize:14, fontWeight:400, fontFamily:"inherit",
+          cursor: loading ? "wait" : "pointer", letterSpacing:"0.04em",
+          transition:"background 0.2s",
+        }}>
+          {loading ? "Calculando…" : "Calcular receta"}
+        </button>
+
+        {/* Result */}
+        {result && (
+          <>
+            {/* Visual scene */}
+            <RecipeScene recipe={result} light={light} subject={subject} dofIntent={dof}/>
+
+            {/* KPIs */}
+            <div style={{ background:C.surface, borderRadius:12, padding:"18px 16px" }}>
+              <p style={{ fontSize:10, letterSpacing:"0.13em", textTransform:"uppercase",
+                color:C.muted, margin:"0 0 12px" }}>Receta recomendada</p>
+              <div style={{ display:"flex", gap:8 }}>
+                <KPI label="Apertura"  value={fmtAp(result.main.aperture)}/>
+                <KPI label="Velocidad" value={fmtShutter(result.main.shutter)}/>
+                <KPI label="ISO"       value={result.main.iso.toLocaleString()}/>
+              </div>
+              {result.main.shutter > 1/60 && result.main.shutter < 30 && (
+                <p style={{ fontSize:11, color:"#5a8cc8", margin:"8px 0 0",
+                  padding:"7px 10px", background:"rgba(90,140,200,0.1)",
+                  borderRadius:6, borderLeft:"3px solid #5a8cc8" }}>
+                  📐 Velocidad lenta ({fmtShutter(result.main.shutter)}) — busca un punto de apoyo o usa trípode para evitar trepidación.
+                </p>
+              )}
+              {(subject.id === "retrato" || subject.id === "retrato_mov") && light.ev <= 8 && (
+                <p style={{ fontSize:11, color:"#b07a2a", margin:"8px 0 0",
+                  padding:"7px 10px", background:"rgba(176,122,42,0.1)",
+                  borderRadius:6, borderLeft:"3px solid #b07a2a" }}>
+                  ⚡ Luz muy baja para retrato — un flash de mano (aunque sea rebotado o de relleno) te libera de subir tanto el ISO o bajar tanto la velocidad.
+                </p>
+              )}
+              {result.main.evError > 1.2 && (
+                <p style={{ fontSize:11, color:C.goldDeep, margin:"10px 0 0",
+                  padding:"7px 10px", background:`${C.gold}15`, borderRadius:6 }}>
+                  ⚠ Esta combinación se aleja del EV ideal. Compensa ±{result.main.evError.toFixed(1)} EV.
+                </p>
+              )}
+            </div>
+
+            {/* Alternatives */}
+            {result.alts.length > 0 && (
+              <div style={{ background:C.surface, borderRadius:12, padding:"18px 16px" }}>
+                <p style={{ fontSize:10, letterSpacing:"0.13em", textTransform:"uppercase",
+                  color:C.muted, margin:"0 0 12px" }}>Alternativas</p>
+                <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                  {result.alts.map((a,i) => <AltCard key={i} alt={a}/>)}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        <p style={{ textAlign:"center", fontSize:10, color:C.goldDim,
+          letterSpacing:"0.16em", marginTop:4 }}>MIRAR DESPACIO +</p>
+      </div>
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('react-mount'));
+    root.render(React.createElement(RecetaFotografica));
+  </script>
+  <script>
+    // Ver nota en composicion.html: @babel/standalone reciente usa por defecto
+    // el "automatic JSX runtime" (genera un `import`), que rompe en un script
+    // normal sin type="module". Forzamos aquí runtime "classic" a mano.
+    const jsxSource = document.getElementById('receta-jsx-source').textContent;
+    const transformed = Babel.transform(jsxSource, {
+      presets: [['react', { runtime: 'classic' }], 'env'],
+    }).code;
+    (0, eval)(transformed);
+  </script>
+</body>
+</html>

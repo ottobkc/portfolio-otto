@@ -10,13 +10,13 @@ INSTAGRAM = 'https://instagram.com/ob.kc'
 EMAIL = 'info@mirardespacio.es'
 UMAMI = '8f2ba4b0-e3aa-4d28-b1ec-282e448736f8'
 FORMSPREE = 'https://formspree.io/f/mlgkdlno'
-ACCESO = 'https://ottokols.es/acceso.html'
 # Titular de la web para las páginas legales (privacidad, condiciones y aviso legal).
 # Nombre y apellidos exactamente como en el DNI. Si NIF está vacío, las páginas lo marcan como pendiente.
 TITULAR = 'Otto Kolschinske Castro'
 NIF = '50766346X'
 DOMICILIO = 'Calle Pirra 18, portal E, 1.º C, 28022 Madrid'
 ACTUALIZADO_LEGAL = 'noviembre de 2026'
+ACCESO = '/acceso/'
 HOY = '2026-09-29'
 
 import hashlib
@@ -33,7 +33,7 @@ datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespa
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
 NAV = [('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/podcast/', 'Podcast'), ('/muro/', 'Muro'), ('/talleres/', 'Talleres'), ('/tutorias/', 'Tutorías'),
-       ('/zine/', 'Zine'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
+       ('/tienda/', 'Tienda'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 
 ORG = {
     "@type": "Organization", "@id": DOM + "/#org", "name": "Mirar Despacio", "url": DOM + "/",
@@ -76,7 +76,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <script type="application/ld+json">
 {ld}
   </script>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}"></script>{extra_head}
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>{extra_head}
 </head>
 <body>
   <a class="oculto-visual" href="#contenido">Saltar al contenido</a>
@@ -155,9 +155,9 @@ PROXIMA_JS = '''
     }).catch(function () {});
   </script>'''
 
-# monturas.js vive en PortfolioOtto/js (lo usa también la zona MD+): se copia aquí para el juego
+# monturas.js vive en MirarDespacio/js (lo usa también la zona MD+): se copia aquí para el juego
 import shutil
-shutil.copyfile(os.path.join(os.path.dirname(__file__), '..', 'PortfolioOtto', 'js', 'monturas.js'),
+shutil.copyfile(os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'js', 'monturas.js'),
                 os.path.join(RAIZ, 'assets', 'monturas.js'))
 
 from paginas import construir

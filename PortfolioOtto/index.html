@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>
-    // Los enlaces de los emails de acceso a Mirar Despacio+ (invitación, recuperar contraseña…)
-    // llegan a la portada: se reenvían a la página de acceso, que es la que muestra el formulario.
+    // Enlaces de los correos antiguos de Netlify Identity (invitación, recuperar contraseña…): la zona de
+    // socios ahora está en mirardespacio.es y se entra con un enlace al correo, sin contraseña.
     if (/(recovery|invite|confirmation|email_change)_token=/.test(location.hash)) {
-      location.replace('/acceso.html' + location.hash);
+      location.replace('https://mirardespacio.es/acceso/');
     }
   </script>
   <title>Otto Kols · Fotógrafo de retrato en Madrid</title>
@@ -53,7 +53,7 @@
  ]
 }
   </script>
-  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8"></script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
 </head>
 <body>
   <a class="oculto" href="#contenido">Saltar al contenido</a>
@@ -105,7 +105,7 @@
         <div class="retratos">
           <a class="destacado" href="/actores/"><img src="/fotos/retrato1vert.jpg" alt="Retrato de actriz en blanco y negro" width="934" height="1400" loading="lazy"><div class="etq"><span>casting y book</span><span>desde 80 €</span></div><h3>Actores</h3><p>Book y fotos para casting.</p></a>
           <a href="/retrato/"><img src="/fotos/retrato3vert.jpg" alt="Retrato de una mujer apoyada en una pared naranja" width="934" height="1400" loading="lazy"><div class="etq"><span>personal</span><span>90–140 €</span></div><h3>Retrato</h3><p>Para ti, tu web o simplemente porque sí.</p></a>
-          <a href="/parejas/"><img src="/fotos/boda1horiz.jpg" alt="Pareja de novios caminando junto al mar" width="1503" height="1000" loading="lazy"><div class="etq"><span>dos personas</span><span>desde 90 €</span></div><h3>Parejas y bodas íntimas</h3><p>Preboda, aniversario o una boda pequeña.</p></a>
+          <a href="/parejas/"><img src="/fotos/boda1horiz.jpg" alt="Pareja de novios caminando junto al mar" width="1503" height="1000" loading="lazy"><div class="etq"><span>dos personas</span><span>desde 90 €</span></div><h3>Parejas y bodas íntimas</h3><p>Preboda, pedida, aniversario o una boda pequeña.</p></a>
           <a href="/mascotas/"><img src="/fotos/walliot.jpg" alt="Retrato de un carlino" width="1400" height="934" loading="lazy"><div class="etq"><span>mascotas</span><span>70–80 €</span></div><h3>Mascotas</h3><p>A su ritmo y en su sitio favorito.</p></a>
         </div>
       </div>
