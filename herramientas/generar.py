@@ -14,7 +14,8 @@ FORMSPREE = 'https://formspree.io/f/mlgkdlno'
 # Nombre y apellidos exactamente como en el DNI. Si NIF está vacío, las páginas lo marcan como pendiente.
 TITULAR = 'Otto Kolschinske Castro'
 NIF = '50766346X'
-DOMICILIO = 'Calle Pirra 18, portal E, 1.º C, 28022 Madrid'
+# Sin portal ni piso, como en Stripe (Otto, 31 oct. 2026). Si la gestoría pide el domicilio completo, se añade aquí.
+DOMICILIO = 'Calle Pirra 18, 28022 Madrid'
 ACTUALIZADO_LEGAL = 'noviembre de 2026'
 ACCESO = '/acceso/'
 HOY = '2026-09-29'

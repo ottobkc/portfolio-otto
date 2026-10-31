@@ -250,7 +250,8 @@ a.tarjeta:hover { border-color: var(--tinta); transform: translateY(-2px); }
 .edicion .boton { padding: 10px 18px; font-size: .88rem; flex: none; }
 .edicion .aviso { font-size: .82rem; }
 .precio small { font-family: var(--f-texto); font-size: .95rem; color: var(--gris); }
-.precio s.antes, s.antes { font-size: .55em; color: var(--gris); text-decoration-thickness: 1px; margin-right: 4px; font-weight: 400; }
+s.antes { font-size: .85em; color: var(--gris); text-decoration-thickness: 1px; margin-right: 3px; font-weight: 400; }
+.precio s.antes { font-size: .55em; margin-right: 4px; }
 .oferta { font-size: .9rem; color: var(--rosa); margin: 4px 0 0; }
 
 /* ---------- Tarjeta regalo ---------- */
