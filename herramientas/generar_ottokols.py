@@ -20,7 +20,7 @@ MASCOTAS = ['mascotas_l48usq']
 def enc(pid, w=1200):
     return f'{CLD}f_auto,q_auto,w_{w}/{pid}.jpg'
 
-NAV = [('/encargos/', 'Encargos'), ('/#sobre', 'Sobre mí'), ('/contacto/', 'Contacto')]
+NAV = [('/encargos/', 'Encargos'), ('/#sobre', 'Sobre mí'), ('/contacto/', 'Contacto'), ('/galeria/', 'Clientes')]
 RETRATOS = [('/actores/', 'Actores'), ('/retrato/', 'Retrato personal'), ('/parejas/', 'Parejas y bodas íntimas'), ('/mascotas/', 'Mascotas')]
 
 NEGOCIO = {
@@ -69,9 +69,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
   <meta property="og:image" content="{og_img if og_img.startswith('http') else DOM + og_img}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#edece7">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Caveat:wght@500&family=Hanken+Grotesk:wght@400;500&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <link rel="stylesheet" href="/assets/ok.css">
   <script type="application/ld+json">
 {ld}
@@ -114,6 +112,9 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img='/fotos/retrat
           <li><a href="mailto:{EMAIL}">{EMAIL}</a></li>
           <li><a href="{INSTAGRAM}" rel="me">Instagram · @ob.kc</a></li>
           <li><a href="{MD}">Mirar Despacio</a></li>
+          <li><a href="{MD}privacidad/">Privacidad</a></li>
+          <li><a href="{MD}aviso-legal/">Aviso legal</a></li>
+          <li><a href="/galeria/">Área de clientes</a></li>
         </ul>
       </div>
       <p class="legal">© 2026 Otto Kols · Madrid</p>
@@ -412,7 +413,7 @@ cuerpo = f'''
           <div><label for="c-tipo">Qué tienes en mente</label><select id="c-tipo" name="tipo">{opciones}</select></div>
           <div><label for="c-fecha">Fecha aproximada</label><input type="text" id="c-fecha" name="fecha" placeholder="Por ejemplo: noviembre, sin fecha aún…"></div>
           <div><label for="c-mensaje">Cuéntame algo</label><textarea id="c-mensaje" name="mensaje" rows="5"></textarea></div>
-          <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para responder a este mensaje.</label>
+          <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para responder a este mensaje. <a href="https://mirardespacio.es/privacidad/">Privacidad</a></label>
           <div><button class="btn lleno" type="submit">Enviar mensaje</button></div>
         </form>
         <div class="ok" id="contactOk"><strong>Mensaje recibido.</strong> Te escribo pronto.</div>

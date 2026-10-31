@@ -10,6 +10,13 @@ INSTAGRAM = 'https://instagram.com/ob.kc'
 EMAIL = 'info@mirardespacio.es'
 UMAMI = '8f2ba4b0-e3aa-4d28-b1ec-282e448736f8'
 FORMSPREE = 'https://formspree.io/f/mlgkdlno'
+# Titular de la web para las páginas legales (privacidad, condiciones y aviso legal).
+# Nombre y apellidos exactamente como en el DNI. Si NIF está vacío, las páginas lo marcan como pendiente.
+TITULAR = 'Otto Kolschinske Castro'
+NIF = '50766346X'
+# Sin portal ni piso, como en Stripe (Otto, 31 oct. 2026). Si la gestoría pide el domicilio completo, se añade aquí.
+DOMICILIO = 'Calle Pirra 18, 28022 Madrid'
+ACTUALIZADO_LEGAL = 'noviembre de 2026'
 ACCESO = '/acceso/'
 HOY = '2026-09-29'
 
@@ -26,7 +33,7 @@ def cld(url, t='f_auto,q_auto,w_900'):
 datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'salidas-data.json')))
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
-NAV = [('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/podcast/', 'Podcast'), ('/muro/', 'Muro'), ('/tutorias/', 'Tutorías'),
+NAV = [('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/podcast/', 'Podcast'), ('/muro/', 'Muro'), ('/talleres/', 'Talleres'), ('/tutorias/', 'Tutorías'),
        ('/tienda/', 'Tienda'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 
 ORG = {
@@ -65,9 +72,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <meta name="theme-color" content="#f5f3ef">
   <link rel="icon" href="{cld(LOGO, 'w_64,h_64,c_pad,b_rgb:f5f3ef')}">
   <link rel="apple-touch-icon" href="{cld(LOGO, 'w_180,h_180,c_pad,b_rgb:f5f3ef')}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Jost:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <link rel="stylesheet" href="{v('md.css')}">
   <script type="application/ld+json">
 {ld}
@@ -108,6 +113,8 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
           <li><a href="{SPOTIFY}">Spotify</a></li>
           <li><a href="{ACCESO}">Acceso miembros</a></li>
           <li><a href="/privacidad/">Privacidad</a></li>
+          <li><a href="/condiciones/">Condiciones de venta</a></li>
+          <li><a href="/aviso-legal/">Aviso legal</a></li>
         </ul>
       </div>
       <p class="legal">© 2026 Mirar Despacio · Otto Kols · Madrid</p>
@@ -123,7 +130,7 @@ def escribir(ruta, contenido):
     if ruta == '/':
         destino = os.path.join(RAIZ, 'index.html')
     os.makedirs(os.path.dirname(destino), exist_ok=True)
-    for js in ('pegatinas.js', 'galerias.js', 'juego.js', 'muro.js', 'monturas.js'):
+    for js in ('pegatinas.js', 'galerias.js', 'talleres.js', 'juego.js', 'muro.js', 'monturas.js'):
         contenido = contenido.replace('"/assets/' + js + '"', '"' + v(js) + '"')
     open(destino, 'w').write(contenido)
     print('✓', ruta)
@@ -149,9 +156,9 @@ PROXIMA_JS = '''
     }).catch(function () {});
   </script>'''
 
-# monturas.js vive en PortfolioOtto/js (lo usa también la zona MD+): se copia aquí para el juego
+# monturas.js vive en MirarDespacio/js (lo usa también la zona MD+): se copia aquí para el juego
 import shutil
-shutil.copyfile(os.path.join(os.path.dirname(__file__), '..', 'PortfolioOtto', 'js', 'monturas.js'),
+shutil.copyfile(os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'js', 'monturas.js'),
                 os.path.join(RAIZ, 'assets', 'monturas.js'))
 
 from paginas import construir

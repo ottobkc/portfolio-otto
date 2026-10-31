@@ -8,9 +8,7 @@
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#e8821a">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fuentes/fuentes.css">
 <script>
   // Tema: 'claro' | 'oscuro' | sin guardar = automático (sigue al sistema). Se aplica antes de pintar.
   (function () { try { var t = localStorage.getItem('crm-tema'); if (t === 'claro' || t === 'oscuro') document.documentElement.setAttribute('data-tema', t); } catch (e) {} })();
@@ -375,6 +373,7 @@
     <div class="sep"></div>
     <button class="item" data-tab="contabilidad"><span class="ico">€</span>Contabilidad <span id="contaPendientes" class="badge" style="display:none" title="Cargos de suscripciones esta semana"></span></button>
     <button class="item" data-tab="tienda"><span class="ico">◫</span>Tienda <span id="tiendaPendientes" class="badge" style="display:none" title="Pedidos por preparar"></span></button>
+    <button class="item" data-tab="regalos"><span class="ico">✧</span>Regalos</button>
     <div class="pie">
       <button class="tema" id="botonTema" type="button" onclick="cambiarTema()"></button>
       <button class="salir" type="button" onclick="doLogout()">Cerrar sesión</button>
@@ -716,6 +715,8 @@
   <!-- CONTABILIDAD y TIENDA: las pintan contabilidad.js y tienda.js -->
   <div class="view" id="view-contabilidad"></div>
   <div class="view" id="view-tienda"></div>
+  <!-- REGALOS: bonos regalo vendidos (talleres y MD+) -->
+  <div class="view" id="view-regalos"><div id="bonosList"></div></div>
 
   <!-- EXPORTAR VIEW -->
   <div class="view" id="view-exportar">
@@ -810,6 +811,7 @@ let signups = [];
 let currentEventId = null;
 let unsubEvents = null, unsubPeople = null, unsubSignups = null;
 let miembrosAct = [], accesos = [], unsubMiembros = null, unsubAccesos = null, miembroAbierto = null;
+let bonos = [], unsubBonos = null;
 let pegatinas = [], unsubPegatinas = null;
 let fotos = [], retos = [], cuentas = [];
 
@@ -833,6 +835,7 @@ onAuthStateChanged(auth, (user) => {
     if (unsubAccesos) unsubAccesos();
     if (unsubPegatinas) unsubPegatinas();
     if (modulos) modulos.then(([c, t]) => { c.detener(); t.detener(); });
+    if (unsubBonos) unsubBonos();
   }
 });
 
@@ -903,6 +906,10 @@ function attachListeners() {
     pegatinas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderPegatinas();
   }, () => {});
+  unsubBonos = onSnapshot(collection(db, 'bonos'), (snap) => {
+    bonos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderBonos();
+  }, () => {});
   unsubSignups = onSnapshot(collection(db, 'signups'), (snap) => {
     signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderEvents();
@@ -919,6 +926,7 @@ const TITULOS = {
   fotos: ['Fotos', 'Cuadernos, retos, talleres y muro'], accesos: ['Accesos y Mirar Despacio+', 'Cuentas, suscripciones, manuales y retos del mes'],
   juego: ['Juegos', ''], pegatinas: ['Pegatinas', 'El mapa de las salidas'], exportar: ['Exportar', 'Copias y listados'],
   contabilidad: ['Contabilidad', 'Facturas, cobros, gastos y suscripciones'], tienda: ['Tienda', 'Productos, stock y pedidos'],
+  regalos: ['Regalos', 'Bonos regalo vendidos: talleres y Mirar Despacio+'],
 };
 document.querySelectorAll('[data-tab]').forEach(t => {
   t.addEventListener('click', () => showTab(t.dataset.tab));
@@ -945,6 +953,7 @@ window.showTab = function(name) {
   if (name === 'fotos') { renderFotos(); renderRetos(); }
   if (name === 'contabilidad') cargarModulos().then(([c]) => c.mostrar());
   if (name === 'tienda') cargarModulos().then(([, t]) => t.mostrar());
+  if (name === 'regalos') renderBonos();
 };
 
 // ---------- FOTOS (cuaderno, retos, muro) ----------
@@ -1462,6 +1471,26 @@ window.quitarManualCRM = async function(taller, id) {
 };
 
 
+
+// ---------- REGALOS (bonos) ----------
+window.renderBonos = function() {
+  const el = document.getElementById('bonosList');
+  if (!el) return;
+  if (!bonos.length) { el.innerHTML = '<div class="empty">Aún no se ha vendido ningún regalo</div>'; return; }
+  el.innerHTML = '';
+  bonos.slice().sort((a, b) => (fechaDe(b.creado) || 0) - (fechaDe(a.creado) || 0)).forEach(b => {
+    const caducado = b.caduca && new Date(b.caduca) < new Date();
+    const estado = b.usado ? `<span class="badge" style="background:#5a7a5d;">canjeado</span>` : caducado ? `<span class="badge" style="background:#b5654f;">caducado</span>` : `<span class="badge">pendiente</span>`;
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main">
+      <div class="person-name">${escapeHtml(b.titulo || '')} ${estado}</div>
+      <div class="person-meta">${escapeHtml(b.codigo)} · regalo de ${escapeHtml(b.compradorNombre || b.compradorEmail || '')}${b.usado ? ' · canjeado por ' + escapeHtml(b.canjeadoPor || '') : ''}${b.caduca ? ' · vale hasta ' + new Date(b.caduca).toLocaleDateString('es-ES') : ''}</div>
+      <div class="person-meta"><a href="https://mirardespacio.es/regalo/?c=${encodeURIComponent(b.codigo)}" target="_blank" rel="noopener" style="color:inherit">ver tarjeta</a></div>
+    </div>`;
+    el.appendChild(div);
+  });
+};
 // ---------- PEGATINAS ----------
 let jugadores = [];
 window.renderJugadores = function() {
@@ -2440,7 +2469,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity'];
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);

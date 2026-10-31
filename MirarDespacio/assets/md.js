@@ -23,6 +23,23 @@
     revelar.forEach(function (el) { el.classList.add('visible'); });
   }
 
+  // Reproductor de Spotify: solo se carga si la persona lo pide (Spotify usa sus propias cookies)
+  document.querySelectorAll('.spotify-fachada').forEach(function (caja) {
+    var btn = caja.querySelector('.spotify-cargar');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = caja.getAttribute('data-spotify');
+      f.title = caja.getAttribute('data-titulo') || 'Reproductor de Spotify';
+      f.height = caja.getAttribute('data-alto') || '352';
+      f.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture');
+      f.style.cssText = 'border:0;border-radius:12px;width:100%;display:block;';
+      caja.innerHTML = '';
+      caja.classList.add('cargado');
+      caja.appendChild(f);
+    });
+  });
+
   // Visor de fotos: cualquier botón con data-foto dentro de [data-visor]
   var visor = document.createElement('div');
   visor.className = 'visor';

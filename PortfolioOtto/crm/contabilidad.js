@@ -31,7 +31,7 @@ const normal = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[�
 export const CAT_INGRESO = {
   taller: 'Talleres', tutoria: 'Tutorías', sesion: 'Sesiones de fotos', encargo: 'Encargos', salida: 'Salidas (aportaciones)',
   'mirar-despacio-plus': 'Mirar Despacio+', 'regalo-taller': 'Regalos de talleres', 'regalo-plus': 'Regalos de MD+',
-  zine: 'Zine', tienda: 'Tienda (baraja, camisetas…)', marca: 'Marcas y colaboraciones', podcast: 'Podcast (Podimo…)',
+  zine: 'Zine', tienda: 'Tienda (baraja, camisetas…)', reventa: 'Reventa de productos de terceros', marca: 'Marcas y colaboraciones', podcast: 'Podcast (Podimo…)',
   donativo: 'Donativos', otros: 'Otros', revisar: '⚠️ A revisar',
 };
 export const CAT_GASTO = {
@@ -41,6 +41,31 @@ export const CAT_GASTO = {
   gestoria: 'Gestoría', cuota: 'Cuota de autónomos', 'otros-gasto': 'Otros gastos',
 };
 const nombreCat = (c) => CAT_INGRESO[c] || CAT_GASTO[c] || c || '—';
+
+// Actividades dadas de alta (epígrafes del IAE). Indicaciones de la gestoría:
+// - una serie de facturas por actividad (FOT2026-001, DOC2026-001…);
+// - retención de IRPF solo en las de sección 2.ª (formación e informática) a empresas o profesionales;
+// - cada gasto identificado por actividad (los comunes, a fotografía);
+// - el comercio va en recargo de equivalencia: el IVA de sus ventas no se declara (no entra en el 303)
+//   y el IVA y el recargo de sus compras no se deducen (son coste).
+export const ACTIVIDADES = {
+  fotografia: { nombre: 'Fotografía', iae: '973.1', serie: 'FOT' },
+  docencia: { nombre: 'Formación (talleres, tutorías, MD+)', iae: '826', serie: 'DOC', retencion: true },
+  informatica: { nombre: 'Servicios informáticos', iae: '765', serie: 'INF', retencion: true },
+  graficas: { nombre: 'Productos de diseño propio (zine, baraja, prints)', iae: '475', serie: 'GRA' },
+  comercio: { nombre: 'Comercio · recargo de equivalencia', iae: '653.3', serie: 'COM', recargo: true },
+};
+const ACT_DE_CAT = {
+  taller: 'docencia', tutoria: 'docencia', salida: 'docencia', 'mirar-despacio-plus': 'docencia', 'regalo-taller': 'docencia', 'regalo-plus': 'docencia',
+  sesion: 'fotografia', encargo: 'fotografia', marca: 'fotografia', podcast: 'fotografia', donativo: 'fotografia',
+  zine: 'graficas', tienda: 'graficas', reventa: 'comercio', mercancia: 'comercio',
+};
+const actividadDe = (x) => (x && ACTIVIDADES[x.actividad] ? x.actividad : ACT_DE_CAT[x && x.categoria] || 'fotografia');
+const nombreAct = (k) => (ACTIVIDADES[k] ? `${ACTIVIDADES[k].nombre} (${ACTIVIDADES[k].iae})` : '—');
+const selActividad = (id, valor, alCambiar) => `<select id="${id}" ${alCambiar ? `onchange="${alCambiar}"` : ''} title="Actividad (epígrafe del IAE)">${Object.keys(ACTIVIDADES).map((k) => `<option value="${k}" ${valor === k ? 'selected' : ''}>${nombreAct(k)}</option>`).join('')}</select>`;
+// Recargo de equivalencia según el tipo de IVA
+const RECARGO = { 21: 5.2, 10: 1.4, 4: 0.5, 0: 0 };
+const serieDe = (a, act, rect) => { const pre = ((a.series || {})[act] || ACTIVIDADES[act].serie); return rect ? (a.serieRect || 'R') + pre : pre; };
 const METODOS = { transferencia: 'Transferencia', bizum: 'Bizum', tarjeta: 'Tarjeta', efectivo: 'Efectivo', stripe: 'Stripe', domiciliacion: 'Domiciliación', paypal: 'PayPal' };
 const IVAS = [[21, '21 %'], [10, '10 %'], [4, '4 %'], [0, 'Exento (0 %)']];
 const MARCAS = { 'mirar-despacio': 'Mirar Despacio', 'otto-kols': 'Otto Kols', ninguna: 'Sin marca (solo tu nombre)' };
@@ -95,6 +120,11 @@ function partesCobro(m) {
 function partesGasto(m) {
   const total = num(m.importe);
   if (!m.conFactura) return { base: total, cuota: 0, deducible: total, ivaDeducible: 0 };
+  // Compras del comercio (recargo de equivalencia): todo lo pagado es coste y no hay IVA que deducir
+  if (actividadDe(m) === 'comercio') {
+    const pct = m.deducible != null ? Number(m.deducible) : 100;
+    return { base: m.base != null ? num(m.base) : total, cuota: num(m.cuotaIva) + num(m.recargo), deducible: r2(total * pct / 100), ivaDeducible: 0 };
+  }
   const base = m.base != null ? num(m.base) : r2(total / (1 + (Number(m.ivaPct) || 0) / 100));
   const cuota = m.cuotaIva != null ? num(m.cuotaIva) : r2(total - base);
   const pct = m.deducible != null ? Number(m.deducible) : 100;
@@ -123,7 +153,12 @@ function avisoMenu() {
 // ===================== Periodos =====================
 function opcionesPeriodo() {
   const hoy = new Date(), y = hoy.getFullYear(), tq = Math.floor(hoy.getMonth() / 3) + 1;
-  const ops = [['mes', 'Este mes'], ['T' + tq + '-' + y, `${tq}º trimestre ${y}`]];
+  const ops = [['mes', 'Este mes']];
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(y, hoy.getMonth() - i, 1);
+    ops.push([`M-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }).replace(/^./, (c) => c.toUpperCase())]);
+  }
+  ops.push(['T' + tq + '-' + y, `${tq}º trimestre ${y}`]);
   for (let q = tq - 1; q >= 1; q--) ops.push(['T' + q + '-' + y, `${q}º trimestre ${y}`]);
   for (let q = 4; q >= 1; q--) ops.push(['T' + q + '-' + (y - 1), `${q}º trimestre ${y - 1}`]);
   ops.push(['A-' + y, 'Año ' + y], ['A-' + (y - 1), 'Año ' + (y - 1)], ['todo', 'Todo']);
@@ -133,6 +168,7 @@ function rango(per) {
   const hoy = new Date();
   if (per === 'todo') return ['0000-01-01', '9999-12-31'];
   if (per === 'mes') { const a = new Date(hoy.getFullYear(), hoy.getMonth(), 1), b = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0); return [isoDe(a), isoDe(b)]; }
+  if (/^M-\d{4}-\d{2}$/.test(per)) { const [, ys, ms] = per.split('-'); const a = new Date(Number(ys), Number(ms) - 1, 1), b = new Date(Number(ys), Number(ms), 0); return [isoDe(a), isoDe(b)]; }
   const [k, ys] = per.split('-'); const y = Number(ys);
   if (k === 'A') return [`${y}-01-01`, `${y}-12-31`];
   const q = Number(k.slice(1));
@@ -181,8 +217,9 @@ function cifras(r) {
   const cobSinFac = movimientos.filter((m) => m.tipo !== 'gasto' && !(m.facturaId && facIds.has(m.facturaId)) && enRango(fechaMov(m), r));
   const gas = movimientos.filter((m) => m.tipo === 'gasto' && enRango(fechaMov(m), r));
   let ingBase = 0, ivaRep = 0, ret = 0, gasBase = 0, ivaSop = 0;
-  fac.forEach((f) => { const t = f.totales || calcular(f); ingBase += t.base; ivaRep += t.cuota; ret += t.retencion; });
-  cobSinFac.forEach((m) => { const p = partesCobro(m); ingBase += p.base; ivaRep += p.cuota; });
+  // En recargo de equivalencia (comercio) el IVA cobrado no se ingresa: es ingreso y no va al 303
+  fac.forEach((f) => { const t = f.totales || calcular(f); const re = actividadDe(f) === 'comercio'; ingBase += re ? t.base + t.cuota : t.base; if (!re) ivaRep += t.cuota; ret += t.retencion; });
+  cobSinFac.forEach((m) => { const p = partesCobro(m); const re = actividadDe(m) === 'comercio'; ingBase += re ? p.base + p.cuota : p.base; if (!re) ivaRep += p.cuota; });
   gas.forEach((m) => { const p = partesGasto(m); gasBase += p.deducible; ivaSop += p.ivaDeducible; });
   return { fac, cobSinFac, gas, ingBase: r2(ingBase), ivaRep: r2(ivaRep), ret: r2(ret), gasBase: r2(gasBase), ivaSop: r2(ivaSop) };
 }
@@ -215,6 +252,12 @@ function pintarResumen() {
   c.cobSinFac.forEach((m) => { const k = nombreCat(m.categoria); porCat[k] = (porCat[k] || 0) + partesCobro(m).base; });
   const porCatG = {};
   c.gas.forEach((m) => { const k = nombreCat(m.categoria); porCatG[k] = (porCatG[k] || 0) + partesGasto(m).deducible; });
+  // Resultado por actividad (los gastos comunes van a fotografía)
+  const porAct = {};
+  const sumaAct = (k, n) => { const t = nombreAct(k); porAct[t] = r2((porAct[t] || 0) + n); };
+  c.fac.forEach((f) => { const t = f.totales || calcular(f); sumaAct(actividadDe(f), actividadDe(f) === 'comercio' ? t.base + t.cuota : t.base); });
+  c.cobSinFac.forEach((m) => { const p = partesCobro(m); sumaAct(actividadDe(m), actividadDe(m) === 'comercio' ? p.base + p.cuota : p.base); });
+  c.gas.forEach((m) => sumaAct(actividadDe(m), -partesGasto(m).deducible));
   const filas = (o) => Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="cx-linea"><span>${esc(k)}</span><span>${eur(v)}</span></div>`).join('') || '<div class="empty">Nada en este periodo</div>';
 
   const sinFactura = c.cobSinFac.filter((m) => m.categoria !== 'donativo');
@@ -242,6 +285,7 @@ function pintarResumen() {
       </div>
       ${tareas ? `<div class="cx-avisos">${tareas}</div>` : ''}
     </div>
+    <div class="card"><div class="card-title">Por actividad (ingresos − gastos)</div>${filas(porAct)}</div>
     <div class="cx-dos">
       <div class="card"><div class="card-title">Ingresos por tipo</div>${filas(porCat)}</div>
       <div class="card"><div class="card-title">Gastos por tipo</div>${filas(porCatG)}</div>
@@ -257,11 +301,12 @@ function pintarResumen() {
         <div class="person-meta" style="margin-top:8px;">Son cuentas orientativas con lo apuntado aquí. Quien presenta los modelos es tu gestora, que puede aplicar otros criterios.</div>`
         : '<div class="person-meta">Elige un trimestre arriba para ver las cuentas del IVA (303) y del IRPF (130).</div>'}
       <div class="row" style="margin-top:12px;flex-wrap:wrap;">
+        <button onclick="cx.csv('emitidas');setTimeout(()=>cx.csv('gastos'),400);setTimeout(()=>cx.csv('cobros'),800)">Todo para la gestoría (3 archivos)</button>
         <button class="secondary" onclick="cx.csv('emitidas')">Libro de facturas emitidas (CSV)</button>
         <button class="secondary" onclick="cx.csv('gastos')">Libro de gastos (CSV)</button>
         <button class="secondary" onclick="cx.csv('cobros')">Cobros sin factura (CSV)</button>
       </div>
-      <div class="person-meta" style="margin-top:6px;">Se descargan los del periodo elegido. Ábrelos con Excel o Numbers, o mándaselos tal cual a la gestora.</div>
+      <div class="person-meta" style="margin-top:6px;">Se descargan los del periodo elegido (arriba puedes elegir un mes). Cada mes, mándale a la gestora estos archivos y las fotos o PDF de las facturas de gastos (en «Gastos», botón «ver» de cada una).</div>
     </div>`;
 }
 
@@ -325,7 +370,7 @@ function facturaVacia(pre = {}) {
     id: null, estado: 'borrador', tipo: 'completa', fecha: hoyISO(), marca: a.marcaDefecto,
     cliente: { nombre: '', nif: '', direccion: '', email: '', personId: '' },
     lineas: [{ concepto: '', cantidad: 1, precio: '', iva: Number(a.ivaDefecto) }],
-    ivaIncluido: a.ivaIncluido !== false, retencion: Number(a.retencionDefecto) || 0, categoria: 'otros', notas: '',
+    ivaIncluido: a.ivaIncluido !== false, retencion: 0, categoria: 'otros', actividad: '', notas: '',
     cobro: { cobrada: false, metodo: 'transferencia', fecha: hoyISO() }, ...pre,
   };
 }
@@ -348,7 +393,10 @@ function leerEditor() {
   const val = (id) => ($(id) ? $(id).value : '');
   f.fecha = val('fxFecha') || hoyISO();
   f.marca = val('fxMarca');
+  const catAntes = f.categoria;
   f.categoria = val('fxCat');
+  // Al cambiar el tipo de ingreso, la actividad se propone sola (se puede cambiar a mano)
+  f.actividad = catAntes !== f.categoria && ACT_DE_CAT[f.categoria] ? ACT_DE_CAT[f.categoria] : val('fxAct') || actividadDe(f);
   f.cliente = { nombre: val('fxCliNombre').trim(), nif: val('fxCliNif').trim().toUpperCase(), direccion: val('fxCliDir').trim(), email: val('fxCliEmail').trim(), personId: f.cliente.personId || '' };
   f.lineas = [...document.querySelectorAll('#fxLineas .fx-linea')].map((el) => ({
     concepto: el.querySelector('[data-k=concepto]').value.trim(), cantidad: num(el.querySelector('[data-k=cantidad]').value) || 0,
@@ -356,6 +404,8 @@ function leerEditor() {
   }));
   f.ivaIncluido = $('fxIvaInc').checked;
   f.retencion = Number(val('fxRet')) || 0;
+  // Retención solo en formación e informática, y solo a empresas o profesionales (con NIF)
+  if (!ACTIVIDADES[f.actividad].retencion || !f.cliente.nif) f.retencion = 0;
   f.notas = val('fxNotas').trim();
   f.cobro = { cobrada: $('fxCobrada').checked, metodo: val('fxMetodo'), fecha: val('fxFechaCobro') || f.fecha, ingresoId: (f.cobro || {}).ingresoId || null };
   // Sin NIF del cliente es una factura simplificada (vale para particulares)
@@ -368,6 +418,16 @@ function totalesHtml(t, f) {
 }
 function recalcular() {
   leerEditor();
+  const f = editando;
+  if ($('fxAct') && $('fxAct').value !== f.actividad) $('fxAct').value = f.actividad;
+  const puedeRet = ACTIVIDADES[f.actividad].retencion && f.cliente.nif;
+  // Con NIF de empresa (CIF: empieza por letra) se propone el 7 %, salvo que se haya elegido a mano
+  if (puedeRet && !f.retencion && /^[ABCDEFGHJNPQRSUVW]/.test(f.cliente.nif) && $('fxRet') && !$('fxRet').dataset.tocado) f.retencion = 7;
+  if ($('fxRet')) { $('fxRet').disabled = !puedeRet; $('fxRet').value = String(f.retencion); }
+  if ($('fxRetNota')) $('fxRetNota').textContent = !ACTIVIDADES[f.actividad].retencion ? 'Esta actividad no lleva retención.'
+    : !f.cliente.nif ? 'Sin NIF del cliente no hay retención (particulares).'
+    : 'Retención del 7 % solo si el cliente es una empresa o un autónomo (no a particulares).';
+  if ($('fxSerie')) $('fxSerie').textContent = 'Se numerará en la serie ' + serieDe(aj(), f.actividad, f.tipo === 'rectificativa') + (ACTIVIDADES[f.actividad].recargo ? ' · recargo de equivalencia: el IVA de esta venta no se declara' : '');
   const t = calcular(editando);
   $('fxTotales').innerHTML = totalesHtml(t, editando);
   $('fxTipo').textContent = editando.tipo === 'rectificativa' ? 'Factura rectificativa' : editando.tipo === 'completa' ? 'Factura completa' : 'Factura simplificada (sin NIF del cliente: vale para particulares)';
@@ -397,7 +457,7 @@ function pintarEditor() {
       <div style="margin:6px 0 10px;">${etiquetasFactura(f)}</div>
       <div class="cx-dos">
         <div>
-          <div class="person-meta">Fecha: ${fechaES(f.fecha)} · ${esc(MARCAS[f.marca] || '')} · ${esc(nombreCat(f.categoria))}</div>
+          <div class="person-meta">Fecha: ${fechaES(f.fecha)} · ${esc(MARCAS[f.marca] || '')} · ${esc(nombreCat(f.categoria))} · ${esc(nombreAct(actividadDe(f)))}</div>
           ${f.cliente.nif ? `<div class="person-meta">NIF ${esc(f.cliente.nif)}${f.cliente.direccion ? ' · ' + esc(f.cliente.direccion) : ''}</div>` : ''}
           ${f.cliente.email ? `<div class="person-meta">${esc(f.cliente.email)}</div>` : ''}
           <div style="margin-top:10px;">${(f.lineas || []).map((l) => `<div class="cx-linea"><span>${num(l.cantidad) !== 1 ? esc(l.cantidad) + ' × ' : ''}${esc(l.concepto)}</span><span>${eur(num(l.cantidad) * num(l.precio))}</span></div>`).join('')}</div>
@@ -436,11 +496,14 @@ function pintarEditor() {
       <div>
         <div class="cx-etq">Factura</div>
         <div class="row"><input id="fxFecha" type="date" value="${esc(f.fecha)}" title="Fecha de la factura"><select id="fxMarca" title="Logo de la factura">${Object.entries(MARCAS).map(([k, v]) => `<option value="${k}" ${f.marca === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
-        <select id="fxCat" title="Tipo de ingreso (para tus cuentas)">${Object.entries(CAT_INGRESO).filter(([k]) => k !== 'revisar').map(([k, v]) => `<option value="${k}" ${f.categoria === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+        ${selActividad('fxAct', actividadDe(f), 'cx.recalcular()')}
+        <select id="fxCat" title="Tipo de ingreso (para tus cuentas)" onchange="cx.recalcular()">${Object.entries(CAT_INGRESO).filter(([k]) => k !== 'revisar').map(([k, v]) => `<option value="${k}" ${f.categoria === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
         <div class="row" style="align-items:center;">
           <label class="consent-toggle" style="margin:0 0 8px;"><input type="checkbox" id="fxIvaInc" ${f.ivaIncluido ? 'checked' : ''} onchange="cx.recalcular()"> Precios con IVA incluido</label>
-          <select id="fxRet" onchange="cx.recalcular()" title="Retención de IRPF">${[[0, 'Sin retención'], [7, 'Retención 7 %'], [15, 'Retención 15 %']].map(([v, t]) => `<option value="${v}" ${Number(f.retencion) === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
+          <select id="fxRet" onchange="this.dataset.tocado='1';cx.recalcular()" title="Retención de IRPF">${[[0, 'Sin retención'], [7, 'Retención 7 %'], [15, 'Retención 15 %']].map(([v, t]) => `<option value="${v}" ${Number(f.retencion) === v ? 'selected' : ''}>${t}</option>`).join('')}</select>
         </div>
+        <div class="person-meta" id="fxRetNota"></div>
+        <div class="person-meta" id="fxSerie"></div>
       </div>
     </div>
     <div class="cx-etq">Conceptos</div>
@@ -527,7 +590,8 @@ async function emitir() {
   const t = calcular(f);
   if (!confirm(`¿Emitir la factura de ${eur(t.total)} a ${f.cliente.nombre || 'cliente sin nombre'}? Una vez emitida no se puede cambiar.`)) return;
   const a = aj();
-  const serie = f.tipo === 'rectificativa' ? (a.serieRect || 'R') : (a.serie || 'F');
+  f.actividad = actividadDe(f);
+  const serie = serieDe(a, f.actividad, f.tipo === 'rectificativa');
   const anio = Number(f.fecha.slice(0, 4));
   const id = f.id || 'b-' + C.uid();
   const refF = doc(db, 'facturas', id), refC = doc(db, 'contadores', `facturas-${serie}-${anio}`);
@@ -566,7 +630,7 @@ async function apuntarCobroDeFactura(f) {
   const idM = 'f-' + f.id;
   await setDoc(doc(db, 'ingresos', idM), {
     tipo: 'ingreso', fechaManual: f.cobro.fecha || f.fecha, fecha: serverTimestamp(), importe: t.total, moneda: 'EUR',
-    base: t.base, cuotaIva: t.cuota, categoria: f.categoria || 'otros', metodo: f.cobro.metodo || 'transferencia',
+    base: t.base, cuotaIva: t.cuota, categoria: f.categoria || 'otros', actividad: actividadDe(f), metodo: f.cobro.metodo || 'transferencia',
     concepto: `Factura ${f.numero}`, quien: f.cliente.nombre || '', email: f.cliente.email || '', facturaId: f.id, facturaNumero: f.numero, origen: 'factura',
   });
   await updateDoc(doc(db, 'facturas', f.id), { 'cobro.ingresoId': idM, 'cobro.cobrada': true });
@@ -705,7 +769,7 @@ async function guardarCobro() {
   try {
     await setDoc(doc(db, 'ingresos', 'm-' + C.uid()), {
       tipo: 'ingreso', fechaManual: $('cbFecha').value || hoyISO(), fecha: serverTimestamp(), importe, moneda: 'EUR', ivaPct: iva, base, cuotaIva: r2(importe - base),
-      categoria: $('cbCat').value, metodo: $('cbMetodo').value, concepto: $('cbConcepto').value.trim(), quien: $('cbQuien').value.trim(), origen: 'manual',
+      categoria: $('cbCat').value, actividad: ACT_DE_CAT[$('cbCat').value] || 'fotografia', metodo: $('cbMetodo').value, concepto: $('cbConcepto').value.trim(), quien: $('cbQuien').value.trim(), origen: 'manual',
     });
     ['cbImporte', 'cbConcepto', 'cbQuien'].forEach((i) => { $(i).value = ''; });
     C.aviso('Cobro apuntado ✓');
@@ -811,7 +875,8 @@ function formGastoHtml(g) {
         <datalist id="gsProvs">${proveedores.map((p) => `<option value="${esc(p)}">`).join('')}</datalist>
         <div class="row"><input id="gsNif" data-vivo placeholder="NIF del proveedor" value="${esc(g.nifProveedor || '')}"><input id="gsNumero" data-vivo placeholder="Nº de su factura" value="${esc(g.numeroFactura || '')}"></div>
         <input id="gsConcepto" data-vivo placeholder="Qué has comprado (p. ej. Tarjetas de bolsillo, 100 uds.)" value="${esc(g.concepto || '')}">
-        <div class="row"><input type="date" id="gsFecha" value="${esc(g.fechaManual || hoyISO())}" title="Fecha de la factura"><select id="gsCat">${Object.entries(CAT_GASTO).map(([k, t]) => `<option value="${k}" ${g.categoria === k ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+        ${selActividad('gsAct', actividadDe(g), 'cx.calcGasto()')}
+        <div class="row"><input type="date" id="gsFecha" value="${esc(g.fechaManual || hoyISO())}" title="Fecha de la factura"><select id="gsCat" onchange="if(this.value==='mercancia')document.getElementById('gsAct').value='comercio';cx.calcGasto()">${Object.entries(CAT_GASTO).map(([k, t]) => `<option value="${k}" ${g.categoria === k ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
       </div>
       <div>
         <label class="consent-toggle" style="margin:0 0 8px;"><input type="checkbox" id="gsConFactura" ${(g.id ? g.conFactura : g.conFactura !== false) ? 'checked' : ''} onchange="cx.calcGasto()"> Es factura con mi NIF (si es un ticket, desmárcalo: su IVA no se deduce)</label>
@@ -819,7 +884,9 @@ function formGastoHtml(g) {
           <select id="gsIva" onchange="cx.calcGasto()">${IVAS.map(([k, t]) => `<option value="${k}" ${Number(g.ivaPct != null ? g.ivaPct : 21) === k ? 'selected' : ''}>IVA ${t}</option>`).join('')}</select></div>
         <div class="row" id="gsPartes"><input id="gsBase" data-vivo type="text" inputmode="decimal" placeholder="Base" title="Base imponible (se calcula sola; cámbiala si la factura mezcla tipos)" value="${g.base != null ? esc(String(g.base).replace('.', ',')) : ''}">
           <input id="gsCuota" data-vivo type="text" inputmode="decimal" placeholder="IVA €" title="Cuota de IVA" value="${g.cuotaIva != null ? esc(String(g.cuotaIva).replace('.', ',')) : ''}">
+          <input id="gsRecargo" data-vivo type="text" inputmode="decimal" placeholder="Recargo €" title="Recargo de equivalencia (solo compras para revender)" value="${g.recargo ? esc(String(g.recargo).replace('.', ',')) : ''}">
           <select id="gsDeducible" title="Parte que es de la actividad">${[[100, 'Deducible 100 %'], [50, 'Deducible 50 %'], [30, 'Deducible 30 %'], [0, 'No deducible']].map(([k, t]) => `<option value="${k}" ${Number(g.deducible != null ? g.deducible : 100) === k ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+        <div class="person-meta" id="gsActNota"></div>
         <select id="gsMetodo">${Object.entries(METODOS).map(([k, t]) => `<option value="${k}" ${(g.metodo || 'tarjeta') === k ? 'selected' : ''}>Pagado con ${t.toLowerCase()}</option>`).join('')}</select>
       </div>
     </div>
@@ -857,22 +924,32 @@ function pintarGastos() {
     const p = partesGasto(m);
     return `<div class="cx-fila" onclick="if(!event.target.closest('button,.tag'))cx.editarGasto('${m.id}')">
       <div class="cx-fecha">${fechaES(fechaMov(m))}</div>
-      <div class="cx-quien"><b>${esc(m.proveedor || m.quien || m.concepto || nombreCat(m.categoria))}</b><div class="person-meta">${esc([m.concepto && m.proveedor ? m.concepto : '', nombreCat(m.categoria), m.numeroFactura ? 'nº ' + m.numeroFactura : ''].filter(Boolean).join(' · '))}</div></div>
+      <div class="cx-quien"><b>${esc(m.proveedor || m.quien || m.concepto || nombreCat(m.categoria))}</b><div class="person-meta">${esc([m.concepto && m.proveedor ? m.concepto : '', nombreCat(m.categoria), ACTIVIDADES[actividadDe(m)].nombre.split(' (')[0], m.numeroFactura ? 'nº ' + m.numeroFactura : ''].filter(Boolean).join(' · '))}</div></div>
       <div class="cx-tags">${m.justificante ? `<span class="tag t-plus" style="cursor:pointer" onclick="cx.verJust('${m.id}')">📎 ver</span>` : '<span class="tag t-man">sin justificante</span>'}${!m.conFactura ? '<span class="tag t-off">ticket</span>' : p.ivaDeducible ? `<span class="tag t-off">IVA ${eur(p.ivaDeducible)}</span>` : ''}${m.suscripcionId ? '<span class="tag t-fotos">suscripción</span>' : ''}</div>
       <div class="cx-imp">${eur(m.importe)}</div>
     </div>`;
   }).join('') || '<div class="empty" style="padding:16px;">Sin gastos en este periodo</div>';
   $('cxTotGas').textContent = lista.length ? `${lista.length} gastos · ${eur(lista.reduce((n, m) => n + num(m.importe), 0))} pagados · ${eur(lista.reduce((n, m) => n + partesGasto(m).ivaDeducible, 0))} de IVA deducible` : '';
 }
+function visGasto() {
+  const re = $('gsAct').value === 'comercio';
+  $('gsPartes').style.opacity = $('gsConFactura').checked ? '' : '.45';
+  $('gsRecargo').style.display = re ? '' : 'none';
+  $('gsActNota').textContent = re ? 'Compra para revender: el proveedor te cobra IVA y recargo de equivalencia. Ninguno se deduce: todo cuenta como coste.' : 'Los gastos comunes a todo (equipo, web, gestoría…) van a Fotografía.';
+  return re;
+}
 function calcGasto() {
   const con = $('gsConFactura').checked;
-  $('gsPartes').style.opacity = con ? '' : '.45';
+  const re = visGasto();
   const total = num($('gsTotal').value), iva = Number($('gsIva').value);
-  if (!con) { $('gsBase').value = ''; $('gsCuota').value = ''; return; }
+  if (!con) { $('gsBase').value = ''; $('gsCuota').value = ''; $('gsRecargo').value = ''; return; }
   if (!total) return;
-  const base = r2(total / (1 + iva / 100));
+  // Total = base + IVA (+ recargo si es para revender)
+  const rec = re ? RECARGO[iva] || 0 : 0;
+  const base = r2(total / (1 + (iva + rec) / 100));
   $('gsBase').value = String(base).replace('.', ',');
-  $('gsCuota').value = String(r2(total - base)).replace('.', ',');
+  $('gsCuota').value = String(r2(base * iva / 100)).replace('.', ',');
+  $('gsRecargo').value = re ? String(r2(total - base - r2(base * iva / 100))).replace('.', ',') : '';
 }
 function elegirProveedor() {
   const p = $('gsProveedor').value.trim();
@@ -880,6 +957,7 @@ function elegirProveedor() {
   if (!ant) return;
   if (!$('gsNif').value) $('gsNif').value = ant.nifProveedor || '';
   $('gsCat').value = ant.categoria || $('gsCat').value;
+  if (ant.actividad) $('gsAct').value = ant.actividad;
   if (ant.ivaPct != null) $('gsIva').value = ant.ivaPct;
   calcGasto();
 }
@@ -889,7 +967,7 @@ function editarGasto(id) {
   const d = $('cxFormGas'); d.open = true;
   $('cxFormGasTit').textContent = '✎ Editar gasto';
   $('cxFormGasCuerpo').innerHTML = formGastoHtml(g);
-  $('gsPartes').style.opacity = g.conFactura ? '' : '.45';
+  visGasto();
   d.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function cancelarGasto() {
@@ -940,8 +1018,9 @@ async function guardarGasto() {
     conFactura: con, ivaPct: con ? Number($('gsIva').value) : 0,
     base: con ? num($('gsBase').value) : total, cuotaIva: con ? num($('gsCuota').value) : 0,
     deducible: Number($('gsDeducible').value), quien: $('gsProveedor').value.trim(),
+    actividad: $('gsAct').value, recargo: con && $('gsAct').value === 'comercio' ? num($('gsRecargo').value) : 0,
   };
-  if (con && Math.abs(datos.base + datos.cuotaIva - total) > 0.02) return C.aviso('La base más el IVA no suma el total: revisa los importes', true);
+  if (con && Math.abs(datos.base + datos.cuotaIva + datos.recargo - total) > 0.02) return C.aviso('La base más el IVA no suma el total: revisa los importes', true);
   const anterior = gastoEditando ? movimientos.find((m) => m.id === gastoEditando) : null;
   const file = $('gsArchivo').files[0];
   try {
@@ -1084,16 +1163,18 @@ function pintarAjustes() {
       <div>
         <div class="cx-etq">Valores por defecto de las facturas nuevas</div>
         <div class="row"><select id="ajIva">${IVAS.map(([k, t]) => `<option value="${k}" ${Number(a.ivaDefecto) === k ? 'selected' : ''}>IVA ${t}</option>`).join('')}</select>
-          <select id="ajRet">${[[0, 'Sin retención'], [7, 'Retención 7 %'], [15, 'Retención 15 %']].map(([k, t]) => `<option value="${k}" ${Number(a.retencionDefecto) === k ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+          </div>
         <select id="ajMarca">${Object.entries(MARCAS).map(([k, t]) => `<option value="${k}" ${a.marcaDefecto === k ? 'selected' : ''}>Logo: ${t}</option>`).join('')}</select>
         <label class="consent-toggle" style="margin-bottom:8px;"><input type="checkbox" id="ajIvaInc" ${a.ivaIncluido !== false ? 'checked' : ''}> Mis precios llevan el IVA incluido</label>
-        <div class="row"><input id="ajSerie" placeholder="Serie" value="${esc(a.serie)}" title="Serie de las facturas (F2026-001)"><input id="ajSerieR" placeholder="Serie rectificativas" value="${esc(a.serieRect)}" title="Serie de las rectificativas (R2026-001)"></div>
+        <div class="cx-etq">Series de facturas (una por actividad)</div>
+        ${Object.entries(ACTIVIDADES).map(([k, x]) => `<div class="row" style="align-items:center;"><span class="person-meta" style="flex:2 1 0;">${esc(x.nombre)} · ${x.iae}</span><input id="ajSerie-${k}" style="flex:1 1 0;" value="${esc((a.series || {})[k] || x.serie)}" title="Prefijo: ${esc((a.series || {})[k] || x.serie)}2026-001"></div>`).join('')}
+        <div class="row" style="align-items:center;"><span class="person-meta" style="flex:2 1 0;">Rectificativas (delante de la serie: RDOC2026-001)</span><input id="ajSerieR" style="flex:1 1 0;" value="${esc(a.serieRect)}"></div>
         <input id="ajPie" placeholder="Texto al pie de la factura" value="${esc(a.pie)}">
         <textarea id="ajExento" rows="2" placeholder="Texto para lo que va exento de IVA">${esc(a.textoExento)}</textarea>
       </div>
     </div>
     <button onclick="cx.guardarAjustes()">Guardar</button>
-    <div class="person-meta" style="margin-top:8px;">Pregúntale a tu gestora qué IVA lleva cada cosa (los talleres pueden ir exentos o al 21 %, el zine puede ir al 4 %) y si a las empresas tienes que aplicarles retención. Puedes cambiarlo en cada factura.</div>
+    <div class="person-meta" style="margin-top:8px;">Según tu gestoría: talleres y tutorías llevan IVA (no son formación reglada). La retención del 7 % (15 % a partir del cuarto año) se pone sola solo en formación e informática cuando el cliente tiene NIF; quítala si es un particular. El zine y otros libros pueden ir al 4 %: pregúntaselo.</div>
   </div>`);
 }
 async function guardarAjustes() {
@@ -1101,8 +1182,9 @@ async function guardarAjustes() {
   try {
     await setDoc(doc(db, 'ajustes', 'facturacion'), {
       nombre: v('ajNombre'), nif: v('ajNif').toUpperCase(), direccion: v('ajDir'), cp: v('ajCp'), ciudad: v('ajCiudad'), email: v('ajEmail'), telefono: v('ajTel'),
-      iban: v('ajIban').toUpperCase(), ivaDefecto: Number($('ajIva').value), retencionDefecto: Number($('ajRet').value), marcaDefecto: $('ajMarca').value,
-      ivaIncluido: $('ajIvaInc').checked, serie: v('ajSerie') || 'F', serieRect: v('ajSerieR') || 'R', pie: v('ajPie'), textoExento: v('ajExento'),
+      iban: v('ajIban').toUpperCase(), ivaDefecto: Number($('ajIva').value), marcaDefecto: $('ajMarca').value,
+      ivaIncluido: $('ajIvaInc').checked, serieRect: v('ajSerieR').toUpperCase() || 'R',
+      series: Object.fromEntries(Object.entries(ACTIVIDADES).map(([k, x]) => [k, (v('ajSerie-' + k) || x.serie).toUpperCase().replace(/[^A-Z0-9]/g, '')])), pie: v('ajPie'), textoExento: v('ajExento'),
     }, { merge: true });
     C.aviso('Datos guardados ✓');
   } catch (e) { C.aviso('Error: ' + e.message, true); }
@@ -1116,26 +1198,29 @@ function csv(tipo) {
   let filas, nombre;
   if (tipo === 'emitidas') {
     nombre = 'facturas-emitidas';
-    filas = [['Número', 'Fecha', 'Tipo', 'Cliente', 'NIF cliente', 'Concepto', 'Base', 'Tipo IVA', 'Cuota IVA', 'Retención', 'Total', 'Cobrada', 'Rectifica a']];
+    filas = [['Número', 'Fecha', 'Actividad', 'Epígrafe', 'Tipo', 'Cliente', 'NIF cliente', 'Concepto', 'Base', 'Tipo IVA', 'Cuota IVA', 'Retención', 'Total', 'Cobrada', 'Rectifica a']];
     c.fac.slice().sort((a, b) => String(a.numero).localeCompare(b.numero)).forEach((f) => {
       const t = f.totales || calcular(f);
-      t.grupos.forEach((g, i) => filas.push([f.numero, fechaES(f.fecha), f.tipo, f.cliente.nombre, f.cliente.nif, (f.lineas || []).map((l) => l.concepto).join(' / '),
+      const act = actividadDe(f);
+      t.grupos.forEach((g, i) => filas.push([f.numero, fechaES(f.fecha), ACTIVIDADES[act].nombre, ACTIVIDADES[act].iae, f.tipo, f.cliente.nombre, f.cliente.nif, (f.lineas || []).map((l) => l.concepto).join(' / '),
         f2(g.base), g.iva + '%', f2(g.cuota), i ? '' : f2(t.retencion), i ? '' : f2(t.total), f.cobro && f.cobro.cobrada ? 'sí' : 'no', f.rectificaA ? f.rectificaA.numero : '']));
     });
   } else if (tipo === 'gastos') {
     nombre = 'libro-gastos';
-    filas = [['Fecha', 'Proveedor', 'NIF proveedor', 'Nº factura', 'Concepto', 'Categoría', 'Factura o ticket', 'Base', 'Tipo IVA', 'Cuota IVA', 'Total', '% deducible', 'IVA deducible', 'Justificante']];
+    filas = [['Fecha', 'Proveedor', 'NIF proveedor', 'Nº factura', 'Concepto', 'Categoría', 'Actividad', 'Epígrafe', 'Factura o ticket', 'Base', 'Tipo IVA', 'Cuota IVA', 'Recargo equivalencia', 'Total', '% deducible', 'IVA deducible', 'Justificante']];
     c.gas.slice().sort((a, b) => fechaMov(a).localeCompare(fechaMov(b))).forEach((m) => {
       const p = partesGasto(m);
-      filas.push([fechaES(fechaMov(m)), m.proveedor || m.quien || '', m.nifProveedor || '', m.numeroFactura || '', m.concepto || '', nombreCat(m.categoria),
-        m.conFactura ? 'factura' : 'ticket', f2(p.base), (m.ivaPct || 0) + '%', f2(p.cuota), f2(m.importe), (m.deducible != null ? m.deducible : 100) + '%', f2(p.ivaDeducible), m.justificante ? 'sí' : 'no']);
+      const act = actividadDe(m);
+      filas.push([fechaES(fechaMov(m)), m.proveedor || m.quien || '', m.nifProveedor || '', m.numeroFactura || '', m.concepto || '', nombreCat(m.categoria), ACTIVIDADES[act].nombre, ACTIVIDADES[act].iae,
+        m.conFactura ? 'factura' : 'ticket', f2(p.base), (m.ivaPct || 0) + '%', f2(num(m.cuotaIva) || (act === 'comercio' ? 0 : p.cuota)), f2(m.recargo || 0), f2(m.importe), (m.deducible != null ? m.deducible : 100) + '%', f2(p.ivaDeducible), m.justificante ? 'sí' : 'no']);
     });
   } else {
     nombre = 'cobros-sin-factura';
-    filas = [['Fecha', 'Concepto', 'Categoría', 'Quién', 'Email', 'Método', 'Base', 'IVA', 'Total', 'Origen', 'Referencia']];
+    filas = [['Fecha', 'Concepto', 'Categoría', 'Actividad', 'Epígrafe', 'Quién', 'Email', 'Método', 'Base', 'IVA', 'Total', 'Origen', 'Referencia']];
     c.cobSinFac.slice().sort((a, b) => fechaMov(a).localeCompare(fechaMov(b))).forEach((m) => {
       const p = partesCobro(m);
-      filas.push([fechaES(fechaMov(m)), m.concepto || '', nombreCat(m.categoria), m.quien || m.nombre || '', m.email || '', METODOS[m.metodo] || m.metodo || '', f2(p.base), f2(p.cuota), f2(m.importe), m.origen || '', m.pagoId || m.id]);
+      const act = actividadDe(m);
+      filas.push([fechaES(fechaMov(m)), m.concepto || '', nombreCat(m.categoria), ACTIVIDADES[act].nombre, ACTIVIDADES[act].iae, m.quien || m.nombre || '', m.email || '', METODOS[m.metodo] || m.metodo || '', f2(p.base), f2(p.cuota), f2(m.importe), m.origen || '', m.pagoId || m.id]);
     });
   }
   const texto = '﻿' + filas.map((f) => f.map((x) => `"${String(x == null ? '' : x).replace(/"/g, '""')}"`).join(';')).join('\n');
