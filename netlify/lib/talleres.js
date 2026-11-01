@@ -25,10 +25,23 @@ const limpio = (v, max = 200) => String(v == null ? '' : v).trim().slice(0, max)
 const emailValido = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e || '');
 const eur = (n) => (Math.round(Number(n) * 100) / 100).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €';
 
+// En una Deploy Preview de ottokols.es (deploy-preview-N--stalwart-panda-…) los datos se leen de la
+// Deploy Preview de mirardespacio.es con el mismo número: así se puede probar Stripe en modo de prueba
+// con enlaces de prueba sin tocar la web publicada.
+let datosUrl = DATOS;
+function fuenteDatos(host) {
+  const m = /^(deploy-preview-\d+)--stalwart-panda-3d94db\.netlify\.app$/.exec(String(host || '').toLowerCase());
+  const nueva = m ? `https://${m[1]}--mirar-despacio.netlify.app/talleres-data.json` : DATOS;
+  if (nueva !== datosUrl) { datosUrl = nueva; cache = null; }
+}
+// Pagos del modo de prueba de Stripe: se apuntan marcados «[PRUEBA]» para poder borrarlos luego
+let prueba = false;
+const modoPrueba = (v) => { prueba = !!v; };
+
 let cache = null;
 async function datos() {
   if (cache && Date.now() - cache.t < 60e3) return cache.d;
-  const r = await fetch(DATOS + '?t=' + Date.now(), { signal: AbortSignal.timeout(5000) });
+  const r = await fetch(datosUrl + '?t=' + Date.now(), { signal: AbortSignal.timeout(5000) });
   if (!r.ok) throw new Error('No se pudo leer talleres-data.json');
   const d = await r.json();
   cache = { t: Date.now(), d };
@@ -140,6 +153,7 @@ async function ocupadas(fs, edicionId) {
 async function ingreso(fs, id, datosI) {
   await fs.collection('ingresos').doc(id).set({
     tipo: 'ingreso', fecha: FieldValue.serverTimestamp(), metodo: 'stripe', origen: 'auto', ...datosI,
+    ...(prueba ? { prueba: true, concepto: '[PRUEBA] ' + (datosI.concepto || '') } : {}),
   });
 }
 
@@ -214,6 +228,7 @@ async function correoBienvenidaPlus({ email, nombre, hasta, regalo, nivel, porta
 }
 
 async function avisoOtto(asunto, filas, responderA) {
+  if (prueba) asunto = '[PRUEBA] ' + asunto;
   const html = `<!doctype html><html><body style="font:15px/1.5 system-ui,sans-serif;color:#1a1814;">
 <table style="border-collapse:collapse;">${filas.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6b655a;vertical-align:top;">${esc(k)}</td><td style="padding:4px 0;">${esc(v)}</td></tr>`).join('')}</table>
 <p><a href="https://ottokols.es/crm/">Abrir el CRM</a></p></body></html>`;
@@ -253,5 +268,5 @@ module.exports = {
   cabeceras, limpio, emailValido, eur, datos, taller, edicion, eventoId, pasada, producto, cerrarSiCompleto,
   nuevoCodigo, normalizarCodigo, personaPorEmail, eventoTaller, ocupadas, ingreso,
   correoPlazaTaller, correoBonoComprador, correoBienvenidaPlus, avisoOtto, invitarIdentity,
-  darPlus, fechaCorta, VALIDEZ_BONO_DIAS,
+  darPlus, fechaCorta, VALIDEZ_BONO_DIAS, fuenteDatos, modoPrueba,
 };

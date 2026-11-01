@@ -26,6 +26,8 @@ exports.handler = async (event, context) => {
 
   let ev;
   try { ev = S.verificar(event, process.env.STRIPE_WEBHOOK_SECRET); } catch (e) { return { statusCode: 400, body: e.message }; }
+  T.fuenteDatos((event.headers || {}).host);
+  T.modoPrueba(ev.livemode === false);
 
   const fs = db();
   const o = (ev.data && ev.data.object) || {};
