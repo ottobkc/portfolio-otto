@@ -271,3 +271,4 @@ module.exports = {
   darPlus, fechaCorta, VALIDEZ_BONO_DIAS, fuenteDatos, modoPrueba,
 };
 // Rama de prueba: fuerza la vista previa de ottokols.es (no unir)
+// regenerar
