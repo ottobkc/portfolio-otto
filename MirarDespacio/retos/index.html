@@ -183,7 +183,7 @@
       </div>
       <label class="check"><input type="checkbox" id="publicable">
         <span>Puede salir en el <a href="https://mirardespacio.es/muro/" target="_blank" rel="noopener">muro público</a> de Mirar Despacio con tu firma. Puedes quitarla cuando quieras.</span></label>
-      <label class="check"><input type="checkbox" id="compartir">
+      <label class="check" id="filaCompartir"><input type="checkbox" id="compartir">
         <span>Que la vean los demás miembros cuando cierre el reto (en la galería del reto y en el cuadro de constancia). Solo la ven miembros de Mirar Despacio+.</span></label>
       <div class="barra" hidden id="barra"><i></i></div>
       <div><button class="boton color" id="enviar" type="submit">Enviar mi foto</button></div>
@@ -261,13 +261,28 @@
     function pintar() {
       var d = datos, r = d.reto && !d.reto.bloqueado ? d.reto : null;
       var mias = d.mias.filter(function (f) { return f.tipo === 'reto'; });
-      if (!d.yo.plus) { location.replace('/cuaderno/'); return; }
+      if (!d.yo.plus && !d.yo.invitado) { location.replace('/cuaderno/'); return; }
+      // Invitado a un reto sin ser MD+: solo el reto, su foto y el comentario (sin logros, galería ni recursos)
+      var inv = !d.yo.plus;
+      ['zonaInsignias', 'zonaGaleria', 'zonaConstancia', 'zonaArchivo', 'filaCompartir'].forEach(function (id) { if (inv && $(id)) $(id).hidden = true; });
+      $('avisosRetos').parentNode.hidden = inv;
+      document.querySelector('.nav-link.recursos').hidden = inv;
+      if (inv) {
+        var abiertoInv = r && d.yo.retoInvitado === r.id;
+        $('saludo').innerHTML = 'Hola, ' + esc(d.yo.nombre || d.yo.email) + '. ' + (abiertoInv
+          ? 'Te he invitado a este reto: manda tu foto antes del cierre y te la comento.'
+          : 'El reto al que te invité ya está cerrado. Aquí tienes tu foto y mi comentario.') +
+          ' <a href="/mirar-despacio-plus/">¿Quieres un reto cada mes? Así es Mirar Despacio+</a>';
+        if (r && !abiertoInv) r = null;
+      } else {
       $('saludo').innerHTML = 'Hola, ' + esc(d.yo.nombre || d.yo.email) + MDMedallas.junto(d.total, d.mejorRacha, 22) + '. Un tema nuevo cada mes, para salir a mirar vivas donde vivas.';
+      }
       $('cRacha').textContent = d.racha || 0; $('cTotal').textContent = d.total || 0;
-      $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length; $('cifras').hidden = false;
+      $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length; $('cifras').hidden = inv;
 
       var mia = r && mias.filter(function (f) { return f.refId === r.id; })[0];
       $('reto').hidden = !r; $('sinReto').hidden = !!r;
+      if (inv) $('sinReto').textContent = 'Este reto ya está cerrado. Gracias por mirar: abajo tienes tu foto y, cuando la comente, mi comentario.';
       if (r) {
         $('reto').innerHTML = '<p class="etiqueta">Reto abierto' + (r.cierre ? ' · ' + dias(r.cierre) : '') + '</p><h2>' + esc(r.titulo) + '</h2>' +
           '<p>' + esc(r.enunciado).replace(/\n/g, '<br>') + '</p>' + (r.pista ? '<p class="pista">' + esc(r.pista) + '</p>' : '') +
@@ -287,12 +302,12 @@
           (f.comentario ? '<div class="comentario">' + esc(f.comentario) + '<small>Otto</small></div>' : '') +
           '<div class="acciones">' + (f.estado === 'pendiente' ? '<button class="link" data-borrar="' + f.id + '">Borrar</button>' : '') +
           '<label class="check" style="font-size:.85rem"><input type="checkbox" data-publicable="' + f.id + '"' + (f.publicable ? ' checked' : '') + '> Puede salir en el muro</label>' +
-          '<label class="check" style="font-size:.85rem"><input type="checkbox" data-compartir="' + f.id + '"' + (f.compartir ? ' checked' : '') + '> La ven los miembros</label></div>' +
+          (inv ? '' : '<label class="check" style="font-size:.85rem"><input type="checkbox" data-compartir="' + f.id + '"' + (f.compartir ? ' checked' : '') + '> La ven los miembros</label>') + '</div>' +
           (f.comentario ? '<div class="ig"><button type="button" data-ig="post" data-id="' + f.id + '">📲 Post para Instagram</button><button type="button" data-ig="historia" data-id="' + f.id + '">📲 Historia</button></div>' : '') +
           MDHilo.wa(f) +
           MDHilo.html(f) +
           '</div></article>';
-      }).join('') : '<p class="vacio" style="grid-column:1/-1">Todavía no has hecho ningún reto. El de este mes es un buen comienzo.</p>';
+      }).join('') : '<p class="vacio" style="grid-column:1/-1">' + (inv ? 'Aún no has mandado tu foto.' : 'Todavía no has hecho ningún reto. El de este mes es un buen comienzo.') + '</p>';
 
       var hechos = {}; (d.hechos || []).forEach(function (id) { hechos[id] = true; });
       $('zonaArchivo').hidden = d.historial.length < 2;

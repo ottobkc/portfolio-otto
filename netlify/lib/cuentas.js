@@ -4,6 +4,8 @@
 //   member        -> Mirar Despacio+ completo (recursos, herramientas, retos, cuaderno)
 //   participante  -> solo el cuaderno: sube fotos de las salidas y recibe comentarios
 //   taller-<id>   -> el manual de ese taller (independiente de MD+)
+//   reto-<id>     -> invitado a un reto concreto sin ser MD+: sube su foto mientras el reto está abierto,
+//                    y después sigue viendo su foto, el comentario y si sale en el muro
 //   admin         -> Otto
 // Quitar el acceso = quitarle los roles. La cuenta y todos sus datos se quedan.
 //
@@ -26,6 +28,8 @@ const identidad = () => require('./identidad'); // solo en modo 'doble'
 
 const rolManual = (tallerId) => 'taller-' + String(tallerId || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
 const manualesDe = (roles) => (roles || []).filter((r) => /^taller-/.test(r)).map((r) => r.slice(7));
+const rolReto = (retoId) => 'reto-' + String(retoId || '').replace(/^reto-/, '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+const retosDe = (roles) => (roles || []).filter((r) => /^reto-/.test(r)).map((r) => 'reto-' + r.slice(5));
 const accesoDe = (roles) => (roles.includes('admin') ? 'admin' : roles.includes('member') ? 'plus' : roles.includes('participante') ? 'fotos' : 'ninguno');
 const ms = (t) => (t && t.toMillis ? t.toMillis() : t ? new Date(t).getTime() || null : null);
 
@@ -58,6 +62,7 @@ const conPermisos = (u) => u && {
   fotos: u.roles.some((r) => ['member', 'participante', 'admin'].includes(r)),
   admin: u.roles.includes('admin'),
   manuales: manualesDe(u.roles),
+  retos: retosDe(u.roles), // ids de los retos a los que está invitado (los ids de reto ya empiezan por «reto-»)
 };
 
 // ---------- Firestore ----------
@@ -192,6 +197,25 @@ async function darManual(context, email, tallerId) {
   }
 }
 
+// Invitación a un reto concreto (para quien no es MD+). Si no tiene cuenta, se crea solo con ese reto.
+// No manda el correo de cuenta nueva: el CRM manda uno propio con el reto.
+// Devuelve 'invitado' (cuenta nueva) | 'ya-existe' | 'ya-tenia' | 'es-plus' | 'error'
+async function invitarReto(email, retoId, { nombre } = {}) {
+  email = fb.normal(email);
+  const rol = rolReto(retoId);
+  try {
+    const d = await cuentaPorEmail(email);
+    const actuales = d ? d.data().roles || [] : [];
+    if (actuales.includes('member') || actuales.includes('admin')) return 'es-plus';
+    if (actuales.includes(rol)) return 'ya-tenia';
+    await guardar(email, [...actuales, rol], nombre && !d ? { nombre } : {});
+    return d ? 'ya-existe' : 'invitado';
+  } catch (e) {
+    console.error('invitarReto', e.message);
+    return 'error';
+  }
+}
+
 async function quitarManual(context, id, tallerId) {
   const u = await porId(context, id);
   if (!u) return 'no-existe';
@@ -231,7 +255,7 @@ async function usuarioDe(event, context) {
 }
 
 module.exports = {
-  MODO, ROLES_ACCESO, rolesPara, rolManual, manualesDe, accesoDe,
-  listar, porEmail, porId, ponerRoles, invitarCon, darManual, quitarManual, usuarioDe,
+  MODO, ROLES_ACCESO, rolesPara, rolManual, manualesDe, rolReto, retosDe, accesoDe,
+  listar, porEmail, porId, ponerRoles, invitarCon, darManual, quitarManual, invitarReto, usuarioDe,
   guardarEnFirebase, cuentaPorEmail, desdeIdentity, desdeFirestore,
 };

@@ -14,7 +14,7 @@
 // Las fotos se suben directamente del navegador a Cloudinary (ya reducidas a 2000 px);
 // aquí se comprueba de verdad lo que ocupan antes de guardarlas.
 // Quién entra:
-//  - con sesión (Firebase; durante la migración también Netlify Identity): rol member (MD+), participante (solo fotos) o admin
+//  - con sesión (Firebase): rol member (MD+), participante (solo fotos), admin, o reto-<id> (invitado solo a ese reto)
 //  - SIN cuenta, con su enlace personal ottokols.es/subir/?c=<clave> (lo manda Otto desde el CRM
 //    a la gente de cada salida). Es la forma fácil: sin contraseñas. Solo fotos de salidas.
 //  - con sesión y solo el manual de un taller (rol "taller-<id>"): únicamente las fotos de los
@@ -225,12 +225,18 @@ exports.handler = async (event, context) => {
     let cuerpo = {};
     if (event.httpMethod === 'POST') cuerpo = JSON.parse(event.body || '{}');
     const yo = (await usuarioDe(event, context)) || (await porClave(fs, qs.c || cuerpo.clave));
-    if (!yo || !yo.email || !(yo.fotos || (yo.manuales || []).length)) return res(h, 401, { error: 'sesion' });
-    // Quien solo tiene el manual de un taller entra aquí únicamente para sus ejercicios de después
-    const soloManual = !yo.fotos;
+    const invitadoA = (id) => (yo && yo.retos || []).includes(String(id || ''));
+    if (!yo || !yo.email || !(yo.fotos || (yo.manuales || []).length || (yo.retos || []).length)) return res(h, 401, { error: 'sesion' });
+    // Quien solo tiene el manual de un taller entra aquí únicamente para sus ejercicios de después,
+    // y quien está invitado a un reto (sin ser MD+), solo para ese reto
+    const soloManual = !yo.fotos && !(yo.retos || []).length;
+    const soloReto = !yo.fotos && (yo.retos || []).length > 0;
     const esDeTaller = (event.httpMethod === 'GET' && qs.taller) || (cuerpo.accion === 'subir' && cuerpo.tipo === 'taller')
       || ['borrar', 'publicable', 'responder'].includes(cuerpo.accion);
+    const esDeReto = (event.httpMethod === 'GET' && !qs.taller) || (cuerpo.accion === 'subir' && cuerpo.tipo === 'reto')
+      || ['borrar', 'publicable', 'responder'].includes(cuerpo.accion);
     if (soloManual && !esDeTaller) return res(h, 403, { error: 'solo-manual' });
+    if (soloReto && !esDeReto && !(esDeTaller && (yo.manuales || []).length)) return res(h, 403, { error: 'solo-reto' });
     const misFotos = async () => (await fs.collection('fotos').where('email', '==', yo.email).get())
       .docs.map((d) => ({ id: d.id, ...d.data() }));
 
@@ -260,8 +266,10 @@ exports.handler = async (event, context) => {
       };
       const nombres = Object.fromEntries(lista.map((r) => [r.id, r.titulo]));
       return res(h, 200, {
-        yo: { nombre: yo.nombre, nombreCorto: yo.nombreCorto || (yo.nombre || '').split(' ')[0], email: yo.email, plus: yo.plus, porEnlace: !!yo.porEnlace },
-        reto: yo.plus ? reto : reto && { titulo: reto.titulo, bloqueado: true },
+        yo: { nombre: yo.nombre, nombreCorto: yo.nombreCorto || (yo.nombre || '').split(' ')[0], email: yo.email, plus: yo.plus, porEnlace: !!yo.porEnlace,
+          invitado: !yo.plus && (yo.retos || []).length > 0, retoInvitado: !yo.plus && reto && invitadoA(reto.id) ? reto.id : '' },
+        // El reto abierto completo: para MD+ y para quien está invitado a ese reto
+        reto: yo.plus || (reto && invitadoA(reto.id)) ? reto : reto && { titulo: reto.titulo, bloqueado: true },
         historial: yo.plus ? lista.filter((r) => r.inicio && r.inicio <= hoy())
           .map((r) => ({ id: r.id, titulo: r.titulo, inicio: r.inicio, cierre: r.cierre || '', abierto: retoAbierto(r) })) : [],
         salidas,
@@ -355,6 +363,7 @@ exports.handler = async (event, context) => {
     if (b.accion !== 'subir') return res(h, 400, { error: 'accion' });
     const tipo = b.tipo === 'reto' ? 'reto' : b.tipo === 'taller' ? 'taller' : 'salida';
     if (soloManual && tipo !== 'taller') return res(h, 403, { error: 'solo-manual' });
+    if (soloReto && tipo === 'salida') return res(h, 403, { error: 'solo-reto' });
     let enlace = null;
     const refId = String(b.refId || '');
     const url = String(b.url || '');
@@ -365,7 +374,8 @@ exports.handler = async (event, context) => {
     if (mias.filter((f) => f.estado === 'pendiente').length >= PENDIENTES_MAX) return res(h, 400, { error: 'demasiadas' });
 
     if (tipo === 'reto') {
-      if (!yo.plus) return res(h, 403, { error: 'solo-plus' });
+      // MD+, o invitado a este reto concreto (la invitación sirve mientras el reto está abierto)
+      if (!yo.plus && !invitadoA(refId)) return res(h, 403, { error: 'solo-plus' });
       const r = await fs.collection('retos').doc(refId).get();
       if (!r.exists || !retoAbierto(r.data())) return res(h, 400, { error: 'reto-cerrado' });
       refNombre = r.data().titulo || 'Reto';
@@ -399,7 +409,8 @@ exports.handler = async (event, context) => {
       texto: limpio(b.texto, 600),
       nombreMuro: limpio(b.nombreMuro, 40) || yo.nombre || 'Anónimo',
       publicable: !!b.publicable,
-      compartir: tipo === 'reto' && !!b.compartir,
+      compartir: tipo === 'reto' && !!b.compartir && !!yo.plus, // la galería y la constancia son de los miembros
+      ...(tipo === 'reto' && !yo.plus ? { invitado: true } : {}),
       estado: 'pendiente', comentario: '', enMuro: false, destacada: false,
       ...(enlace ? { enlace } : {}),
       creada: FieldValue.serverTimestamp(),

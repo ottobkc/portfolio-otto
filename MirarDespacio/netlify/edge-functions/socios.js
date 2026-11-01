@@ -8,7 +8,8 @@
 // Firebase sigue abierta (así un cambio de acceso hecho en el CRM se nota como mucho en 12 h).
 //
 // Rutas:
-//   /socios/*  /retos/*        -> member o admin (Mirar Despacio+)
+//   /socios/*                  -> member o admin (Mirar Despacio+)
+//   /retos/*                   -> member, admin o invitado a un reto (rol reto-<id>)
 //   /cuaderno/*                -> member, participante o admin
 //   /manuales/<id>/*           -> taller-<id> o admin. Ser MD+ NO da acceso.
 //   /manuales/* (cualquier otra) -> solo admin
@@ -68,7 +69,7 @@ export function reglaPara(ruta) {
   if ((m = p.match(/^\/manuales\/([a-z0-9-]+)(\/|$)/))) return { a: 'manual-' + m[1], puede: (r) => r.includes('admin') || r.includes('taller-' + m[1]) };
   if (/^\/manuales(\/|$|\.)/.test(p)) return { a: '', puede: (r) => r.includes('admin') };
   if (/^\/socios(\/|$|\.)/.test(p)) return { a: 'socios', puede: plus };
-  if (/^\/retos(\/|$|\.)/.test(p)) return { a: 'retos', puede: plus };
+  if (/^\/retos(\/|$|\.)/.test(p)) return { a: 'retos', puede: (r) => plus(r) || r.some((x) => /^reto-/.test(x)) };
   if (/^\/cuaderno(\/|$|\.)/.test(p)) return { a: 'cuaderno', puede: (r) => plus(r) || r.includes('participante') };
   return null;
 }

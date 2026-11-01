@@ -1174,12 +1174,40 @@ function renderRetos() {
     div.className = 'person-row';
     div.innerHTML = `<div class="person-main" style="cursor:pointer" onclick="editarReto('${r.id}')">
         <div class="person-name">${escapeHtml(r.titulo)} ${r.activo ? '<span class="badge">activo</span>' : ''}</div>
-        <div class="person-meta">${r.inicio || '?'} → ${r.cierre || '?'} · ${n} foto(s)${r.avisadoEn ? ' · avisado a ' + (r.avisadosA || 0) + ' miembros' : ''}${r.recordatorioEn ? ' · recordatorio enviado' : ''}</div></div>
-      ${r.activo ? `<button class="small secondary" onclick="avisarReto('${r.id}')">✉️ Avisar</button>` : ''}
+        <div class="person-meta">${r.inicio || '?'} → ${r.cierre || '?'} · ${n} foto(s)${r.avisadoEn ? ' · avisado a ' + (r.avisadosA || 0) + ' miembros' : ''}${r.recordatorioEn ? ' · recordatorio enviado' : ''}${(r.invitados || []).length ? ' · ' + r.invitados.length + ' invitado(s)' : ''}</div></div>
+      ${r.activo ? `<button class="small secondary" onclick="avisarReto('${r.id}')">✉️ Avisar</button><button class="small secondary" onclick="abrirInvitarReto('${r.id}')" title="Invitar a gente que no es de MD+">👋 Invitar</button>` : ''}
       <button class="small danger" onclick="borrarReto('${r.id}')">✕</button>`;
     el.appendChild(div);
+    if (retoInvitando === r.id) {
+      const caja = document.createElement('div');
+      caja.className = 'card';
+      caja.innerHTML = `<div class="card-title">Invitar a «${escapeHtml(r.titulo)}»</div>
+        <div class="person-meta" style="margin-bottom:8px;">Para quien no es de MD+: podrá subir su foto a este reto hasta el ${escapeHtml(r.cierre || 'cierre')}. Después sigue viendo su foto y tu comentario, pero ya no puede subir. No ve recursos, galería ni nada más de MD+.</div>
+        <textarea id="invRetoEmails" rows="3" placeholder="Emails, uno por línea o separados por comas"></textarea>
+        <textarea id="invRetoNota" rows="2" placeholder="Unas palabras tuyas para el correo (opcional). Si lo dejas vacío, va un texto general."></textarea>
+        <div class="row"><button onclick="invitarReto('${r.id}')">Mandar invitaciones</button><button class="secondary" onclick="abrirInvitarReto('')">Cancelar</button></div>
+        <div class="person-meta" id="invRetoEstado">${retoInvResultado}</div>
+        ${(r.invitados || []).length ? `<div class="person-meta" style="margin-top:6px;">Ya invitados: ${r.invitados.map(escapeHtml).join(', ')}</div>` : ''}`;
+      el.appendChild(caja);
+    }
   });
 }
+let retoInvitando = '', retoInvResultado = '';
+window.abrirInvitarReto = function(id) { retoInvitando = retoInvitando === id ? '' : id; retoInvResultado = ''; renderRetos(); };
+window.invitarReto = async function(id) {
+  const emails = document.getElementById('invRetoEmails').value.trim();
+  if (!emails) { alert('Escribe al menos un email.'); return; }
+  const est = document.getElementById('invRetoEstado');
+  est.textContent = 'Enviando…';
+  try {
+    const x = await admin({ accion: 'invitar-reto', retoId: id, emails, nota: document.getElementById('invRetoNota').value.trim() });
+    const TXT = { invitado: 'invitado (cuenta nueva)', 'ya-existe': 'invitado (ya tenía cuenta)', 'ya-tenia': 'ya estaba invitado (se le reenvía el correo)', 'es-plus': 'es de MD+: ya puede hacer el reto', error: 'error' };
+    retoInvResultado = x.resultado.map(r => `${escapeHtml(r.email)}: ${TXT[r.estado] || r.estado}${r.enviado ? ' · correo enviado' : r.estado === 'es-plus' ? '' : ' · ⚠️ correo NO enviado'}`).join('<br>');
+    est.innerHTML = retoInvResultado;
+    document.getElementById('invRetoEmails').value = '';
+    setSyncStatus('Invitaciones al reto enviadas ✓');
+  } catch (e) { est.textContent = 'Error: ' + e.message; }
+};
 window.limpiarReto = function() {
   ['retoId', 'retoTitulo', 'retoEnunciado', 'retoPista', 'retoInicio', 'retoCierre'].forEach(i => document.getElementById(i).value = '');
   document.getElementById('retoActivo').checked = true;

@@ -64,4 +64,25 @@ function correoCambio({ email, a }) {
 const destinoDe = (roles) => (roles.includes('member') || roles.includes('admin') ? 'socios'
   : roles.includes('participante') ? 'cuaderno' : (roles.find((r) => /^taller-/.test(r)) || '').replace(/^taller-/, 'manual-'));
 
-module.exports = { correoEnlace, correoInvitacion, correoCambio, destinoDe, destinoTxt, WEB };
+// Invitación a un reto concreto para quien no es de Mirar Despacio+
+const fechaLarga = (iso) => (iso ? new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' }) : '');
+function correoInvitacionReto({ email, reto, nombre, nota }) {
+  const url = `${WEB}/acceso/?e=${encodeURIComponent(email)}&a=retos`;
+  const html = tarjeta({
+    titulo: `Te invito al reto «${esc(reto.titulo)}»`,
+    nombre: esc(nombre || ''),
+    intro: [nota ? esc(nota).replace(/\n/g, '<br>') : 'Cada mes propongo un reto fotográfico a la comunidad de Mirar Despacio. Este mes quiero que lo hagas tú también.',
+      `<strong>${esc(reto.titulo)}</strong>${reto.enunciado ? '<br>' + esc(reto.enunciado).replace(/\n/g, '<br>') : ''}`],
+    filas: [
+      ...(reto.cierre ? [['⏳', `Puedes mandar tu foto hasta el <strong>${fechaLarga(reto.cierre)}</strong>.`]] : []),
+      ['💬', 'Te la comento yo, y si quieres, sale en el muro de Mirar Despacio.'],
+      ['🔑', 'Sin contraseñas: entras con este email (' + esc(email) + ') y te mando un enlace al correo.'],
+    ],
+    calendario: null,
+    boton: { url, texto: 'Ir al reto', antes: '' },
+    cuerpo: ['<span style="font-size:13px;color:#8a8378;">Si no esperabas este correo, puedes ignorarlo: no te apunta a nada ni te cobra nada.</span>'],
+  });
+  return { asunto: `Te invito al reto «${reto.titulo}» · Mirar Despacio`, html, texto: aTexto(html) };
+}
+
+module.exports = { correoEnlace, correoInvitacion, correoCambio, correoInvitacionReto, destinoDe, destinoTxt, WEB };

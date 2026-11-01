@@ -8,6 +8,8 @@
 //  POST {accion:'enlace', personId}           -> enlace personal para subir fotos sin cuenta (para copiar a WhatsApp)
 //  POST {accion:'plus-alta', personId, meses, nivel, desde} / {accion:'plus-baja', personId, dejarFotos} / {accion:'plus-prueba', personId}
 //  POST {accion:'avisar-reto', retoId}       -> email «nuevo reto» a los miembros MD+
+//  POST {accion:'invitar-reto', retoId, emails, nota} -> invita a ese reto a gente que no es MD+ (acceso solo a
+//        ese reto: sube su foto hasta el cierre; luego sigue viendo su foto y el comentario) y les manda el correo
 //  POST {accion:'confirmacion', signupId}     -> le manda el mismo correo que la web (plaza / lista de espera / sin fecha)
 //  POST {accion:'enlaces', eventId, reenviar} -> manda por email su enlace a la gente de esa salida
 //        (si en la salida hay alguien marcado como "asistió", solo a los que asistieron)
@@ -280,6 +282,33 @@ exports.handler = async (event, context) => {
       const enviados = await enviarATodos(lista, (m) => correoReto('nuevo', snap.data(), m));
       await ref.update({ avisadoEn: FieldValue.serverTimestamp(), avisadosA: enviados });
       return res(200, { enviados, total: lista.length });
+    }
+
+    // Invitar a un reto a gente que no es de MD+
+    if (b.accion === 'invitar-reto') {
+      const ref = fs.collection('retos').doc(String(b.retoId || ''));
+      const snap = await ref.get();
+      if (!snap.exists) return res(404, { error: 'no-existe' });
+      const reto = snap.data();
+      const hoy = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' }).slice(0, 10);
+      if (!reto.activo || (reto.cierre && reto.cierre < hoy)) return res(400, { error: 'reto-cerrado' });
+      const { correoInvitacionReto } = require('../lib/correos-socios');
+      const emails = [...new Set(String(b.emails || '').toLowerCase().split(/[\s,;]+/).map((x) => x.trim()).filter((x) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)))].slice(0, 50);
+      if (!emails.length) return res(400, { error: 'sin-emails' });
+      const resultado = [];
+      for (const email of emails) {
+        const estado = await cuentas.invitarReto(email, ref.id);
+        let enviado = false;
+        if (!['es-plus', 'error'].includes(estado)) {
+          const c = correoInvitacionReto({ email, reto, nota: String(b.nota || '').slice(0, 600) });
+          enviado = !!(await enviar({ para: email, asunto: c.asunto, html: c.html, texto: c.texto }).catch(() => false));
+        }
+        resultado.push({ email, estado, enviado });
+      }
+      const nuevos = resultado.filter((x) => !['es-plus', 'error'].includes(x.estado)).map((x) => x.email);
+      if (nuevos.length) await ref.set({ invitados: FieldValue.arrayUnion(...nuevos) }, { merge: true });
+      await fs.collection('cambios_acceso').add({ tipo: 'invitar-reto', retoId: ref.id, resultado, fecha: FieldValue.serverTimestamp() });
+      return res(200, { resultado });
     }
 
     return res(400, { error: 'accion' });

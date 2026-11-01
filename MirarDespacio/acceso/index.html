@@ -116,6 +116,7 @@
         if (m) return r.indexOf('admin') !== -1 || r.indexOf('taller-' + m[1]) !== -1;
         if (/^\/manuales/.test(ruta)) return r.indexOf('admin') !== -1;
         if (/^\/cuaderno/.test(ruta)) return plus || r.indexOf('participante') !== -1;
+        if (/^\/retos/.test(ruta)) return plus || r.some(function (x) { return /^reto-/.test(x); });
         return plus;
       }
       function destinoPara(r) {
@@ -126,6 +127,7 @@
         if (pedido) return '';                      // pidió algo concreto que no tiene
         if (puede(r, '/socios/')) return '/socios/';
         if (puede(r, '/cuaderno/')) return '/cuaderno/';
+        if (puede(r, '/retos/')) return '/retos/';
         var mans = r.filter(function (x) { return /^taller-/.test(x); });
         return mans.length ? '/manuales/' + mans[0].slice(7) + '/' : '';
       }
@@ -139,10 +141,10 @@
           else if (!r.length) texto('Has entrado como <b>' + esc(u.email) + '</b>, pero ahora mismo tu cuenta no tiene acceso activo. Tus fotos y comentarios siguen guardados: escríbeme y lo reactivo.');
           else texto('Has entrado como <b>' + esc(u.email) + '</b>, pero tu cuenta no tiene acceso a esa parte. Si crees que es un error, escríbeme.');
           // Lo que sí tiene, a un toque
-          var suyo = r.length ? (puede(r, '/socios/') ? '/socios/' : puede(r, '/cuaderno/') ? '/cuaderno/' : '') : '';
+          var suyo = r.length ? (puede(r, '/socios/') ? '/socios/' : puede(r, '/cuaderno/') ? '/cuaderno/' : puede(r, '/retos/') ? '/retos/' : '') : '';
           var mans = r.filter(function (x) { return /^taller-/.test(x); });
           if (!suyo && mans.length) suyo = '/manuales/' + mans[0].slice(7) + '/';
-          if (suyo) { var ir2 = $('irSuyo'); ir2.href = suyo; ir2.textContent = suyo === '/socios/' ? 'Ir a Mirar Despacio+' : suyo === '/cuaderno/' ? 'Ir a mi cuaderno de fotos' : 'Ir al manual de mi taller'; ir2.hidden = false; $('hazte').hidden = true; }
+          if (suyo) { var ir2 = $('irSuyo'); ir2.href = suyo; ir2.textContent = suyo === '/socios/' ? 'Ir a Mirar Despacio+' : suyo === '/cuaderno/' ? 'Ir a mi cuaderno de fotos' : suyo === '/retos/' ? 'Ir al reto' : 'Ir al manual de mi taller'; ir2.hidden = false; $('hazte').hidden = true; }
           return;
         }
         if (intentos() >= 2) {
