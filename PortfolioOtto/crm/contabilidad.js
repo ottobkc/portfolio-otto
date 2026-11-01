@@ -12,7 +12,7 @@
 // Válido para facturar hasta que llegue Verifactu (julio de 2027): entonces habrá que pasar a un
 // programa homologado o adaptar esto.
 import {
-  collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, runTransaction, serverTimestamp,
+  collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, runTransaction, serverTimestamp, getDocs, query, where,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const C = window.crm;
@@ -750,6 +750,13 @@ function pintarCobros() {
       <div class="cx-lista" id="cxListaCob"></div><div class="person-meta" id="cxTotCob" style="text-align:right;margin-top:6px;"></div>`;
   }
   if (!$('cxPerCobCaja').contains(document.activeElement)) $('cxPerCobCaja').innerHTML = selPeriodo('cxPerCob', perCob, 'cx.pintar()');
+  // Pagos hechos en el modo de prueba de Stripe: se pueden borrar de golpe (cobros y plazas de taller)
+  const pruebas = movimientos.filter((m) => m.prueba);
+  let avisoP = $('cxPruebas');
+  if (!avisoP) { avisoP = document.createElement('div'); avisoP.id = 'cxPruebas'; $('cxListaCob').before(avisoP); }
+  avisoP.innerHTML = pruebas.length ? `<div class="cx-aviso" style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px;">
+    <span>🧪 ${pruebas.length} pago${pruebas.length > 1 ? 's' : ''} del modo de prueba de Stripe (${eur(pruebas.reduce((n, m) => n + num(m.importe), 0))}). Cuentan en el resumen hasta que los borres.</span>
+    <button class="small danger" onclick="cx.borrarPruebas()">Borrar datos de prueba</button></div>` : '';
   $('cxListaCob').innerHTML = lista.map((m) => {
     const conFac = m.facturaId && facIds.has(m.facturaId);
     return `<div class="cx-fila">
@@ -761,6 +768,22 @@ function pintarCobros() {
     </div>`;
   }).join('') || '<div class="empty" style="padding:16px;">Sin cobros en este periodo</div>';
   $('cxTotCob').textContent = lista.length ? `${lista.length} cobros · ${eur(lista.reduce((n, m) => n + num(m.importe), 0))}` : '';
+}
+// Borra los cobros marcados como prueba y las plazas de taller que crearon esos pagos
+async function borrarPruebas() {
+  const pruebas = movimientos.filter((m) => m.prueba);
+  if (!pruebas.length || !confirm(`¿Borrar ${pruebas.length} pagos de prueba y las plazas de taller que crearon? Las personas de prueba se quedan: bórralas desde Personas si quieres.`)) return;
+  try {
+    let plazas = 0;
+    for (const m of pruebas) {
+      if (m.pagoId) {
+        const q = await getDocs(query(collection(db, 'signups'), where('pagoId', '==', m.pagoId)));
+        for (const d of q.docs) { await deleteDoc(d.ref); plazas++; }
+      }
+      await deleteDoc(doc(db, 'ingresos', m.id));
+    }
+    C.aviso(`Borrados ${pruebas.length} pagos de prueba y ${plazas} plaza(s) ✓`);
+  } catch (e) { C.aviso('Error: ' + e.message, true); }
 }
 async function guardarCobro() {
   const importe = num($('cbImporte').value);
@@ -1246,7 +1269,7 @@ export const facturasActuales = () => facturas;
 window.cx = {
   ver, pintar, nuevaFactura, abrirFactura, cerrarEditor, recalcular, masLinea, elegirCliente, guardarBorrador, borrarBorrador, emitir,
   marcarCobrada, confirmarCobro, duplicar, rectificar, verPdf, imprimir, cerrarPdf, enviar,
-  guardarCobro, borrarMov, facturaDeCobro, ultimoCobroPlus,
+  guardarCobro, borrarMov, facturaDeCobro, ultimoCobroPlus, borrarPruebas,
   calcGasto, elegirProveedor, editarGasto, cancelarGasto, quitarJust, guardarGasto, verJust,
   editarSus, guardarSus, borrarSus, pausarSus, cargoSus,
   guardarAjustes, csv,
