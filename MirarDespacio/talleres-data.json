@@ -142,8 +142,9 @@
       "fechaISO": "2026-12-19T16:30:00+01:00",
       "fechaFinISO": "2026-12-19T19:30:00+01:00",
       "zona": "Centro",
-      "pago": "",
-      "activa": false
+      "pago": "https://buy.stripe.com/test_cNi28lf5P5I4blybRDdjO01",
+      "activa": true,
+      "plazas": 2
     },
     {
       "id": "iniciacion-2027-01-16",
@@ -171,7 +172,7 @@
   "plus": {
     "sinSalidas": {
       "precio": 20,
-      "url": "",
+      "url": "https://buy.stripe.com/test_8x200d9Lv5I461e7BndjO00",
       "precioNormal": 25
     },
     "conSalidas": {
@@ -179,7 +180,7 @@
       "url": "",
       "precioNormal": 45
     },
-    "portal": ""
+    "portal": "https://billing.stripe.com/p/login/test_8x200d9Lv5I461e7BndjO00"
   },
   "regalosPlus": [
     {
