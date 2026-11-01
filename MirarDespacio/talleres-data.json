@@ -35,7 +35,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": "",
+      "bonoPago": "https://buy.stripe.com/dRmdR3aPzb2o75icVHdjO06",
       "minimo": 4,
       "precioNormal": 75
     },
@@ -62,7 +62,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": "",
+      "bonoPago": "https://buy.stripe.com/aFaaER7Dndaw75i9JvdjO05",
       "minimo": 4,
       "precioNormal": 60
     },
@@ -89,7 +89,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": "",
+      "bonoPago": "https://buy.stripe.com/5kQfZb4rb1rO75i1cZdjO04",
       "minimo": 4,
       "precioNormal": 50
     },
@@ -117,7 +117,7 @@
         "Pegatinas de Mirar Despacio",
         "Un mes de Mirar Despacio+"
       ],
-      "bonoPago": "",
+      "bonoPago": "https://buy.stripe.com/6oUaERaPz7Qcahu4pbdjO03",
       "minimo": 4,
       "precioNormal": 50
     }
@@ -131,8 +131,8 @@
       "fechaISO": "2026-12-12T19:00:00+01:00",
       "fechaFinISO": "2026-12-12T22:30:00+01:00",
       "zona": "Centro",
-      "pago": "",
-      "activa": false
+      "pago": "https://buy.stripe.com/9B6aER4rb8Ug1KY2h3djO0a",
+      "activa": true
     },
     {
       "id": "atardecer-2026-12-19",
@@ -142,8 +142,8 @@
       "fechaISO": "2026-12-19T16:30:00+01:00",
       "fechaFinISO": "2026-12-19T19:30:00+01:00",
       "zona": "Centro",
-      "pago": "",
-      "activa": false
+      "pago": "https://buy.stripe.com/28E4gt7Dn5I4blyf3PdjO09",
+      "activa": true
     },
     {
       "id": "iniciacion-2027-01-16",
@@ -153,8 +153,8 @@
       "fechaISO": "2027-01-16T10:00:00+01:00",
       "fechaFinISO": "2027-01-16T13:30:00+01:00",
       "zona": "Centro",
-      "pago": "",
-      "activa": false
+      "pago": "https://buy.stripe.com/28E9ANf5PfiEfBObRDdjO08",
+      "activa": true
     },
     {
       "id": "composicion-2027-01-30",
@@ -164,19 +164,19 @@
       "fechaISO": "2027-01-30T10:00:00+01:00",
       "fechaFinISO": "2027-01-30T13:00:00+01:00",
       "zona": "Centro",
-      "pago": "",
-      "activa": false
+      "pago": "https://buy.stripe.com/28EfZbbTD1rO3T62h3djO07",
+      "activa": true
     }
   ],
   "plus": {
     "sinSalidas": {
       "precio": 20,
-      "url": "",
+      "url": "https://buy.stripe.com/5kQdR32j34E02P2f3PdjO0c",
       "precioNormal": 25
     },
     "conSalidas": {
       "precio": 35,
-      "url": "",
+      "url": "https://buy.stripe.com/cNi4gt0aV0nK0GU4pbdjO0b",
       "precioNormal": 45
     },
     "portal": ""
@@ -187,7 +187,7 @@
       "meses": 1,
       "nivel": "con-salidas",
       "precio": 35,
-      "pago": "",
+      "pago": "https://buy.stripe.com/8x200d8Hr4E00GUg7TdjO02",
       "precioNormal": 45
     },
     {
@@ -195,8 +195,16 @@
       "meses": 3,
       "nivel": "con-salidas",
       "precio": 95,
-      "pago": "",
+      "pago": "https://buy.stripe.com/cNi28lf5P5I4blybRDdjO01",
       "precioNormal": 120
+    },
+    {
+      "id": "plus-3-online",
+      "meses": 3,
+      "nivel": "sin-salidas",
+      "precio": 55,
+      "pago": "https://buy.stripe.com/8x200d9Lv5I461e7BndjO00",
+      "precioNormal": 65
     }
   ]
 }

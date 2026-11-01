@@ -137,7 +137,7 @@ async function compra(fs, context, s) {
   if (prod && (prod.tipo === 'bono-taller' || prod.tipo === 'bono-plus')) {
     const titulo = prod.tipo === 'bono-taller'
       ? 'Taller ' + prod.taller.titulo
-      : `Mirar Despacio+ · ${prod.regalo.meses} ${prod.regalo.meses === 1 ? 'mes' : 'meses'}${prod.regalo.nivel === 'con-salidas' ? ' con salidas' : ''}`;
+      : `Mirar Despacio+ · ${prod.regalo.meses} ${prod.regalo.meses === 1 ? 'mes' : 'meses'}${prod.regalo.nivel === 'con-salidas' ? ' con salidas' : ' online'}`;
     const caduca = new Date(Date.now() + T.VALIDEZ_BONO_DIAS * 864e5);
     for (let i = 0; i < qty; i++) {
       const codigo = T.nuevoCodigo();
@@ -158,11 +158,77 @@ async function compra(fs, context, s) {
     return ok();
   }
 
-  // ---------- Cualquier otro pago (enlace que no está en talleres-data.json) ----------
+  // ---------- Producto de la tienda (su enlace de pago está puesto en el CRM → Tienda) ----------
+  const urlPago = s.payment_link ? await S.urlDeEnlace(s.payment_link).catch(() => '') : '';
+  const deTienda = urlPago ? await pedidoTienda(fs, { s, urlPago, qty, importe, email, nombre, idPago, base }) : null;
+  if (deTienda) return ok();
+
+  // ---------- Cualquier otro pago (enlace que no está en talleres-data.json ni en la tienda) ----------
   await T.ingreso(fs, idPago, { ...base, categoria: 'otros', concepto: 'Stripe · pago sin asignar' + (s.client_reference_id ? ' (' + T.limpio(s.client_reference_id, 60) + ')' : '') });
   await T.avisoOtto(`Pago de Stripe sin asignar: ${nombre || email} · ${T.eur(importe)}`,
     [['Email', email], ['Importe', T.eur(importe)], ['Ojo', 'Este enlace de pago no está en talleres-data.json: no he dado plaza, bono ni acceso. Revísalo.'], ...avisos], email).catch(() => {});
   return ok();
+}
+
+// Pedido de un producto de la tienda pagado con su enlace de Stripe: crea el pedido en el CRM
+// (número P-0001…), descuenta el stock o suma la reserva de la preventa, apunta el cobro y avisa a Otto
+// con la dirección de envío. Devuelve el número de pedido o null si el enlace no es de ningún producto.
+async function pedidoTienda(fs, { s, urlPago, qty, importe, email, nombre, idPago, base }) {
+  const norm = (u) => String(u || '').trim().split('?')[0].replace(/\/+$/, '').toLowerCase();
+  const prods = await fs.collection('productos').get();
+  const pdoc = prods.docs.find((d) => d.data().enlacePago && norm(d.data().enlacePago) === norm(urlPago));
+  if (!pdoc) return null;
+  const p = pdoc.data();
+  const envioDatos = (s.collected_information && s.collected_information.shipping_details) || s.shipping_details || null;
+  const dir = (envioDatos && envioDatos.address) || null;
+  const direccion = dir ? [dir.line1, dir.line2, [dir.postal_code, dir.city].filter(Boolean).join(' '), dir.state, dir.country].filter(Boolean).join(', ') : '';
+  const telefono = T.limpio((s.customer_details || {}).phone, 30);
+  const pedidoRef = fs.collection('pedidos').doc('s-' + s.id);
+  const avisos = [];
+  const numero = await fs.runTransaction(async (tx) => {
+    const ps = await tx.get(pdoc.ref);
+    const cont = await tx.get(fs.collection('contadores').doc('pedidos'));
+    const prod = ps.data();
+    const variantes = JSON.parse(JSON.stringify(prod.variantes || []));
+    const pv = prod.preventa && prod.preventa.activa ? prod.preventa : null;
+    const linea = { productoId: pdoc.id, nombre: prod.nombre || '', tipo: prod.tipo || 'otro', variante: '', cantidad: qty, precio: Math.round((importe / qty) * 100) / 100, iva: Number(prod.iva != null ? prod.iva : 21) };
+    if (pv) {
+      linea.preventa = true;
+      tx.update(pdoc.ref, { 'preventa.reservadas': (Number(pv.reservadas) || 0) + qty });
+    } else if (prod.bajoPedido) {
+      linea.bajoPedido = true;
+    } else {
+      // Un enlace de pago no dice qué variante: se descuenta de la primera que tenga stock
+      const v = variantes.find((x) => Number(x.stock) >= qty) || variantes[0];
+      if (v) {
+        linea.variante = v.nombre || '';
+        if ((Number(v.stock) || 0) < qty) avisos.push(['Ojo', 'No quedaba stock suficiente: revisa el pedido']);
+        v.stock = Math.max(0, (Number(v.stock) || 0) - qty);
+        const cambios = { variantes };
+        if (prod.estado === 'venta' && !variantes.some((x) => Number(x.stock) > 0)) { cambios.estado = 'agotado'; avisos.push(['Stock', 'Se ha agotado: la tienda ya lo muestra como agotado']); }
+        tx.update(pdoc.ref, cambios);
+      }
+    }
+    const nn = ((cont.exists && Number(cont.data().ultimo)) || 0) + 1;
+    tx.set(fs.collection('contadores').doc('pedidos'), { ultimo: nn });
+    const num = 'P-' + String(nn).padStart(4, '0');
+    const hoy = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' }).slice(0, 10);
+    tx.set(pedidoRef, {
+      n: nn, numero: num, fecha: hoy, creado: FieldValue.serverTimestamp(), origen: 'stripe', estado: 'nuevo',
+      cliente: { nombre, email, telefono, direccion, personId: '' }, entrega: direccion ? 'envio' : 'mano',
+      lineas: [linea], envio: 0, total: importe, metodo: 'stripe', pagado: true, fechaPago: hoy, ingresoId: idPago,
+      notas: direccion ? '' : 'Stripe no ha recogido dirección: pregúntale cómo se lo das', stockDescontado: true, pagoId: s.id,
+    });
+    return num;
+  });
+  await T.ingreso(fs, idPago, { ...base, categoria: p.tipo === 'zine' ? 'zine' : 'tienda', pedidoId: pedidoRef.id,
+    concepto: `Pedido ${numero} · ${qty} × ${p.nombre || 'producto'}` });
+  await T.avisoOtto(`🛍️ Pedido ${numero}: ${qty} × ${p.nombre || 'producto'} · ${T.eur(importe)}`, [
+    ['Comprador', `${nombre} <${email}>`], ['Importe', T.eur(importe)],
+    ['Entrega', direccion ? 'Envío a: ' + direccion : 'Sin dirección: pregúntale (o activa «Recopilar direcciones» en el enlace)'],
+    ...(telefono ? [['Teléfono', telefono]] : []), ...avisos,
+  ], email).catch(() => {});
+  return numero;
 }
 
 // ---------- Renovación mensual de Mirar Despacio+ ----------
