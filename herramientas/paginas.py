@@ -97,6 +97,15 @@ def construir(g):
       </div>
     </section>
 
+    <section class="seccion" id="agenda-portada">
+      <div class="envoltura">
+        <p class="antetitulo">Próximas fechas</p>
+        <h2 class="revelar">Salidas y <em>talleres.</em></h2>
+        <div id="agenda" style="margin-top:24px;"></div>
+        <div class="botones"><a class="boton claro" href="/agenda/">Ver el calendario completo</a></div>
+      </div>
+    </section>
+
     <section class="seccion">
       <div class="envoltura">
         <p class="antetitulo">Qué es</p>
@@ -105,9 +114,10 @@ def construir(g):
         <div class="rejilla-2" style="margin-top:40px;">
           <a class="tarjeta revelar" href="/podcast/"><span class="num">01</span><h3>El podcast</h3><p>Episodios cortos sobre fotografía de calle, miedo a mirar, publicar, el estilo propio. Para escuchar paseando.</p><span class="mas">20 episodios en la primera temporada →</span></a>
           <a class="tarjeta revelar" href="/salidas/"><span class="num">02</span><h3>Salidas fotográficas</h3><p>Mañanas de fotografía en grupo por barrios de Madrid, con tarjetas de misión y visionado al final. Contribución libre.</p><span class="mas" data-proxima>Ver próxima salida →</span></a>
-          <a class="tarjeta revelar" href="/tutorias/"><span class="num">03</span><h3>Tutorías</h3><p>Una sesión a solas conmigo, presencial en Madrid u online, sobre tu cámara, tu luz y tus fotos.</p><span class="mas">Online desde 30 € →</span></a>
+          <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
+        <p class="revelar" style="margin-top:28px;">Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
       </div>
     </section>
 
@@ -157,7 +167,7 @@ def construir(g):
     escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid: podcast, salidas y tutorías',
         'Mirar Despacio es un proyecto de fotografía callejera en Madrid: podcast, salidas fotográficas en grupo, tutorías y una comunidad para aprender a mirar antes de disparar.',
         cuerpo, schema=[{"@type": "WebSite", "@id": DOM + "/#web", "url": DOM + "/", "name": "Mirar Despacio", "inLanguage": "es-ES", "publisher": {"@id": DOM + "/#org"}}],
-        extra_pie=PROXIMA_JS + MAPA_JS))
+        extra_pie=PROXIMA_JS + MAPA_JS + AGENDA_PORTADA_JS))
 
     # ------------------------------------------------------------ PODCAST
     lista = '\n'.join(
@@ -324,7 +334,7 @@ def construir(g):
         <p class="antetitulo">Tutorías · Madrid y online</p>
         <h1>Tutorías de <em>fotografía.</em></h1>
         <p class="entradilla">Una sesión a solas conmigo para resolver lo que te frena: entender tu cámara, la luz, la composición o qué hacer con tus fotos. No es una clase con temario. Partimos de lo que tú necesitas.</p>
-        <div class="botones"><a class="boton color" href="#reservar">Pedir una tutoría</a></div>
+        <div class="botones"><a class="boton color" href="#reservar">Pedir una tutoría</a><a class="boton claro" href="/talleres/">¿En grupo? Ver talleres</a></div>
       </div>
     </section>
 
@@ -457,6 +467,18 @@ def construir(g):
         <div class="rejilla-3 talleres">{''.join(tarjeta_taller(i + 1, t) for i, t in enumerate(td['talleres']))}
         </div>
         <p class="acepta-condiciones">Al reservar aceptas las <a href="/condiciones/">condiciones de venta</a>: cambios, devoluciones y qué pasa si no se llega al mínimo de personas.</p>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="envoltura rejilla-2" style="gap:48px;align-items:center;">
+        <div>
+          <p class="antetitulo">¿Prefieres a solas?</p>
+          <h2>Tutorías de <em>fotografía.</em></h2>
+          <p>Una sesión contigo y tu cámara, presencial en Madrid u online, para lo que te esté frenando: ajustes, luz, composición o qué hacer con tus fotos. Sin temario: partimos de lo que necesitas.</p>
+        </div>
+        <div><p class="precio" style="margin:0 0 6px;">desde 30 €</p><p class="aviso">Una hora online · 40 € presencial · dos horas desde 50 €</p>
+          <div class="botones"><a class="boton" href="/tutorias/">Ver tutorías</a></div></div>
       </div>
     </section>
 
@@ -740,6 +762,9 @@ def construir(g):
 
 TALLERES_JS = '''
   <script src="/assets/talleres.js"></script>'''
+AGENDA_PORTADA_JS = '''
+  <script src="/js/agenda.js"></script>
+  <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 3, soloLista: true });</script>'''
 AGENDA_JS = '''
   <script src="/js/agenda.js"></script>
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8, pasadas: true });</script>'''

@@ -65,13 +65,10 @@
       <button class="nav-boton" aria-label="Menú" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
       <ul>
         <li><a href="/salidas/">Salidas</a></li>
-        <li><a href="/agenda/">Agenda</a></li>
-        <li><a href="/podcast/">Podcast</a></li>
+        <li><a href="/talleres/">Aprender</a></li>
         <li><a href="/muro/">Muro</a></li>
-        <li><a href="/talleres/">Talleres</a></li>
-        <li><a href="/tutorias/">Tutorías</a></li>
+        <li><a href="/podcast/">Podcast</a></li>
         <li><a href="/tienda/">Tienda</a></li>
-        <li><a href="/juegos/">Juegos</a></li>
         <li><a href="/mirar-despacio-plus/" class="nav-plus">Mirar Despacio+</a></li>
       </ul>
     </div>
@@ -105,6 +102,15 @@
       </div>
     </section>
 
+    <section class="seccion" id="agenda-portada">
+      <div class="envoltura">
+        <p class="antetitulo">Próximas fechas</p>
+        <h2 class="revelar">Salidas y <em>talleres.</em></h2>
+        <div id="agenda" style="margin-top:24px;"></div>
+        <div class="botones"><a class="boton claro" href="/agenda/">Ver el calendario completo</a></div>
+      </div>
+    </section>
+
     <section class="seccion">
       <div class="envoltura">
         <p class="antetitulo">Qué es</p>
@@ -113,9 +119,10 @@
         <div class="rejilla-2" style="margin-top:40px;">
           <a class="tarjeta revelar" href="/podcast/"><span class="num">01</span><h3>El podcast</h3><p>Episodios cortos sobre fotografía de calle, miedo a mirar, publicar, el estilo propio. Para escuchar paseando.</p><span class="mas">20 episodios en la primera temporada →</span></a>
           <a class="tarjeta revelar" href="/salidas/"><span class="num">02</span><h3>Salidas fotográficas</h3><p>Mañanas de fotografía en grupo por barrios de Madrid, con tarjetas de misión y visionado al final. Contribución libre.</p><span class="mas" data-proxima>Ver próxima salida →</span></a>
-          <a class="tarjeta revelar" href="/tutorias/"><span class="num">03</span><h3>Tutorías</h3><p>Una sesión a solas conmigo, presencial en Madrid u online, sobre tu cámara, tu luz y tus fotos.</p><span class="mas">Online desde 30 € →</span></a>
+          <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
+        <p class="revelar" style="margin-top:28px;">Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
       </div>
     </section>
 
@@ -173,14 +180,15 @@
         <h4>El proyecto</h4>
         <ul>
           <li><a href="/salidas/">Salidas</a></li>
-          <li><a href="/agenda/">Agenda</a></li>
-          <li><a href="/podcast/">Podcast</a></li>
-          <li><a href="/muro/">Muro</a></li>
           <li><a href="/talleres/">Talleres</a></li>
-          <li><a href="/tutorias/">Tutorías</a></li>
+          <li><a href="/muro/">Muro</a></li>
+          <li><a href="/podcast/">Podcast</a></li>
           <li><a href="/tienda/">Tienda</a></li>
-          <li><a href="/juegos/">Juegos</a></li>
           <li><a href="/mirar-despacio-plus/">Mirar Despacio+</a></li>
+          <li><a href="/tutorias/">Tutorías</a></li>
+          <li><a href="/agenda/">Agenda</a></li>
+          <li><a href="/juegos/">Juegos</a></li>
+          <li><a href="/regalo/">Regalos</a></li>
         </ul>
       </div>
       <div>
@@ -219,5 +227,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module" src="/assets/pegatinas.js?v=8d31a295"></script>
+  <script src="/js/agenda.js"></script>
+  <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 3, soloLista: true });</script>
 </body>
 </html>

@@ -33,8 +33,14 @@ def cld(url, t='f_auto,q_auto,w_900'):
 datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespacio', 'salidas-data.json')))
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
-NAV = [('/salidas/', 'Salidas'), ('/agenda/', 'Agenda'), ('/podcast/', 'Podcast'), ('/muro/', 'Muro'), ('/talleres/', 'Talleres'), ('/tutorias/', 'Tutorías'),
-       ('/tienda/', 'Tienda'), ('/juegos/', 'Juegos'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
+# Menú corto (nov. 2026): Aprender reúne talleres y tutorías; la agenda está en la portada;
+# los juegos se enlazan desde la portada y el pie. Esas páginas siguen existiendo.
+NAV = [('/salidas/', 'Salidas'), ('/talleres/', 'Aprender'), ('/muro/', 'Muro'), ('/podcast/', 'Podcast'),
+       ('/tienda/', 'Tienda'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
+# Páginas que marcan como activa otra entrada del menú
+GRUPO_NAV = {'/tutorias/': '/talleres/', '/regalo/': '/talleres/', '/juegos/': '/', '/agenda/': '/salidas/'}
+# En el pie salen además estas
+PIE_EXTRA = [('/tutorias/', 'Tutorías'), ('/agenda/', 'Agenda'), ('/juegos/', 'Juegos'), ('/regalo/', 'Regalos')]
 
 ORG = {
     "@type": "Organization", "@id": DOM + "/#org", "name": "Mirar Despacio", "url": DOM + "/",
@@ -49,8 +55,10 @@ PLUS = ' class="nav-plus"'
 def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra_head='', extra_pie=''):
     url = DOM + ruta
     ACT = ' aria-current="page"'
+    activa = GRUPO_NAV.get(ruta, ruta)
     nav = '\n'.join(
-        f'        <li><a href="{h}"{PLUS if h == "/mirar-despacio-plus/" else ""}{ACT if h == ruta else ""}>{t}</a></li>' for h, t in NAV)
+        f'        <li><a href="{h}"{PLUS if h == "/mirar-despacio-plus/" else ""}{ACT if h == activa else ""}>{t}</a></li>' for h, t in NAV)
+    nav_pie = '\n'.join(f'          <li><a href="{h}">{"Talleres" if h == "/talleres/" else t}</a></li>' for h, t in NAV + PIE_EXTRA)
     graph = [ORG] + (schema or [])
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=1)
     return f'''<!doctype html>
@@ -102,7 +110,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
       <div>
         <h4>El proyecto</h4>
         <ul>
-{nav.replace('        <li>', '          <li>').replace(' aria-current="page"', '').replace(' class="nav-plus"', '')}
+{nav_pie}
         </ul>
       </div>
       <div>

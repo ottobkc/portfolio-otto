@@ -1,6 +1,7 @@
 // Calendario de Mirar Despacio: próximas salidas y talleres (y, en la zona de miembros, el cierre del reto).
 // Uso:  <div id="agenda"></div>  +  <script src="/js/agenda.js"></script>
 //       MDAgenda.pintar(document.getElementById('agenda'), { extra: [ {tipo:'reto', titulo, inicio, url} ] })
+//       Opciones: max (próximas que se enseñan), pasadas, anticipadas (MD+), soloLista (sin calendario)
 // Los datos salen de salidas-data.json y talleres-data.json a través de la función "agenda".
 (function () {
   var API = 'https://ottokols.es/.netlify/functions/agenda';
@@ -41,7 +42,10 @@
     '.mda-pasada{background:var(--mda-linea)!important}.mda-ev.hecho{opacity:.75;border-left-color:var(--mda-linea)}.mda-sub{margin:10px 0 0;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mda-gris)}' +
     '.mda-vacio{padding:18px;background:var(--mda-papel);border-radius:10px;color:var(--mda-gris)}' +
     '.mda-suscribir{margin-top:16px;font-size:.88rem;color:var(--mda-gris)}.mda-suscribir a{color:inherit}' +
-    '@media (max-width:760px){.mda-grid-wrap{grid-template-columns:1fr}}';
+    '@media (max-width:760px){.mda-grid-wrap{grid-template-columns:1fr}}' +
+    // soloLista: sin calendario, las próximas fechas en tarjetas (portada)
+    '.mda.mda-sololista .mda-grid-wrap{grid-template-columns:1fr}.mda.mda-sololista .mda-grid-wrap>div:first-child{display:none}' +
+    '.mda.mda-sololista .mda-lista{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}';
 
   function estilos() {
     if (document.getElementById('mda-css')) return;
@@ -52,6 +56,7 @@
     op = op || {};
     estilos();
     el.classList.add('mda');
+    if (op.soloLista) el.classList.add('mda-sololista');
     el.innerHTML = '<p class="mda-vacio">Cargando calendario…</p>';
     return fetch(API + (op.anticipadas || op.pasadas ? '?' : '') + (op.anticipadas ? 'anticipadas=1' : '') + (op.anticipadas && op.pasadas ? '&' : '') + (op.pasadas ? 'pasadas=1' : '')).then(function (r) { return r.json(); }).catch(function () { return []; }).then(function (lista) {
       var eventos = (Array.isArray(lista) ? lista : []).concat(op.extra || []).filter(function (e) { return e && e.inicio; })
