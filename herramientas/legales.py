@@ -113,8 +113,7 @@ def construir_legales(g, escribir, pagina):
                      'Cómo funcionan las reservas, los pagos, los cambios y las devoluciones de talleres, tutorías, regalos y Mirar Despacio+. Al reservar o comprar, las aceptas.') + f'''
     <section class="seccion">
       <div class="envoltura estrecho texto-legal">
-        <h2>Quién vende</h2>
-        {ficha}
+        <p>Quién vende y cómo contactar está al final de esta página, en <a href="#quien-vende">«Quién vende»</a>.</p>
 
         <h2>Precios y pago</h2>
         <ul>
@@ -191,6 +190,9 @@ def construir_legales(g, escribir, pagina):
 
         <h2>Si algo no va bien</h2>
         <p>Escríbeme a {mail} y lo solucionamos: te contesto lo antes posible y siempre en menos de un mes. Si no quedas conforme, tienes a tu disposición hojas de reclamaciones y puedes acudir a los servicios de consumo de tu comunidad autónoma. Estas condiciones se rigen por la ley española.</p>
+
+        <h2 id="quien-vende">Quién vende</h2>
+        {ficha}
 
         <p class="aviso">Última actualización: {ACT}.</p>
         <p class="aviso">Ver también: <a href="/privacidad/">privacidad</a> y <a href="/aviso-legal/">aviso legal</a>.</p>
