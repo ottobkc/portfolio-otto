@@ -61,16 +61,21 @@ async function urlDeEnlace(id) {
 async function desactivarEnlace(url) {
   const buscado = normalizarUrl(url);
   if (!buscado) return 'sin-enlace';
-  let despues = null;
-  for (let pagina = 0; pagina < 10; pagina++) {
-    const lista = await api('/payment_links', { params: { limit: 100, active: 'true', ...(despues ? { starting_after: despues } : {}) } });
-    const pl = (lista.data || []).find((x) => normalizarUrl(x.url) === buscado);
-    if (pl) {
-      await api('/payment_links/' + pl.id, { metodo: 'POST', params: { active: 'false' } });
-      return 'desactivado';
+  // Primero entre los activos; si no está, puede que Stripe ya lo haya cerrado solo
+  // (con «Limitar el número de pagos» lo desactiva al llegar al límite)
+  for (const activo of ['true', 'false']) {
+    let despues = null;
+    for (let pagina = 0; pagina < 10; pagina++) {
+      const lista = await api('/payment_links', { params: { limit: 100, active: activo, ...(despues ? { starting_after: despues } : {}) } });
+      const pl = (lista.data || []).find((x) => normalizarUrl(x.url) === buscado);
+      if (pl) {
+        if (activo === 'false') return 'ya-cerrado';
+        await api('/payment_links/' + pl.id, { metodo: 'POST', params: { active: 'false' } });
+        return 'desactivado';
+      }
+      if (!lista.has_more || !lista.data.length) break;
+      despues = lista.data[lista.data.length - 1].id;
     }
-    if (!lista.has_more || !lista.data.length) break;
-    despues = lista.data[lista.data.length - 1].id;
   }
   return 'no-encontrado';
 }

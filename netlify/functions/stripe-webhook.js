@@ -124,7 +124,9 @@ async function compra(fs, context, s) {
     avisos.push(['Plazas', `${antes + qty} de ${plazas}` + (antes + qty > plazas ? ' ⚠️ SE HA PASADO DE PLAZAS' : '')]);
     if (qty > 1) avisos.push(['Ojo', `Ha comprado ${qty} plazas: pídele los datos de los acompañantes`]);
     const cierre = await T.cerrarSiCompleto(fs, d, ed);
-    if (cierre) avisos.push(['Enlace de pago', cierre === 'desactivado' ? 'Completo: he desactivado el enlace en Stripe' : 'Completo, pero no he podido desactivar el enlace (' + cierre + '): hazlo a mano en Stripe']);
+    if (cierre) avisos.push(['Enlace de pago', cierre === 'desactivado' ? 'Completo: he desactivado el enlace en Stripe'
+      : cierre === 'ya-cerrado' ? 'Completo: Stripe ya ha cerrado el enlace solo (límite de pagos)'
+      : 'Completo, pero no he podido desactivar el enlace (' + cierre + '): hazlo a mano en Stripe']);
     await T.ingreso(fs, idPago, { ...base, categoria: 'taller', concepto });
     await T.avisoOtto(`Pago: ${concepto} · ${T.eur(importe)}`,
       [['Comprador', `${nombre} <${email}>`], ['Importe', T.eur(importe)], ...avisos], email).catch(() => {});
