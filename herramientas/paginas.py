@@ -105,6 +105,7 @@ def construir(g):
         <div class="botones"><a class="boton claro" href="/agenda/">Ver el calendario completo</a></div>
       </div>
     </section>
+{resenas_seccion(clase='seccion papel')}
 
     <section class="seccion">
       <div class="envoltura">
@@ -167,7 +168,7 @@ def construir(g):
     escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid: podcast, salidas y tutorías',
         'Mirar Despacio es un proyecto de fotografía callejera en Madrid: podcast, salidas fotográficas en grupo, tutorías y una comunidad para aprender a mirar antes de disparar.',
         cuerpo, schema=[{"@type": "WebSite", "@id": DOM + "/#web", "url": DOM + "/", "name": "Mirar Despacio", "inLanguage": "es-ES", "publisher": {"@id": DOM + "/#org"}}],
-        extra_pie=PROXIMA_JS + MAPA_JS + AGENDA_PORTADA_JS))
+        extra_pie=PROXIMA_JS + MAPA_JS + AGENDA_PORTADA_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ PODCAST
     lista = '\n'.join(
@@ -501,6 +502,8 @@ def construir(g):
       </div>
     </section>
 
+{resenas_seccion()}
+
     <section class="seccion">
       <div class="envoltura estrecho">
         <p class="antetitulo">Preguntas</p>
@@ -519,7 +522,7 @@ def construir(g):
     }
     escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
         'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual del taller y un mes de Mirar Despacio+. También para regalar.',
-        cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS))
+        cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ REGALO
     regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{precio_html(t)}</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
@@ -657,7 +660,7 @@ def construir(g):
       </div>
     </section>'''
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
-        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
+        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo + resenas_seccion(), extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ PRIVACIDAD, CONDICIONES Y AVISO LEGAL
     from legales import construir_legales
@@ -762,6 +765,18 @@ def construir(g):
 
 TALLERES_JS = '''
   <script src="/assets/talleres.js"></script>'''
+# Opiniones de Google: la sección está oculta y solo aparece si hay opiniones (ver js/resenas.js)
+def resenas_seccion(antetitulo='Quien ya ha venido', titulo='Lo que <em>dicen.</em>', clase='seccion'):
+    return f'''
+    <section class="{clase}" data-resenas-seccion hidden>
+      <div class="envoltura">
+        <p class="antetitulo">{antetitulo}</p>
+        <h2>{titulo}</h2>
+        <div data-resenas="md" style="margin-top:24px;"></div>
+      </div>
+    </section>'''
+RESENAS_JS = '''
+  <script src="/js/resenas.js" defer></script>'''
 AGENDA_PORTADA_JS = '''
   <script src="/js/agenda.js"></script>
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 3, soloLista: true });</script>'''
