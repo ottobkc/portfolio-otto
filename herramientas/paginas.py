@@ -673,7 +673,7 @@ def construir(g):
         <div>
           <p class="antetitulo">Quién está detrás</p>
           <h1>Hola, soy <em>Otto.</em></h1>
-          <p class="entradilla">Fotógrafo en Madrid. Hago retratos, fotografío teatro y, sobre todo, salgo a la calle a mirar. Mirar Despacio es lo que pasa cuando esas salidas dejan de ser solo mías.</p>
+          <p class="entradilla">Fotógrafo en Madrid. Hago retratos y, sobre todo, salgo a la calle a mirar. Mirar Despacio es lo que pasa cuando esas salidas dejan de ser solo mías.</p>
         </div>
         <figure style="margin:0;">
           <img src="/assets/otto-kols.jpg" alt="Otto Kols con su cámara" width="667" height="1000" style="width:100%;max-width:420px;height:auto;display:block;margin-left:auto;">
@@ -696,7 +696,7 @@ def construir(g):
         <p class="antetitulo">Lo que hay detrás</p>
         <div class="rejilla-3" style="margin-top:20px;">
           <div class="tarjeta"><h3>Formación</h3><p>Muchos años de autodidacta y después escuela: iniciación, intermedio y superior en Halos (Alcalá de Henares), el curso universitario de Fotografía Digital de la Universidad Nebrija y, ahora, tercer curso en PIC.A Escuela de Fotografía (PhotoEspaña). Antes, dos FP de grado superior: Comercio y Marketing, y Administración de Sistemas Informáticos.</p></div>
-          <div class="tarjeta"><h3>Oficio</h3><p>Como <a href="https://ottokols.es/">Otto Kols</a> hago retratos para actores, fotografía de teatro y sesiones de retrato. Lo que aprendo con la gente delante de la cámara lo llevo a la calle, y al revés.</p></div>
+          <div class="tarjeta"><h3>Oficio</h3><p>Como <a href="https://ottokols.es/">Otto Kols</a> hago retratos: fotos para actores y sesiones de retrato. Lo que aprendo con la gente delante de la cámara lo llevo a la calle, y al revés.</p></div>
           <div class="tarjeta"><h3>Cómo enseño</h3><p>Grupos pequeños, mucha práctica y poca teoría. No me interesa que salgas con la foto perfecta, sino con la costumbre de mirar antes de disparar.</p></div>
         </div>
       </div>
@@ -711,7 +711,7 @@ def construir(g):
       </div>
     </section>"""
     escribir('/sobre-mi/', pagina('/sobre-mi/', 'Quién soy · Otto Kols, fotógrafo en Madrid · Mirar Despacio',
-        'Soy Otto Kols, fotógrafo en Madrid. Hago retratos y fotografía de teatro, y con Mirar Despacio organizo salidas, talleres y tutorías de fotografía callejera.',
+        'Soy Otto Kols, fotógrafo en Madrid. Hago retratos y, con Mirar Despacio, organizo salidas, talleres y tutorías de fotografía callejera.',
         cuerpo, schema=[{"@type": "Person", "@id": DOM + "/sobre-mi/#otto", "name": "Otto Kols", "jobTitle": "Fotógrafo", "url": DOM + "/sobre-mi/",
                          "image": DOM + "/assets/otto-kols.jpg", "sameAs": ["https://ottokols.es/", INSTAGRAM], "worksFor": {"@id": DOM + "/#org"}}]))
 
