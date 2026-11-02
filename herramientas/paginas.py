@@ -685,7 +685,7 @@ def construir(g):
       <div class="envoltura estrecho texto-largo">
         <p class="antetitulo">De dónde viene esto</p>
         <h2>Menos fotos, <em>mejor mirada.</em></h2>
-        <p>Llevo muchos años haciendo fotos, buena parte de ellos por mi cuenta, aprendiendo a base de salir y equivocarme. Con el tiempo me di cuenta de que lo que más me había enseñado no era la técnica, sino pararme: quedarme en una esquina, esperar a que la luz o la gente hicieran algo y disparar menos.</p>
+        <p>Llevo muchos años haciendo fotos, buena parte de ellos por mi cuenta, aprendiendo a base de salir y equivocarme. Con el tiempo descubrí que lo mío es la fotografía de calle. Pero no la de disparar sin ton ni son a todo lo que se mueve, sino la de sentir la calle: pararme, observar cómo se mueven la luz y la gente, y adivinar lo que está a punto de pasar antes de que pase.</p>
         <p>Mirar Despacio nació como proyecto final de un curso de producción de podcast de RTVE: un podcast sobre fotografía de calle y sobre esa forma de mirar. Salieron veinte episodios sobre la vergüenza de fotografiar a desconocidos, publicar sin que nadie te vea o encontrar tu estilo sin buscarlo. Y del podcast salieron las salidas: mañanas en grupo por barrios de Madrid, con retos para obligarnos a mirar distinto y un rato al final para ver las fotos juntos.</p>
         <p>Hoy Mirar Despacio son salidas, talleres, tutorías y una pequeña comunidad que hace un reto cada mes, viva donde viva.</p>
       </div>
