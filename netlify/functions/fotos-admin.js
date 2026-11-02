@@ -175,7 +175,7 @@ exports.handler = async (event, context) => {
       return res(200, lista.map((u) => ({
         id: u.id, email: u.email, nombre: u.nombre,
         acceso: accesoDe(u.roles), manuales: cuentas.manualesDe(u.roles),
-        confirmada: u.confirmada, creada: u.creada, ultimoLogin: u.ultimoLogin,
+        confirmada: u.confirmada, creada: u.creada, ultimoLogin: u.ultimoLogin, appVista: u.appVista || null,
       })));
     }
 

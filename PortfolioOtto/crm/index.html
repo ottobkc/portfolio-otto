@@ -2062,6 +2062,7 @@ function chipsPersona(p, e, c) {
   if (c && c.acceso === 'ninguno' && !(c.manuales || []).length) chips.push('<span class="tag t-off">Cuenta sin acceso</span>');
   if (c && (c.manuales || []).length) chips.push(`<span class="tag t-man">${c.manuales.length} manual${c.manuales.length > 1 ? 'es' : ''}</span>`);
   if (c && c.acceso !== 'sin-cuenta' && c.confirmada === false) chips.push('<span class="tag t-off">Invitación sin aceptar</span>');
+  if (c && c.appVista) chips.push(`<span title="Usa Mirar Despacio instalada como app · última vez ${new Date(c.appVista).toLocaleDateString('es-ES')}">📱</span>`);
   if (duplicadosDe(p).length) chips.push('<span class="tag t-dup">Duplicada</span>');
   return chips.join(' ');
 }
