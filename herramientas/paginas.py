@@ -118,7 +118,7 @@ def construir(g):
           <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
-        <p class="revelar" style="margin-top:28px;">Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
+        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
       </div>
     </section>
 
@@ -665,6 +665,55 @@ def construir(g):
     # ------------------------------------------------------------ PRIVACIDAD, CONDICIONES Y AVISO LEGAL
     from legales import construir_legales
     construir_legales(g, escribir, pagina)
+
+    # ------------------------------------------------------------ QUIÉN SOY
+    cuerpo = f"""
+    <section class="portada">
+      <div class="envoltura rejilla" style="align-items:center;">
+        <div>
+          <p class="antetitulo">Quién está detrás</p>
+          <h1>Hola, soy <em>Otto.</em></h1>
+          <p class="entradilla">Fotógrafo en Madrid. Hago retratos, fotografío teatro y, sobre todo, salgo a la calle a mirar. Mirar Despacio es lo que pasa cuando esas salidas dejan de ser solo mías.</p>
+        </div>
+        <figure style="margin:0;">
+          <img src="/assets/otto-kols.jpg" alt="Otto Kols con su cámara" width="667" height="1000" style="width:100%;max-width:420px;height:auto;display:block;margin-left:auto;">
+        </figure>
+      </div>
+    </section>
+
+    <section class="seccion papel">
+      <div class="envoltura estrecho texto-largo">
+        <p class="antetitulo">De dónde viene esto</p>
+        <h2>Menos fotos, <em>mejor mirada.</em></h2>
+        <p>Durante años hice muchas fotos y miré poco. Salía con la cámara, disparaba a todo lo que se movía y volvía a casa con cientos de imágenes que no me decían nada. Lo que me cambió fue ir más despacio: quedarme en una esquina, esperar a que la luz o la gente hicieran algo, y disparar menos.</p>
+        <p>De ahí salió el podcast, en 2026: veinte episodios sobre fotografía de calle, la vergüenza de fotografiar a desconocidos, publicar sin que nadie te vea o encontrar tu estilo sin buscarlo. Y del podcast salieron las salidas: mañanas en grupo por barrios de Madrid, con retos para obligarnos a mirar distinto y un rato al final para ver las fotos juntos.</p>
+        <p>Hoy Mirar Despacio son salidas, talleres, tutorías y una pequeña comunidad que hace un reto cada mes, viva donde viva.</p>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="envoltura">
+        <p class="antetitulo">Lo que hay detrás</p>
+        <div class="rejilla-3" style="margin-top:20px;">
+          <div class="tarjeta"><h3>Formación</h3><p>Estudio fotografía en la escuela PIC.A, donde estoy en tercer curso, y sigo aprendiendo de cada salida.</p></div>
+          <div class="tarjeta"><h3>Oficio</h3><p>Como <a href="https://ottokols.es/">Otto Kols</a> hago retratos para actores, fotografía de teatro y sesiones de retrato. Lo que aprendo con la gente delante de la cámara lo llevo a la calle, y al revés.</p></div>
+          <div class="tarjeta"><h3>Cómo enseño</h3><p>Grupos pequeños, mucha práctica y poca teoría. No me interesa que salgas con la foto perfecta, sino con la costumbre de mirar antes de disparar.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion papel">
+      <div class="envoltura estrecho" style="text-align:center;">
+        <span class="nota">¿te vienes?</span>
+        <h2 style="margin-top:10px;">La forma más fácil de conocerme es <em>en una salida.</em></h2>
+        <div class="botones" style="justify-content:center;"><a class="boton color" href="/salidas/">Ver la próxima salida</a><a class="boton claro" href="/talleres/">Talleres y tutorías</a></div>
+        <p class="aviso" style="margin-top:18px;">O escríbeme a <a href="mailto:{EMAIL}">{EMAIL}</a> o por <a href="{INSTAGRAM}">Instagram</a>.</p>
+      </div>
+    </section>"""
+    escribir('/sobre-mi/', pagina('/sobre-mi/', 'Quién soy · Otto Kols, fotógrafo en Madrid · Mirar Despacio',
+        'Soy Otto Kols, fotógrafo en Madrid. Hago retratos y fotografía de teatro, y con Mirar Despacio organizo salidas, talleres y tutorías de fotografía callejera.',
+        cuerpo, schema=[{"@type": "Person", "@id": DOM + "/sobre-mi/#otto", "name": "Otto Kols", "jobTitle": "Fotógrafo", "url": DOM + "/sobre-mi/",
+                         "image": DOM + "/assets/otto-kols.jpg", "sameAs": ["https://ottokols.es/", INSTAGRAM], "worksFor": {"@id": DOM + "/#org"}}]))
 
     # ------------------------------------------------------------ AGENDA
     cuerpo = """
