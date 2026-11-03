@@ -1,7 +1,8 @@
 // Opiniones de Google en la web (las trae la función «resenas» de ottokols.es, una vez al día).
 // Uso: <section data-resenas-seccion hidden> … <div data-resenas="md"></div> … </section>
-// La sección está oculta y solo se enseña si hay opiniones: sin ficha verificada no aparece nada.
+// La sección está oculta y solo se enseña a partir de MINIMO opiniones en Google (con menos, resta más que suma).
 (function () {
+  var MINIMO = 3;
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
   var estrellas = function (n) { var r = Math.round(n); return '<span class="rs-est" aria-label="' + n + ' de 5">' + '★★★★★'.slice(0, r) + '<i>' + '★★★★★'.slice(r) + '</i></span>'; };
   var nota = function (n) { return n.toFixed(1).replace('.', ','); };
@@ -34,7 +35,7 @@
 
   document.querySelectorAll('[data-resenas]').forEach(function (el) {
     fetch('/api/f/resenas?ficha=' + encodeURIComponent(el.dataset.resenas || 'md')).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || d.sinDatos || !d.total) return;
+      if (!d || d.sinDatos || !(d.total >= MINIMO) || !(d.resenas || []).length) return;
       var sec = el.closest('[data-resenas-seccion]');
       if (sec) sec.hidden = false; // antes de pintar, para poder medir qué textos se cortan
       pintar(el, d);
