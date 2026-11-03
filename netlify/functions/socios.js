@@ -8,7 +8,7 @@
 //  POST {accion:'codigo', email, codigo} -> el código de 6 cifras del mismo correo (vale 15 min, un solo uso, 5 intentos):
 //                                       devuelve {enlace} para entrar sin salir de la app (en el iPhone la app instalada
 //                                       no comparte sesión con Safari, así que el enlace del correo no le sirve).
-//  POST {accion:'quien', entrada}    (Authorization: Bearer <idToken de Firebase>)
+//  POST {accion:'quien', entrada, app} (Authorization: Bearer <idToken de Firebase>; app: abierta como app instalada)
 //                                    -> {uid, email, nombre, roles}. Con entrada: true apunta el login.
 const { db, FieldValue, registrar, conLimite } = require('../lib/firestore');
 const { permitir } = require('../lib/limite');
@@ -86,6 +86,12 @@ exports.handler = async (event, context) => {
     if (b.accion === 'quien') {
       const u = await usuarioDe(event, context);
       if (!u || u.origen !== 'firebase') return res(401, { error: 'sesion' });
+      // Abierta como app instalada: se apunta (como mucho una vez cada 12 h, que es lo que dura la sesión)
+      if (b.app) {
+        const refA = fs.collection('cuentas').doc(u.id);
+        const sA = await refA.get();
+        if (sA.exists) await refA.set({ appVista: FieldValue.serverTimestamp(), ...(sA.data().appPrimera ? {} : { appPrimera: FieldValue.serverTimestamp() }) }, { merge: true });
+      }
       if (b.entrada) {
         const ref = fs.collection('cuentas').doc(u.id);
         const snap = await ref.get();

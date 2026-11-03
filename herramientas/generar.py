@@ -38,9 +38,9 @@ PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 NAV = [('/salidas/', 'Salidas'), ('/talleres/', 'Aprender'), ('/muro/', 'Muro'), ('/podcast/', 'Podcast'),
        ('/tienda/', 'Tienda'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 # Páginas que marcan como activa otra entrada del menú
-GRUPO_NAV = {'/tutorias/': '/talleres/', '/regalo/': '/talleres/', '/juegos/': '/', '/agenda/': '/salidas/'}
+GRUPO_NAV = {'/sobre-mi/': '/', '/tutorias/': '/talleres/', '/regalo/': '/talleres/', '/juegos/': '/', '/agenda/': '/salidas/'}
 # En el pie salen además estas
-PIE_EXTRA = [('/tutorias/', 'Tutorías'), ('/agenda/', 'Agenda'), ('/juegos/', 'Juegos'), ('/regalo/', 'Regalos')]
+PIE_EXTRA = [('/sobre-mi/', 'Quién soy'), ('/tutorias/', 'Tutorías'), ('/agenda/', 'Agenda'), ('/juegos/', 'Juegos'), ('/regalo/', 'Regalos')]
 
 ORG = {
     "@type": "Organization", "@id": DOM + "/#org", "name": "Mirar Despacio", "url": DOM + "/",

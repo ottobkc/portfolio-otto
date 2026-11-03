@@ -105,6 +105,7 @@ def construir(g):
         <div class="botones"><a class="boton claro" href="/agenda/">Ver el calendario completo</a></div>
       </div>
     </section>
+{resenas_seccion(clase='seccion papel')}
 
     <section class="seccion">
       <div class="envoltura">
@@ -117,7 +118,7 @@ def construir(g):
           <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
-        <p class="revelar" style="margin-top:28px;">Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
+        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
       </div>
     </section>
 
@@ -167,7 +168,7 @@ def construir(g):
     escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid: podcast, salidas y tutorías',
         'Mirar Despacio es un proyecto de fotografía callejera en Madrid: podcast, salidas fotográficas en grupo, tutorías y una comunidad para aprender a mirar antes de disparar.',
         cuerpo, schema=[{"@type": "WebSite", "@id": DOM + "/#web", "url": DOM + "/", "name": "Mirar Despacio", "inLanguage": "es-ES", "publisher": {"@id": DOM + "/#org"}}],
-        extra_pie=PROXIMA_JS + MAPA_JS + AGENDA_PORTADA_JS))
+        extra_pie=PROXIMA_JS + MAPA_JS + AGENDA_PORTADA_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ PODCAST
     lista = '\n'.join(
@@ -501,6 +502,8 @@ def construir(g):
       </div>
     </section>
 
+{resenas_seccion()}
+
     <section class="seccion">
       <div class="envoltura estrecho">
         <p class="antetitulo">Preguntas</p>
@@ -519,7 +522,7 @@ def construir(g):
     }
     escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
         'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual del taller y un mes de Mirar Despacio+. También para regalar.',
-        cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS))
+        cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ REGALO
     regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{precio_html(t)}</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
@@ -657,11 +660,60 @@ def construir(g):
       </div>
     </section>'''
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
-        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo, extra_pie=TALLERES_JS))
+        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo + resenas_seccion(), extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ PRIVACIDAD, CONDICIONES Y AVISO LEGAL
     from legales import construir_legales
     construir_legales(g, escribir, pagina)
+
+    # ------------------------------------------------------------ QUIÉN SOY
+    cuerpo = f"""
+    <section class="portada">
+      <div class="envoltura rejilla" style="align-items:center;">
+        <div>
+          <p class="antetitulo">Quién está detrás</p>
+          <h1>Hola, soy <em>Otto.</em></h1>
+          <p class="entradilla">Fotógrafo en Madrid. Hago retratos y fotos para marcas y, sobre todo, salgo a la calle a mirar. Mirar Despacio es lo que pasa cuando esas salidas dejan de ser solo mías.</p>
+        </div>
+        <figure style="margin:0;">
+          <img src="/assets/otto-kols.jpg" alt="Otto Kols con su cámara" width="667" height="1000" style="width:100%;max-width:420px;height:auto;display:block;margin-left:auto;">
+        </figure>
+      </div>
+    </section>
+
+    <section class="seccion papel">
+      <div class="envoltura estrecho texto-largo">
+        <p class="antetitulo">De dónde viene esto</p>
+        <h2>Menos fotos, <em>mejor mirada.</em></h2>
+        <p>Llevo muchos años haciendo fotos, buena parte de ellos por mi cuenta, aprendiendo a base de salir y equivocarme. Con el tiempo descubrí que lo mío es la fotografía de calle. Pero no la de disparar sin ton ni son a todo lo que se mueve, sino la de sentir la calle: pararme, observar cómo se mueven la luz y la gente, y adivinar lo que está a punto de pasar antes de que pase.</p>
+        <p>Mirar Despacio nació como proyecto final de un curso de producción de podcast de RTVE: un podcast sobre fotografía de calle y sobre esa forma de mirar. Salieron veinte episodios sobre la vergüenza de fotografiar a desconocidos, publicar sin que nadie te vea o encontrar tu estilo sin buscarlo. Y del podcast salieron las salidas: mañanas en grupo por barrios de Madrid, con retos para obligarnos a mirar distinto y un rato al final para ver las fotos juntos.</p>
+        <p>Hoy Mirar Despacio son salidas, talleres, tutorías y una pequeña comunidad que hace un reto cada mes, viva donde viva.</p>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="envoltura">
+        <p class="antetitulo">Lo que hay detrás</p>
+        <div class="rejilla-3" style="margin-top:20px;">
+          <div class="tarjeta"><h3>Formación</h3><p>Muchos años de autodidacta y después escuela: iniciación, intermedio y superior en Halos (Alcalá de Henares), el curso universitario de Fotografía Digital de la Universidad Nebrija y, ahora, tercer curso en PIC.A Escuela de Fotografía (PhotoEspaña). Antes, dos FP de grado superior: Comercio y Marketing, y Administración de Sistemas Informáticos.</p></div>
+          <div class="tarjeta"><h3>Oficio</h3><p>Como <a href="https://ottokols.es/">Otto Kols</a> hago sesiones de retrato (actores, retrato personal, parejas y mascotas) y fotografía para marcas y negocios, de producto a coches. Lo que aprendo con la gente y las cosas delante de la cámara lo llevo a la calle, y al revés.</p></div>
+          <div class="tarjeta"><h3>Cómo enseño</h3><p>Grupos pequeños, mucha práctica y poca teoría. No me interesa que salgas con la foto perfecta, sino con la costumbre de mirar antes de disparar.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion papel">
+      <div class="envoltura estrecho" style="text-align:center;">
+        <span class="nota">¿te vienes?</span>
+        <h2 style="margin-top:10px;">La forma más fácil de conocerme es <em>en una salida.</em></h2>
+        <div class="botones" style="justify-content:center;"><a class="boton color" href="/salidas/">Ver la próxima salida</a><a class="boton claro" href="/talleres/">Talleres y tutorías</a></div>
+        <p class="aviso" style="margin-top:18px;">O escríbeme a <a href="mailto:{EMAIL}">{EMAIL}</a> o por <a href="{INSTAGRAM}">Instagram</a>.</p>
+      </div>
+    </section>"""
+    escribir('/sobre-mi/', pagina('/sobre-mi/', 'Quién soy · Otto Kols, fotógrafo en Madrid · Mirar Despacio',
+        'Soy Otto Kols, fotógrafo en Madrid. Hago retratos y fotografía para marcas y, con Mirar Despacio, organizo salidas, talleres y tutorías de fotografía callejera.',
+        cuerpo, schema=[{"@type": "Person", "@id": DOM + "/sobre-mi/#otto", "name": "Otto Kols", "jobTitle": "Fotógrafo", "url": DOM + "/sobre-mi/",
+                         "image": DOM + "/assets/otto-kols.jpg", "sameAs": ["https://ottokols.es/", INSTAGRAM], "worksFor": {"@id": DOM + "/#org"}}]))
 
     # ------------------------------------------------------------ AGENDA
     cuerpo = """
@@ -762,6 +814,18 @@ def construir(g):
 
 TALLERES_JS = '''
   <script src="/assets/talleres.js"></script>'''
+# Opiniones de Google: la sección está oculta y solo aparece si hay opiniones (ver js/resenas.js)
+def resenas_seccion(antetitulo='Quien ya ha venido', titulo='Lo que <em>dicen.</em>', clase='seccion'):
+    return f'''
+    <section class="{clase}" data-resenas-seccion hidden>
+      <div class="envoltura">
+        <p class="antetitulo">{antetitulo}</p>
+        <h2>{titulo}</h2>
+        <div data-resenas="md" style="margin-top:24px;"></div>
+      </div>
+    </section>'''
+RESENAS_JS = '''
+  <script src="/js/resenas.js" defer></script>'''
 AGENDA_PORTADA_JS = '''
   <script src="/js/agenda.js"></script>
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 3, soloLista: true });</script>'''

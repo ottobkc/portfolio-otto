@@ -21,9 +21,11 @@
   function guardar(d) { try { if (d) localStorage.setItem(GUARDA, JSON.stringify(d)); else localStorage.removeItem(GUARDA); } catch (e) { /* nada */ } }
 
   // Pide (o renueva) la cookie del servidor y los roles. entrada: true la primera vez tras el enlace.
+  // ¿Está abierta como app instalada en el móvil? (para el 📱 del CRM)
+  function esApp() { try { return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true; } catch (e) { return false; } }
   function sesionServidor(fu, entrada) {
     return fu.getIdToken(!!entrada).then(function (t) {
-      return fetch('/api/socios/sesion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ idToken: t, entrada: !!entrada }) });
+      return fetch('/api/socios/sesion', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ idToken: t, entrada: !!entrada, app: esApp() }) });
     }).then(function (r) {
       if (r.status === 401) throw Object.assign(new Error('sin-cuenta'), { sinCuenta: true });
       if (!r.ok) throw new Error('servidor ' + r.status);

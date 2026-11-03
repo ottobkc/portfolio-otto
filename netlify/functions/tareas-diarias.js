@@ -5,6 +5,7 @@
 //     Si una prueba gratis termina con un reto abierto, se alarga (una sola vez) hasta el día después
 //     del cierre, para que pueda mandar su foto y ver la galería.
 //  4. Galerías de clientes: avisos de lo pendiente y borrado de las que llevan un mes caducadas.
+//  5. Día 2 de cada mes: las comisiones de Stripe del mes anterior se apuntan como gasto (lib/comisiones.js).
 // Si en una ejecución programada no hubiera acceso a la administración de cuentas,
 // no se rompe nada: Otto recibe la lista para hacerlo a mano desde el CRM.
 const { db, FieldValue } = require('../lib/firestore');
@@ -86,6 +87,13 @@ exports.handler = async (event, context) => {
 
   // 4. Galerías de clientes
   try { informe.push(...(await galerias.revisar(fs))); } catch (e) { console.error('galerias', e.message); informe.push('No se han podido revisar las galerías de clientes: ' + e.message); }
+
+  // 5. El día 2 de cada mes: comisiones de Stripe del mes anterior como gasto
+  if (madrid().slice(8) === '02') {
+    const mesAnterior = madrid(-3).slice(0, 7);
+    try { const t = await require('../lib/comisiones').apuntarMes(fs, FieldValue, mesAnterior); if (t) informe.push(t); }
+    catch (e) { console.error('comisiones', e.message); }
+  }
 
   await limite.limpiar(fs).catch(() => 0);
 

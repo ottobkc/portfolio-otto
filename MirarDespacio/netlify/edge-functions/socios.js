@@ -116,7 +116,7 @@ async function api(request, context, que) {
   if (que === 'sesion') {
     const token = String(b.idToken || '');
     if (!token || token.length > 4096) return json({ error: 'sesion' }, 401);
-    const r = await llamarFuncion(request, context, { accion: 'quien', entrada: !!b.entrada }, token);
+    const r = await llamarFuncion(request, context, { accion: 'quien', entrada: !!b.entrada, app: !!b.app }, token);
     const d = await r.json().catch(() => ({}));
     if (!r.ok || !d.uid) return json({ error: 'sesion' }, 401, { 'set-cookie': cookie('', 0) });
     const roles = (d.roles || []).filter((x) => typeof x === 'string').slice(0, 40);
