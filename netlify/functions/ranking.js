@@ -1,8 +1,8 @@
 // Ranking del juego del fotógrafo (mirardespacio.es/juego/)
 // Hay dos rankings: el de siempre (colección 'ranking') y uno por mes (rankingMensual/AAAA-MM/jugadores),
-// que empieza de cero el día 1 a las 00:00 hora de Madrid. Sirve para concursos del tipo «el mejor de noviembre».
+// que empieza de cero el día 1 a las 00:00 hora de Madrid. Del mes solo se enseña el top 3. Sirve para concursos del tipo «el mejor de noviembre».
 //  GET  -> las 10 mejores puntuaciones de siempre (una por usuario de Instagram)
-//  GET ?vista=ambos -> {global, mes, mesClave}: el top 10 de siempre y el del mes en curso
+//  GET ?vista=ambos -> {global, mes, mesClave}: el top 10 de siempre y el top 3 del mes en curso
 //  POST {nombre, puntos, nivel, segundos} -> guarda la puntuación si es la mejor de ese jugador y
 //       devuelve {top, puesto, total, mejor, puestoMejor} (puesto de esta partida entre todos los jugadores)
 //  (nombre = un nombre o un @ de Instagram; con @ se enlaza a su perfil)
@@ -33,8 +33,8 @@ function mesActual() {
 }
 const colMes = (fs, mes) => fs.collection('rankingMensual').doc(mes).collection('jugadores');
 
-async function topDe(col) {
-  const q = await col.orderBy('puntos', 'desc').limit(10).get();
+async function topDe(col, n = 10) {
+  const q = await col.orderBy('puntos', 'desc').limit(n).get();
   return q.docs.map((d) => ({ nombre: d.data().nombre || d.data().ig, puntos: d.data().puntos, nivel: d.data().nivel }));
 }
 const top = (fs) => topDe(fs.collection('ranking'));
@@ -52,7 +52,7 @@ exports.handler = async (event) => {
     }
     if (event.httpMethod === 'GET' && (event.queryStringParameters || {}).vista === 'ambos') {
       const mes = mesActual();
-      const [global, delMes] = await Promise.all([top(fs), topDe(colMes(fs, mes))]);
+      const [global, delMes] = await Promise.all([top(fs), topDe(colMes(fs, mes), 3)]);
       return { statusCode: 200, headers: { ...h, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify({ global, mes: delMes, mesClave: mes }) };
     }
     if (event.httpMethod === 'GET') {
@@ -89,7 +89,7 @@ exports.handler = async (event) => {
     }, { merge: true });
     const monturas = Array.from(new Set([...((jPrev && jPrev.monturas) || []), ...nuevas]));
     const mes = mesActual();
-    if (puntos === 0) return { statusCode: 200, headers: h, body: JSON.stringify({ top: await top(fs), topMes: await topDe(colMes(fs, mes)), mesClave: mes, puesto: null, monturas }) };
+    if (puntos === 0) return { statusCode: 200, headers: h, body: JSON.stringify({ top: await top(fs), topMes: await topDe(colMes(fs, mes), 3), mesClave: mes, puesto: null, monturas }) };
     const ref = fs.collection('ranking').doc(clave);
     const actual = await ref.get();
     const anterior = actual.exists ? actual.data().puntos : 0;
@@ -118,7 +118,7 @@ exports.handler = async (event) => {
       porEncimaMes(puntos).then((n) => n + 1),
       porEncimaMes(mejorMes).then((n) => n + 1),
       cMes.count().get().then((r) => r.data().count),
-      topDe(cMes),
+      topDe(cMes, 3),
     ]);
     return { statusCode: 200, headers: h, body: JSON.stringify({
       top: lista, puesto, total: Math.max(total, puesto), mejor, puestoMejor, monturas,

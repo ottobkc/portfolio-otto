@@ -540,7 +540,7 @@
   var aviso = document.getElementById('jugadorAviso');
   var resumenEl = document.getElementById('juegoResumen');
   var ranking = [];       // top de siempre
-  var rankingMes = [];    // top del mes en curso
+  var rankingMes = [];    // top 3 del mes en curso
   var vista = 'mes';      // qué pestaña se ve
   var resaltado = { mes: null, global: null };
   var notaEl = document.getElementById('rankingNota');
@@ -635,14 +635,14 @@
         if (d.puestoMes) {
           // Lo primero, el puesto del mes (el que cuenta para los concursos)
           rankingMes = d.topMes || [];
-          var enTopMes = d.puestoMes <= 10;
+          var enTopMes = d.puestoMes <= 3;
           txt = enTopMes
-            ? ' ¡Puesto ' + d.puestoMes + ' en el top de ' + nombreMes + '!'
+            ? ' ¡Puesto ' + d.puestoMes + ' en el top 3 de ' + nombreMes + '!'
             : ' Puesto ' + fmt(d.puestoMes) + ' de ' + fmt(d.totalMes) + ' este mes.';
           if (d.mejorMes > pts) txt += ' Tu mejor marca del mes (' + fmt(d.mejorMes) + ') va en el puesto ' + fmt(d.puestoMejorMes) + '.';
-          else if (!enTopMes) txt += ' Te faltan ' + fmt(rankingMes.length ? rankingMes[rankingMes.length - 1].puntos - pts + 5 : 0) + ' puntos para el top 10 del mes.';
+          else if (!enTopMes) txt += ' Te faltan ' + fmt(rankingMes.length ? rankingMes[rankingMes.length - 1].puntos - pts + 5 : 0) + ' puntos para el top 3 del mes.';
           if (d.puesto <= 10) txt += ' Y entras en el top de siempre, puesto ' + d.puesto + '.';
-          resaltado.mes = d.puestoMejorMes <= 10 ? quien : null;
+          resaltado.mes = d.puestoMejorMes <= 3 ? quien : null;
           vista = 'mes';
         } else { // función antigua: solo el top de siempre
           var enTop = d.puesto <= 10;
