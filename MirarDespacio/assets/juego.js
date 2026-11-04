@@ -581,8 +581,25 @@
       return '<li' + yo + '><span class="pos">' + (i + 1) + '</span>' + nombreHtml + '<span class="pts">' + r.puntos + '</span></li>';
     }).join('');
   }
+  // Concurso del mes: mientras está abierto, el top 10 es el del mes (lo calcula el servidor)
+  var concursoEl = document.getElementById('concurso');
+  var concurso = null;
+  if (concursoEl) {
+    var ahora = Date.now(), hasta = new Date(concursoEl.dataset.hasta).getTime(), quitar = new Date(concursoEl.dataset.quitar).getTime();
+    if (ahora < quitar) {
+      concursoEl.hidden = false;
+      if (ahora < hasta) {
+        concurso = { mes: concursoEl.dataset.mes };
+        var tituloEl = document.getElementById('rankingTitulo');
+        if (tituloEl) tituloEl.textContent = 'Top 10 de ' + concursoEl.dataset.nombreMes;
+      } else {
+        concursoEl.querySelector('.concurso-abierto').hidden = true;
+        concursoEl.querySelector('.concurso-cerrado').hidden = false;
+      }
+    }
+  }
   function cargarRanking() {
-    fetch(API).then(function (r) { return r.json(); }).then(function (d) { if (Array.isArray(d)) { ranking = d; pintarRanking(); } }).catch(function () {});
+    fetch(API + (concurso ? '?mes=' + concurso.mes : '')).then(function (r) { return r.json(); }).then(function (d) { if (Array.isArray(d)) { ranking = d; pintarRanking(); } }).catch(function () {});
   }
   cargarRanking();
 
@@ -607,12 +624,16 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !Array.isArray(d.top)) throw d;
+        // Durante el concurso, el puesto y la lista son los del mes
+        if (concurso && d.mes === concurso.mes && Array.isArray(d.topMes)) {
+          d = { top: d.topMes, puesto: d.puestoMes, total: d.totalMes, mejor: d.mejorMes, puestoMejor: d.puestoMejorMes, monturas: d.monturas };
+        }
         ranking = d.top;
         if (d.monturas) mezclarMonturas(d.monturas);
         var fmt = function (n) { return Number(n).toLocaleString('es-ES'); };
         var enTop = d.puesto <= 10;
         var txt = enTop
-          ? ' ¡Entras en el top 10, puesto ' + d.puesto + '!'
+          ? ' ¡Entras en el top 10' + (concurso ? ' de ' + concursoEl.dataset.nombreMes : '') + ', puesto ' + d.puesto + '!'
           : ' Tu puntuación queda en el puesto ' + fmt(d.puesto) + ' de ' + fmt(d.total) + ' jugadores.';
         if (d.mejor > pts) txt += ' Tu mejor marca (' + fmt(d.mejor) + ') sigue en el puesto ' + fmt(d.puestoMejor) + '.';
         else if (!enTop && d.puesto > 10) txt += ' Te faltan ' + fmt(ranking.length ? ranking[ranking.length - 1].puntos - pts + 5 : 0) + ' puntos para el top 10.';

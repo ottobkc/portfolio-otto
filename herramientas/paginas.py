@@ -1,3 +1,4 @@
+import re
 # Contenido de cada página de mirardespacio.es. Lo llama generar.py.
 import json, html
 from episodios import ruta_ep, construir_episodios
@@ -118,7 +119,7 @@ def construir(g):
           <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
-        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
+        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>. Y si quieres salir por tu cuenta, empieza por la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a>.</p>
       </div>
     </section>
 
@@ -288,7 +289,7 @@ def construir(g):
       <div class="envoltura">
         <p class="antetitulo">Cómo funciona</p>
         <h2>Una mañana, <em>de 10 a 13.</em></h2>
-        <p class="entradilla">Unas tres horas en total. A veces el visionado se alarga con unas cañas.</p>
+        <p class="entradilla">Unas tres horas en total. Al terminar solemos tomar algo mientras vemos las fotos.</p>
         <div class="rejilla-2" style="margin-top:32px;">
           <div class="tarjeta"><span class="num">01</span><h3>Quedada y paseo</h3><p>Nos vemos en un punto del barrio y caminamos sin prisa y sin guion, parando donde algo nos llame.</p></div>
           <div class="tarjeta"><span class="num">02</span><h3>Tarjetas de misión</h3><p>Al empezar, cada persona recibe una tarjeta con una propuesta: un concepto, una restricción, una forma de mirar. Puedes seguirla, ignorarla o usarla de excusa. Nadie sabe la misión de los demás.</p></div>
@@ -305,7 +306,19 @@ def construir(g):
       </div>
     </section>
 
-
+    <section class="seccion">
+      <div class="envoltura">
+        <p class="antetitulo">Salidas anteriores</p>
+        <h2>Lo que hemos <em>mirado ya.</em></h2>
+        <div class="rejilla-2" style="margin-top:32px;">
+          <a class="tarjeta" href="/salidas/huertas/"><span class="num">04</span><h3>Huertas</h3><p>Octubre de 2026. Winogrand, Weegee, Vivian Maier y cámaras de llavero.</p><span class="mas">Ver la salida →</span></a>
+          <a class="tarjeta" href="/salidas/tribunal-chueca/"><span class="num">03</span><h3>Tribunal y Chueca</h3><p>Septiembre de 2026. Joel Meyerowitz de referencia y una historia construida entre todos.</p><span class="mas">Ver la salida →</span></a>
+          <a class="tarjeta" href="/salidas/malasana/"><span class="num">02</span><h3>Malasaña</h3><p>Agosto de 2026. El juego del ladrón, con Gilden y diCorcia de fondo.</p><span class="mas">Ver la salida →</span></a>
+          <a class="tarjeta" href="/salidas/barrio-de-las-letras/"><span class="num">01</span><h3>Barrio de las Letras</h3><p>Junio de 2026. La primera, con Cartier-Bresson y Saul Leiter.</p><span class="mas">Ver la salida →</span></a>
+        </div>
+        <p style="margin-top:24px;">¿Buscas ideas para salir por tu cuenta? Lee la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a>.</p>
+      </div>
+    </section>
 
     <section class="seccion papel">
       <div class="envoltura estrecho" style="text-align:center;">
@@ -322,7 +335,7 @@ def construir(g):
       </div>
     </section>'''
     faq_schema = {"@type": "FAQPage", "mainEntity": [
-        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ_SALIDAS]}
+        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": re.sub(r'<[^>]+>', '', a)}} for q, a in FAQ_SALIDAS]}
     escribir('/salidas/', pagina('/salidas/', 'Salidas fotográficas en Madrid · Mirar Despacio',
         'Salidas de fotografía callejera en grupo por barrios de Madrid, de 10 a 13: paseo, tarjetas de misión y visionado de fotos al final. Contribución libre, cualquier cámara vale.',
         cuerpo, schema=[faq_schema], og_img=cld(datos['galeria'][1]['src'], 'f_auto,q_auto,w_1200'),
@@ -778,6 +791,7 @@ def construir(g):
           <input type="text" id="jugadorNombre" maxlength="24" placeholder="@tu_usuario" autocomplete="nickname" autocapitalize="none" spellcheck="false">
           <span class="aviso" id="jugadorAviso" hidden>Escríbelo para poder jugar: tu puntuación se guarda sola al terminar.</span>
         </div>
+""" + concurso_html() + """
         <p class="nota sorpresa">Cada 5 niveles, una sorpresa… hay 20 por descubrir</p>
         <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
         <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición · Foto al carrete = +1 vida · Disparar sin mirar bloquea la cámara</p>
@@ -787,7 +801,7 @@ def construir(g):
             <button class="boton" type="button" id="juegoCompartir" hidden style="margin-top:12px;">Retar a alguien</button>
           </div>
           <div>
-            <p class="antetitulo">Top 10</p>
+            <p class="antetitulo" id="rankingTitulo">Top 10</p>
             <ol class="ranking" id="rankingLista"><li class="aviso">Cargando…</li></ol>
           </div>
         </div>
@@ -834,6 +848,38 @@ AGENDA_JS = '''
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8, pasadas: true });</script>'''
 MURO_JS = '''
   <script src="/assets/muro.js"></script>'''
+# Concurso del juego del fotógrafo. Se enseña solo hasta «quitar» y después desaparece sin tocar nada.
+# Para otro concurso, cambia estos datos (o pon CONCURSO = None) y regenera.
+CONCURSO = {
+    'mes': '2026-11', 'nombreMes': 'noviembre',
+    'hasta': '2026-11-30T23:59:59+01:00',   # cierre (hora de Madrid)
+    'quitar': '2026-12-07T23:59:59+01:00',  # hasta aquí se ve el aviso de «concurso cerrado»
+    'premio': 'un zine de Mirar Despacio',
+    'bases': [
+        'Participa cualquiera que juegue en esta página entre el 1 y el 30 de noviembre de 2026 (hasta las 23:59, hora de Madrid). Es gratis y no hace falta comprar nada.',
+        'Cuenta tu mejor puntuación conseguida en noviembre. Gana quien esté primero en el top 10 de noviembre al cierre; si hay empate, quien llegó antes a esa puntuación.',
+        'Juega con tu @ de Instagram: es la forma de contactar contigo. Si el primero jugó sin @ y no hay manera de localizarle, el premio pasa al siguiente.',
+        'Premio: un zine de Mirar Despacio, con envío gratis dentro de España o en mano en una salida.',
+        'El ganador se anuncia a principios de diciembre en el Instagram de Mirar Despacio y le escribo por mensaje. Si en 7 días no contesta, el premio pasa al siguiente.',
+        'Las puntuaciones imposibles o conseguidas con trampas se anulan.',
+        'Tu nombre o @ solo se usa para el ranking del juego y para contactar con el ganador.',
+    ],
+}
+
+def concurso_html():
+    c = CONCURSO
+    if not c:
+        return ''
+    bases = ''.join(f'<li>{b}</li>' for b in c['bases'])
+    return f'''
+        <div class="concurso" id="concurso" data-mes="{c['mes']}" data-nombre-mes="{c['nombreMes']}" data-hasta="{c['hasta']}" data-quitar="{c['quitar']}" hidden>
+          <p class="antetitulo">Concurso de {c['nombreMes']}</p>
+          <p class="concurso-abierto"><strong>La mejor puntuación de {c['nombreMes']} gana {c['premio']}.</strong> Hasta el {int(c['hasta'][8:10])} de {c['nombreMes']} a las 23:59. Juega con tu @ de Instagram para que pueda escribirte si ganas.</p>
+          <p class="concurso-cerrado" hidden><strong>Concurso de {c['nombreMes']} cerrado.</strong> Gracias por jugar. El ganador se anuncia en el Instagram de Mirar Despacio.</p>
+          <details><summary>Bases del concurso</summary><ol>{bases}</ol></details>
+        </div>
+'''
+
 JUEGO_JS = '''
   <script src="/assets/monturas.js"></script>
   <script src="/assets/juego.js"></script>'''
@@ -847,8 +893,8 @@ GALERIA_JS = '''
 FAQ_SALIDAS = [
     ("¿Cuánto cuesta una salida?", "No tiene precio fijo. Funciona como un free tour: al final cada persona contribuye lo que considere, y si ese día no puedes, no pasa nada. Si eres de Mirar Despacio+, la salida está incluida."),
     ("¿Necesito saber de fotografía o una cámara buena?", "No. Vienen personas con réflex, con compactas, con analógicas y con el móvil. Las tarjetas de misión se adaptan a cada nivel."),
-    ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. A veces se alarga con unas cañas. Las consumiciones las paga cada uno."),
-    ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora Barrio de las Letras, Malasaña, Chueca y Huertas. El punto de encuentro lo confirmo por email a quien se apunta."),
+    ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. Al final solemos tomar algo; las consumiciones las paga cada uno."),
+    ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora <a href=\"/salidas/barrio-de-las-letras/\">Barrio de las Letras</a>, <a href=\"/salidas/malasana/\">Malasaña</a>, <a href=\"/salidas/tribunal-chueca/\">Tribunal y Chueca</a> y <a href=\"/salidas/huertas/\">Huertas</a>. El punto de encuentro lo confirmo por email a quien se apunta."),
     ("¿Cuántas personas vienen?", "Somos grupos pequeños, de hasta unas diez personas, para que el ritmo sea tranquilo y dé tiempo a ver las fotos de todos."),
 ]
 

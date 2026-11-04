@@ -34,13 +34,13 @@ datos = json.load(open(os.path.join(os.path.dirname(__file__), '..', 'MirarDespa
 PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 
 # Menú corto (nov. 2026): Aprender reúne talleres y tutorías; la agenda está en la portada;
-# los juegos se enlazan desde la portada y el pie. Esas páginas siguen existiendo.
-NAV = [('/salidas/', 'Salidas'), ('/talleres/', 'Aprender'), ('/muro/', 'Muro'), ('/podcast/', 'Podcast'),
+# Juegos en el menú (nov. 2026, concurso del juego del fotógrafo). Las demás páginas siguen existiendo.
+NAV = [('/salidas/', 'Salidas'), ('/talleres/', 'Aprender'), ('/muro/', 'Muro'), ('/juegos/', 'Juegos'), ('/podcast/', 'Podcast'),
        ('/tienda/', 'Tienda'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 # Páginas que marcan como activa otra entrada del menú
-GRUPO_NAV = {'/sobre-mi/': '/', '/tutorias/': '/talleres/', '/regalo/': '/talleres/', '/juegos/': '/', '/agenda/': '/salidas/'}
+GRUPO_NAV = {'/sobre-mi/': '/', '/tutorias/': '/talleres/', '/regalo/': '/talleres/', '/juego/': '/juegos/', '/juegos/triangulo/': '/juegos/', '/agenda/': '/salidas/'}
 # En el pie salen además estas
-PIE_EXTRA = [('/sobre-mi/', 'Quién soy'), ('/tutorias/', 'Tutorías'), ('/agenda/', 'Agenda'), ('/juegos/', 'Juegos'), ('/regalo/', 'Regalos')]
+PIE_EXTRA = [('/sobre-mi/', 'Quién soy'), ('/tutorias/', 'Tutorías'), ('/agenda/', 'Agenda'), ('/regalo/', 'Regalos')]
 
 ORG = {
     "@type": "Organization", "@id": DOM + "/#org", "name": "Mirar Despacio", "url": DOM + "/",
@@ -58,7 +58,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
     activa = GRUPO_NAV.get(ruta, ruta)
     nav = '\n'.join(
         f'        <li><a href="{h}"{PLUS if h == "/mirar-despacio-plus/" else ""}{ACT if h == activa else ""}>{t}</a></li>' for h, t in NAV)
-    nav_pie = '\n'.join(f'          <li><a href="{h}">{"Talleres" if h == "/talleres/" else t}</a></li>' for h, t in NAV + PIE_EXTRA)
+    nav_pie = '\n'.join(f'          <li><a href="{h}">{"Talleres" if h == "/talleres/" else t}</a></li>' for h, t in NAV[:1] + [('/fotografia-callejera-madrid/', 'Fotografía callejera en Madrid')] + NAV[1:] + PIE_EXTRA)
     graph = [ORG] + (schema or [])
     ld = json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=1)
     return f'''<!doctype html>
@@ -78,8 +78,9 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <meta property="og:image" content="{og_img}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f5f3ef">
-  <link rel="icon" href="{cld(LOGO, 'w_64,h_64,c_pad,b_rgb:f5f3ef')}">
-  <link rel="apple-touch-icon" href="{cld(LOGO, 'w_180,h_180,c_pad,b_rgb:f5f3ef')}">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/app-180.png">
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <link rel="stylesheet" href="{v('md.css')}">
   <script type="application/ld+json">
