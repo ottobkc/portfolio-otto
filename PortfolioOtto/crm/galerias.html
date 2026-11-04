@@ -5,90 +5,211 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Galerías de clientes — CRM</title>
-<meta name="theme-color" content="#1a1814">
+<meta name="theme-color" content="#e8821a">
+<link rel="stylesheet" href="/assets/fuentes/fuentes.css">
+<script>
+  (function () { try { var t = localStorage.getItem('crm-tema'); if (t === 'claro' || t === 'oscuro') document.documentElement.setAttribute('data-tema', t); } catch (e) {} })();
+</script>
+
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-  :root { --ink:#1a1814; --panel:#23201b; --panel-2:#2c2822; --cream:#f5f3ef; --gold:#c8a97a; --dim:#a8a49c; --danger:#d98a73; --ok:#8fb894; --naranja:#e8821a; }
+  /* ===== Temas =====
+     Claro «Hora dorada»: menú con el degradado de la marca, contenido sobre blanco.
+     Oscuro «Cuarto oscuro»: ciruela oscuro con el naranja de la luz de laboratorio.
+     El botón del menú alterna claro / oscuro / automático (sigue al sistema). */
+  :root {
+    --sb-bg: linear-gradient(185deg, #ef9a2c 0%, #e8821a 38%, #e8347a 100%);
+    --sb-fg: rgba(255,255,255,.88); --sb-dim: rgba(255,255,255,.66); --sb-act-bg: #fff; --sb-act-fg: #c2451f; --sb-mark: transparent; --sb-badge: rgba(255,255,255,.22);
+    --bg: #ffffff; --surface: #ffffff; --surface-2: #fafaf9; --text: #1a1814; --muted: #77716a; --line: #ececea; --line-2: #dedcd8; --hover: #fff7f0;
+    --acc: #e8347a; --acc-ink: #ffffff; --acc-soft: rgba(232,52,122,.10); --acc2: #e8821a;
+    --ok: #2f7d4f; --ok-soft: #e5f3ea; --warn: #b88a1e; --warn-soft: #fbf3dc; --danger: #c8432c; --danger-soft: #fdeae6;
+    --input-bg: #ffffff; --shadow: 0 1px 2px rgba(26,24,20,.04); --fotos: #5a45a8; --fotos-soft: #f1ecff;
+    --head-font: 'Fraunces', Georgia, serif;
+    color-scheme: light;
+  }
+  :root[data-tema="oscuro"] {
+    --sb-bg: #1b1320; --sb-fg: #d5c7ce; --sb-dim: #8f7d89; --sb-act-bg: rgba(255,106,61,.15); --sb-act-fg: #ffb59c; --sb-mark: #ff6a3d; --sb-badge: rgba(255,255,255,.12);
+    --bg: #231a27; --surface: #2c2131; --surface-2: #33273a; --text: #f3e9e4; --muted: #b09fa9; --line: #3b2e40; --line-2: #4a3b50; --hover: #33273a;
+    --acc: #ff6a3d; --acc-ink: #1b1320; --acc-soft: rgba(255,106,61,.14); --acc2: #f2b46b;
+    --ok: #8fcf9f; --ok-soft: rgba(143,207,159,.14); --warn: #f2c486; --warn-soft: rgba(242,180,107,.14); --danger: #ff8a73; --danger-soft: rgba(255,106,61,.14);
+    --input-bg: #2a1f2e; --shadow: none; --fotos: #b9c0ff; --fotos-soft: rgba(160,170,255,.14);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema]) {
+      --sb-bg: #1b1320; --sb-fg: #d5c7ce; --sb-dim: #8f7d89; --sb-act-bg: rgba(255,106,61,.15); --sb-act-fg: #ffb59c; --sb-mark: #ff6a3d; --sb-badge: rgba(255,255,255,.12);
+      --bg: #231a27; --surface: #2c2131; --surface-2: #33273a; --text: #f3e9e4; --muted: #b09fa9; --line: #3b2e40; --line-2: #4a3b50; --hover: #33273a;
+      --acc: #ff6a3d; --acc-ink: #1b1320; --acc-soft: rgba(255,106,61,.14); --acc2: #f2b46b;
+      --ok: #8fcf9f; --ok-soft: rgba(143,207,159,.14); --warn: #f2c486; --warn-soft: rgba(242,180,107,.14); --danger: #ff8a73; --danger-soft: rgba(255,106,61,.14);
+      --input-bg: #2a1f2e; --shadow: none; --fotos: #b9c0ff; --fotos-soft: rgba(160,170,255,.14);
+      color-scheme: dark;
+    }
+  }
+  /* Nombres antiguos que siguen usando algunas partes del código */
+  :root, :root[data-tema] { --ink: var(--bg); --panel: var(--surface); --cream: var(--text); --gold: var(--acc); --dim: var(--muted); }
+
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; background: var(--ink); color: var(--cream); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; }
-  body { padding: calc(20px + env(safe-area-inset-top)) 14px 80px; }
-  .app { max-width: 980px; margin: 0 auto; }
-  h1 { font-family: Georgia, "Times New Roman", serif; font-size: 24px; font-weight: 400; margin: 0 0 2px; }
-  h2 { font-family: Georgia, "Times New Roman", serif; font-size: 20px; font-weight: 400; margin: 0; }
-  .subtitle { color: var(--dim); font-size: 13px; margin-bottom: 18px; }
-  .subtitle a { color: var(--gold); }
-  .card { background: var(--panel); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
-  .card-title { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin-bottom: 10px; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-  label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 4px; }
-  input, select, textarea { width: 100%; padding: 10px 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: var(--cream); font-size: 16px; font-family: inherit; }
-  textarea { min-height: 120px; font-size: 14px; }
-  button { padding: 10px 14px; border-radius: 8px; border: none; background: var(--gold); color: var(--ink); font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
-  button:disabled { opacity: .45; cursor: default; }
-  button.secondary { background: transparent; border: 1px solid rgba(255,255,255,.22); color: var(--cream); }
-  button.danger { background: transparent; border: 1px solid rgba(217,138,115,.5); color: var(--danger); }
-  button.small { padding: 6px 10px; font-size: 12px; }
-  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 400 14px/1.45 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--acc); }
+  h1 { font: 300 32px/1.05 var(--head-font); letter-spacing: -.01em; margin: 0; }
+
+  /* ===== Estructura: menú lateral + contenido ===== */
+  #app { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+  .sb { background: var(--sb-bg); color: var(--sb-fg); padding: 22px 14px calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 2px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sb .logo { display: block; width: 132px; margin: 0 8px 24px; }
+  .sb .item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 8px; color: var(--sb-fg); font-size: 14px; cursor: pointer; position: relative; text-decoration: none; border: 0; background: none; text-align: left; width: 100%; font-family: inherit; }
+  .sb .item:hover { background: rgba(255,255,255,.08); }
+  .sb .item .ico { width: 18px; text-align: center; opacity: .85; flex: none; }
+  .sb .item.active { background: var(--sb-act-bg); color: var(--sb-act-fg); font-weight: 600; }
+  .sb .item.active::before { content: ''; position: absolute; left: -14px; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--sb-mark); }
+  .sb .item .badge { margin: 0 0 0 auto; background: var(--sb-badge); color: inherit; font-size: 11px; padding: 1px 7px; }
+  .sb .item.prox { color: var(--sb-dim); cursor: default; }
+  .sb .item.prox:hover { background: none; }
+  .sb .item.prox .b { margin-left: auto; font-size: 11px; padding: 0 7px; border-radius: 10px; border: 1px solid currentColor; }
+  .sb .sep { height: 1px; background: currentColor; opacity: .14; margin: 10px 8px; }
+  .sb .pie { margin-top: auto; padding: 10px 12px 0; display: grid; gap: 8px; }
+  .sb .tema { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.22); background: transparent; color: var(--sb-fg); font: 500 13px 'Inter', sans-serif; cursor: pointer; }
+  .sb .salir { color: var(--sb-dim); font-size: 12px; background: none; border: 0; text-align: left; padding: 4px 12px; cursor: pointer; font-family: inherit; }
+  main.contenido { padding: 26px 36px 60px; min-width: 0; }
+  .cabecera { display: flex; align-items: flex-end; gap: 14px; margin-bottom: 20px; min-height: 40px; }
+  .cabecera .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .m-top, .m-bar { display: none; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ===== Piezas ===== */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card-title { font: 500 17px/1.2 var(--head-font); color: var(--text); margin: 0 0 10px; }
+  details.card > summary { list-style: none; }
+  details.card > summary::-webkit-details-marker { display: none; }
+
+  input, select, textarea { width: 100%; padding: 9px 12px; margin-bottom: 8px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--input-bg); color: var(--text); font: 15px 'Inter', sans-serif; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--acc-soft); border-color: var(--acc); }
+  input[type="checkbox"], input[type="radio"] { width: auto; margin: 0; accent-color: var(--acc); }
+  option, optgroup { background: var(--surface); color: var(--text); }
+  button { padding: 9px 15px; border-radius: 10px; border: 1px solid transparent; background: var(--acc); color: var(--acc-ink); font: 600 13px 'Inter', sans-serif; cursor: pointer; }
+  button:hover { filter: brightness(1.05); }
+  button:focus-visible, .sb .item:focus-visible { outline: 2px solid var(--acc2); outline-offset: 2px; }
+  button.secondary { background: transparent; border-color: var(--line-2); color: var(--text); }
+  button.secondary:hover { background: var(--surface-2); filter: none; }
+  button.danger { background: transparent; border-color: var(--danger-soft); color: var(--danger); }
+  button.small { padding: 5px 10px; font-size: 12px; }
+  button[disabled] { opacity: .5; cursor: default; }
+
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; }
+
+
+  /* ===== Galerías ===== */
   [hidden] { display: none !important; }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .row > * { flex: 1 1 160px; }
+  h2 { font: 400 24px/1.15 var(--head-font); margin: 0; }
+  .card-title { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .card-title > span:last-child:not(:first-child) { font: 500 12px 'Inter', sans-serif; color: var(--muted); }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  textarea { min-height: 120px; font-size: 14px; }
+  .row { flex-wrap: wrap; } .row > * { flex: 1 1 160px; }
   .acciones { display: flex; gap: 8px; flex-wrap: wrap; }
-  .dim { color: var(--dim); font-size: 13px; }
+  .dim { color: var(--muted); font-size: 13px; }
   .err { color: var(--danger); font-size: 13px; }
   .ok { color: var(--ok); font-size: 13px; }
-  .mono { font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  .mono { font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 12px; }
+  .etq { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 22px 0 8px; font-weight: 600; }
 
-  .item { background: var(--panel); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; color: var(--cream); font-weight: 400; }
-  .item:hover { background: var(--panel-2); }
-  .item .nombre { font-weight: 500; }
-  .chip { font-size: 11px; padding: 3px 8px; border-radius: 99px; white-space: nowrap; border: 1px solid currentColor; }
-  .chip.seleccion { color: var(--gold); }
-  .chip.enviada { color: var(--naranja); background: rgba(232,130,26,.12); }
-  .chip.entregada { color: var(--ok); }
-  .chip.caducada { color: var(--dim); }
+  #lista { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  #lista:has(> p) { background: none; border: 0; }
+  #lista .item { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: var(--surface); color: var(--text); text-align: left; font: 400 13px 'Inter', sans-serif; cursor: pointer; }
+  #lista .item:last-child { border-bottom: 0; }
+  #lista .item:hover { background: var(--hover); filter: none; }
+  #lista .item .nombre { font-weight: 600; font-size: 14px; }
+  .chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; white-space: nowrap; font-weight: 600; }
+  .chip.seleccion { background: var(--warn-soft); color: var(--warn); }
+  .chip.enviada { background: var(--acc-soft); color: var(--acc); }
+  .chip.entregada { background: var(--ok-soft); color: var(--ok); }
+  .chip.caducada { background: var(--surface-2); color: var(--muted); }
 
-  .pasos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
-  .paso { border-top: 3px solid rgba(255,255,255,.12); padding-top: 6px; font-size: 12px; color: var(--dim); }
-  .paso.hecho { border-color: var(--ok); color: var(--cream); }
-  .paso.ahora { border-color: var(--gold); color: var(--gold); }
+  .pasos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .paso { border-top: 3px solid var(--line-2); padding-top: 6px; font-size: 12px; color: var(--muted); }
+  .paso.hecho { border-color: var(--ok); color: var(--text); }
+  .paso.ahora { border-color: var(--acc); color: var(--acc); font-weight: 600; }
+  details > summary { cursor: pointer; }
 
-  .zona { border: 1.5px dashed rgba(255,255,255,.25); border-radius: 12px; padding: 22px 14px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-  .zona.encima { border-color: var(--gold); background: rgba(200,169,122,.07); }
-  .barra { height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden; width: 100%; }
-  .barra div { height: 100%; background: var(--gold); width: 0; transition: width .2s; }
+  .zona { border: 1.5px dashed var(--line-2); border-radius: 12px; padding: 22px 14px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; background: var(--surface-2); }
+  .zona p { margin: 0; }
+  .zona.encima { border-color: var(--acc); background: var(--acc-soft); }
+  .barra { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; width: 100%; }
+  .barra div { height: 100%; background: var(--acc); width: 0; transition: width .2s; }
 
   .rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; margin-top: 12px; }
-  .foto { position: relative; background: #000; border-radius: 6px; overflow: hidden; }
+  .foto { position: relative; background: var(--surface-2); border-radius: 8px; overflow: hidden; }
   .foto img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
-  .foto.elegida { outline: 3px solid var(--naranja); outline-offset: -3px; }
-  .foto .pie { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 4px; background: linear-gradient(transparent, rgba(0,0,0,.7)); font-size: 10px; font-family: ui-monospace, Menlo, monospace; }
-  .foto .pie button { padding: 2px 6px; font-size: 11px; background: rgba(0,0,0,.6); color: var(--cream); border-radius: 4px; }
-  .foto .portada-tag { position: absolute; top: 4px; left: 4px; font-size: 10px; background: var(--gold); color: var(--ink); padding: 1px 6px; border-radius: 4px; }
+  .foto.elegida { outline: 3px solid var(--acc); outline-offset: -3px; }
+  .foto .pie { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: center; padding: 4px; background: linear-gradient(transparent, rgba(0,0,0,.7)); color: #fff; font: 10px 'IBM Plex Mono', ui-monospace, monospace; }
+  .foto .pie button { padding: 2px 6px; font-size: 11px; background: rgba(0,0,0,.6); color: #fff; border-radius: 6px; }
+  .foto .portada-tag { position: absolute; top: 4px; left: 4px; font-size: 10px; font-weight: 600; background: var(--acc); color: var(--acc-ink); padding: 1px 7px; border-radius: 6px; }
   .lista-finales { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
-  .final { display: flex; align-items: center; gap: 10px; background: var(--panel-2); border-radius: 8px; padding: 6px; }
-  .final img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; background: #000; }
+  .final { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border-radius: 10px; padding: 6px; }
+  .final img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; background: var(--line); }
   .final .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-  .copiar { background: var(--panel-2); border-radius: 8px; padding: 10px 12px; font-size: 13px; white-space: pre-wrap; word-break: break-word; margin-bottom: 8px; user-select: all; }
-  .confirma { border: 1px solid rgba(217,138,115,.5); border-radius: 10px; padding: 12px; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-  #loginScreen { max-width: 360px; margin: 80px auto; }
+  .copiar { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 13px; white-space: pre-wrap; word-break: break-word; margin-bottom: 8px; user-select: all; }
+  .confirma { border: 1px solid var(--danger-soft); background: var(--danger-soft); border-radius: 12px; padding: 12px; margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .confirma p { margin: 0; }
+  #loginScreen { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; background: var(--sb-bg); }
+  #loginScreen .logo-login { width: 160px; margin-bottom: 24px; }
+  #loginScreen .card { width: 100%; max-width: 340px; text-align: left; }
+  @media (max-width: 820px) {
+    #app { grid-template-columns: 1fr; }
+    .sb { position: fixed; inset: 0 auto 0 0; width: 260px; z-index: 60; transform: translateX(-105%); transition: transform .2s ease; }
+    .sb.abierto { transform: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,.35); }
+    .m-top { display: flex; align-items: center; gap: 12px; padding: calc(10px + env(safe-area-inset-top)) 16px 10px; background: var(--sb-bg); position: sticky; top: 0; z-index: 40; }
+    .m-top img { width: 104px; }
+    .m-top button { margin-left: auto; background: transparent; color: var(--sb-fg); font-size: 20px; padding: 4px 8px; }
+    main.contenido { padding: 18px 14px calc(40px + env(safe-area-inset-bottom)); }
+    .cabecera { margin-bottom: 14px; } h1 { font-size: 27px; }
+    .pasos { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
-<div class="app">
-
 <div id="loginScreen" hidden>
-  <h1>Galerías de clientes</h1>
-  <p class="subtitle">Entra con la cuenta del CRM.</p>
-  <form id="loginForm">
-    <input type="email" id="loginEmail" placeholder="Email" autocomplete="username">
-    <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
-    <button type="submit" style="width:100%">Entrar</button>
-    <p id="loginError" class="err"></p>
-  </form>
+  <img class="logo-login" src="/assets/logo-md-blanco.png" alt="Mirar Despacio">
+  <div class="card">
+    <h1 style="text-align:center;font-size:26px;">Galerías</h1>
+    <div class="dim" style="text-align:center;margin:6px 0 14px;">Entra con la cuenta del CRM</div>
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="username">
+      <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
+      <button type="submit" style="width:100%">Entrar</button>
+      <p id="loginError" class="err"></p>
+    </form>
+  </div>
 </div>
 
 <div id="panel" hidden>
-  <h1>Galerías de clientes</h1>
-  <p class="subtitle"><a href="./">← Volver al CRM</a> · <span id="estadoServicios"></span></p>
+<div class="m-top"><img src="/assets/logo-md-blanco.png" alt="Mirar Despacio"><button type="button" aria-label="Abrir el menú" onclick="abrirMenu()">☰</button></div>
+<div id="app">
+  <nav class="sb" id="menu" aria-label="Secciones del CRM">
+    <img class="logo" src="/assets/logo-md-blanco.png" alt="Mirar Despacio">
+    <a class="item" href="./#salidas"><span class="ico">◷</span>Salidas</a>
+    <a class="item" href="./#personas"><span class="ico">◍</span>Personas</a>
+    <a class="item" href="./#fotos"><span class="ico">▣</span>Fotos</a>
+    <a class="item" href="./#accesos"><span class="ico">⚿</span>Accesos y MD+</a>
+    <a class="item" href="./#juego"><span class="ico">◇</span>Juegos</a>
+    <a class="item" href="./#pegatinas"><span class="ico">⌖</span>Pegatinas</a>
+    <a class="item active" href="galerias.html" aria-current="page"><span class="ico">▤</span>Galerías de clientes</a>
+    <a class="item" href="./#exportar"><span class="ico">⇩</span>Exportar</a>
+    <div class="sep"></div>
+    <a class="item" href="./#contabilidad"><span class="ico">€</span>Contabilidad</a>
+    <a class="item" href="./#tienda"><span class="ico">◫</span>Tienda</a>
+    <a class="item" href="./#regalos"><span class="ico">✧</span>Regalos</a>
+    <div class="pie">
+      <button class="tema" id="botonTema" type="button" onclick="cambiarTema()"></button>
+      <button class="salir" type="button" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <main class="contenido">
+  <div class="cabecera"><div><h1>Galerías de clientes</h1><div class="sub">Selección y entrega de fotos · <span id="estadoServicios"></span></div></div></div>
 
   <!-- LISTA -->
   <section id="vistaLista">
@@ -101,7 +222,7 @@
         </div>
         <div class="row">
           <div><label for="nMax">Fotos que pueden elegir</label>
-            <select id="nMax"><option value="8">8 · Natural</option><option value="15" selected>15 · Estudio / pedida</option><option value="20">20 · Completo</option><option value="otro">Otro número…</option></select></div>
+            <select id="nMax"><option value="8">8 · Natural</option><option value="12" selected>12 · Doble</option><option value="15">15 · Pareja / pedida</option><option value="20">20 · Completo</option><option value="otro">Otro número…</option></select></div>
           <div id="nMaxOtroCaja" hidden><label for="nMaxOtro">Número de fotos</label><input id="nMaxOtro" type="number" min="1" max="200" value="10"></div>
           <div><label for="nCodigo">Código (vacío = se crea solo)</label><input id="nCodigo" placeholder="RETIRO-1010" autocapitalize="characters"></div>
         </div>
@@ -109,7 +230,7 @@
         <span id="errNueva" class="err"></span>
       </form>
     </div>
-    <div class="card-title" style="margin-top:20px">Galerías</div>
+    <div class="etq">Galerías</div>
     <div id="lista"><p class="dim">Cargando…</p></div>
   </section>
 
@@ -212,12 +333,13 @@
       </div>
     </div>
   </section>
+  </main>
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyDfRTs1pF5-iV2dlNFY-dlFv4A-HcxZeTk",
@@ -248,6 +370,7 @@ const textoError = (e) => ({
 }[e.message] || 'Algo ha fallado (' + e.message + '). Prueba de nuevo.');
 
 // ---------- Sesión ----------
+window.doLogout = () => signOut(auth);
 $('#loginForm').addEventListener('submit', (e) => {
   e.preventDefault(); $('#loginError').textContent = '';
   signInWithEmailAndPassword(auth, $('#loginEmail').value.trim(), $('#loginPassword').value).catch(() => { $('#loginError').textContent = 'Email o contraseña incorrectos.'; });
@@ -505,6 +628,33 @@ $('#elegirFinales').onclick = () => $('#fileFinales').click();
 $('#filePrevias').onchange = (e) => { subirPrevias(e.target.files); e.target.value = ''; };
 $('#dirPrevias').onchange = (e) => { subirPrevias(e.target.files); e.target.value = ''; };
 $('#fileFinales').onchange = (e) => { subirFinales(e.target.files); e.target.value = ''; };
+</script>
+<script>
+  window.abrirMenu = function () { document.getElementById('menu').classList.add('abierto'); };
+  document.addEventListener('click', function (e) {
+    var m = document.getElementById('menu');
+    if (m && m.classList.contains('abierto') && !m.contains(e.target) && !e.target.closest('.m-top button')) m.classList.remove('abierto');
+  });
+</script>
+<script>
+  // Botón de tema: claro → oscuro → automático
+  (function () {
+    var NOMBRES = { claro: '☀  Tema claro', oscuro: '☾  Tema oscuro', auto: '◐  Tema automático' };
+    function actual() { return document.documentElement.getAttribute('data-tema') || 'auto'; }
+    function pintar() {
+      var b = document.getElementById('botonTema'); if (b) b.textContent = NOMBRES[actual()];
+      var oscuro = actual() === 'oscuro' || (actual() === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', oscuro ? '#1b1320' : '#e8821a');
+    }
+    window.cambiarTema = function () {
+      var sig = { claro: 'oscuro', oscuro: 'auto', auto: 'claro' }[actual()];
+      if (sig === 'auto') document.documentElement.removeAttribute('data-tema'); else document.documentElement.setAttribute('data-tema', sig);
+      try { if (sig === 'auto') localStorage.removeItem('crm-tema'); else localStorage.setItem('crm-tema', sig); } catch (e) {}
+      pintar();
+    };
+    if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', pintar);
+    pintar();
+  })();
 </script>
 </body>
 </html>
