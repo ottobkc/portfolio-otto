@@ -1,3 +1,4 @@
+import re
 # Contenido de cada página de mirardespacio.es. Lo llama generar.py.
 import json, html
 from episodios import ruta_ep, construir_episodios
@@ -118,7 +119,7 @@ def construir(g):
           <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
-        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>.</p>
+        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>. Y si quieres salir por tu cuenta, empieza por la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a>.</p>
       </div>
     </section>
 
@@ -288,7 +289,7 @@ def construir(g):
       <div class="envoltura">
         <p class="antetitulo">Cómo funciona</p>
         <h2>Una mañana, <em>de 10 a 13.</em></h2>
-        <p class="entradilla">Unas tres horas en total. A veces el visionado se alarga con unas cañas.</p>
+        <p class="entradilla">Unas tres horas en total. Al terminar solemos tomar algo mientras vemos las fotos.</p>
         <div class="rejilla-2" style="margin-top:32px;">
           <div class="tarjeta"><span class="num">01</span><h3>Quedada y paseo</h3><p>Nos vemos en un punto del barrio y caminamos sin prisa y sin guion, parando donde algo nos llame.</p></div>
           <div class="tarjeta"><span class="num">02</span><h3>Tarjetas de misión</h3><p>Al empezar, cada persona recibe una tarjeta con una propuesta: un concepto, una restricción, una forma de mirar. Puedes seguirla, ignorarla o usarla de excusa. Nadie sabe la misión de los demás.</p></div>
@@ -305,7 +306,19 @@ def construir(g):
       </div>
     </section>
 
-
+    <section class="seccion">
+      <div class="envoltura">
+        <p class="antetitulo">Salidas anteriores</p>
+        <h2>Lo que hemos <em>mirado ya.</em></h2>
+        <div class="rejilla-2" style="margin-top:32px;">
+          <a class="tarjeta" href="/salidas/huertas/"><span class="num">04</span><h3>Huertas</h3><p>Octubre de 2026. Winogrand, Weegee, Vivian Maier y cámaras de llavero.</p><span class="mas">Ver la salida →</span></a>
+          <a class="tarjeta" href="/salidas/tribunal-chueca/"><span class="num">03</span><h3>Tribunal y Chueca</h3><p>Septiembre de 2026. Joel Meyerowitz de referencia y una historia construida entre todos.</p><span class="mas">Ver la salida →</span></a>
+          <a class="tarjeta" href="/salidas/malasana/"><span class="num">02</span><h3>Malasaña</h3><p>Agosto de 2026. El juego del ladrón, con Gilden y diCorcia de fondo.</p><span class="mas">Ver la salida →</span></a>
+          <a class="tarjeta" href="/salidas/barrio-de-las-letras/"><span class="num">01</span><h3>Barrio de las Letras</h3><p>Junio de 2026. La primera, con Cartier-Bresson y Saul Leiter.</p><span class="mas">Ver la salida →</span></a>
+        </div>
+        <p style="margin-top:24px;">¿Buscas ideas para salir por tu cuenta? Lee la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a>.</p>
+      </div>
+    </section>
 
     <section class="seccion papel">
       <div class="envoltura estrecho" style="text-align:center;">
@@ -322,7 +335,7 @@ def construir(g):
       </div>
     </section>'''
     faq_schema = {"@type": "FAQPage", "mainEntity": [
-        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in FAQ_SALIDAS]}
+        {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": re.sub(r'<[^>]+>', '', a)}} for q, a in FAQ_SALIDAS]}
     escribir('/salidas/', pagina('/salidas/', 'Salidas fotográficas en Madrid · Mirar Despacio',
         'Salidas de fotografía callejera en grupo por barrios de Madrid, de 10 a 13: paseo, tarjetas de misión y visionado de fotos al final. Contribución libre, cualquier cámara vale.',
         cuerpo, schema=[faq_schema], og_img=cld(datos['galeria'][1]['src'], 'f_auto,q_auto,w_1200'),
@@ -847,8 +860,8 @@ GALERIA_JS = '''
 FAQ_SALIDAS = [
     ("¿Cuánto cuesta una salida?", "No tiene precio fijo. Funciona como un free tour: al final cada persona contribuye lo que considere, y si ese día no puedes, no pasa nada. Si eres de Mirar Despacio+, la salida está incluida."),
     ("¿Necesito saber de fotografía o una cámara buena?", "No. Vienen personas con réflex, con compactas, con analógicas y con el móvil. Las tarjetas de misión se adaptan a cada nivel."),
-    ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. A veces se alarga con unas cañas. Las consumiciones las paga cada uno."),
-    ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora Barrio de las Letras, Malasaña, Chueca y Huertas. El punto de encuentro lo confirmo por email a quien se apunta."),
+    ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. Al final solemos tomar algo; las consumiciones las paga cada uno."),
+    ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora <a href=\"/salidas/barrio-de-las-letras/\">Barrio de las Letras</a>, <a href=\"/salidas/malasana/\">Malasaña</a>, <a href=\"/salidas/tribunal-chueca/\">Tribunal y Chueca</a> y <a href=\"/salidas/huertas/\">Huertas</a>. El punto de encuentro lo confirmo por email a quien se apunta."),
     ("¿Cuántas personas vienen?", "Somos grupos pequeños, de hasta unas diez personas, para que el ritmo sea tranquilo y dé tiempo a ver las fotos de todos."),
 ]
 
