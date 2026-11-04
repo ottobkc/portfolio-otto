@@ -1,5 +1,8 @@
 // Ranking del juego del fotógrafo (mirardespacio.es/juego/)
-//  GET  -> las 10 mejores puntuaciones (una por usuario de Instagram)
+// Hay dos rankings: el de siempre (colección 'ranking') y uno por mes (rankingMensual/AAAA-MM/jugadores),
+// que empieza de cero el día 1 a las 00:00 hora de Madrid. Sirve para concursos del tipo «el mejor de noviembre».
+//  GET  -> las 10 mejores puntuaciones de siempre (una por usuario de Instagram)
+//  GET ?vista=ambos -> {global, mes, mesClave}: el top 10 de siempre y el del mes en curso
 //  POST {nombre, puntos, nivel, segundos} -> guarda la puntuación si es la mejor de ese jugador y
 //       devuelve {top, puesto, total, mejor, puestoMejor} (puesto de esta partida entre todos los jugadores)
 //  (nombre = un nombre o un @ de Instagram; con @ se enlaza a su perfil)
@@ -23,10 +26,18 @@ const cab = (o) => ({
   Vary: 'Origin',
 });
 
-async function top(fs) {
-  const q = await fs.collection('ranking').orderBy('puntos', 'desc').limit(10).get();
+// Mes en curso en hora de Madrid, p. ej. '2026-11'
+function mesActual() {
+  const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit' }).formatToParts(new Date());
+  return p.find((x) => x.type === 'year').value + '-' + p.find((x) => x.type === 'month').value;
+}
+const colMes = (fs, mes) => fs.collection('rankingMensual').doc(mes).collection('jugadores');
+
+async function topDe(col) {
+  const q = await col.orderBy('puntos', 'desc').limit(10).get();
   return q.docs.map((d) => ({ nombre: d.data().nombre || d.data().ig, puntos: d.data().puntos, nivel: d.data().nivel }));
 }
+const top = (fs) => topDe(fs.collection('ranking'));
 
 exports.handler = async (event) => {
   const h = cab(event.headers.origin);
@@ -38,6 +49,11 @@ exports.handler = async (event) => {
       const clave = claveDe(event.queryStringParameters.jugador);
       const snap = clave ? await fs.collection('jugadores').doc(clave).get() : null;
       return { statusCode: 200, headers: { ...h, 'Cache-Control': 'no-store' }, body: JSON.stringify({ monturas: (snap && snap.exists && snap.data().monturas) || [] }) };
+    }
+    if (event.httpMethod === 'GET' && (event.queryStringParameters || {}).vista === 'ambos') {
+      const mes = mesActual();
+      const [global, delMes] = await Promise.all([top(fs), topDe(colMes(fs, mes))]);
+      return { statusCode: 200, headers: { ...h, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify({ global, mes: delMes, mesClave: mes }) };
     }
     if (event.httpMethod === 'GET') {
       return { statusCode: 200, headers: { ...h, 'Cache-Control': 'public, max-age=30' }, body: JSON.stringify(await top(fs)) };
@@ -72,23 +88,42 @@ exports.handler = async (event) => {
       ...(jPrev ? {} : { primeraVez: FieldValue.serverTimestamp() }),
     }, { merge: true });
     const monturas = Array.from(new Set([...((jPrev && jPrev.monturas) || []), ...nuevas]));
-    if (puntos === 0) return { statusCode: 200, headers: h, body: JSON.stringify({ top: await top(fs), puesto: null, monturas }) };
+    const mes = mesActual();
+    if (puntos === 0) return { statusCode: 200, headers: h, body: JSON.stringify({ top: await top(fs), topMes: await topDe(colMes(fs, mes)), mesClave: mes, puesto: null, monturas }) };
     const ref = fs.collection('ranking').doc(clave);
     const actual = await ref.get();
     const anterior = actual.exists ? actual.data().puntos : 0;
     if (puntos > anterior) {
       await ref.set({ nombre, puntos, nivel, segundos: Math.round(segundos), fecha: FieldValue.serverTimestamp() });
     }
+    // Ranking del mes: la mejor marca de este jugador en el mes en curso
+    const cMes = colMes(fs, mes);
+    const refMes = cMes.doc(clave);
+    const actualMes = await refMes.get();
+    const anteriorMes = actualMes.exists ? actualMes.data().puntos : 0;
+    if (puntos > anteriorMes) {
+      if (!actualMes.exists) await fs.collection('rankingMensual').doc(mes).set({ mes }, { merge: true });
+      await refMes.set({ nombre, puntos, nivel, segundos: Math.round(segundos), fecha: FieldValue.serverTimestamp() });
+    }
     const col = fs.collection('ranking');
-    const porEncima = async (p) => (await col.where('puntos', '>', p).count().get()).data().count;
+    const encima = (c) => async (p) => (await c.where('puntos', '>', p).count().get()).data().count;
+    const porEncima = encima(col), porEncimaMes = encima(cMes);
     const mejor = Math.max(puntos, anterior);
-    const [puesto, puestoMejor, total, lista] = await Promise.all([
+    const mejorMes = Math.max(puntos, anteriorMes);
+    const [puesto, puestoMejor, total, lista, puestoMes, puestoMejorMes, totalMes, listaMes] = await Promise.all([
       porEncima(puntos).then((n) => n + 1),
       porEncima(mejor).then((n) => n + 1),
       col.count().get().then((r) => r.data().count),
       top(fs),
+      porEncimaMes(puntos).then((n) => n + 1),
+      porEncimaMes(mejorMes).then((n) => n + 1),
+      cMes.count().get().then((r) => r.data().count),
+      topDe(cMes),
     ]);
-    return { statusCode: 200, headers: h, body: JSON.stringify({ top: lista, puesto, total: Math.max(total, puesto), mejor, puestoMejor, monturas }) };
+    return { statusCode: 200, headers: h, body: JSON.stringify({
+      top: lista, puesto, total: Math.max(total, puesto), mejor, puestoMejor, monturas,
+      topMes: listaMes, puestoMes, totalMes: Math.max(totalMes, puestoMes), mejorMes, puestoMejorMes, mesClave: mes,
+    }) };
   } catch (e) {
     console.error('ranking', e);
     return { statusCode: 500, headers: h, body: '{"error":"servidor"}' };

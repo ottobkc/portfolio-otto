@@ -424,3 +424,9 @@ html.visor-abierto { overflow: hidden; }
 .portada-producto { padding-bottom: 8px !important; }
 .producto-volver a { color: var(--gris); text-decoration: none; font-size: .95rem; }
 .producto-volver a:hover { color: var(--tinta); }
+
+/* Ranking: pestañas del mes y de siempre */
+.ranking-pestanas { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.ranking-pestanas button { font: 500 .78rem var(--f-texto); letter-spacing: .12em; text-transform: uppercase; background: none; border: 1px solid var(--linea); color: var(--tinta-suave); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+.ranking-pestanas button[aria-selected="true"] { background: var(--tinta); border-color: var(--tinta); color: var(--crema); }
+.ranking-pestanas button:focus-visible { outline: 2px solid var(--naranja); outline-offset: 2px; }

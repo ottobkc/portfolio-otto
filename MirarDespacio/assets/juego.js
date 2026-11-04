@@ -539,7 +539,17 @@
   var campo = document.getElementById('jugadorNombre');
   var aviso = document.getElementById('jugadorAviso');
   var resumenEl = document.getElementById('juegoResumen');
-  var ranking = [];
+  var ranking = [];       // top de siempre
+  var rankingMes = [];    // top del mes en curso
+  var vista = 'mes';      // qué pestaña se ve
+  var resaltado = { mes: null, global: null };
+  var notaEl = document.getElementById('rankingNota');
+  var nombreMes = new Date().toLocaleString('es-ES', { month: 'long', timeZone: 'Europe/Madrid' });
+  var pestanas = document.querySelectorAll('.ranking-pestanas [data-vista]');
+  pestanas.forEach(function (b) {
+    if (b.dataset.vista === 'mes') b.textContent = 'Top de ' + nombreMes;
+    b.addEventListener('click', function () { vista = b.dataset.vista; pintarRanking(); });
+  });
   var NOMBRE_OK = /^@?[\p{L}\p{N}._ ]{2,24}$/u;
   try { if (campo) campo.value = localStorage.getItem('md-juego-nombre') || localStorage.getItem('md-juego-ig') || ''; } catch (e) {}
   function jugador() { return campo ? campo.value.trim().replace(/\s+/g, ' ') : ''; }
@@ -569,10 +579,14 @@
   });
 
   function textoNombre(r) { return String(r.nombre || r.ig || ''); }
-  function pintarRanking(resaltar) {
+  function pintarRanking() {
     if (!lista) return;
-    if (!ranking.length) { lista.innerHTML = '<li class="aviso">Todavía no hay nadie. Sé el primero.</li>'; return; }
-    lista.innerHTML = ranking.map(function (r, i) {
+    pestanas.forEach(function (b) { b.setAttribute('aria-selected', b.dataset.vista === vista ? 'true' : 'false'); });
+    if (notaEl) notaEl.textContent = vista === 'mes' ? 'El top de ' + nombreMes + ' empieza de cero el día 1 del mes que viene.' : 'Las mejores puntuaciones desde que existe el juego.';
+    var datos = vista === 'mes' ? rankingMes : ranking;
+    var resaltar = resaltado[vista];
+    if (!datos.length) { lista.innerHTML = '<li class="aviso">' + (vista === 'mes' ? 'Nadie ha jugado aún este mes. El primer puesto es tuyo.' : 'Todavía no hay nadie. Sé el primero.') + '</li>'; return; }
+    lista.innerHTML = datos.map(function (r, i) {
       var n = textoNombre(r);
       var limpio = n.replace(/[<>&"]/g, '');
       var esIg = /^@[A-Za-z0-9._]{1,30}$/.test(n);
@@ -582,7 +596,11 @@
     }).join('');
   }
   function cargarRanking() {
-    fetch(API).then(function (r) { return r.json(); }).then(function (d) { if (Array.isArray(d)) { ranking = d; pintarRanking(); } }).catch(function () {});
+    fetch(API + '?vista=ambos').then(function (r) { return r.json(); }).then(function (d) {
+      if (d && Array.isArray(d.global)) { ranking = d.global; rankingMes = d.mes || []; }
+      else if (Array.isArray(d)) { ranking = d; } // función antigua: solo el top de siempre
+      pintarRanking();
+    }).catch(function () {});
   }
   cargarRanking();
 
@@ -595,7 +613,10 @@
     if (!pts) { // también se apuntan las partidas de 0 puntos (para saber cuánta gente juega)
       fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: quien, puntos: 0, nivel: estado.nivel, segundos: estado.t, monturas: estado.monturasPartida }) })
-        .then(function (r) { return r.json(); }).then(function (d) { if (d && d.monturas) mezclarMonturas(d.monturas); }).catch(function () {});
+        .then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.monturas) mezclarMonturas(d.monturas);
+          if (d && Array.isArray(d.topMes)) { rankingMes = d.topMes; pintarRanking(); }
+        }).catch(function () {});
       return;
     }
     var linea = document.createElement('span');
@@ -610,14 +631,31 @@
         ranking = d.top;
         if (d.monturas) mezclarMonturas(d.monturas);
         var fmt = function (n) { return Number(n).toLocaleString('es-ES'); };
-        var enTop = d.puesto <= 10;
-        var txt = enTop
-          ? ' ¡Entras en el top 10, puesto ' + d.puesto + '!'
-          : ' Tu puntuación queda en el puesto ' + fmt(d.puesto) + ' de ' + fmt(d.total) + ' jugadores.';
-        if (d.mejor > pts) txt += ' Tu mejor marca (' + fmt(d.mejor) + ') sigue en el puesto ' + fmt(d.puestoMejor) + '.';
-        else if (!enTop && d.puesto > 10) txt += ' Te faltan ' + fmt(ranking.length ? ranking[ranking.length - 1].puntos - pts + 5 : 0) + ' puntos para el top 10.';
+        var txt;
+        if (d.puestoMes) {
+          // Lo primero, el puesto del mes (el que cuenta para los concursos)
+          rankingMes = d.topMes || [];
+          var enTopMes = d.puestoMes <= 10;
+          txt = enTopMes
+            ? ' ¡Puesto ' + d.puestoMes + ' en el top de ' + nombreMes + '!'
+            : ' Puesto ' + fmt(d.puestoMes) + ' de ' + fmt(d.totalMes) + ' este mes.';
+          if (d.mejorMes > pts) txt += ' Tu mejor marca del mes (' + fmt(d.mejorMes) + ') va en el puesto ' + fmt(d.puestoMejorMes) + '.';
+          else if (!enTopMes) txt += ' Te faltan ' + fmt(rankingMes.length ? rankingMes[rankingMes.length - 1].puntos - pts + 5 : 0) + ' puntos para el top 10 del mes.';
+          if (d.puesto <= 10) txt += ' Y entras en el top de siempre, puesto ' + d.puesto + '.';
+          resaltado.mes = d.puestoMejorMes <= 10 ? quien : null;
+          vista = 'mes';
+        } else { // función antigua: solo el top de siempre
+          var enTop = d.puesto <= 10;
+          txt = enTop
+            ? ' ¡Entras en el top 10, puesto ' + d.puesto + '!'
+            : ' Tu puntuación queda en el puesto ' + fmt(d.puesto) + ' de ' + fmt(d.total) + ' jugadores.';
+          if (d.mejor > pts) txt += ' Tu mejor marca (' + fmt(d.mejor) + ') sigue en el puesto ' + fmt(d.puestoMejor) + '.';
+          else if (!enTop && d.puesto > 10) txt += ' Te faltan ' + fmt(ranking.length ? ranking[ranking.length - 1].puntos - pts + 5 : 0) + ' puntos para el top 10.';
+          vista = 'global';
+        }
+        resaltado.global = d.puestoMejor <= 10 ? quien : null;
         linea.textContent = txt;
-        pintarRanking(d.puestoMejor <= 10 ? quien : null);
+        pintarRanking();
         if (window.umami) window.umami.track('juego-puesto', { puesto: d.puesto });
       })
       .catch(function () { linea.textContent = ' No se ha podido guardar la puntuación.'; });

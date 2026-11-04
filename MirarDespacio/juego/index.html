@@ -18,7 +18,7 @@
   <link rel="icon" href="https://res.cloudinary.com/dybxateci/image/upload/w_64,h_64,c_pad,b_rgb:f5f3ef/v1785276700/logoMD_gizjap.png">
   <link rel="apple-touch-icon" href="https://res.cloudinary.com/dybxateci/image/upload/w_180,h_180,c_pad,b_rgb:f5f3ef/v1785276700/logoMD_gizjap.png">
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
-  <link rel="stylesheet" href="/assets/md.css?v=f786b69a">
+  <link rel="stylesheet" href="/assets/md.css?v=3faa16d8">
   <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -86,8 +86,12 @@
             <button class="boton" type="button" id="juegoCompartir" hidden style="margin-top:12px;">Retar a alguien</button>
           </div>
           <div>
-            <p class="antetitulo">Top 10</p>
-            <ol class="ranking" id="rankingLista"><li class="aviso">Cargando…</li></ol>
+            <div class="ranking-pestanas" role="tablist" aria-label="Ranking">
+              <button type="button" role="tab" id="pestanaMes" aria-selected="true" data-vista="mes">Top del mes</button>
+              <button type="button" role="tab" id="pestanaGlobal" aria-selected="false" data-vista="global">Top de siempre</button>
+            </div>
+            <ol class="ranking" id="rankingLista" role="tabpanel" aria-live="polite"><li class="aviso">Cargando…</li></ol>
+            <p class="aviso" id="rankingNota" style="margin-top:8px;">El top del mes empieza de cero el día 1.</p>
           </div>
         </div>
         <div class="botones"><a class="boton color" href="/salidas/">Ahora, en la calle de verdad</a><a class="boton claro" href="/">Volver al inicio</a></div>
@@ -134,6 +138,6 @@
   </footer>
   <script src="/assets/md.js?v=544d3eff"></script>
   <script src="/assets/monturas.js?v=320f6eaf"></script>
-  <script src="/assets/juego.js?v=c8fc03df"></script>
+  <script src="/assets/juego.js?v=3a0345a3"></script>
 </body>
 </html>
