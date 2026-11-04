@@ -956,6 +956,9 @@ window.showTab = function(name) {
   if (name === 'regalos') renderBonos();
 };
 
+// Abrir la sección indicada en la dirección (p. ej. ./#tienda desde Galerías de clientes)
+{ const h = decodeURIComponent(location.hash.slice(1)); if (h && TITULOS[h] && document.getElementById('view-' + h)) showTab(h); }
+
 // ---------- FOTOS (cuaderno, retos, muro) ----------
 // Llama a la función del servidor con la sesión de Firebase del CRM
 async function admin(cuerpo) {
