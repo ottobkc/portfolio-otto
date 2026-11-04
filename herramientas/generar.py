@@ -78,8 +78,9 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <meta property="og:image" content="{og_img}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#f5f3ef">
-  <link rel="icon" href="{cld(LOGO, 'w_64,h_64,c_pad,b_rgb:f5f3ef')}">
-  <link rel="apple-touch-icon" href="{cld(LOGO, 'w_180,h_180,c_pad,b_rgb:f5f3ef')}">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="/assets/app-180.png">
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <link rel="stylesheet" href="{v('md.css')}">
   <script type="application/ld+json">
