@@ -36,6 +36,8 @@ button,input{font:inherit;color:inherit}
 .cab-der{display:flex;align-items:baseline;gap:14px;min-width:0}
 .salir{background:none;border:0;padding:8px 0;min-height:36px;font:12px var(--f-mono);color:var(--tinta);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .marca{font:400 1.55rem var(--f-disp);color:var(--tinta);text-decoration:none}
+.marca img{display:block;height:26px;width:auto}
+.cab{align-items:center}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;width:100%;font:500 14px var(--f-mono);padding:13px 20px;border:1px solid var(--tinta);background:transparent;color:var(--tinta);cursor:pointer;text-decoration:none}
 .btn.lleno{background:var(--tinta);color:var(--papel)}
 .btn:disabled{opacity:.45;cursor:default}
@@ -103,6 +105,9 @@ button,input{font:inherit;color:inherit}
 .cargando{padding-block:80px;text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
 <div class="app">
@@ -111,7 +116,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- ACCESO -->
   <section id="acceso" class="acceso estrecho" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="mono">Galería privada</span></div>
+    <div class="cab"><a class="marca" href="/"><img src="/assets/logo/otto-kols-nombre-negro.svg" alt="Otto Kols" width="442" height="90"></a><span class="mono">Galería privada</span></div>
     <div class="portada" id="portadaAcceso">
       <span class="etq">Galería privada</span>
       <h1>Vuestras <em>fotos</em></h1>
@@ -130,7 +135,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- SELECCIÓN -->
   <section id="seleccion" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
+    <div class="cab"><a class="marca" href="/"><img src="/assets/logo/otto-kols-nombre-negro.svg" alt="Otto Kols" width="442" height="90"></a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="intro">
       <span class="etq">Paso 1 de 2 · Selección</span>
       <h1>Elegid vuestras <em class="nMax">15</em> favoritas</h1>
@@ -162,7 +167,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- ENVIADA -->
   <section id="enviada" class="estrecho" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
+    <div class="cab"><a class="marca" href="/"><img src="/assets/logo/otto-kols-nombre-negro.svg" alt="Otto Kols" width="442" height="90"></a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="listo">
       <span class="etq">Paso 2 de 2 · Edición</span>
       <h1>Selección <em>recibida</em></h1>
@@ -174,7 +179,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- ENTREGA -->
   <section id="entrega" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
+    <div class="cab"><a class="marca" href="/"><img src="/assets/logo/otto-kols-nombre-negro.svg" alt="Otto Kols" width="442" height="90"></a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="listo">
       <span class="etq">Entrega final</span>
       <h1>Vuestras fotos <em>ya están</em></h1>
@@ -193,7 +198,7 @@ button,input{font:inherit;color:inherit}
 
   <!-- CADUCADA -->
   <section id="caducada" class="estrecho" hidden>
-    <div class="cab"><a class="marca" href="/">Otto Kols</a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
+    <div class="cab"><a class="marca" href="/"><img src="/assets/logo/otto-kols-nombre-negro.svg" alt="Otto Kols" width="442" height="90"></a><span class="cab-der"><span class="mono tituloG"></span><button type="button" class="salir" data-salir>Salir</button></span></div>
     <div class="listo">
       <h1>Esta galería <em>ha caducado</em></h1>
       <p>Las descargas estaban disponibles hasta el <span id="caducoEl"></span>. Si necesitáis las fotos otra vez, escribidme y os las vuelvo a activar.</p>

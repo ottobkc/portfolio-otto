@@ -38,6 +38,7 @@ a { color: inherit; }
 .nav { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--papel) 94%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
 .nav .env { display: flex; justify-content: space-between; align-items: center; height: 64px; }
 .nav .marca { font: 400 1.55rem var(--f-disp); text-decoration: none; }
+.nav .marca img { display: block; height: 30px; width: auto; }
 .nav ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; font: 13px var(--f-mono); }
 .nav ul a { text-decoration: none; color: var(--gris); }
 .nav ul a:hover, .nav ul a[aria-current="page"] { color: var(--tinta); }
@@ -193,6 +194,7 @@ p { margin: 0 0 1em; }
 .pie { background: var(--tinta); color: #a9a59c; padding-block: 48px 36px; font-size: .92rem; }
 .pie .env { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 28px; }
 .pie .marca { font: 400 1.8rem var(--f-disp); color: var(--papel); margin: 0 0 8px; }
+.pie .marca img { display: block; height: 36px; width: auto; margin-bottom: 14px; }
 .pie h4 { font: 500 11px var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--papel); margin: 0 0 12px; }
 .pie ul { list-style: none; margin: 0; padding: 0; }
 .pie li { margin-bottom: 7px; }
