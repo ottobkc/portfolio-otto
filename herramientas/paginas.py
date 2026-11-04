@@ -791,6 +791,7 @@ def construir(g):
           <input type="text" id="jugadorNombre" maxlength="24" placeholder="@tu_usuario" autocomplete="nickname" autocapitalize="none" spellcheck="false">
           <span class="aviso" id="jugadorAviso" hidden>Escríbelo para poder jugar: tu puntuación se guarda sola al terminar.</span>
         </div>
+""" + concurso_html() + """
         <p class="nota sorpresa">Cada 5 niveles, una sorpresa… hay 20 por descubrir</p>
         <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
         <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición · Foto al carrete = +1 vida · Disparar sin mirar bloquea la cámara</p>
@@ -800,7 +801,7 @@ def construir(g):
             <button class="boton" type="button" id="juegoCompartir" hidden style="margin-top:12px;">Retar a alguien</button>
           </div>
           <div>
-            <p class="antetitulo">Top 10</p>
+            <p class="antetitulo" id="rankingTitulo">Top 10</p>
             <ol class="ranking" id="rankingLista"><li class="aviso">Cargando…</li></ol>
           </div>
         </div>
@@ -847,6 +848,38 @@ AGENDA_JS = '''
   <script>MDAgenda.pintar(document.getElementById('agenda'), { max: 8, pasadas: true });</script>'''
 MURO_JS = '''
   <script src="/assets/muro.js"></script>'''
+# Concurso del juego del fotógrafo. Se enseña solo hasta «quitar» y después desaparece sin tocar nada.
+# Para otro concurso, cambia estos datos (o pon CONCURSO = None) y regenera.
+CONCURSO = {
+    'mes': '2026-11', 'nombreMes': 'noviembre',
+    'hasta': '2026-11-30T23:59:59+01:00',   # cierre (hora de Madrid)
+    'quitar': '2026-12-07T23:59:59+01:00',  # hasta aquí se ve el aviso de «concurso cerrado»
+    'premio': 'un zine de Mirar Despacio',
+    'bases': [
+        'Participa cualquiera que juegue en esta página entre el 1 y el 30 de noviembre de 2026 (hasta las 23:59, hora de Madrid). Es gratis y no hace falta comprar nada.',
+        'Cuenta tu mejor puntuación conseguida en noviembre. Gana quien esté primero en el top 10 de noviembre al cierre; si hay empate, quien llegó antes a esa puntuación.',
+        'Juega con tu @ de Instagram: es la forma de contactar contigo. Si el primero jugó sin @ y no hay manera de localizarle, el premio pasa al siguiente.',
+        'Premio: un zine de Mirar Despacio, con envío gratis dentro de España o en mano en una salida.',
+        'El ganador se anuncia a principios de diciembre en el Instagram de Mirar Despacio y le escribo por mensaje. Si en 7 días no contesta, el premio pasa al siguiente.',
+        'Las puntuaciones imposibles o conseguidas con trampas se anulan.',
+        'Tu nombre o @ solo se usa para el ranking del juego y para contactar con el ganador.',
+    ],
+}
+
+def concurso_html():
+    c = CONCURSO
+    if not c:
+        return ''
+    bases = ''.join(f'<li>{b}</li>' for b in c['bases'])
+    return f'''
+        <div class="concurso" id="concurso" data-mes="{c['mes']}" data-nombre-mes="{c['nombreMes']}" data-hasta="{c['hasta']}" data-quitar="{c['quitar']}" hidden>
+          <p class="antetitulo">Concurso de {c['nombreMes']}</p>
+          <p class="concurso-abierto"><strong>La mejor puntuación de {c['nombreMes']} gana {c['premio']}.</strong> Hasta el {int(c['hasta'][8:10])} de {c['nombreMes']} a las 23:59. Juega con tu @ de Instagram para que pueda escribirte si ganas.</p>
+          <p class="concurso-cerrado" hidden><strong>Concurso de {c['nombreMes']} cerrado.</strong> Gracias por jugar. El ganador se anuncia en el Instagram de Mirar Despacio.</p>
+          <details><summary>Bases del concurso</summary><ol>{bases}</ol></details>
+        </div>
+'''
+
 JUEGO_JS = '''
   <script src="/assets/monturas.js"></script>
   <script src="/assets/juego.js"></script>'''

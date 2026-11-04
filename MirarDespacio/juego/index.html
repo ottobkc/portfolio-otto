@@ -18,7 +18,7 @@
   <link rel="icon" href="https://res.cloudinary.com/dybxateci/image/upload/w_64,h_64,c_pad,b_rgb:f5f3ef/v1785276700/logoMD_gizjap.png">
   <link rel="apple-touch-icon" href="https://res.cloudinary.com/dybxateci/image/upload/w_180,h_180,c_pad,b_rgb:f5f3ef/v1785276700/logoMD_gizjap.png">
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
-  <link rel="stylesheet" href="/assets/md.css?v=f786b69a">
+  <link rel="stylesheet" href="/assets/md.css?v=29fd1ec8">
   <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -76,6 +76,14 @@
           <input type="text" id="jugadorNombre" maxlength="24" placeholder="@tu_usuario" autocomplete="nickname" autocapitalize="none" spellcheck="false">
           <span class="aviso" id="jugadorAviso" hidden>Escríbelo para poder jugar: tu puntuación se guarda sola al terminar.</span>
         </div>
+
+        <div class="concurso" id="concurso" data-mes="2026-11" data-nombre-mes="noviembre" data-hasta="2026-11-30T23:59:59+01:00" data-quitar="2026-12-07T23:59:59+01:00" hidden>
+          <p class="antetitulo">Concurso de noviembre</p>
+          <p class="concurso-abierto"><strong>La mejor puntuación de noviembre gana un zine de Mirar Despacio.</strong> Hasta el 30 de noviembre a las 23:59. Juega con tu @ de Instagram para que pueda escribirte si ganas.</p>
+          <p class="concurso-cerrado" hidden><strong>Concurso de noviembre cerrado.</strong> Gracias por jugar. El ganador se anuncia en el Instagram de Mirar Despacio.</p>
+          <details><summary>Bases del concurso</summary><ol><li>Participa cualquiera que juegue en esta página entre el 1 y el 30 de noviembre de 2026 (hasta las 23:59, hora de Madrid). Es gratis y no hace falta comprar nada.</li><li>Cuenta tu mejor puntuación conseguida en noviembre. Gana quien esté primero en el top 10 de noviembre al cierre; si hay empate, quien llegó antes a esa puntuación.</li><li>Juega con tu @ de Instagram: es la forma de contactar contigo. Si el primero jugó sin @ y no hay manera de localizarle, el premio pasa al siguiente.</li><li>Premio: un zine de Mirar Despacio, con envío gratis dentro de España o en mano en una salida.</li><li>El ganador se anuncia a principios de diciembre en el Instagram de Mirar Despacio y le escribo por mensaje. Si en 7 días no contesta, el premio pasa al siguiente.</li><li>Las puntuaciones imposibles o conseguidas con trampas se anulan.</li><li>Tu nombre o @ solo se usa para el ranking del juego y para contactar con el ganador.</li></ol></details>
+        </div>
+
         <p class="nota sorpresa">Cada 5 niveles, una sorpresa… hay 20 por descubrir</p>
         <canvas id="juego" class="juego" aria-label="Juego: haz fotos a lo que pasa por la calle"></canvas>
         <p class="aviso" style="margin-top:10px;">Espacio o clic para disparar · En el móvil, toca la pantalla · Foto centrada en el visor = puntos dobles · Varias cosas en la misma foto = bonus composición · Foto al carrete = +1 vida · Disparar sin mirar bloquea la cámara</p>
@@ -85,7 +93,7 @@
             <button class="boton" type="button" id="juegoCompartir" hidden style="margin-top:12px;">Retar a alguien</button>
           </div>
           <div>
-            <p class="antetitulo">Top 10</p>
+            <p class="antetitulo" id="rankingTitulo">Top 10</p>
             <ol class="ranking" id="rankingLista"><li class="aviso">Cargando…</li></ol>
           </div>
         </div>
@@ -133,6 +141,6 @@
   </footer>
   <script src="/assets/md.js?v=544d3eff"></script>
   <script src="/assets/monturas.js?v=320f6eaf"></script>
-  <script src="/assets/juego.js?v=c8fc03df"></script>
+  <script src="/assets/juego.js?v=1255f939"></script>
 </body>
 </html>
