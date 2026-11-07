@@ -169,6 +169,6 @@ def construir_episodios(g, EPISODIOS, URLS, PLATAFORMAS):
         }, {"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Podcast", "item": DOM + "/podcast/"},
             {"@type": "ListItem", "position": 2, "name": titulo, "item": DOM + ruta}]}]
-        escribir(ruta, pagina(ruta, f'#{n} {titulo} · Podcast Mirar Despacio', descripcion, cuerpo, schema=schema))
+        escribir(ruta, pagina(ruta, (f'#{n} {titulo} · Podcast Mirar Despacio' if len(f'#{n} {titulo} · Podcast Mirar Despacio') <= 65 else f'#{n} {titulo} · Mirar Despacio'), descripcion, cuerpo, schema=schema))
         hechos += 1
     return hechos

@@ -46,7 +46,7 @@ ORG = {
     "@type": "Organization", "@id": DOM + "/#org", "name": "Mirar Despacio", "url": DOM + "/",
     "logo": LOGO, "email": EMAIL,
     "founder": {"@type": "Person", "name": "Otto Kols", "url": "https://ottokols.es/"},
-    "sameAs": [INSTAGRAM, SPOTIFY, "https://ottokols.es/"],
+    "sameAs": [INSTAGRAM, SPOTIFY, "https://ottokols.es/", "https://maps.google.com/?cid=11229175125959661196"],
     "areaServed": "Madrid",
 }
 
