@@ -20,11 +20,11 @@
     if (!document.getElementById('rs-css')) { var s = document.createElement('style'); s.id = 'rs-css'; s.textContent = CSS; document.head.appendChild(s); }
     el.innerHTML = '<div class="rs-cab"><b>' + nota(d.nota) + '</b>' + estrellas(d.nota) +
       '<span>' + d.total + (d.total === 1 ? ' opinión' : ' opiniones') + ' en Google</span></div>' +
-      '<div class="rs-lista">' + (d.resenas || []).map(function (r) {
+      ((d.resenas || []).length ? '<div class="rs-lista">' + (d.resenas || []).map(function (r) {
         return '<article class="rs-op">' + estrellas(r.nota) + '<p class="corto">' + esc(r.texto).replace(/\n+/g, '<br>') + '</p>' +
           '<button type="button" hidden>Leer entera</button>' +
           '<span class="rs-autor">' + (r.autorUrl ? '<a href="' + esc(r.autorUrl) + '" target="_blank" rel="noopener nofollow">' + esc(r.autor) + '</a>' : esc(r.autor)) + ' · en Google</span></article>';
-      }).join('') + '</div>' +
+      }).join('') + '</div>' : '') +
       '<p class="rs-pie">Opiniones de Google, tal cual. ' + (d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">Ver todas o dejar la tuya en Google →</a>' : '') + '</p>';
     // «Leer entera» solo en las que se cortan
     el.querySelectorAll('.rs-op').forEach(function (op) {
@@ -35,7 +35,7 @@
 
   document.querySelectorAll('[data-resenas]').forEach(function (el) {
     fetch('/api/f/resenas?ficha=' + encodeURIComponent(el.dataset.resenas || 'md')).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || d.sinDatos || !(d.total >= MINIMO) || !(d.resenas || []).length) return;
+      if (!d || d.sinDatos || !(d.total >= MINIMO)) return; // con la nota y el total basta; las tarjetas salen cuando Google comparte los textos
       var sec = el.closest('[data-resenas-seccion]');
       if (sec) sec.hidden = false; // antes de pintar, para poder medir qué textos se cortan
       pintar(el, d);

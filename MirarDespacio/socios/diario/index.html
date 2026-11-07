@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Mis salidas · Mirar Despacio+</title>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de; --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
+      --accent: #c8a97a; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce; --ok: #5a8a5e;
+      --grad: linear-gradient(90deg, var(--md-orange), var(--md-pink));
+      --font-serif: Georgia, 'Times New Roman', serif; --font-sans: 'Jost', sans-serif; --font-mano: 'Caveat', cursive;
+      --max: 960px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300;
+      font-size: clamp(14px, 1.5vw, 16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
+    a { color: inherit; }
+    [hidden] { display: none !important; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+
+    nav { background: rgba(245,243,239,.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .nav-logo { font-family: var(--font-serif); }
+    .nav-right { display: flex; align-items: center; gap: 1.25rem; }
+    .nav-link { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+    .nav-link:hover { color: var(--ink); }
+    .btn-sec { background: none; border: 1px solid var(--border); color: var(--muted); font-size: .7rem; letter-spacing: .1em;
+      text-transform: uppercase; cursor: pointer; padding: .4rem .9rem; }
+    .btn-sec:hover { border-color: var(--ink); color: var(--ink); }
+
+    .cab { max-width: var(--max); margin: 0 auto; padding: 3.5rem 2rem 2.5rem; border-bottom: 1px solid var(--border); }
+    .etiqueta { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--md-orange); margin-bottom: .6rem; }
+    h1 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.15; }
+    h1 em, .grad { font-style: italic; background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .cab p { color: var(--muted); margin-top: .5rem; max-width: 40em; }
+    .cifras { display: flex; flex-wrap: wrap; gap: 2.2rem; margin-top: 1.8rem; }
+    .cifra b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1; }
+    .cifra span { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+    .contenido { max-width: var(--max); margin: 0 auto; padding: 2.5rem 2rem 6rem; }
+    .rotulo { font-size: .65rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+      margin: 2.8rem 0 1.2rem; padding-bottom: .7rem; border-bottom: 1px solid var(--border); }
+    .contenido > .rotulo:first-child { margin-top: 0; }
+
+    .boton { display: inline-block; border: 0; cursor: pointer; padding: .8rem 1.4rem; background: var(--ink); color: var(--bg);
+      font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; }
+    .boton.color { background: var(--grad); color: #fff; }
+    .boton:disabled { opacity: .5; cursor: wait; }
+    form.apuntar { background: var(--bg2); padding: 1.6rem 1.8rem; display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    form.apuntar .ancho { grid-column: 1 / -1; }
+    .campo label { display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; }
+    .campo select, .campo input, .campo textarea { width: 100%; border: 1px solid var(--border); background: var(--bg); padding: .6rem .75rem; }
+    .campo textarea { min-height: 70px; resize: vertical; }
+    .campo small { color: var(--muted); font-size: .8rem; }
+    .msg { font-size: .9rem; min-height: 1.4em; }
+    .msg.error { color: var(--md-pink); }
+    .tasa { font-family: var(--font-mano); font-size: 1.35rem; color: var(--md-orange); }
+    .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .chip { font-size: .78rem; padding: .18rem .55rem; border: 1px solid var(--border); color: var(--muted); border-radius: 999px; }
+    .chip.si { background: var(--grad); color: #fff; border-color: transparent; }
+    .mapa { max-width: 560px; }
+    .mapa svg { width: 100%; height: auto; display: block; }
+    .mapa path { fill: var(--bg3); stroke: var(--bg); stroke-width: 1; transition: fill .3s; }
+    .mapa path.si { fill: url(#grad); }
+    .mapa text { font-family: var(--font-sans); font-size: 12.5px; fill: var(--ink-faint); text-anchor: middle; pointer-events: none; }
+    .mapa text.si { fill: #fff; font-weight: 500; }
+    .mapa .md { font-size: 11px; }
+    .leyenda { font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+    .ciudad-zonas { margin-bottom: 1.6rem; }
+    .ciudad-zonas h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.15rem; margin-bottom: .5rem; }
+    .ciudad-zonas h3 small { font-family: var(--font-sans); color: var(--muted); font-size: .8rem; }
+    .lista { display: grid; gap: .7rem; }
+    .entrada { background: #fff; padding: .9rem 1.1rem; display: grid; grid-template-columns: 1fr auto; gap: .2rem 1rem; align-items: start; box-shadow: 0 1px 4px rgba(26,24,20,.05); }
+    .entrada b { font-family: var(--font-serif); font-weight: 400; font-size: 1.05rem; }
+    .entrada .meta { color: var(--muted); font-size: .85rem; }
+    .entrada .nota { grid-column: 1 / -1; font-size: .9rem; color: var(--ink-faint); }
+    .entrada button { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: .8rem; text-decoration: underline; }
+    .vacio { color: var(--muted); }
+    @media (max-width: 640px) { .nav-logo { white-space: nowrap; font-size: .95rem; } .nav-right { gap: .8rem; } .nav-link { font-size: .6rem; letter-spacing: .06em; white-space: nowrap; } .nav-right a[href="/retos/"] { display: none; } form.apuntar { grid-template-columns: 1fr; padding: 1.2rem; } nav { padding: 0 1rem; } .cab, .contenido { padding-left: 1rem; padding-right: 1rem; } }
+  </style>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
+  <link rel="manifest" href="/app.webmanifest">
+  <meta name="theme-color" content="#1a1814">
+  <link rel="apple-touch-icon" href="/assets/app-180.png">
+  <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+  <nav>
+    <span class="nav-logo">Mirar Despacio <span class="grad">+</span></span>
+    <div class="nav-right">
+      <a class="nav-link" href="/cuaderno/">Mi cuaderno</a>
+      <a class="nav-link" href="/retos/">Reto del mes</a>
+      <a class="nav-link" href="/socios/">Recursos</a>
+    </div>
+  </nav>
+
+  <header class="cab">
+    <p class="etiqueta">Mis salidas por mi cuenta</p>
+    <h1>Salir más, <em>disparar menos.</em></h1>
+    <p>Apunta cada vez que salgas a hacer fotos por tu cuenta: dónde, con qué y con cuántas fotos te quedas de verdad. No es una competición: es tu registro.</p>
+    <div class="cifras" id="cifras">
+      <div class="cifra"><b id="cMes">–</b><span>salidas este mes</span></div>
+      <div class="cifra"><b id="cRacha">–</b><span>meses seguidos</span></div>
+      <div class="cifra"><b id="cBarrios">–</b><span id="cBarriosTxt">zonas recorridas</span></div>
+      <div class="cifra"><b id="cTasa">–</b><span>fotos que te quedas</span></div>
+    </div>
+  </header>
+
+  <main class="contenido">
+    <p class="rotulo">Apuntar una salida</p>
+    <form class="apuntar" id="form">
+      <div class="campo"><label for="fecha">Día</label><input type="date" id="fecha" required></div>
+      <div class="campo"><label for="ciudad">Ciudad</label><input type="text" id="ciudad" list="ciudades" value="Madrid" maxlength="40" required autocomplete="off"><datalist id="ciudades"></datalist></div>
+      <div class="campo ancho" id="cajaZonaLista"><label for="zonaId">Zona</label><select id="zonaId"></select></div>
+      <div class="campo ancho" id="cajaZona" hidden><label for="zona">Barrio o zona</label><input type="text" id="zona" maxlength="60" placeholder="Escribe el barrio o la zona"></div>
+      <div class="campo"><label for="camara">Con qué</label><select id="camara"><option value="">—</option><option value="movil">Móvil</option><option value="compacta">Compacta</option><option value="sin-espejo">Sin espejo</option><option value="reflex">Réflex</option><option value="analogica">Carrete</option><option value="otra">Otra</option></select></div>
+      <div class="campo"><label for="hechas">Fotos hechas</label><input type="number" id="hechas" min="0" max="5000" inputmode="numeric" placeholder="120"></div>
+      <div class="campo"><label for="quedadas">Fotos con las que te quedas</label><input type="number" id="quedadas" min="0" max="5000" inputmode="numeric" placeholder="3"></div>
+      <div class="campo"><label>&nbsp;</label><span class="tasa" id="tasaPrevia"></span></div>
+      <div class="campo ancho"><label for="nota">Una nota para ti <small>(opcional)</small></label><textarea id="nota" maxlength="400" placeholder="Qué funcionó, qué luz había, qué quieres probar la próxima vez…"></textarea></div>
+      <div class="ancho"><button class="boton color" type="submit" id="guardar">Apuntar salida</button> <span class="msg" id="msg" role="status"></span></div>
+    </form>
+
+    <p class="rotulo">Por dónde has mirado</p>
+    <div id="recorrido"></div>
+
+    <p class="rotulo">Tus salidas</p>
+    <div class="lista" id="lista"><p class="vacio">Cargando…</p></div>
+  </main>
+
+  <script src="/js/zonas.js"></script>
+  <script src="/js/sesion.js"></script>
+  <script>
+  (function () {
+    var API = '/api/f/diario';
+    var $ = function (id) { return document.getElementById(id); };
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var CAM = { movil: 'Móvil', compacta: 'Compacta', 'sin-espejo': 'Sin espejo', reflex: 'Réflex', analogica: 'Carrete', otra: 'Otra' };
+    var ERR = { fecha: 'Revisa el día (no puede ser futuro).', zona: 'Elige o escribe la zona.', ciudad: 'Escribe la ciudad.', demasiadas: 'Ya has apuntado muchas salidas ese día.', 'solo-plus': 'Esto es para Mirar Despacio+.' };
+    var norm = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); };
+    var CIUDAD = {}; ZONAS_MD.forEach(function (c) { CIUDAD[norm(c.ciudad)] = c; });
+    var ciudadDe = function (s) { return CIUDAD[norm(s)] || null; };
+    var pct = function (n) { return n == null ? '–' : String(n).replace('.', ',') + ' %'; };
+    var hoy = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    $('fecha').value = hoy; $('fecha').max = hoy;
+    $('ciudades').innerHTML = ZONAS_MD.map(function (c) { return '<option>' + esc(c.ciudad) + '</option>'; }).join('');
+
+    function ciudad() {
+      var c = ciudadDe($('ciudad').value);
+      $('cajaZonaLista').hidden = !c;
+      if (c) $('zonaId').innerHTML = '<option value="">Elige una zona</option>' + c.zonas.map(function (z) { return '<option value="' + z.id + '">' + esc(z.nombre) + '</option>'; }).join('') + '<option value="otra">Otra zona…</option>';
+      zona();
+    }
+    function zona() { var c = ciudadDe($('ciudad').value); $('cajaZona').hidden = !!c && $('zonaId').value !== 'otra'; }
+    $('ciudad').addEventListener('input', ciudad); $('ciudad').addEventListener('change', ciudad); $('zonaId').addEventListener('change', zona);
+    ciudad();
+    function previa() {
+      var h = Number($('hechas').value), q = Number($('quedadas').value);
+      $('tasaPrevia').textContent = h > 0 && $('quedadas').value !== '' ? 'te quedas con el ' + String(Math.round(q / h * 1000) / 10).replace('.', ',') + ' %' : '';
+    }
+    $('hechas').addEventListener('input', previa); $('quedadas').addEventListener('input', previa);
+
+    function llamar(metodo, cuerpo) {
+      var u = netlifyIdentity.currentUser();
+      return (u ? u.jwt() : Promise.reject(new Error('sesion'))).then(function (t) {
+        return fetch(API, { method: metodo, headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
+      }).then(function (r) {
+        if (r.status === 401) { location.replace('/acceso/?a=socios'); throw new Error('sesion'); }
+        return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.error || 'error'); e.codigo = j.error; throw e; } return j; });
+      });
+    }
+
+    // Mapita del centro de Madrid: celdas pintadas donde has hecho fotos (✦ = en una salida de Mirar Despacio)
+    function mapaMadrid(ids, conMD) {
+      var M = CIUDAD.madrid, si = {}, md = {};
+      ids.forEach(function (id) { si[id] = 1; }); conMD.forEach(function (id) { md[id] = 1; });
+      var lineas = function (n) { var p = n.split(' y '); return p.length > 1 ? [p[0] + ' y', p.slice(1).join(' y ')] : [n]; };
+      return '<div class="mapa"><svg viewBox="0 0 ' + M.mapa.ancho + ' ' + M.mapa.alto + '" role="img" aria-label="Mapa esquemático del centro de Madrid"><defs><linearGradient id="grad" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#e8821a"/><stop offset="1" stop-color="#e8347a"/></linearGradient></defs>' +
+        M.zonas.map(function (z) { return '<path d="' + z.d + '" class="' + (si[z.id] ? 'si' : '') + '"><title>' + esc(z.nombre) + '</title></path>'; }).join('') +
+        M.zonas.map(function (z) { var l = lineas(z.nombre); return '<text x="' + z.x + '" y="' + (z.y - (l.length - 1) * 7) + '" class="' + (si[z.id] ? 'si' : '') + '">' + l.map(function (t, k) { return '<tspan x="' + z.x + '" dy="' + (k ? 14 : 0) + '">' + esc(t) + '</tspan>'; }).join('') + (md[z.id] ? '<tspan x="' + z.x + '" dy="14" class="md">✦</tspan>' : '') + '</text>'; }).join('') +
+        '</svg><p class="leyenda">Esquema del centro, no un plano exacto. ✦ = en una salida de Mirar Despacio (se pintan solas cuando vienes).</p></div>';
+    }
+
+    function pintar(d) {
+      var r = d.resumen;
+      $('cMes').textContent = r.mes.salidas; $('cRacha').textContent = r.racha;
+      $('cBarrios').textContent = r.nZonas; $('cBarriosTxt').textContent = r.nZonas === 1 ? 'zona recorrida' : 'zonas recorridas';
+      $('cTasa').textContent = pct(r.mes.tasa != null ? r.mes.tasa : r.total.tasa);
+      if (r.ciudad && !pintar.hecho) { $('ciudad').value = r.ciudad; ciudad(); pintar.hecho = true; }
+      var zonas = r.zonas.slice(), suya = norm($('ciudad').value);
+      if (!zonas.some(function (c) { return norm(c.ciudad) === suya; }) && ciudadDe(suya)) zonas.unshift({ ciudad: ciudadDe(suya).ciudad, ids: [], libres: [] });
+      zonas.sort(function (a, b) { return (norm(b.ciudad) === suya) - (norm(a.ciudad) === suya); });
+      $('recorrido').innerHTML = zonas.map(function (c) {
+        var lista = ciudadDe(c.ciudad), si = {}; c.ids.forEach(function (id) { si[id] = 1; });
+        var n = c.ids.length + c.libres.length;
+        var cab = '<h3>' + esc(c.ciudad) + ' <small>' + n + (lista ? ' de ' + lista.zonas.length + ' zonas' : (n === 1 ? ' zona' : ' zonas')) + '</small></h3>';
+        if (lista && lista.mapa) return '<div class="ciudad-zonas">' + cab + mapaMadrid(c.ids, norm(c.ciudad) === 'madrid' ? (r.conMD || []) : []) +
+          (c.libres.length ? '<div class="chips" style="margin-top:.6rem">' + c.libres.map(function (x) { return '<span class="chip si">' + esc(x) + '</span>'; }).join('') + '</div>' : '') + '</div>';
+        var chips = (lista ? lista.zonas.map(function (z) { return '<span class="chip' + (si[z.id] ? ' si' : '') + '">' + esc(z.nombre) + '</span>'; }) : [])
+          .concat(c.libres.map(function (x) { return '<span class="chip si">' + esc(x) + '</span>'; }));
+        return '<div class="ciudad-zonas">' + cab + '<div class="chips">' + chips.join('') + '</div></div>';
+      }).join('') || '<p class="vacio">Cuando apuntes tu primera salida, aquí verás las zonas por las que has mirado.</p>';
+      $('lista').innerHTML = d.entradas.length ? d.entradas.map(function (e) {
+        var donde = (e.zona || '') + ' · ' + (e.ciudad || '');
+        var fotos = e.hechas ? e.quedadas + ' de ' + e.hechas + ' fotos (' + pct(Math.round(e.quedadas / e.hechas * 1000) / 10) + ')' : '';
+        var fecha = new Date(e.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        return '<article class="entrada"><b>' + esc(donde) + '</b><button type="button" data-borrar="' + e.id + '">Borrar</button>' +
+          '<span class="meta">' + esc([fecha, CAM[e.camara], fotos].filter(Boolean).join(' · ')) + '</span>' + (e.nota ? '<p class="nota">' + esc(e.nota) + '</p>' : '') + '</article>';
+      }).join('') : '<p class="vacio">Todavía no has apuntado ninguna salida. La primera cuenta.</p>';
+    }
+
+    $('form').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var c = ciudadDe($('ciudad').value), z = $('zonaId').value;
+      var cuerpo = { accion: 'apuntar', fecha: $('fecha').value, ciudad: $('ciudad').value, zonaId: c && z && z !== 'otra' ? z : '', zona: !c || z === 'otra' ? $('zona').value : '',
+        camara: $('camara').value, hechas: $('hechas').value, quedadas: $('quedadas').value, nota: $('nota').value };
+      if (c && !z) { $('msg').textContent = 'Elige la zona.'; $('msg').className = 'msg error'; return; }
+      if (cuerpo.hechas !== '' && Number(cuerpo.quedadas) > Number(cuerpo.hechas)) { $('msg').textContent = 'No puedes quedarte con más fotos de las que has hecho.'; $('msg').className = 'msg error'; return; }
+      $('guardar').disabled = true; $('msg').textContent = ''; $('msg').className = 'msg';
+      llamar('POST', cuerpo).then(function (d) {
+        pintar(d); $('msg').textContent = '¡Apuntada!'; $('nota').value = ''; $('hechas').value = ''; $('quedadas').value = ''; $('zona').value = ''; previa();
+        try { window.umami && window.umami.track('diario-apuntar'); } catch (x) {}
+      }).catch(function (e) { if (e.message !== 'sesion') { $('msg').textContent = ERR[e.codigo] || 'No se ha podido guardar. Prueba otra vez.'; $('msg').className = 'msg error'; } })
+        .then(function () { $('guardar').disabled = false; });
+    });
+    $('lista').addEventListener('click', function (ev) {
+      var id = ev.target.getAttribute('data-borrar'); if (!id) return;
+      if (ev.target.dataset.seguro !== '1') { ev.target.dataset.seguro = '1'; ev.target.textContent = '¿Seguro? Pulsa otra vez'; return; }
+      llamar('POST', { accion: 'borrar', id: id }).then(pintar).catch(function () {});
+    });
+
+    netlifyIdentity.on('init', function (u) { if (!u) location.replace('/acceso/?a=socios'); else llamar('GET').then(pintar).catch(function (e) {
+      if (e.codigo === 'solo-plus') $('lista').innerHTML = '<p class="vacio">Esto es para Mirar Despacio+.</p>';
+      else if (e.message !== 'sesion') $('lista').innerHTML = '<p class="vacio">No se ha podido cargar. Recarga la página.</p>';
+    }); });
+  })();
+  </script>
+</body>
+</html>

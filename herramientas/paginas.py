@@ -166,8 +166,8 @@ def construir(g):
         </div>
       </div>
     </section>'''
-    escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid: podcast, salidas y tutorías',
-        'Mirar Despacio es un proyecto de fotografía callejera en Madrid: podcast, salidas fotográficas en grupo, tutorías y una comunidad para aprender a mirar antes de disparar.',
+    escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid',
+        'Fotografía callejera en Madrid: salidas en grupo, talleres, tutorías, podcast y una comunidad para aprender a mirar antes de disparar.',
         cuerpo, schema=[{"@type": "WebSite", "@id": DOM + "/#web", "url": DOM + "/", "name": "Mirar Despacio", "inLanguage": "es-ES", "publisher": {"@id": DOM + "/#org"}}],
         extra_pie=PROXIMA_JS + MAPA_JS + AGENDA_PORTADA_JS + RESENAS_JS))
 
@@ -337,7 +337,7 @@ def construir(g):
     faq_schema = {"@type": "FAQPage", "mainEntity": [
         {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": re.sub(r'<[^>]+>', '', a)}} for q, a in FAQ_SALIDAS]}
     escribir('/salidas/', pagina('/salidas/', 'Salidas fotográficas en Madrid · Mirar Despacio',
-        'Salidas de fotografía callejera en grupo por barrios de Madrid, de 10 a 13: paseo, tarjetas de misión y visionado de fotos al final. Contribución libre, cualquier cámara vale.',
+        'Salidas de fotografía callejera en grupo por barrios de Madrid: paseo, tarjetas de misión y visionado de fotos al final. Contribución libre y cualquier cámara vale.',
         cuerpo, schema=[faq_schema], og_img=cld(datos['galeria'][1]['src'], 'f_auto,q_auto,w_1200'),
         extra_pie=g['PROXIMA_JS'] + EVENTO_JS + GALERIA_JS))
 
@@ -533,9 +533,29 @@ def construir(g):
         "provider": {"@id": DOM + "/#org"}, "areaServed": "Madrid", "url": DOM + "/talleres/",
         "offers": [{"@type": "Offer", "name": "Taller " + t['titulo'], "price": str(t['precio']), "priceCurrency": "EUR"} for t in td['talleres']],
     }
+    # Cada fecha abierta como evento (resultados enriquecidos de Google para «taller de fotografía Madrid»)
+    import datetime as _dt
+    ahora = _dt.datetime.now(_dt.timezone.utc)
+    eventos_taller = []
+    for ed in td.get('ediciones', []):
+        t = next((x for x in td['talleres'] if x['id'] == ed['taller']), None)
+        if not t or not ed.get('activa') or not ed.get('fechaISO') or _dt.datetime.fromisoformat(ed['fechaISO']) < ahora:
+            continue
+        ev = {
+            "@type": "Event", "name": f"Taller de fotografía callejera: {t['titulo']} · Mirar Despacio",
+            "description": t['descripcion'], "startDate": ed['fechaISO'],
+            "eventStatus": "https://schema.org/EventScheduled", "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+            "location": {"@type": "Place", "name": f"{ed.get('zona') or 'Centro'} de Madrid", "address": {"@type": "PostalAddress", "addressLocality": "Madrid", "addressRegion": "Madrid", "addressCountry": "ES"}},
+            "image": [PORTADA], "organizer": {"@id": DOM + "/#org"},
+            "performer": {"@type": "Person", "name": "Otto Kols", "url": "https://ottokols.es/"},
+            "offers": {"@type": "Offer", "url": DOM + "/talleres/#" + t['id'], "price": t['precio'], "priceCurrency": "EUR", "availability": "https://schema.org/InStock"},
+            "url": DOM + "/talleres/#" + t['id'],
+        }
+        if ed.get('fechaFinISO'): ev["endDate"] = ed['fechaFinISO']
+        eventos_taller.append(ev)
     escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
-        'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición y primeros pasos con tu cámara. Grupos reducidos, mucha práctica, manual del taller y un mes de Mirar Despacio+. También para regalar.',
-        cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS + RESENAS_JS))
+        'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición e iniciación. Grupos de 8 personas y mucha práctica en la calle. También para regalar.',
+        cuerpo, schema=[taller_schema] + eventos_taller, extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ REGALO
     regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{precio_html(t)}</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
@@ -593,6 +613,79 @@ def construir(g):
         </div>
       </div>
     </section>"""
+    # ------------------------------------------------------------ FICHA PREVIA DEL TALLER
+    # Enlace privado que llega en el correo de plaza (?i=inscripción&t=token). No se indexa.
+    cuerpo = """
+    <section class="portada">
+      <div class="envoltura estrecho">
+        <p class="antetitulo" id="fichaTaller">Tu taller</p>
+        <h1>Cuéntame un poco <em>de ti.</em></h1>
+        <p class="entradilla" id="fichaIntro">Dos minutos y preparo el taller pensando en quien viene. Todo es opcional.</p>
+      </div>
+    </section>
+    <section class="seccion" style="padding-top:0;">
+      <div class="envoltura estrecho">
+        <p id="fichaError" class="aviso" hidden>Este enlace no es válido o ha caducado. Si te ha llegado en el correo de tu plaza, contesta a ese correo y te ayudo.</p>
+        <form id="ficha" class="formulario" hidden>
+          <div><label for="fInstagram">Tu Instagram</label><input type="text" id="fInstagram" name="instagram" placeholder="@tuusuario" autocomplete="off"></div>
+          <div><label for="fRedes">Otra web o red donde enseñes fotos <span class="nota-campo">(opcional)</span></label><input type="text" id="fRedes" name="otrasRedes" placeholder="Flickr, web, Glass…"></div>
+          <div><label for="fCamara">¿Con qué vas a hacer fotos?</label>
+            <select id="fCamara" name="camara"><option value="">Elige una opción</option><option value="movil">Con el móvil</option><option value="compacta">Cámara compacta</option><option value="sin-espejo">Cámara sin espejo</option><option value="reflex">Réflex</option><option value="analogica">Cámara de carrete</option><option value="otra">Otra</option></select></div>
+          <div><label for="fModelo">Modelo y objetivo, si lo sabes <span class="nota-campo">(opcional)</span></label><input type="text" id="fModelo" name="modelo" placeholder="Fujifilm X100V, Sony A7 III con 35 mm…"></div>
+          <div><label for="fNivel">¿Cómo te manejas con la cámara?</label>
+            <select id="fNivel" name="nivel"><option value="">Elige una opción</option><option value="empiezo">Estoy empezando</option><option value="automatico">Disparo casi siempre en automático</option><option value="manual-a-veces">Toco algo de manual (diafragma, velocidad…)</option><option value="manual">Disparo en manual sin problema</option></select></div>
+          <div><label for="fEspera">¿Qué te gustaría llevarte del taller?</label><textarea id="fEspera" name="espera" rows="4" placeholder="Perder el miedo a fotografiar a gente, entender la luz de noche, salir con fotos que me gusten…"></textarea></div>
+          <div><label for="fConocio">¿Cómo has conocido Mirar Despacio?</label>
+            <select id="fConocio" name="conocio"><option value="">Elige una opción</option><option value="instagram">Instagram</option><option value="google">Buscando en Google</option><option value="timeout">Time Out</option><option value="hoymadrid">Hoy Madrid</option><option value="amigo">Me lo contó alguien</option><option value="salida">Ya he venido a una salida</option><option value="otro">Otro</option></select></div>
+          <div id="fConocioOtroCaja" hidden><label for="fConocioOtro">¿Dónde?</label><input type="text" id="fConocioOtro" name="conocioOtro"></div>
+          <div><label for="fTelefono">Teléfono para avisos de última hora <span class="nota-campo">(si cambia el punto de encuentro o llueve)</span></label><input type="tel" id="fTelefono" name="telefono" autocomplete="tel"></div>
+          <fieldset class="opciones-si-no"><legend>¿Te importa salir en alguna foto del taller que publique en redes?</legend>
+            <label><input type="radio" name="fotos" value="si"> Puedes publicarla</label>
+            <label><input type="radio" name="fotos" value="no"> Prefiero no salir</label></fieldset>
+          <div><label for="fSaber">¿Algo que deba saber para el recorrido? <span class="nota-campo">(opcional: si te cuesta andar mucho rato, vienes con alguien…)</span></label><textarea id="fSaber" name="saber" rows="2"></textarea></div>
+          <button class="boton" type="submit">Enviar</button>
+          <p id="fichaFallo" class="nota-campo" hidden style="color:var(--rosa);">No se ha podido enviar. Prueba otra vez en un momento.</p>
+          <p class="nota-campo">Lo uso solo para preparar el taller y lo guardo con tu plaza. Puedes cambiarlo cuando quieras desde este mismo enlace.</p>
+        </form>
+        <div id="fichaOk" hidden><h2>¡Gracias!</h2><p>Ya lo tengo. Unos días antes te mando el punto de encuentro y lo que conviene llevar. Si quieres cambiar algo, vuelve a abrir el enlace del correo.</p></div>
+      </div>
+    </section>"""
+    FICHA_JS = """
+  <script>
+  (function () {
+    var q = new URLSearchParams(location.search), i = q.get('i'), t = q.get('t');
+    var f = document.getElementById('ficha'), err = document.getElementById('fichaError');
+    var API = '/api/f/talleres';
+    var conocio = document.getElementById('fConocio');
+    conocio.addEventListener('change', function () { document.getElementById('fConocioOtroCaja').hidden = conocio.value !== 'otro'; });
+    if (!i || !t) { err.hidden = false; return; }
+    fetch(API + '?ficha=' + encodeURIComponent(i) + '&t=' + encodeURIComponent(t)).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+      document.getElementById('fichaTaller').textContent = 'Taller ' + d.taller + (d.fecha ? ' · ' + d.fecha.toLowerCase() : '');
+      if (d.nombre) document.getElementById('fichaIntro').textContent = 'Hola, ' + d.nombre.split(' ')[0] + '. Dos minutos y preparo el taller pensando en quien viene. Todo es opcional.';
+      var v = d.ficha || {};
+      if (!v.telefono && d.telefono) v.telefono = d.telefono;
+      Object.keys(v).forEach(function (k) {
+        var campos = f.querySelectorAll('[name="' + k + '"]');
+        campos.forEach(function (c) { if (c.type === 'radio') c.checked = c.value === v[k]; else c.value = v[k]; });
+      });
+      conocio.dispatchEvent(new Event('change'));
+      f.hidden = false;
+    }).catch(function () { err.hidden = false; });
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var b = f.querySelector('button'); b.disabled = true; b.textContent = 'Enviando…';
+      var datos = { accion: 'ficha', i: i, t: t };
+      new FormData(f).forEach(function (val, k) { datos[k] = val; });
+      fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) }).then(function (r) { if (!r.ok) throw 0;
+        f.hidden = true; document.getElementById('fichaOk').hidden = false; window.scrollTo(0, 0);
+      }).catch(function () { b.disabled = false; b.textContent = 'Enviar'; document.getElementById('fichaFallo').hidden = false; });
+    });
+  })();
+  </script>"""
+    escribir('/talleres/ficha/', pagina('/talleres/ficha/', 'Tu ficha del taller · Mirar Despacio',
+        'Cuéntame qué cámara llevas, tu nivel y qué esperas del taller.',
+        cuerpo, extra_head='<meta name="robots" content="noindex">', extra_pie=FICHA_JS))
+
     escribir('/regalo/', pagina('/regalo/', 'Regalos · Mirar Despacio',
         'Regala un taller de fotografía callejera o unos meses de Mirar Despacio+, o canjea el código de tu regalo.',
         cuerpo, extra_pie=TALLERES_JS))
@@ -673,7 +766,7 @@ def construir(g):
       </div>
     </section>'''
     escribir('/mirar-despacio-plus/', pagina('/mirar-despacio-plus/', 'Mirar Despacio+ · Comunidad de fotografía callejera',
-        'Mirar Despacio+ es la comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo + resenas_seccion(), extra_pie=TALLERES_JS + RESENAS_JS))
+        'La comunidad de fotografía callejera de Mirar Despacio: un reto cada mes, feedback de tus fotos, salidas por Madrid antes que nadie y grupo privado.', cuerpo + resenas_seccion(), extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ PRIVACIDAD, CONDICIONES Y AVISO LEGAL
     from legales import construir_legales
@@ -742,7 +835,7 @@ def construir(g):
         <div id="agenda"></div>
       </div>
     </section>"""
-    escribir('/agenda/', pagina('/agenda/', 'Agenda · Salidas y talleres de fotografía en Madrid · Mirar Despacio',
+    escribir('/agenda/', pagina('/agenda/', 'Agenda de salidas y talleres en Madrid · Mirar Despacio',
         'Calendario de las próximas salidas y talleres de fotografía callejera de Mirar Despacio en Madrid. Suscríbete y las fechas nuevas aparecen solas en tu calendario.',
         cuerpo, extra_pie=AGENDA_JS))
 
