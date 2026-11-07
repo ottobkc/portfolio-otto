@@ -123,6 +123,7 @@
     <div class="nav-right">
       <a class="nav-link recursos" href="/socios/" id="navRecursos" hidden>Recursos</a>
       <a class="nav-link recursos" href="/retos/" id="navRetos" hidden>Reto del mes</a>
+      <a class="nav-link recursos" href="/socios/diario/" id="navDiario" hidden>Mis salidas</a>
       <a class="nav-link" href="https://mirardespacio.es/muro/">El muro</a>
       <button class="btn-sec" id="salir">Cerrar sesión</button>
     </div>
@@ -231,7 +232,7 @@
       var d = datos;
       var mias = d.mias.filter(function (f) { return f.tipo !== 'reto'; });
       $('saludo').textContent = 'Hola, ' + (d.yo.nombre || d.yo.email) + '. Aquí subes tus fotos de las salidas y te las comento una a una.';
-      $('navPlus').hidden = !d.yo.plus; $('navRecursos').hidden = !d.yo.plus; $('navRetos').hidden = !d.yo.plus;
+      $('navPlus').hidden = !d.yo.plus; $('navRecursos').hidden = !d.yo.plus; $('navRetos').hidden = !d.yo.plus; $('navDiario').hidden = !d.yo.plus;
       $('cSubidas').textContent = mias.length;
       $('cComentadas').textContent = mias.filter(function (f) { return f.estado === 'comentada'; }).length;
       $('cMuro').textContent = mias.filter(function (f) { return f.enMuro; }).length;
