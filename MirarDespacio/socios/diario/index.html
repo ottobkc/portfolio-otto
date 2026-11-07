@@ -60,12 +60,20 @@
     .msg { font-size: .9rem; min-height: 1.4em; }
     .msg.error { color: var(--md-pink); }
     .tasa { font-family: var(--font-mano); font-size: 1.35rem; color: var(--md-orange); }
-    .distritos { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.2rem 1.6rem; }
-    .distrito h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.05rem; margin-bottom: .4rem; }
-    .distrito h3 small { font-family: var(--font-sans); color: var(--muted); font-size: .75rem; }
     .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
     .chip { font-size: .78rem; padding: .18rem .55rem; border: 1px solid var(--border); color: var(--muted); border-radius: 999px; }
     .chip.si { background: var(--grad); color: #fff; border-color: transparent; }
+    .mapa { max-width: 560px; }
+    .mapa svg { width: 100%; height: auto; display: block; }
+    .mapa path { fill: var(--bg3); stroke: var(--bg); stroke-width: 1; transition: fill .3s; }
+    .mapa path.si { fill: url(#grad); }
+    .mapa text { font-family: var(--font-sans); font-size: 12.5px; fill: var(--ink-faint); text-anchor: middle; pointer-events: none; }
+    .mapa text.si { fill: #fff; font-weight: 500; }
+    .mapa .md { font-size: 11px; }
+    .leyenda { font-size: .8rem; color: var(--muted); margin-top: .5rem; }
+    .ciudad-zonas { margin-bottom: 1.6rem; }
+    .ciudad-zonas h3 { font-family: var(--font-serif); font-weight: 400; font-size: 1.15rem; margin-bottom: .5rem; }
+    .ciudad-zonas h3 small { font-family: var(--font-sans); color: var(--muted); font-size: .8rem; }
     .lista { display: grid; gap: .7rem; }
     .entrada { background: #fff; padding: .9rem 1.1rem; display: grid; grid-template-columns: 1fr auto; gap: .2rem 1rem; align-items: start; box-shadow: 0 1px 4px rgba(26,24,20,.05); }
     .entrada b { font-family: var(--font-serif); font-weight: 400; font-size: 1.05rem; }
@@ -99,7 +107,7 @@
     <div class="cifras" id="cifras">
       <div class="cifra"><b id="cMes">–</b><span>salidas este mes</span></div>
       <div class="cifra"><b id="cRacha">–</b><span>meses seguidos</span></div>
-      <div class="cifra"><b id="cBarrios">–</b><span id="cBarriosTxt">barrios recorridos</span></div>
+      <div class="cifra"><b id="cBarrios">–</b><span id="cBarriosTxt">zonas recorridas</span></div>
       <div class="cifra"><b id="cTasa">–</b><span>fotos que te quedas</span></div>
     </div>
   </header>
@@ -108,11 +116,9 @@
     <p class="rotulo">Apuntar una salida</p>
     <form class="apuntar" id="form">
       <div class="campo"><label for="fecha">Día</label><input type="date" id="fecha" required></div>
-      <div class="campo"><label for="ciudad">Ciudad</label><input type="text" id="ciudad" list="ciudades" value="Madrid" maxlength="40" required>
-        <datalist id="ciudades"><option>Madrid</option><option>Barcelona</option><option>Valencia</option><option>Sevilla</option><option>Zaragoza</option><option>Málaga</option><option>Bilbao</option><option>Granada</option><option>Salamanca</option><option>Valladolid</option></datalist></div>
-      <div class="campo ancho" id="cajaBarrio"><label for="barrio">Barrio</label><select id="barrio"></select>
-        <small>Los 131 barrios oficiales de Madrid; entre paréntesis, cómo los llama la gente.</small></div>
-      <div class="campo ancho" id="cajaZona" hidden><label for="zona">Barrio o zona</label><input type="text" id="zona" maxlength="60" placeholder="El Born, Triana, Russafa…"></div>
+      <div class="campo"><label for="ciudad">Ciudad</label><input type="text" id="ciudad" list="ciudades" value="Madrid" maxlength="40" required autocomplete="off"><datalist id="ciudades"></datalist></div>
+      <div class="campo ancho" id="cajaZonaLista"><label for="zonaId">Zona</label><select id="zonaId"></select></div>
+      <div class="campo ancho" id="cajaZona" hidden><label for="zona">Barrio o zona</label><input type="text" id="zona" maxlength="60" placeholder="Escribe el barrio o la zona"></div>
       <div class="campo"><label for="camara">Con qué</label><select id="camara"><option value="">—</option><option value="movil">Móvil</option><option value="compacta">Compacta</option><option value="sin-espejo">Sin espejo</option><option value="reflex">Réflex</option><option value="analogica">Carrete</option><option value="otra">Otra</option></select></div>
       <div class="campo"><label for="hechas">Fotos hechas</label><input type="number" id="hechas" min="0" max="5000" inputmode="numeric" placeholder="120"></div>
       <div class="campo"><label for="quedadas">Fotos con las que te quedas</label><input type="number" id="quedadas" min="0" max="5000" inputmode="numeric" placeholder="3"></div>
@@ -121,15 +127,14 @@
       <div class="ancho"><button class="boton color" type="submit" id="guardar">Apuntar salida</button> <span class="msg" id="msg" role="status"></span></div>
     </form>
 
-    <p class="rotulo" id="rotuloBarrios">Barrios de Madrid recorridos <span style="text-transform:none;letter-spacing:0">· ✦ en una salida de Mirar Despacio (se marcan solos)</span></p>
-    <div class="distritos" id="distritos"></div>
-    <div id="otrasZonas"></div>
+    <p class="rotulo">Por dónde has mirado</p>
+    <div id="recorrido"></div>
 
     <p class="rotulo">Tus salidas</p>
     <div class="lista" id="lista"><p class="vacio">Cargando…</p></div>
   </main>
 
-  <script src="/js/barrios-madrid.js"></script>
+  <script src="/js/zonas.js"></script>
   <script src="/js/sesion.js"></script>
   <script>
   (function () {
@@ -137,18 +142,24 @@
     var $ = function (id) { return document.getElementById(id); };
     var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
     var CAM = { movil: 'Móvil', compacta: 'Compacta', 'sin-espejo': 'Sin espejo', reflex: 'Réflex', analogica: 'Carrete', otra: 'Otra' };
-    var ERR = { fecha: 'Revisa el día (no puede ser futuro).', barrio: 'Elige un barrio.', zona: 'Escribe el barrio o la zona.', demasiadas: 'Ya has apuntado muchas salidas ese día.', 'solo-plus': 'Esto es para Mirar Despacio+.' };
-    var BARRIO = {};
-    BARRIOS_MADRID.forEach(function (d) { d.barrios.forEach(function (b) { BARRIO[b.id] = { nombre: b.nombre, alias: b.alias, distrito: d.distrito }; }); });
-    var esMadrid = function (c) { return /^\s*madrid\s*$/i.test(c || ''); };
+    var ERR = { fecha: 'Revisa el día (no puede ser futuro).', zona: 'Elige o escribe la zona.', ciudad: 'Escribe la ciudad.', demasiadas: 'Ya has apuntado muchas salidas ese día.', 'solo-plus': 'Esto es para Mirar Despacio+.' };
+    var norm = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); };
+    var CIUDAD = {}; ZONAS_MD.forEach(function (c) { CIUDAD[norm(c.ciudad)] = c; });
+    var ciudadDe = function (s) { return CIUDAD[norm(s)] || null; };
     var pct = function (n) { return n == null ? '–' : String(n).replace('.', ',') + ' %'; };
     var hoy = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     $('fecha').value = hoy; $('fecha').max = hoy;
-    $('barrio').innerHTML = '<option value="">Elige un barrio</option>' + BARRIOS_MADRID.map(function (d) {
-      return '<optgroup label="' + esc(d.distrito) + '">' + d.barrios.map(function (b) { return '<option value="' + b.id + '">' + esc(b.nombre + (b.alias ? ' (' + b.alias + ')' : '')) + '</option>'; }).join('') + '</optgroup>';
-    }).join('');
-    function ciudad() { var m = esMadrid($('ciudad').value); $('cajaBarrio').hidden = !m; $('cajaZona').hidden = m; }
-    $('ciudad').addEventListener('input', ciudad);
+    $('ciudades').innerHTML = ZONAS_MD.map(function (c) { return '<option>' + esc(c.ciudad) + '</option>'; }).join('');
+
+    function ciudad() {
+      var c = ciudadDe($('ciudad').value);
+      $('cajaZonaLista').hidden = !c;
+      if (c) $('zonaId').innerHTML = '<option value="">Elige una zona</option>' + c.zonas.map(function (z) { return '<option value="' + z.id + '">' + esc(z.nombre) + '</option>'; }).join('') + '<option value="otra">Otra zona…</option>';
+      zona();
+    }
+    function zona() { var c = ciudadDe($('ciudad').value); $('cajaZona').hidden = !!c && $('zonaId').value !== 'otra'; }
+    $('ciudad').addEventListener('input', ciudad); $('ciudad').addEventListener('change', ciudad); $('zonaId').addEventListener('change', zona);
+    ciudad();
     function previa() {
       var h = Number($('hechas').value), q = Number($('quedadas').value);
       $('tasaPrevia').textContent = h > 0 && $('quedadas').value !== '' ? 'te quedas con el ' + String(Math.round(q / h * 1000) / 10).replace('.', ',') + ' %' : '';
@@ -165,28 +176,38 @@
       });
     }
 
+    // Mapita del centro de Madrid: celdas pintadas donde has hecho fotos (✦ = en una salida de Mirar Despacio)
+    function mapaMadrid(ids, conMD) {
+      var M = CIUDAD.madrid, si = {}, md = {};
+      ids.forEach(function (id) { si[id] = 1; }); conMD.forEach(function (id) { md[id] = 1; });
+      var lineas = function (n) { var p = n.split(' y '); return p.length > 1 ? [p[0] + ' y', p.slice(1).join(' y ')] : [n]; };
+      return '<div class="mapa"><svg viewBox="0 0 ' + M.mapa.ancho + ' ' + M.mapa.alto + '" role="img" aria-label="Mapa esquemático del centro de Madrid"><defs><linearGradient id="grad" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#e8821a"/><stop offset="1" stop-color="#e8347a"/></linearGradient></defs>' +
+        M.zonas.map(function (z) { return '<path d="' + z.d + '" class="' + (si[z.id] ? 'si' : '') + '"><title>' + esc(z.nombre) + '</title></path>'; }).join('') +
+        M.zonas.map(function (z) { var l = lineas(z.nombre); return '<text x="' + z.x + '" y="' + (z.y - (l.length - 1) * 7) + '" class="' + (si[z.id] ? 'si' : '') + '">' + l.map(function (t, k) { return '<tspan x="' + z.x + '" dy="' + (k ? 14 : 0) + '">' + esc(t) + '</tspan>'; }).join('') + (md[z.id] ? '<tspan x="' + z.x + '" dy="14" class="md">✦</tspan>' : '') + '</text>'; }).join('') +
+        '</svg><p class="leyenda">Esquema del centro, no un plano exacto. ✦ = en una salida de Mirar Despacio (se pintan solas cuando vienes).</p></div>';
+    }
+
     function pintar(d) {
       var r = d.resumen;
       $('cMes').textContent = r.mes.salidas; $('cRacha').textContent = r.racha;
-      $('cBarrios').textContent = r.barriosMadrid.length + (r.zonas.length ? r.zonas.reduce(function (n, z) { return n + z.zonas.length; }, 0) : 0);
-      $('cBarriosTxt').textContent = r.zonas.length ? 'barrios y zonas' : 'de ' + r.barriosMadridTotal + ' barrios de Madrid';
+      $('cBarrios').textContent = r.nZonas; $('cBarriosTxt').textContent = r.nZonas === 1 ? 'zona recorrida' : 'zonas recorridas';
       $('cTasa').textContent = pct(r.mes.tasa != null ? r.mes.tasa : r.total.tasa);
-      if (r.ciudad && !d.entradasYaPintadas) { $('ciudad').value = r.ciudad; ciudad(); d.entradasYaPintadas = true; }
-      // Barrios de Madrid: se enseñan si es tu ciudad o ya has salido por Madrid
-      var hechos = {}, conMD = {}; r.barriosMadrid.forEach(function (id) { hechos[id] = 1; }); (r.barriosSalidas || []).forEach(function (id) { conMD[id] = 1; });
-      var verMadrid = r.barriosMadrid.length || esMadrid($('ciudad').value);
-      $('rotuloBarrios').hidden = !verMadrid; $('distritos').hidden = !verMadrid;
-      $('distritos').innerHTML = BARRIOS_MADRID.map(function (dd) {
-        var n = dd.barrios.filter(function (b) { return hechos[b.id]; }).length;
-        return '<div class="distrito"><h3>' + esc(dd.distrito) + ' <small>' + n + '/' + dd.barrios.length + '</small></h3><div class="chips">' +
-          dd.barrios.map(function (b) { return '<span class="chip' + (hechos[b.id] ? ' si' : '') + '" title="' + esc([b.alias, conMD[b.id] ? 'En una salida de Mirar Despacio' : ''].filter(Boolean).join(' · ')) + '">' + esc(b.nombre) + (conMD[b.id] ? ' ✦' : '') + '</span>'; }).join('') + '</div></div>';
-      }).join('');
-      $('otrasZonas').innerHTML = r.zonas.map(function (z) {
-        return '<p class="rotulo">Zonas de ' + esc(z.ciudad) + ' recorridas</p><div class="chips">' + z.zonas.map(function (x) { return '<span class="chip si">' + esc(x) + '</span>'; }).join('') + '</div>';
-      }).join('');
+      if (r.ciudad && !pintar.hecho) { $('ciudad').value = r.ciudad; ciudad(); pintar.hecho = true; }
+      var zonas = r.zonas.slice(), suya = norm($('ciudad').value);
+      if (!zonas.some(function (c) { return norm(c.ciudad) === suya; }) && ciudadDe(suya)) zonas.unshift({ ciudad: ciudadDe(suya).ciudad, ids: [], libres: [] });
+      zonas.sort(function (a, b) { return (norm(b.ciudad) === suya) - (norm(a.ciudad) === suya); });
+      $('recorrido').innerHTML = zonas.map(function (c) {
+        var lista = ciudadDe(c.ciudad), si = {}; c.ids.forEach(function (id) { si[id] = 1; });
+        var n = c.ids.length + c.libres.length;
+        var cab = '<h3>' + esc(c.ciudad) + ' <small>' + n + (lista ? ' de ' + lista.zonas.length + ' zonas' : (n === 1 ? ' zona' : ' zonas')) + '</small></h3>';
+        if (lista && lista.mapa) return '<div class="ciudad-zonas">' + cab + mapaMadrid(c.ids, norm(c.ciudad) === 'madrid' ? (r.conMD || []) : []) +
+          (c.libres.length ? '<div class="chips" style="margin-top:.6rem">' + c.libres.map(function (x) { return '<span class="chip si">' + esc(x) + '</span>'; }).join('') + '</div>' : '') + '</div>';
+        var chips = (lista ? lista.zonas.map(function (z) { return '<span class="chip' + (si[z.id] ? ' si' : '') + '">' + esc(z.nombre) + '</span>'; }) : [])
+          .concat(c.libres.map(function (x) { return '<span class="chip si">' + esc(x) + '</span>'; }));
+        return '<div class="ciudad-zonas">' + cab + '<div class="chips">' + chips.join('') + '</div></div>';
+      }).join('') || '<p class="vacio">Cuando apuntes tu primera salida, aquí verás las zonas por las que has mirado.</p>';
       $('lista').innerHTML = d.entradas.length ? d.entradas.map(function (e) {
-        var b = e.barrio && BARRIO[e.barrio];
-        var donde = b ? b.nombre + (b.alias ? ' (' + b.alias.split(',')[0] + ')' : '') + ' · ' + b.distrito : (e.zona || '') + (e.ciudad && !esMadrid(e.ciudad) ? ' · ' + e.ciudad : '');
+        var donde = (e.zona || '') + ' · ' + (e.ciudad || '');
         var fotos = e.hechas ? e.quedadas + ' de ' + e.hechas + ' fotos (' + pct(Math.round(e.quedadas / e.hechas * 1000) / 10) + ')' : '';
         var fecha = new Date(e.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
         return '<article class="entrada"><b>' + esc(donde) + '</b><button type="button" data-borrar="' + e.id + '">Borrar</button>' +
@@ -196,13 +217,14 @@
 
     $('form').addEventListener('submit', function (ev) {
       ev.preventDefault();
-      var m = esMadrid($('ciudad').value);
-      var cuerpo = { accion: 'apuntar', fecha: $('fecha').value, ciudad: $('ciudad').value, barrio: m ? $('barrio').value : '', zona: m ? '' : $('zona').value,
+      var c = ciudadDe($('ciudad').value), z = $('zonaId').value;
+      var cuerpo = { accion: 'apuntar', fecha: $('fecha').value, ciudad: $('ciudad').value, zonaId: c && z && z !== 'otra' ? z : '', zona: !c || z === 'otra' ? $('zona').value : '',
         camara: $('camara').value, hechas: $('hechas').value, quedadas: $('quedadas').value, nota: $('nota').value };
-      if (Number(cuerpo.quedadas) > Number(cuerpo.hechas) && cuerpo.hechas !== '') { $('msg').textContent = 'No puedes quedarte con más fotos de las que has hecho.'; $('msg').className = 'msg error'; return; }
+      if (c && !z) { $('msg').textContent = 'Elige la zona.'; $('msg').className = 'msg error'; return; }
+      if (cuerpo.hechas !== '' && Number(cuerpo.quedadas) > Number(cuerpo.hechas)) { $('msg').textContent = 'No puedes quedarte con más fotos de las que has hecho.'; $('msg').className = 'msg error'; return; }
       $('guardar').disabled = true; $('msg').textContent = ''; $('msg').className = 'msg';
       llamar('POST', cuerpo).then(function (d) {
-        pintar(d); $('msg').textContent = '¡Apuntada!'; $('nota').value = ''; $('hechas').value = ''; $('quedadas').value = ''; previa();
+        pintar(d); $('msg').textContent = '¡Apuntada!'; $('nota').value = ''; $('hechas').value = ''; $('quedadas').value = ''; $('zona').value = ''; previa();
         try { window.umami && window.umami.track('diario-apuntar'); } catch (x) {}
       }).catch(function (e) { if (e.message !== 'sesion') { $('msg').textContent = ERR[e.codigo] || 'No se ha podido guardar. Prueba otra vez.'; $('msg').className = 'msg error'; } })
         .then(function () { $('guardar').disabled = false; });
@@ -217,7 +239,6 @@
       if (e.codigo === 'solo-plus') $('lista').innerHTML = '<p class="vacio">Esto es para Mirar Despacio+.</p>';
       else if (e.message !== 'sesion') $('lista').innerHTML = '<p class="vacio">No se ha podido cargar. Recarga la página.</p>';
     }); });
-
   })();
   </script>
 </body>
