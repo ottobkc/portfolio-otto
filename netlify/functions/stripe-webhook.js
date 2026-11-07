@@ -115,11 +115,14 @@ async function compra(fs, context, s) {
     const antes = await T.ocupadas(fs, ed.id);
     const plazas = Number(ed.plazas || (prod.taller && prod.taller.plazas)) || 8;
     const persona = await T.personaPorEmail(fs, { email, nombre, origen: 'stripe' });
-    await fs.collection('signups').add({
+    const suRef = fs.collection('signups').doc();
+    const token = T.fichaToken();
+    await suRef.set({
       personId: persona.id, eventId: evRef.id, status: 'confirmado', attended: false,
       origen: 'stripe', pagado: true, plazasCompradas: qty, importe, pagoId: s.id, createdAt: FieldValue.serverTimestamp(),
+      fichaToken: token,
     });
-    await T.correoPlazaTaller({ d, ed, nombre, email }).catch(() => {});
+    await T.correoPlazaTaller({ d, ed, nombre, email, ficha: T.urlFicha(suRef.id, token) }).catch(() => {});
     const concepto = `Taller ${prod.taller ? prod.taller.titulo : ed.taller} (${ed.fecha})${qty > 1 ? ' ×' + qty : ''}`;
     avisos.push(['Plazas', `${antes + qty} de ${plazas}` + (antes + qty > plazas ? ' ⚠️ SE HA PASADO DE PLAZAS' : '')]);
     if (qty > 1) avisos.push(['Ojo', `Ha comprado ${qty} plazas: pídele los datos de los acompañantes`]);

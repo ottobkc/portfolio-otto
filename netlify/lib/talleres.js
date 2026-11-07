@@ -106,6 +106,15 @@ function nuevoCodigo() {
 }
 const normalizarCodigo = (c) => limpio(c, 20).toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/^MD/, '').replace(/^(.{4})(.{4})$/, 'MD-$1-$2');
 
+// Ficha previa del taller: enlace privado para que cada persona cuente cámara, nivel, qué espera…
+const fichaToken = () => crypto.randomBytes(18).toString('base64url');
+const urlFicha = (signupId, token) => `${WEB}/talleres/ficha/?i=${encodeURIComponent(signupId)}&t=${encodeURIComponent(token)}`;
+const OPCIONES_FICHA = {
+  camara: ['movil', 'compacta', 'sin-espejo', 'reflex', 'analogica', 'otra'],
+  nivel: ['empiezo', 'automatico', 'manual-a-veces', 'manual'],
+  conocio: ['instagram', 'google', 'timeout', 'hoymadrid', 'amigo', 'salida', 'otro'],
+};
+
 // ---------- CRM ----------
 async function personaPorEmail(fs, datosP) {
   const email = datosP.email.toLowerCase();
@@ -173,9 +182,10 @@ function datosEdicion(d, ed) {
   return { t, filas, cal };
 }
 
-async function correoPlazaTaller({ d, ed, nombre, email, regalo }) {
+async function correoPlazaTaller({ d, ed, nombre, email, regalo, ficha }) {
   const { t, filas, cal } = datosEdicion(d, ed);
   const html = tarjeta({
+    boton: ficha ? { antes: 'Para prepararlo a tu medida, cuéntame en dos minutos qué cámara llevas, tu nivel y qué te gustaría llevarte del taller:', url: ficha, texto: '✍️ Rellenar mi ficha' } : null,
     titulo: 'Taller ' + (t.titulo || '') + ' · Mirar Despacio',
     nombre,
     intro: [regalo
@@ -267,6 +277,7 @@ async function darPlus(fs, persona, { meses, nivel, origen }) {
 module.exports = {
   cabeceras, limpio, emailValido, eur, datos, taller, edicion, eventoId, pasada, producto, cerrarSiCompleto,
   nuevoCodigo, normalizarCodigo, personaPorEmail, eventoTaller, ocupadas, ingreso,
+  fichaToken, urlFicha, OPCIONES_FICHA,
   correoPlazaTaller, correoBonoComprador, correoBienvenidaPlus, avisoOtto, invitarIdentity,
   darPlus, fechaCorta, VALIDEZ_BONO_DIAS, fuenteDatos, modoPrueba,
 };

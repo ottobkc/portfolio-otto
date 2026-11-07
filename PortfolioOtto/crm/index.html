@@ -1850,6 +1850,26 @@ function waLink(tel) {
   if (/^[67]\d{8}$/.test(n)) n = '34' + n;
   return n.length >= 9 ? 'https://wa.me/' + n : '';
 }
+// Ficha previa del taller (la rellena cada persona desde el enlace del correo de plaza)
+const FICHA_TXT = {
+  camara: { movil: 'Móvil', compacta: 'Compacta', 'sin-espejo': 'Sin espejo', reflex: 'Réflex', analogica: 'Carrete', otra: 'Otra' },
+  nivel: { empiezo: 'Empieza', automatico: 'Automático', 'manual-a-veces': 'Algo de manual', manual: 'Manual' },
+  conocio: { instagram: 'Instagram', google: 'Google', timeout: 'Time Out', hoymadrid: 'Hoy Madrid', amigo: 'Se lo contaron', salida: 'Vino a una salida', otro: 'Otro' },
+};
+function fichaTallerHtml(s) {
+  if (!s.fichaToken) return '';
+  const f = s.ficha;
+  if (!f) return '<div class="person-meta" style="opacity:.7">📝 Ficha sin rellenar</div>';
+  const chips = [
+    f.instagram && `<a href="https://instagram.com/${encodeURIComponent(f.instagram.replace(/^@/, ''))}" target="_blank" rel="noopener">${escapeHtml(f.instagram)}</a>`,
+    f.camara && '📷 ' + escapeHtml((FICHA_TXT.camara[f.camara] || f.camara) + (f.modelo ? ' · ' + f.modelo : '')),
+    f.nivel && '🎚️ ' + escapeHtml(FICHA_TXT.nivel[f.nivel] || f.nivel),
+    f.conocio && '🧭 ' + escapeHtml((FICHA_TXT.conocio[f.conocio] || f.conocio) + (f.conocioOtro ? ' · ' + f.conocioOtro : '')),
+    f.fotos && (f.fotos === 'si' ? '📸 Puede salir en fotos' : '🚫 No quiere salir en fotos'),
+  ].filter(Boolean).join(' · ');
+  const textos = [f.espera && '«' + escapeHtml(f.espera) + '»', f.saber && '⚠️ ' + escapeHtml(f.saber), f.otrasRedes && '🔗 ' + escapeHtml(f.otrasRedes)].filter(Boolean).join('<br>');
+  return `<div class="person-meta">📝 ${chips}${textos ? '<br>' + textos : ''}</div>`;
+}
 function telefonoHtml(tel) {
   if (!tel) return '';
   const wa = waLink(tel);
@@ -1964,6 +1984,7 @@ function renderRoster() {
         <div class="person-main">
           <div class="person-name">${escapeHtml(nombreCompleto(person))} ${timesAttended > 1 ? `<span class="badge" title="Salidas a las que consta que ha venido (marcadas como asistió)">ha venido ${timesAttended} veces</span>` : ''}</div>
           <div class="person-meta">${escapeHtml(person.email || '')}${telefonoHtml(person.telefono)}</div>
+          ${fichaTallerHtml(s)}
         </div>
         <select class="status-select" onchange="changeStatus('${s.id}', this.value)">
           <option value="pendiente" ${s.status==='pendiente'?'selected':''}>Pendiente</option>

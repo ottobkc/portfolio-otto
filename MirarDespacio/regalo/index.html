@@ -19,7 +19,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
-  <link rel="stylesheet" href="/assets/md.css?v=29fd1ec8">
+  <link rel="stylesheet" href="/assets/md.css?v=bff168d6">
   <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -38,7 +38,6 @@
    },
    "sameAs": [
     "https://instagram.com/ob.kc",
-    "https://g.page/r/CYxWekdIC9abEBM",
     "https://open.spotify.com/show/6G7RStaXJqr4S39eUei6BB",
     "https://ottokols.es/"
    ],
@@ -68,56 +67,38 @@
   </header>
   <main id="contenido">
 
-    <section class="portada" id="regalo">
+    <section class="portada">
       <div class="envoltura estrecho">
-        <div id="sinCodigo" hidden>
-          <p class="antetitulo">Regalos</p>
-          <h1>Regala <em>mirar despacio.</em></h1>
-          <p class="entradilla">Un taller o unos meses de Mirar Despacio+. Al pagar te llega al momento una tarjeta regalo con un código, para imprimir o reenviar. Quien la recibe la canjea aquí y elige fecha. Vale un año.</p>
-          <ul class="datos" style="margin-top:28px;"><li><span>Taller Callejera nocturna</span><span><span data-taller-precio="nocturna"><s class="antes">75 €</s> 55 €</span> · <a data-bono="nocturna" href="mailto:info@mirardespacio.es?subject=Quiero%20regalar%20el%20taller%20Callejera nocturna">Regalar</a></span></li><li><span>Taller Callejera al atardecer</span><span><span data-taller-precio="atardecer"><s class="antes">60 €</s> 45 €</span> · <a data-bono="atardecer" href="mailto:info@mirardespacio.es?subject=Quiero%20regalar%20el%20taller%20Callejera al atardecer">Regalar</a></span></li><li><span>Taller Primeros pasos</span><span><span data-taller-precio="iniciacion"><s class="antes">50 €</s> 40 €</span> · <a data-bono="iniciacion" href="mailto:info@mirardespacio.es?subject=Quiero%20regalar%20el%20taller%20Primeros pasos">Regalar</a></span></li><li><span>Taller Composición en la calle</span><span><span data-taller-precio="composicion"><s class="antes">50 €</s> 40 €</span> · <a data-bono="composicion" href="mailto:info@mirardespacio.es?subject=Quiero%20regalar%20el%20taller%20Composición en la calle">Regalar</a></span></li><li><span>Mirar Despacio+ · 1 mes con salidas</span><span><span data-regalo-plus-precio="plus-1"><s class="antes">45 €</s> 35 €</span> · <a data-regalo-plus="plus-1" href="mailto:info@mirardespacio.es?subject=Quiero%20regalar%20Mirar%20Despacio%2B">Regalar</a></span></li><li><span>Mirar Despacio+ · 3 meses con salidas</span><span><span data-regalo-plus-precio="plus-3"><s class="antes">120 €</s> 95 €</span> · <a data-regalo-plus="plus-3" href="mailto:info@mirardespacio.es?subject=Quiero%20regalar%20Mirar%20Despacio%2B">Regalar</a></span></li><li><span>Mirar Despacio+ · 3 meses online (sin salidas)</span><span><span data-regalo-plus-precio="plus-3-online"><s class="antes">65 €</s> 55 €</span> · <a data-regalo-plus="plus-3-online" href="mailto:info@mirardespacio.es?subject=Quiero%20regalar%20Mirar%20Despacio%2B">Regalar</a></span></li></ul>
-          <p class="acepta-condiciones">Al comprar aceptas las <a href="/condiciones/">condiciones de venta</a>.</p>
-          <div style="margin-top:56px;">
-            <p class="antetitulo">¿Te han regalado algo?</p>
-            <h2>Canjea tu <em>código.</em></h2>
-            <form class="formulario" id="verCodigo" style="max-width:420px;">
-              <div><label for="codigoInput">Código del regalo</label><input type="text" id="codigoInput" placeholder="MD-XXXX-XXXX" required autocomplete="off"></div>
-              <p class="aviso" id="codigoError" hidden style="margin:0">No encuentro ese código. Revisa que esté bien escrito.</p>
-              <div><button class="boton" type="submit">Ver mi regalo</button></div>
-            </form>
-          </div>
-        </div>
-
-        <div id="conCodigo" hidden>
-          <div class="tarjeta-regalo">
-            <img src="https://res.cloudinary.com/dybxateci/image/upload/w_200/v1785276700/logoMD_gizjap.png" alt="Mirar Despacio" width="96" height="96">
-            <p class="nota">un regalo para</p>
-            <input class="campo-regalo para" type="text" placeholder="Nombre" aria-label="Para">
-            <p class="r-titulo" id="rTitulo">Un regalo</p>
-            <textarea class="campo-regalo dedicatoria" rows="2" placeholder="Escribe aquí una dedicatoria (opcional)" aria-label="Dedicatoria"></textarea>
-            <p class="r-de">de <input class="campo-regalo de" type="text" placeholder="tu nombre" aria-label="De"></p>
-            <p class="r-codigo">Código <strong id="rCodigo"></strong></p>
-            <p class="r-pie"><span id="rCaduca"></span> · Canjéalo en mirardespacio.es/regalo</p>
-          </div>
-          <div class="botones no-imprimir" style="justify-content:center;"><button class="boton claro" type="button" id="imprimir">Imprimir o guardar en PDF</button></div>
-
-          <div id="canje" class="no-imprimir" style="margin-top:56px;">
-            <p class="antetitulo">Canjear</p>
-            <h2>Tus <em>datos.</em></h2>
-            <form class="formulario" id="canjeForm" hidden>
-              <div aria-hidden="true" style="position:absolute;left:-9999px;"><label>No rellenes esto <input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
-              <div id="rEdicionCampo" hidden><label for="rEdicion">Elige fecha *</label><select id="rEdicion" name="edicion"></select></div>
-              <div class="rejilla-2" style="gap:16px;">
-                <div><label for="rNombre">Nombre *</label><input type="text" id="rNombre" name="nombre" required autocomplete="given-name"></div>
-                <div><label for="rApellidos">Apellidos *</label><input type="text" id="rApellidos" name="apellidos" required autocomplete="family-name"></div>
-              </div>
-              <div><label for="rEmail">Email *</label><input type="email" id="rEmail" name="email" required autocomplete="email"></div>
-              <div><label for="rTel">Teléfono</label><input type="tel" id="rTel" name="telefono" autocomplete="tel"></div>
-              <label class="check"><input type="checkbox" name="acepta_datos" value="si" required> Acepto que uses mis datos solo para gestionar el regalo y avisarme de lo relacionado con él.</label>
-              <div><button class="boton color" type="submit">Canjear mi regalo</button></div>
-            </form>
-            <div class="ok" id="regaloMsg" hidden></div>
-          </div>
-        </div>
+        <p class="antetitulo" id="fichaTaller">Tu taller</p>
+        <h1>Cuéntame un poco <em>de ti.</em></h1>
+        <p class="entradilla" id="fichaIntro">Dos minutos y preparo el taller pensando en quien viene. Todo es opcional.</p>
+      </div>
+    </section>
+    <section class="seccion" style="padding-top:0;">
+      <div class="envoltura estrecho">
+        <p id="fichaError" class="aviso" hidden>Este enlace no es válido o ha caducado. Si te ha llegado en el correo de tu plaza, contesta a ese correo y te ayudo.</p>
+        <form id="ficha" class="formulario" hidden>
+          <div><label for="fInstagram">Tu Instagram</label><input type="text" id="fInstagram" name="instagram" placeholder="@tuusuario" autocomplete="off"></div>
+          <div><label for="fRedes">Otra web o red donde enseñes fotos <span class="nota-campo">(opcional)</span></label><input type="text" id="fRedes" name="otrasRedes" placeholder="Flickr, web, Glass…"></div>
+          <div><label for="fCamara">¿Con qué vas a hacer fotos?</label>
+            <select id="fCamara" name="camara"><option value="">Elige una opción</option><option value="movil">Con el móvil</option><option value="compacta">Cámara compacta</option><option value="sin-espejo">Cámara sin espejo</option><option value="reflex">Réflex</option><option value="analogica">Cámara de carrete</option><option value="otra">Otra</option></select></div>
+          <div><label for="fModelo">Modelo y objetivo, si lo sabes <span class="nota-campo">(opcional)</span></label><input type="text" id="fModelo" name="modelo" placeholder="Fujifilm X100V, Sony A7 III con 35 mm…"></div>
+          <div><label for="fNivel">¿Cómo te manejas con la cámara?</label>
+            <select id="fNivel" name="nivel"><option value="">Elige una opción</option><option value="empiezo">Estoy empezando</option><option value="automatico">Disparo casi siempre en automático</option><option value="manual-a-veces">Toco algo de manual (diafragma, velocidad…)</option><option value="manual">Disparo en manual sin problema</option></select></div>
+          <div><label for="fEspera">¿Qué te gustaría llevarte del taller?</label><textarea id="fEspera" name="espera" rows="4" placeholder="Perder el miedo a fotografiar a gente, entender la luz de noche, salir con fotos que me gusten…"></textarea></div>
+          <div><label for="fConocio">¿Cómo has conocido Mirar Despacio?</label>
+            <select id="fConocio" name="conocio"><option value="">Elige una opción</option><option value="instagram">Instagram</option><option value="google">Buscando en Google</option><option value="timeout">Time Out</option><option value="hoymadrid">Hoy Madrid</option><option value="amigo">Me lo contó alguien</option><option value="salida">Ya he venido a una salida</option><option value="otro">Otro</option></select></div>
+          <div id="fConocioOtroCaja" hidden><label for="fConocioOtro">¿Dónde?</label><input type="text" id="fConocioOtro" name="conocioOtro"></div>
+          <div><label for="fTelefono">Teléfono para avisos de última hora <span class="nota-campo">(si cambia el punto de encuentro o llueve)</span></label><input type="tel" id="fTelefono" name="telefono" autocomplete="tel"></div>
+          <fieldset class="opciones-si-no"><legend>¿Te importa salir en alguna foto del taller que publique en redes?</legend>
+            <label><input type="radio" name="fotos" value="si"> Puedes publicarla</label>
+            <label><input type="radio" name="fotos" value="no"> Prefiero no salir</label></fieldset>
+          <div><label for="fSaber">¿Algo que deba saber para el recorrido? <span class="nota-campo">(opcional: si te cuesta andar mucho rato, vienes con alguien…)</span></label><textarea id="fSaber" name="saber" rows="2"></textarea></div>
+          <button class="boton" type="submit">Enviar</button>
+          <p id="fichaFallo" class="nota-campo" hidden style="color:var(--rosa);">No se ha podido enviar. Prueba otra vez en un momento.</p>
+          <p class="nota-campo">Lo uso solo para preparar el taller y lo guardo con tu plaza. Puedes cambiarlo cuando quieras desde este mismo enlace.</p>
+        </form>
+        <div id="fichaOk" hidden><h2>¡Gracias!</h2><p>Ya lo tengo. Unos días antes te mando el punto de encuentro y lo que conviene llevar. Si quieres cambiar algo, vuelve a abrir el enlace del correo.</p></div>
       </div>
     </section>
   </main>
