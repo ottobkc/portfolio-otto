@@ -453,7 +453,7 @@ def construir(g):
         return f"""
           <article class="tarjeta taller" id="{t['id']}">
             <span class="num">0{i}</span>
-            <h3>{html.escape(t['titulo'])}</h3>
+            <h3><a href="/talleres/{t['id']}/" style="color:inherit;text-decoration:none;">{html.escape(t['titulo'])}</a></h3>
             <p class="sub">{html.escape(t['subtitulo'])}</p>
             <p class="precio" data-taller-precio="{t['id']}">{precio_html(t)}</p>{f'<p class="oferta">{html.escape(td["ofertas"]["talleres"])}</p>' if t.get('precioNormal') and td.get('ofertas', {}).get('talleres') else ''}
             <ul class="datos"><li><span>Duración</span><span>{html.escape(t['duracion'])}</span></li><li><span>Grupo</span><span>{t['plazas']} personas como mucho</span></li></ul>
@@ -463,7 +463,7 @@ def construir(g):
             <details><summary>Qué incluye</summary><ul class="lista">{incluye}</ul></details>
             <p class="antetitulo" style="margin:18px 0 8px;">Próximas fechas</p>
             <div data-ediciones="{t['id']}"><p class="aviso" style="margin:0">Cargando fechas…</p></div>
-            <a class="boton claro" style="margin-top:14px;" data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">🎁 Regalar este taller</a>
+            <div class="botones" style="margin-top:14px;"><a class="boton claro" href="/talleres/{t['id']}/">Ver el taller</a><a class="boton claro" data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">🎁 Regalar</a></div>
           </article>"""
     cuerpo = f"""
     <section class="portada">
@@ -553,9 +553,126 @@ def construir(g):
         }
         if ed.get('fechaFinISO'): ev["endDate"] = ed['fechaFinISO']
         eventos_taller.append(ev)
+    # ------------------------------------------------------------ UNA PÁGINA POR TALLER
+    # Para anuncios, tarjetas y Google: cada taller con su promesa, para quién es, qué aprendes y sus fechas.
+    LANDING = {
+        'nocturna': {
+            'h1': 'Fotografía de calle <em>de noche.</em>',
+            'promesa': 'Vuelve a casa con fotos nocturnas que te gusten, y sabiendo cómo las hiciste.',
+            'para': ['Ya haces fotos, pero de noche te salen movidas, oscuras o con ruido.', 'Te gustan los escaparates, los neones y las siluetas, y no sabes cómo sacarles partido.', 'Quieres practicar con alguien al lado que te resuelva las dudas en el momento.'],
+            'foto_alt': 'Una farmacia de guardia y una pareja paseando de noche por el centro de Madrid',
+            'title': 'Taller de fotografía nocturna en Madrid · Mirar Despacio',
+            'desc': 'Taller de fotografía callejera nocturna por el centro de Madrid: luz artificial, ISO y velocidad sin miedo, siluetas y reflejos. Grupos de 8 y consumición al final.',
+        },
+        'atardecer': {
+            'h1': 'La calle <em>a la hora dorada.</em>',
+            'promesa': 'Aprovecha la mejor luz del día sin que se te escape: del sol rasante a la hora azul.',
+            'para': ['Ya disparas y quieres sacar partido a la luz de la tarde.', 'Te gustan las sombras largas, los contraluces y las siluetas.', 'Quieres entender por qué unas fotos de atardecer funcionan y otras no.'],
+            'title': 'Taller de fotografía al atardecer en Madrid · Mirar Despacio',
+            'desc': 'Taller de fotografía callejera al atardecer en Madrid: luz rasante, contraluces, sombras largas y hora azul. Grupos de 8, mucha práctica y consumición al final.',
+        },
+        'iniciacion': {
+            'h1': 'Sal del <em>modo automático.</em>',
+            'promesa': 'En una mañana entiendes tu cámara y empiezas a decidir tú, no ella.',
+            'para': ['Tienes una cámara y casi siempre disparas en automático.', 'ISO, diafragma y velocidad te suenan, pero no sabes cuándo tocar cada uno.', 'Prefieres aprender en la calle, disparando, y no con diapositivas.'],
+            'title': 'Taller de iniciación a la fotografía en Madrid · Mirar Despacio',
+            'desc': 'Taller de iniciación a la fotografía en Madrid: los ajustes de tu cámara, el triángulo de exposición y la composición, aprendidos disparando por la calle. Grupos de 8.',
+        },
+        'composicion': {
+            'h1': 'Deja de hacer fotos <em>por inercia.</em>',
+            'promesa': 'Aprende a decidir el encuadre antes de disparar. Con la cámara que tengas, también con el móvil.',
+            'para': ['Haces muchas fotos y casi todas se parecen.', 'Sientes que el problema no es tu cámara, sino dónde pones el marco.', 'Quieres ejercicios concretos para mirar de otra manera.'],
+            'title': 'Taller de composición fotográfica en Madrid · Mirar Despacio',
+            'desc': 'Taller de composición fotográfica en la calle, en Madrid: encuadre, líneas, capas, luz y espacio negativo, con ejercicios cortos. Vale cualquier cámara, también el móvil.',
+        },
+    }
+    for t in td['talleres']:
+        L = LANDING.get(t['id'])
+        if not L:
+            continue
+        ruta = f"/talleres/{t['id']}/"
+        para = ''.join(f'<li>{html.escape(x)}</li>' for x in L['para'])
+        temas = ''.join(f'<li>{html.escape(x)}</li>' for x in t['temas'])
+        incluye = ''.join(f'<li>{html.escape(x)}</li>' for x in t['incluye'])
+        otros = ''.join(f'<li><a href="/talleres/{o["id"]}/">{html.escape(o["titulo"])}</a> · {html.escape(o["subtitulo"])}</li>' for o in td['talleres'] if o['id'] != t['id'])
+        cuerpo_t = f"""
+    <section class="portada">
+      <div class="envoltura estrecho">
+        <p class="antetitulo">Taller · {html.escape(t['titulo'])} · Madrid</p>
+        <h1>{L['h1']}</h1>
+        <p class="entradilla">{html.escape(L['promesa'])}</p>
+        <ul class="datos" style="max-width:520px;"><li><span>Precio</span><span data-taller-precio="{t['id']}">{precio_html(t)}</span></li><li><span>Duración</span><span>{html.escape(t['duracion'])}</span></li><li><span>Grupo</span><span>{t['plazas']} personas como mucho</span></li></ul>{f'<p class="oferta">{html.escape(td["ofertas"]["talleres"])}</p>' if t.get('precioNormal') and td.get('ofertas', {}).get('talleres') else ''}
+        <p class="antetitulo" style="margin:24px 0 8px;">Próximas fechas</p>
+        <div data-ediciones="{t['id']}" style="max-width:560px;"><p class="aviso" style="margin:0">Cargando fechas…</p></div>
+        <div class="botones"><a class="boton claro" data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">🎁 Regalar este taller</a></div>
+      </div>
+    </section>
+{f'''
+    <section style="padding:0 0 56px;"><div class="envoltura"><figure style="margin:0;"><img src="/assets/talleres/{t['id']}.jpg" alt="{html.escape(L['foto_alt'])}" style="width:100%;height:auto;display:block;border-radius:6px;" loading="lazy" width="1456" height="971"><figcaption class="aviso" style="margin-top:8px;">{html.escape(L['foto_alt'])}. Foto de Otto Kols.</figcaption></figure></div></section>''' if L.get('foto_alt') else ''}
+    <section class="seccion papel">
+      <div class="envoltura rejilla-2" style="gap:48px;">
+        <div>
+          <p class="antetitulo">Para quién es</p>
+          <h2>Este taller es <em>para ti si…</em></h2>
+          <ul class="lista">{para}</ul>
+          <p class="aviso">{html.escape(t['nivel'])}.</p>
+        </div>
+        <div>
+          <p class="antetitulo">Qué hacemos</p>
+          <h2>{html.escape(t['subtitulo'])}.</h2>
+          <p>{html.escape(t['descripcion'])}</p>
+          <ul class="lista">{temas}</ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="envoltura rejilla-2" style="gap:48px;">
+        <div>
+          <p class="antetitulo">Cómo funciona</p>
+          <h2>Así es <em>el día.</em></h2>
+          <ol class="lista">
+            <li>Reservas tu plaza con tarjeta; te llega al momento la confirmación.</li>
+            <li>Te pido en una ficha corta qué cámara llevas y qué esperas, para preparar el taller pensando en el grupo.</li>
+            <li>Unos días antes te mando el punto de encuentro, en el centro de Madrid.</li>
+            <li>Un rato de explicación y, sobre todo, calle: practicamos desde el primer minuto.</li>
+            <li>Terminamos viendo las fotos juntos{', tomando algo' if 'consumici' in ' '.join(t['incluye']).lower() else ''}.</li>
+          </ol>
+        </div>
+        <div>
+          <p class="antetitulo">Qué te llevas</p>
+          <h2>Y después, <em>a seguir.</em></h2>
+          <ul class="lista">{incluye}</ul>
+          <p>Lo da <a href="/sobre-mi/">Otto Kols</a>, fotógrafo en Madrid y autor del podcast Mirar Despacio.</p>
+        </div>
+      </div>
+    </section>
+
+{resenas_seccion()}
+
+    <section class="seccion">
+      <div class="envoltura estrecho">
+        <p class="antetitulo">Preguntas</p>
+        <h2>Antes de <em>reservar.</em></h2>
+        <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, con tarjeta, en la página de pago segura de Stripe. El precio lleva el IVA incluido.</p></details>
+        <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Si avisas con al menos 7 días, te devuelvo el importe o te paso la plaza a otra fecha. Con menos, puedes pasarla a otra fecha o regalársela a alguien. Todo el detalle, en las <a href="/condiciones/">condiciones de venta</a>.</p></details>
+        <details class="faq"><summary>¿Y si no se apunta suficiente gente?</summary><p>Hace falta un mínimo de {t.get('minimo', 4)} personas. Si 72 horas antes no se llega, eliges: pasar tu plaza a otra fecha o la devolución íntegra.</p></details>
+        <details class="faq"><summary>¿En qué se diferencia de las salidas?</summary><p>Las <a href="/salidas/">salidas</a> son paseos en grupo con retos, con aportación libre. Los talleres tienen un tema concreto, explicación y práctica guiada, y te llevas material.</p></details>
+        <p class="antetitulo" style="margin-top:36px;">Otros talleres</p>
+        <ul class="lista">{otros}</ul>
+      </div>
+    </section>"""
+        evs = [e for e in eventos_taller if e['url'].endswith('#' + t['id'])]
+        for e in evs:
+            e['url'] = DOM + ruta
+            e['offers']['url'] = DOM + ruta
+        escribir(ruta, pagina(ruta, L['title'], L['desc'], cuerpo_t,
+            schema=[{"@type": "Course", "name": f"Taller {t['titulo']}", "description": t['descripcion'], "provider": {"@id": DOM + "/#org"}, "url": DOM + ruta}] + evs,
+            extra_pie=TALLERES_JS + RESENAS_JS))
+
     escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
         'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición e iniciación. Grupos de 8 personas y mucha práctica en la calle. También para regalar.',
-        cuerpo, schema=[taller_schema] + eventos_taller, extra_pie=TALLERES_JS + RESENAS_JS))
+        cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ REGALO
     regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{precio_html(t)}</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
@@ -613,6 +730,28 @@ def construir(g):
         </div>
       </div>
     </section>"""
+    # ------------------------------------------------------------ GUÍA GRATIS (enlace de la bio de Instagram)
+    cuerpo = """
+    <section class="portada">
+      <div class="envoltura rejilla-2" style="gap:48px;align-items:center;">
+        <div>
+          <p class="antetitulo">Guía gratis</p>
+          <h1>10 ejercicios para volver a <em>disfrutar haciendo fotos.</em></h1>
+          <p class="entradilla">Una guía corta para salir a la calle a mirar distinto: una hora con una sola focal, doce disparos y ni uno más, fotografiar solo la luz… Vale cualquier cámara, también el móvil.</p>
+          <form class="formulario" data-guia-form style="max-width:440px;">
+            <div><label for="gEmail">Tu correo</label><input type="email" id="gEmail" name="email" required autocomplete="email"></div>
+            <input type="text" name="web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+            <label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;font-size:.9rem;"><input type="checkbox" name="avisos" style="width:auto;margin-top:4px;"> Quiero recibir también avisos de salidas y talleres (pocos, lo prometo).</label>
+            <div><button class="boton" type="submit">Mándamela</button></div>
+            <p class="aviso">Te la mando por correo. Tus datos solo los uso para eso y, si lo marcas, para los avisos. <a href="/privacidad/">Privacidad</a>.</p>
+          </form>
+        </div>
+        <div><img src="/assets/guia-portada.jpg" alt="Portada de la guía: una pareja mayor cruzando una calle de noche, en blanco y negro" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;box-shadow:0 10px 30px rgba(26,24,20,.18);" width="760" height="1077"></div>
+      </div>
+    </section>"""
+    escribir('/guia/', pagina('/guia/', '10 ejercicios para volver a disfrutar haciendo fotos · Mirar Despacio',
+        'Guía gratis de Mirar Despacio: 10 ejercicios de fotografía callejera para salir a la calle a mirar distinto, con cualquier cámara o con el móvil.', cuerpo))
+
     # ------------------------------------------------------------ FICHA PREVIA DEL TALLER
     # Enlace privado que llega en el correo de plaza (?i=inscripción&t=token). No se indexa.
     cuerpo = """

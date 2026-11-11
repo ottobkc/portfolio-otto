@@ -25,6 +25,8 @@ exports.handler = async (event) => {
   } else {
     const p = await fs.collection('people').where('email', '==', email).get();
     await Promise.all(p.docs.map((d) => d.ref.set({ aceptaNovedades: volver, novedadesBaja: volver ? null : new Date().toISOString() }, { merge: true })));
+    const sus = fs.collection('suscriptores').doc(email);
+    if ((await sus.get()).exists) await sus.set({ aceptaNovedades: volver, novedadesBaja: volver ? null : new Date().toISOString() }, { merge: true });
   }
   const que = tipo === 'retos' ? 'los avisos del reto del mes' : 'las novedades de Mirar Despacio';
   return volver
