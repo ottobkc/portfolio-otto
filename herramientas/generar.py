@@ -38,7 +38,7 @@ PORTADA = cld(datos['galeria'][0]['src'], 'f_auto,q_auto,w_1100')
 NAV = [('/salidas/', 'Salidas'), ('/talleres/', 'Aprender'), ('/muro/', 'Muro'), ('/juegos/', 'Juegos'), ('/podcast/', 'Podcast'),
        ('/tienda/', 'Tienda'), ('/mirar-despacio-plus/', 'Mirar Despacio+')]
 # Páginas que marcan como activa otra entrada del menú
-GRUPO_NAV = {'/sobre-mi/': '/', '/tutorias/': '/talleres/', '/regalo/': '/talleres/', '/juego/': '/juegos/', '/juegos/triangulo/': '/juegos/', '/agenda/': '/salidas/'}
+GRUPO_NAV = {'/talleres/nocturna/': '/talleres/', '/talleres/atardecer/': '/talleres/', '/talleres/iniciacion/': '/talleres/', '/talleres/composicion/': '/talleres/', '/talleres/ficha/': '/talleres/', '/sobre-mi/': '/', '/tutorias/': '/talleres/', '/regalo/': '/talleres/', '/juego/': '/juegos/', '/juegos/triangulo/': '/juegos/', '/agenda/': '/salidas/'}
 # En el pie salen además estas
 PIE_EXTRA = [('/sobre-mi/', 'Quién soy'), ('/tutorias/', 'Tutorías'), ('/agenda/', 'Agenda'), ('/regalo/', 'Regalos')]
 
@@ -129,7 +129,8 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
       <p class="legal">© 2026 Mirar Despacio · Otto Kols · Madrid</p>
     </div>
   </footer>
-  <script src="{v('md.js')}"></script>{extra_pie}
+  <script src="{v('md.js')}"></script>
+  <script defer src="/js/guia.js"></script>{extra_pie}
 </body>
 </html>
 '''

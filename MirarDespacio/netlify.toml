@@ -69,6 +69,11 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=()"
 
 [[headers]]
+  for = "/descargas/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+
+[[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
