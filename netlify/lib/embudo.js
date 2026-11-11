@@ -28,7 +28,7 @@ function correo(nombre, email, salida, talleres) {
   const filas = talleres.map(({ e, t }) => ['📷',
     `<a href="${WEB}/talleres/${t.id}/${utm}" style="color:#1a1814;"><strong>${t.titulo}</strong></a> · ${fechaLarga(e.fechaISO, e.fecha)} · ${e.hora || t.hora} h · ${t.precio} €`]);
   const intro = [
-    `Gracias por venir ${salida ? 'a la salida de ' + salida : 'a la salida'}. Estos días voy a ir viendo vuestras fotos con calma, comentándolas y subiendo las mejores al muro; te aviso cuando estén.`,
+    `Gracias por venir ${salida ? 'a la salida de ' + salida : 'a la salida'}. Estos días voy a ir viendo vuestras fotos con calma, comentándolas y subiendo algunas al muro.`,
     talleres.length
       ? 'Mientras tanto, por si te quedaste con ganas de más: estos son los próximos talleres. Son en grupos de 8, con un tema concreto y mucha práctica en la calle.'
       : 'Mientras tanto, te dejo por aquí lo que viene: talleres en grupos de 8, con un tema concreto y mucha práctica en la calle.',
@@ -36,8 +36,8 @@ function correo(nombre, email, salida, talleres) {
   const baja = `<span style="font-size:13px;color:#8a8378;">Te escribo porque viniste a una salida de Mirar Despacio. ¿Prefieres no recibir novedades? <a href="${urlBaja(email, 'novedades')}" style="color:#8a8378;">Date de baja aquí</a>.</span>`;
   const html = tarjeta({
     titulo: 'Gracias por venir', nombre: nombrePila(nombre), intro, filas, calendario: null,
-    boton: { url: `${WEB}/talleres/${utm}`, texto: 'Ver los talleres', antes: 'Todos se pueden regalar, por si alguien te viene a la cabeza estas navidades.' },
-    cuerpo: ['Un abrazo y hasta la próxima,<br>Otto', baja],
+    boton: { url: `${WEB}/talleres/${utm}`, texto: 'Ver los talleres', antes: [11, 12].includes(new Date().getMonth() + 1) ? 'Todos se pueden regalar, por si alguien te viene a la cabeza estas navidades.' : 'Todos se pueden regalar, por si alguien te viene a la cabeza.' },
+    cuerpo: [baja],
   });
   return { para: email, asunto: 'Gracias por venir (y lo que viene)', html, texto: aTexto(html) };
 }

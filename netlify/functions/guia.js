@@ -27,7 +27,7 @@ function correo(email, nombre, avisos) {
       'Elige uno, sal a la calle con él y olvídate del resto. La idea es hacer menos fotos y mirar más.'],
     filas: [], calendario: null,
     boton: { url: PDF, texto: '📄 Descargar la guía (PDF)', antes: '' },
-    cuerpo: ['Si quieres hacerlos acompañado, en las <a href="https://mirardespacio.es/salidas/?utm_source=email&utm_campaign=guia" style="color:#1a1814;">salidas de Mirar Despacio</a> salimos a la calle con retos parecidos.', 'Un abrazo,<br>Otto', pie],
+    cuerpo: ['Si quieres hacerlos acompañado, en las <a href="https://mirardespacio.es/salidas/?utm_source=email&utm_campaign=guia" style="color:#1a1814;">salidas de Mirar Despacio</a> salimos a la calle con retos parecidos.', pie],
   });
   return { para: email, asunto: 'Tu guía: 10 ejercicios para volver a disfrutar haciendo fotos', html, texto: aTexto(html) };
 }
