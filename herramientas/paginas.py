@@ -311,6 +311,7 @@ def construir(g):
         <p class="antetitulo">Salidas anteriores</p>
         <h2>Lo que hemos <em>mirado ya.</em></h2>
         <div class="rejilla-2" style="margin-top:32px;">
+          <a class="tarjeta" href="/salidas/gran-via/"><span class="num">05</span><h3>Gran Vía</h3><p>Noviembre de 2026. Una sola calle, Català-Roca y fotos de época.</p><span class="mas">Ver la salida →</span></a>
           <a class="tarjeta" href="/salidas/huertas/"><span class="num">04</span><h3>Huertas</h3><p>Octubre de 2026. Winogrand, Weegee, Vivian Maier y cámaras de llavero.</p><span class="mas">Ver la salida →</span></a>
           <a class="tarjeta" href="/salidas/tribunal-chueca/"><span class="num">03</span><h3>Tribunal y Chueca</h3><p>Septiembre de 2026. Joel Meyerowitz de referencia y una historia construida entre todos.</p><span class="mas">Ver la salida →</span></a>
           <a class="tarjeta" href="/salidas/malasana/"><span class="num">02</span><h3>Malasaña</h3><p>Agosto de 2026. El juego del ladrón, con Gilden y diCorcia de fondo.</p><span class="mas">Ver la salida →</span></a>
@@ -1126,7 +1127,7 @@ FAQ_SALIDAS = [
     ("¿Cuánto cuesta una salida?", "No tiene precio fijo. Funciona como un free tour: al final cada persona contribuye lo que considere, y si ese día no puedes, no pasa nada. Si eres de Mirar Despacio+, la salida está incluida."),
     ("¿Necesito saber de fotografía o una cámara buena?", "No. Vienen personas con réflex, con compactas, con analógicas y con el móvil. Las tarjetas de misión se adaptan a cada nivel."),
     ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. Al final solemos tomar algo; las consumiciones las paga cada uno."),
-    ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora <a href=\"/salidas/barrio-de-las-letras/\">Barrio de las Letras</a>, <a href=\"/salidas/malasana/\">Malasaña</a>, <a href=\"/salidas/tribunal-chueca/\">Tribunal y Chueca</a> y <a href=\"/salidas/huertas/\">Huertas</a>. El punto de encuentro lo confirmo por email a quien se apunta."),
+    ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora <a href=\"/salidas/barrio-de-las-letras/\">Barrio de las Letras</a>, <a href=\"/salidas/malasana/\">Malasaña</a>, <a href=\"/salidas/tribunal-chueca/\">Tribunal y Chueca</a>, <a href=\"/salidas/huertas/\">Huertas</a> y la <a href=\"/salidas/gran-via/\">Gran Vía</a>. El punto de encuentro lo confirmo por email a quien se apunta."),
     ("¿Cuántas personas vienen?", "Somos grupos pequeños, de hasta unas diez personas, para que el ritmo sea tranquilo y dé tiempo a ver las fotos de todos."),
 ]
 
