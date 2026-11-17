@@ -49,6 +49,17 @@
     X-Robots-Tag = "noindex, nofollow"
     Referrer-Policy = "no-referrer"
 
+# Páginas que se enlazan a mano (pies de las webs que hago, cuestionario para interesados): sin indexar
+[[headers]]
+  for = "/webs/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, follow"
+
+[[headers]]
+  for = "/cuestionario/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 [[headers]]
   for = "/crm/*"
   [headers.values]
