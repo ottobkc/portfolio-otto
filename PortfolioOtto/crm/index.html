@@ -957,7 +957,8 @@ window.showTab = function(name) {
 };
 
 // Abrir la sección indicada en la dirección (p. ej. ./#tienda desde Galerías de clientes)
-{ const h = decodeURIComponent(location.hash.slice(1)); if (h && TITULOS[h] && document.getElementById('view-' + h)) showTab(h); }
+// Se espera a que termine de cargar todo el script: si se abre antes, alguna sección usa cosas aún no definidas y el CRM se queda vacío
+setTimeout(() => { const h = decodeURIComponent(location.hash.slice(1)); if (h && TITULOS[h] && document.getElementById('view-' + h)) showTab(h); }, 0);
 
 // ---------- FOTOS (cuaderno, retos, muro) ----------
 // Llama a la función del servidor con la sesión de Firebase del CRM
