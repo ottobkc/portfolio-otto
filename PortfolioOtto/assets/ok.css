@@ -236,3 +236,11 @@ p { margin: 0 0 1em; }
   .pasos.cuatro, .proyectos { grid-template-columns: 1fr; }
 }
 .legal-texto h2:first-child { margin-top: 0; }
+
+/* Aviso de temporada (Navidad 2026): quitar en enero */
+.aviso-navidad { display: block; text-decoration: none; color: #fff; background: #16202b; border-bottom: 6px solid transparent;
+  border-image: repeating-linear-gradient(-45deg, #b8232f 0 8px, #f7f6f2 8px 16px) 6; }
+.aviso-navidad .env { display: block; padding-block: 12px; font: 13px/1.5 var(--f-mono); }
+.aviso-navidad b { font-weight: 500; color: #f3c6a0; }
+.aviso-navidad u { text-decoration: none; margin-left: 8px; border-bottom: 1px solid currentColor; white-space: nowrap; }
+.aviso-navidad:hover u { color: #f3c6a0; }

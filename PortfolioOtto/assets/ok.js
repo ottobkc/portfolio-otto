@@ -49,3 +49,46 @@
     });
   }
 })();
+
+/* Aviso emergente de Navidad 2026 (quitar en enero): sale una vez por visitante, a los 4 segundos,
+   en las páginas públicas (no en /navidad/ ni en galerías, CRM, cuestionario, webs o privacidad). */
+(function () {
+  var fin = new Date('2026-12-22T20:00:00+01:00');
+  if (Date.now() > fin.getTime()) return;
+  if (/^\/(navidad|galeria|crm|cuestionario|webs|privacidad)\b/.test(location.pathname)) return;
+  var CLAVE = 'ok-navidad-2026';
+  try { if (localStorage.getItem(CLAVE)) return; } catch (e) {}
+  var css = document.createElement('style');
+  css.textContent =
+    '.pop-navidad{position:fixed;right:20px;bottom:20px;z-index:60;width:min(340px,calc(100vw - 32px));background:#16202b;color:#f7f6f2;box-shadow:0 18px 40px rgba(0,0,0,.3);font:15px/1.5 var(--f-cuerpo);transform:translateY(20px);opacity:0;transition:transform .4s,opacity .4s}' +
+    '.pop-navidad.ver{transform:none;opacity:1}' +
+    '.pop-navidad .rayas{height:8px;background:repeating-linear-gradient(-45deg,#b8232f 0 8px,#f7f6f2 8px 16px)}' +
+    '.pop-navidad .cuerpo{display:grid;grid-template-columns:62px 1fr;gap:14px;padding:18px 18px 20px}' +
+    '.pop-navidad h3{font:400 1.7rem/1 var(--f-disp);margin:0 0 6px;color:#f7f6f2}.pop-navidad h3 em{color:#f3c6a0}' +
+    '.pop-navidad p{margin:0 0 12px;color:#cdd6df;font-size:.92rem}' +
+    '.pop-navidad a.btn{display:inline-block;background:#b8232f;border:1px solid #b8232f;color:#fff;padding:10px 14px;font:500 13px var(--f-mono);text-decoration:none}' +
+    '.pop-navidad .cerrar{position:absolute;top:12px;right:8px;background:none;border:0;color:#8fa0b3;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}' +
+    '.pop-navidad .cerrar:hover{color:#fff}' +
+    '@media (prefers-reduced-motion:reduce){.pop-navidad{transition:none}}' +
+    '@media (max-width:520px){.pop-navidad{right:16px;bottom:16px}.pop-navidad .cuerpo{grid-template-columns:44px 1fr}}';
+  document.head.appendChild(css);
+  var muneco = '<svg viewBox="0 0 60 84" aria-hidden="true"><circle cx="30" cy="62" r="18" fill="#f7f6f2"/><circle cx="30" cy="34" r="13" fill="#f7f6f2"/><rect x="19" y="8" width="22" height="14" fill="#151412"/><rect x="15" y="20" width="30" height="4" fill="#151412"/><rect x="19" y="16" width="22" height="3" fill="#b8232f"/><circle cx="25.5" cy="31" r="1.8" fill="#151412"/><circle cx="34" cy="31" r="1.8" fill="#151412"/><path d="M29 35 L40 38 L29 38.5 Z" fill="#e8821a"/><path d="M18 44 Q30 50 42 44 L42 48 Q30 54 18 48 Z" fill="#b8232f"/><circle cx="30" cy="58" r="1.8" fill="#151412"/><circle cx="30" cy="66" r="1.8" fill="#151412"/></svg>';
+  function marcar() { try { localStorage.setItem(CLAVE, '1'); } catch (e) {} }
+  setTimeout(function () {
+    var el = document.createElement('aside');
+    el.className = 'pop-navidad';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', 'Sesiones de Navidad');
+    el.innerHTML = '<div class="rayas"></div><button class="cerrar" type="button" aria-label="Cerrar">×</button>' +
+      '<div class="cuerpo">' + muneco + '<div><h3>Fotos de <em>Navidad</em></h3>' +
+      '<p>Entre las luces de Madrid a la hora azul, o en vuestra casa junto al árbol. Del 1 al 22 de diciembre, y con bono regalo.</p>' +
+      '<a class="btn" href="/navidad/">Ver huecos libres</a></div></div>';
+    document.body.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('ver'); });
+    marcar();
+    if (window.umami) window.umami.track('navidad-popup-visto');
+    el.querySelector('.cerrar').addEventListener('click', function () { marcar(); el.classList.remove('ver'); setTimeout(function () { el.remove(); }, 400); });
+    el.querySelector('a.btn').addEventListener('click', function () { marcar(); if (window.umami) window.umami.track('navidad-popup-clic'); });
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { marcar(); el.remove(); document.removeEventListener('keydown', esc); } });
+  }, 4000);
+})();
