@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sesiones de fotos de Navidad en Madrid · en la calle o en casa · Otto Kols</title>
+  <meta name="description" content="Fotos de Navidad entre las luces de Madrid o en vuestra casa, junto al árbol. Minisesión 90 €, sesión paseo 150 €, en casa 120 €. Bono regalo válido hasta junio.">
+  <link rel="canonical" href="https://ottokols.es/navidad/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Otto Kols · Fotografía">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:url" content="https://ottokols.es/navidad/">
+  <meta property="og:title" content="Fotos de Navidad en Madrid · en la calle o en casa">
+  <meta property="og:description" content="Entre las luces de Madrid a la hora azul, o en casa junto al árbol. Con bono regalo.">
+  <meta property="og:image" content="https://ottokols.es/fotos/navidad/bono-regalo.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#16202b">
+  <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/assets/ok.css">
+  <script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "ProfessionalService",
+   "@id": "https://ottokols.es/#negocio",
+   "name": "Otto Kols · Fotografía de retrato",
+   "url": "https://ottokols.es/",
+   "email": "ottobkc@gmail.com",
+   "address": { "@type": "PostalAddress", "addressLocality": "Madrid", "addressCountry": "ES" }
+  },
+  {
+   "@type": "Service",
+   "name": "Sesiones de fotos de Navidad",
+   "url": "https://ottokols.es/navidad/",
+   "provider": { "@id": "https://ottokols.es/#negocio" },
+   "areaServed": "Madrid",
+   "offers": [
+    { "@type": "Offer", "name": "Minisesión en la calle", "price": "90", "priceCurrency": "EUR" },
+    { "@type": "Offer", "name": "Sesión paseo", "price": "150", "priceCurrency": "EUR" },
+    { "@type": "Offer", "name": "Sesión en casa", "price": "120", "priceCurrency": "EUR" }
+   ]
+  }
+ ]
+}
+  </script>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
+  <style>
+    :root { --rojo: #b8232f; --noche: #16202b; --noche-2: #22303f; --nieve: #f7f6f2; }
+    /* Barritas rojas y blancas (bastón de caramelo) */
+    .baston { height: 12px; background: repeating-linear-gradient(-45deg, var(--rojo) 0 14px, var(--nieve) 14px 28px); }
+    .baston.fino { height: 6px; background: repeating-linear-gradient(-45deg, var(--rojo) 0 8px, var(--nieve) 8px 16px); }
+
+    /* Cabecera de noche con nieve */
+    .noche { background: var(--noche); color: var(--nieve); position: relative; overflow: hidden; }
+    .noche .env { display: grid; grid-template-columns: 1.25fr .75fr; gap: clamp(24px, 4vw, 56px); align-items: end; padding-block: clamp(40px, 6vw, 80px) 0; position: relative; z-index: 2; }
+    .noche .env > * { min-width: 0; }
+    .noche .miga { color: #8fa0b3; }
+    .noche h1 { color: var(--nieve); }
+    .noche h1 em { color: #f3c6a0; }
+    .noche .entradilla { color: #cdd6df; max-width: 44ch; }
+    .noche .btn { border-color: var(--nieve); color: var(--nieve); }
+    .noche .btn.lleno { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+    .noche .texto { padding-bottom: clamp(40px, 6vw, 80px); }
+    .nota-mano { font: 500 1.6rem/1.1 var(--f-mano); color: #f3c6a0; margin: 18px 0 0; transform: rotate(-2deg); display: inline-block; }
+    .guirnalda { position: absolute; top: 0; left: 0; right: 0; height: 70px; z-index: 1; pointer-events: none; }
+    .suelo { position: absolute; left: 0; right: 0; bottom: 0; height: 38px; background: var(--nieve); border-radius: 50% 50% 0 0 / 100% 100% 0 0; z-index: 1; }
+    .muneco { position: relative; z-index: 2; width: 100%; max-width: 300px; justify-self: center; margin-bottom: 10px; }
+    .copos { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+    .copo { position: absolute; top: -20px; color: #fff; opacity: .8; }
+    .copo svg { width: 100%; height: 100%; display: block; }
+    @media (prefers-reduced-motion: no-preference) {
+      .copo { animation: caer linear infinite; }
+      @keyframes caer { from { transform: translate3d(0, -20px, 0) rotate(0); } to { transform: translate3d(30px, 760px, 0) rotate(200deg); } }
+      .bombilla { animation: brillo 2.4s ease-in-out infinite alternate; }
+      @keyframes brillo { from { opacity: .55; } to { opacity: 1; } }
+    }
+    @media (prefers-reduced-motion: reduce) { .copo { top: auto; } }
+
+    /* Tres maneras */
+    .maneras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .manera { min-width: 0; background: #f6f5f1; border: 1px solid var(--linea); display: flex; flex-direction: column; }
+    .manera .baston { height: 8px; }
+    .manera > div { padding: 22px 22px 24px; display: flex; flex-direction: column; flex: 1; }
+    .manera .etq { font: 12px var(--f-mono); color: var(--rojo); letter-spacing: .06em; text-transform: uppercase; }
+    .manera h3 { margin: 8px 0 6px; font-size: 1.9rem; }
+    .manera .cifra { font: 400 2.4rem/1 var(--f-disp); margin: 4px 0 14px; }
+    .manera ul { list-style: none; padding: 0; margin: 0 0 18px; font-size: .95rem; color: var(--tinta-2); }
+    .manera li { padding: 6px 0; border-bottom: 1px dotted var(--linea); }
+    .manera p { color: var(--gris); font-size: .95rem; margin-top: auto; }
+    .manera .btn { align-self: flex-start; margin-top: 8px; }
+
+    /* Reserva */
+    .reserva { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 48px); align-items: start; }
+    .reserva > * { min-width: 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .chips label { cursor: pointer; }
+    .chips input { position: absolute; opacity: 0; pointer-events: none; }
+    .chips span { display: inline-block; font: 13px var(--f-mono); padding: 10px 14px; border: 1px solid var(--linea); background: #f6f5f1; }
+    .chips input:checked + span { background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
+    .chips input:focus-visible + span { outline: 2px solid var(--lapiz); outline-offset: 2px; }
+    .mes { border: 1px solid var(--linea); background: #f6f5f1; padding: 16px; }
+    .mes h3 { font-size: 1.5rem; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: baseline; }
+    .mes h3 small { font: 12px var(--f-mono); color: var(--gris); }
+    .rejilla { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .rejilla .ds { font: 11px var(--f-mono); color: var(--gris); text-align: center; padding-bottom: 4px; }
+    .rejilla button, .rejilla .vacio { aspect-ratio: 1; font: 14px var(--f-mono); border: 1px solid transparent; background: none; color: #b5b1a8; padding: 0; }
+    .rejilla button[disabled] { cursor: default; }
+    .rejilla button.libre { color: var(--tinta); border-color: var(--linea); background: var(--papel); cursor: pointer; position: relative; }
+    .rejilla button.libre::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--rojo); }
+    .rejilla button.libre:hover { border-color: var(--tinta); }
+    .rejilla button.elegido { background: var(--rojo); color: #fff; border-color: var(--rojo); }
+    .rejilla button.elegido::after { background: #fff; }
+    .horas { margin-top: 14px; min-height: 48px; }
+    .horas p { font: 13px var(--f-mono); color: var(--gris); margin: 0 0 8px; }
+    .horas .lista { display: flex; flex-wrap: wrap; gap: 8px; }
+    .horas button { font: 14px var(--f-mono); padding: 9px 14px; border: 1px solid var(--tinta); background: var(--papel); cursor: pointer; }
+    .horas button.elegido { background: var(--tinta); color: var(--papel); }
+    .resumen { margin-top: 14px; border-left: 3px solid var(--rojo); padding: 10px 14px; background: var(--papel); font-size: .95rem; display: none; }
+    .leyenda { font: 12px var(--f-mono); color: var(--gris); margin-top: 10px; }
+    .solo-calle[hidden], .solo-casa[hidden], .solo-bono[hidden], .calendario[hidden] { display: none; }
+    .bono-fig { margin: 0 0 14px; box-shadow: 0 14px 30px rgb(21 20 18 / .12); transform: rotate(-1.2deg); }
+
+    .faq { columns: 2; column-gap: 40px; }
+    .faq > div { break-inside: avoid; }
+    @media (max-width: 860px) {
+      .noche .env, .reserva { grid-template-columns: 1fr; }
+      .muneco { max-width: 200px; }
+      .maneras { grid-template-columns: 1fr; }
+      .faq { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+  <a class="oculto" href="#contenido">Saltar al contenido</a>
+  <header class="nav">
+    <div class="env">
+      <a class="marca" href="/"><img src="/assets/logo/otto-kols-nombre-negro.svg" alt="Otto Kols" width="442" height="90"></a>
+      <button class="nav-boton" aria-label="Menú" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
+      <ul>
+        <li class="desplegable"><button type="button" aria-expanded="false" class="actual">Retrato <span aria-hidden="true">▾</span></button>
+          <ul>
+            <li><a href="/actores/">Actores</a></li>
+            <li><a href="/retrato/">Retrato personal</a></li>
+            <li><a href="/parejas/">Parejas y bodas íntimas</a></li>
+            <li><a href="/mascotas/">Mascotas</a></li>
+            <li><a href="/navidad/" aria-current="page">Navidad</a></li>
+          </ul>
+        </li>
+        <li><a href="/encargos/">Encargos</a></li>
+        <li><a href="/#sobre">Sobre mí</a></li>
+        <li><a href="/contacto/">Contacto</a></li>
+        <li><a href="/galeria/">Clientes</a></li>
+      </ul>
+    </div>
+  </header>
+  <div class="baston" aria-hidden="true"></div>
+  <main id="contenido">
+
+    <section class="noche">
+      <svg class="guirnalda" viewBox="0 0 1200 70" preserveAspectRatio="none" aria-hidden="true">
+      </svg>
+      <div class="copos" aria-hidden="true"></div>
+      <div class="env">
+        <div class="texto">
+          <p class="miga"><a href="/#retrato">Retrato</a> / Navidad</p>
+          <h1>Fotos de Navidad, <em>en la calle o en casa.</em></h1>
+          <p class="entradilla">Salimos a pasear entre las luces de Madrid a la hora azul y voy haciendo fotos mientras habláis, os reís o os perdéis por la calle. Y si lo vuestro es el árbol y el sofá, voy a vuestra casa.</p>
+          <div class="botones"><a class="btn lleno" href="#reservar">Ver huecos libres</a><a class="btn" href="#bono">Regalar una sesión</a></div>
+          <p class="nota-mano">del 1 al 22 de diciembre</p>
+        </div>
+        <svg class="muneco" viewBox="0 0 260 330" role="img" aria-label="Dibujo de un muñeco de nieve con bufanda de rayas rojas y blancas">
+          <defs><pattern id="rayas" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="6" height="12" fill="#b8232f"/><rect x="6" width="6" height="12" fill="#f7f6f2"/></pattern></defs>
+          <path d="M70 140 L22 98 M32 107 L18 112 M44 118 L36 104" stroke="#8a6a4a" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M190 140 L238 102 M226 111 L242 116 M214 121 L222 106" stroke="#8a6a4a" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M130 196 C196 194 214 244 208 276 C202 310 168 322 130 322 C92 322 56 312 52 278 C47 240 66 198 130 196 Z" fill="#f7f6f2" stroke="#cdd6df" stroke-width="3"/>
+          <path d="M131 110 C176 108 190 140 186 166 C182 192 160 204 130 204 C100 204 76 192 74 164 C72 138 88 112 131 110 Z" fill="#f7f6f2" stroke="#cdd6df" stroke-width="3"/>
+          <path d="M130 46 C160 45 172 66 170 86 C168 106 152 118 130 118 C107 118 91 106 90 86 C89 64 102 47 130 46 Z" fill="#f7f6f2" stroke="#cdd6df" stroke-width="3"/>
+          <path d="M84 50 L176 47 L177 57 L83 60 Z" fill="#151412"/>
+          <path d="M100 52 L102 6 L158 4 L160 50 Z" fill="#151412"/>
+          <path d="M101 40 L159 38 L159 47 L101 49 Z" fill="#b8232f"/>
+          <circle cx="116" cy="80" r="4.5" fill="#151412"/><circle cx="143" cy="79" r="4.5" fill="#151412"/>
+          <path d="M129 88 L166 96 L129 97 Z" fill="#e8821a"/>
+          <path d="M112 104 Q130 114 148 103" stroke="#151412" stroke-width="3" stroke-linecap="round" fill="none" stroke-dasharray="1 7"/>
+          <path d="M84 112 C110 126 152 126 178 110 L182 124 C152 140 108 140 80 126 Z" fill="url(#rayas)" stroke="#151412" stroke-width="1.5"/>
+          <path d="M156 126 L170 186 L150 188 L142 130 Z" fill="url(#rayas)" stroke="#151412" stroke-width="1.5"/>
+          <circle cx="130" cy="146" r="5" fill="#151412"/><circle cx="131" cy="168" r="5" fill="#151412"/><circle cx="130" cy="236" r="5.5" fill="#151412"/><circle cx="131" cy="262" r="5.5" fill="#151412"/>
+        </svg>
+      </div>
+      <div class="suelo" aria-hidden="true"></div>
+    </section>
+
+    <section class="bloque" style="border-top:0">
+      <div class="env">
+        <h2>Tres maneras</h2>
+        <p class="sub">Para quien sea: tú solo, en pareja, en familia o con amigos. Precios con IVA incluido.</p>
+        <div class="maneras">
+          <article class="manera"><div class="baston" aria-hidden="true"></div><div>
+            <span class="etq">En la calle</span>
+            <h3>Minisesión</h3>
+            <div class="cifra">90 €</div>
+            <ul><li>25–30 minutos</li><li>Un sitio, con las luces encendidas</li><li>10 fotos editadas</li></ul>
+            <p>A la hora azul, cuando todavía queda algo de luz en el cielo y las calles ya están iluminadas.</p>
+            <a class="btn" href="#reservar" data-elige="mini">Elegir</a>
+          </div></article>
+          <article class="manera"><div class="baston" aria-hidden="true"></div><div>
+            <span class="etq">En la calle</span>
+            <h3>Sesión paseo</h3>
+            <div class="cifra">150 €</div>
+            <ul><li>1 hora</li><li>Hasta 3 sitios, caminando</li><li>20 fotos editadas</li></ul>
+            <p>Un paseo con calma por el centro: más tiempo para que os olvidéis de la cámara y salgan las fotos buenas.</p>
+            <a class="btn" href="#reservar" data-elige="paseo">Elegir</a>
+          </div></article>
+          <article class="manera"><div class="baston" aria-hidden="true"></div><div>
+            <span class="etq">En vuestra casa</span>
+            <h3>En casa</h3>
+            <div class="cifra">120 €</div>
+            <ul><li>45 minutos</li><li>Junto al árbol, en el sofá, en la cocina…</li><li>15 fotos editadas</li></ul>
+            <p>La foto de familia de toda la vida, pero sin poses forzadas. Desplazamiento incluido en Madrid capital.</p>
+            <a class="btn" href="#reservar" data-elige="casa">Elegir</a>
+          </div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque">
+      <div class="env">
+        <h2>Cómo funciona</h2>
+        <div class="pasos cuatro">
+          <div><span>01</span><h3>Elegís hueco</h3><p>En el calendario de abajo salen solo las fechas y horas libres.</p></div>
+          <div><span>02</span><h3>Os escribo</h3><p>En menos de 24 horas, para confirmar y mandaros el enlace de pago. La fecha queda firme al pagar.</p></div>
+          <div><span>03</span><h3>Hacemos las fotos</h3><p>Os cuento antes qué ropa funciona y dónde quedamos. Vosotros solo tenéis que venir.</p></div>
+          <div><span>04</span><h3>Las recibís</h3><p>En vuestra galería privada de ottokols.es, para descargarlas en alta calidad.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque" id="reservar">
+      <div class="env reserva">
+        <div>
+          <h2>Reservar</h2>
+          <div class="chips" role="radiogroup" aria-label="Modalidad">
+            <label><input type="radio" name="mod" value="mini" checked><span>Minisesión · 90 €</span></label>
+            <label><input type="radio" name="mod" value="paseo"><span>Paseo · 150 €</span></label>
+            <label><input type="radio" name="mod" value="casa"><span>En casa · 120 €</span></label>
+            <label><input type="radio" name="mod" value="bono"><span>Bono regalo</span></label>
+          </div>
+          <div class="calendario">
+            <div class="mes">
+              <h3>Diciembre <small id="cal-estado">cargando huecos…</small></h3>
+              <div class="rejilla" id="rejilla"></div>
+            </div>
+            <div class="horas" id="horas"></div>
+            <p class="leyenda">Lunes y miércoles no hay sesiones. Las tardes de calle empiezan a las 17:30, con la hora azul.</p>
+          </div>
+          <div class="solo-bono" hidden id="bono">
+            <figure class="bono-fig"><img src="/fotos/navidad/bono-regalo.jpg" alt="Bono regalo de Otto Kols: una tarde para mirarse despacio" width="1200" height="733" loading="lazy"></figure>
+            <p class="sub">Regala una sesión: la persona elige día y sitio cuando quiera, hasta el 30 de junio de 2027. Te mando el bono con su nombre para imprimir o enviar.</p>
+          </div>
+        </div>
+        <div>
+          <form class="form" id="navForm" novalidate>
+            <input type="text" name="web" tabindex="-1" autocomplete="off" class="oculto" aria-hidden="true">
+            <div class="resumen" id="resumen" aria-live="polite"></div>
+            <div><label for="n-nombre">Nombre *</label><input type="text" id="n-nombre" name="nombre" required autocomplete="name"></div>
+            <div><label for="n-email">Email *</label><input type="email" id="n-email" name="email" required autocomplete="email"></div>
+            <div><label for="n-tel">Teléfono (para avisos de última hora)</label><input type="tel" id="n-tel" name="telefono" autocomplete="tel"></div>
+            <div class="solo-calle solo-casa"><label for="n-personas">¿Quiénes vais a salir?</label><input type="text" id="n-personas" name="personas" placeholder="Por ejemplo: pareja, familia con dos niños y un perro…"></div>
+            <div class="solo-calle"><label for="n-zona">Dónde os apetece</label><select id="n-zona" name="zona"></select></div>
+            <div class="solo-casa" hidden><label for="n-dir">Barrio o municipio</label><input type="text" id="n-dir" name="direccion" placeholder="La dirección exacta te la pido al confirmar"></div>
+            <div class="solo-bono" hidden><label for="n-para">¿Para quién es el bono?</label><input type="text" id="n-para" name="bono_para"></div>
+            <div class="solo-bono" hidden><label for="n-bses">¿De qué sesión?</label><select id="n-bses" name="bono_sesion"><option>Minisesión · 90 €</option><option>Sesión paseo · 150 €</option><option>En casa · 120 €</option><option>Que elija la persona</option></select></div>
+            <div><label for="n-msg">Algo más que deba saber</label><textarea id="n-msg" name="mensaje" rows="4"></textarea></div>
+            <label class="check"><input type="checkbox" name="acepta" value="si" required> Acepto que uses mis datos solo para gestionar esta reserva. <a href="/privacidad/">Privacidad</a></label>
+            <div><button class="btn lleno" type="submit" id="n-enviar">Enviar solicitud</button></div>
+          </form>
+          <div class="ok" id="navOk"><strong>¡Solicitud recibida!</strong> Te he guardado el hueco. Te escribo en menos de 24 horas para confirmarlo y mandarte el enlace de pago.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque">
+      <div class="env">
+        <h2>Preguntas</h2>
+        <div class="faq">
+          <div><h3>¿Y si llueve?</h3><p>Movemos la sesión a otro día sin coste. O la hacemos con paraguas: con las luces reflejadas en el suelo mojado queda precioso.</p></div>
+          <div><h3>¿Pueden venir niños y perros?</h3><p>Claro. Con niños pequeños os recomiendo la minisesión o la de casa: se cansan antes que nosotros.</p></div>
+          <div><h3>¿Qué ropa me pongo?</h3><p>Abrigo de verdad, que en diciembre a las seis hace frío. Colores lisos y algo de textura (lana, pana) funcionan muy bien con las luces.</p></div>
+          <div><h3>¿Y fuera de Madrid capital?</h3><p>Me desplazo donde haga falta. Fuera de la capital, el desplazamiento va aparte; os lo digo antes de confirmar.</p></div>
+          <div><h3>¿Cómo se paga?</h3><p>Al confirmar os mando un enlace de pago con tarjeta. Hasta entonces no pagáis nada.</p></div>
+          <div><h3>¿En casa, qué tiene que haber?</h3><p>Nada especial. Si hay árbol, luces o una ventana con luz, lo aprovecho. Si no, también salen fotos: lo importante sois vosotros.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="baston fino" aria-hidden="true"></div>
+  <footer class="pie">
+    <div class="env">
+      <div>
+        <p class="marca"><img src="/assets/logo/otto-kols-nombre-blanco.svg" alt="Otto Kols" width="442" height="90" loading="lazy"></p>
+        <p>Fotografía de retrato. Trabajo desde Madrid y me desplazo donde haga falta.</p>
+      </div>
+      <div>
+        <h4>Retrato</h4>
+        <ul>
+          <li><a href="/actores/">Actores</a></li>
+          <li><a href="/retrato/">Retrato personal</a></li>
+          <li><a href="/parejas/">Parejas y bodas íntimas</a></li>
+          <li><a href="/mascotas/">Mascotas</a></li>
+          <li><a href="/navidad/">Navidad</a></li>
+          <li><a href="/encargos/">Encargos</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="mailto:ottobkc@gmail.com">ottobkc@gmail.com</a></li>
+          <li><a href="https://instagram.com/ob.kc" rel="me">Instagram · @ob.kc</a></li>
+          <li><a href="https://mirardespacio.es/">Mirar Despacio</a></li>
+          <li><a href="/privacidad/">Privacidad</a></li>
+          <li><a href="https://mirardespacio.es/aviso-legal/">Aviso legal</a></li>
+          <li><a href="/galeria/">Área de clientes</a></li>
+        </ul>
+      </div>
+      <p class="legal">© 2026 Otto Kols · Madrid</p>
+    </div>
+  </footer>
+  <script src="/assets/ok.js"></script>
+  <script src="/navidad/navidad.js"></script>
+</body>
+</html>

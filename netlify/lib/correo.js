@@ -30,11 +30,11 @@ function esc(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-async function enviar({ para, asunto, html, texto, responderA, adjuntos }) {
+async function enviar({ para, asunto, html, texto, responderA, adjuntos, nombre }) {
   const t = smtp();
   if (!t) return false;
   await t.sendMail({
-    from: `"Mirar Despacio" <${remitente()}>`,
+    from: `"${nombre || 'Mirar Despacio'}" <${remitente()}>`,
     to: para,
     replyTo: responderA || remitente(),
     subject: asunto,
