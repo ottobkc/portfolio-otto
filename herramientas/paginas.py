@@ -551,7 +551,9 @@ def construir(g):
             "location": {"@type": "Place", "name": f"{ed.get('zona') or 'Centro'} de Madrid", "address": {"@type": "PostalAddress", "addressLocality": "Madrid", "addressRegion": "Madrid", "addressCountry": "ES"}},
             "image": [DOM + f"/assets/talleres/{t['id']}.jpg" if _os.path.exists(_os.path.join(_os.path.dirname(__file__), '..', 'MirarDespacio', 'assets', 'talleres', t['id'] + '.jpg')) else PORTADA], "organizer": {"@id": DOM + "/#org"},
             "performer": {"@type": "Person", "name": "Otto Kols", "url": "https://ottokols.es/"},
-            "offers": {"@type": "Offer", "url": DOM + "/talleres/#" + t['id'], "price": t['precio'], "priceCurrency": "EUR", "availability": "https://schema.org/InStock"},
+            "offers": {"@type": "Offer", "url": DOM + "/talleres/#" + t['id'], "price": t['precio'], "priceCurrency": "EUR", "availability": "https://schema.org/InStock",
+                       # desde cuándo se vende: la fecha que diga la edición o, si no, 60 días antes del taller
+                       "validFrom": ed.get('ventaDesdeISO') or (_dt.datetime.fromisoformat(ed['fechaISO']) - _dt.timedelta(days=60)).isoformat()},
             "url": DOM + "/talleres/#" + t['id'],
         }
         if ed.get('fechaFinISO'): ev["endDate"] = ed['fechaFinISO']
