@@ -92,3 +92,18 @@
     document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { marcar(); el.remove(); document.removeEventListener('keydown', esc); } });
   }, 4000);
 })();
+
+/* Guirnalda de luces bajo el menú en Navidad: del 1 de diciembre al 6 de enero se pone y se quita sola
+   (para probar: ?navidad=1). Sobria: puntos pequeños que parpadean despacio; sin movimiento si se pide. */
+(function () {
+  var q = null; try { q = new URLSearchParams(location.search).get('navidad'); } catch (e) {}
+  var d = new Date(), m = d.getMonth();
+  if (q !== '1' && (q === '0' || !(m === 11 || (m === 0 && d.getDate() <= 6)))) return;
+  var nav = document.querySelector('header.nav');
+  if (!nav) return;
+  var css = document.createElement('style');
+  css.textContent = ".ok-guirnalda{position:absolute;left:0;right:0;bottom:-8px;height:12px;pointer-events:none;background:radial-gradient(ellipse 14px 5px at 50% 0,transparent 4px,rgba(154,147,135,.6) 4.5px,transparent 5.2px) 0 2px/22px 12px repeat-x}.ok-guirnalda::before,.ok-guirnalda::after{content:'';position:absolute;inset:0}.ok-guirnalda::before{background:radial-gradient(circle,#b8232f 2.4px,transparent 2.9px) 11px 1px/88px 12px repeat-x,radial-gradient(circle,#f3c6a0 2.4px,transparent 2.9px) 33px 1px/88px 12px repeat-x,radial-gradient(circle,#2f6b4f 2.4px,transparent 2.9px) 55px 1px/88px 12px repeat-x,radial-gradient(circle,#f7f6f2 2.4px,transparent 2.9px) 77px 1px/88px 12px repeat-x}.ok-guirnalda::after{background:radial-gradient(circle,#2f6b4f 2.4px,transparent 2.9px) 11px 1px/88px 12px repeat-x,radial-gradient(circle,#f7f6f2 2.4px,transparent 2.9px) 33px 1px/88px 12px repeat-x,radial-gradient(circle,#b8232f 2.4px,transparent 2.9px) 55px 1px/88px 12px repeat-x,radial-gradient(circle,#f3c6a0 2.4px,transparent 2.9px) 77px 1px/88px 12px repeat-x;opacity:0;animation:ok-guirnalda-luz 2.4s steps(1) infinite}@keyframes ok-guirnalda-luz{50%{opacity:1}}@media (prefers-reduced-motion: reduce){.ok-guirnalda::after{animation:none}}";
+  document.head.appendChild(css);
+  var g = document.createElement('div'); g.className = 'ok-guirnalda'; g.setAttribute('aria-hidden', 'true');
+  nav.appendChild(g);
+})();

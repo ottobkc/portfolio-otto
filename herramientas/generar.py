@@ -130,7 +130,8 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
     </div>
   </footer>
   <script src="{v('md.js')}"></script>
-  <script defer src="/js/guia.js"></script>{extra_pie}
+  <script defer src="/js/guia.js"></script>
+  <script defer src="{v('navidad.js')}"></script>{extra_pie}
 </body>
 </html>
 '''
