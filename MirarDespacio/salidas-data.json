@@ -5,10 +5,11 @@
   },
   "proximas": [
     {
-      "fecha": "Por determinar",
-      "zona": "Por determinar",
+      "fecha": "13 de diciembre",
+      "zona": "Ópera y Plaza Mayor",
       "hora": "10:00",
-      "activa": true
+      "activa": true,
+      "fechaISO": "2026-12-13T10:00:00+01:00"
     }
   ],
   "salidas": [
