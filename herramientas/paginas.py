@@ -116,7 +116,7 @@ def construir(g):
         <div class="rejilla-2" style="margin-top:40px;">
           <a class="tarjeta revelar" href="/podcast/"><span class="num">01</span><h3>El podcast</h3><p>Episodios cortos sobre fotografía de calle, miedo a mirar, publicar, el estilo propio. Para escuchar paseando.</p><span class="mas">20 episodios en la primera temporada →</span></a>
           <a class="tarjeta revelar" href="/salidas/"><span class="num">02</span><h3>Salidas fotográficas</h3><p>Mañanas de fotografía en grupo por barrios de Madrid, con tarjetas de misión y visionado al final. Contribución libre.</p><span class="mas" data-proxima>Ver próxima salida →</span></a>
-          <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
+          <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres de fotografía callejera y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
         <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>. Y si quieres salir por tu cuenta, empieza por la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a>.</p>
@@ -230,7 +230,7 @@ def construir(g):
       <div class="envoltura">
         <p class="antetitulo">Salidas fotográficas · Madrid</p>
         <h1>Salidas fotográficas <em>en Madrid.</em></h1>
-        <p class="entradilla">Una mañana recorriendo un barrio de Madrid en grupo, con la cámara, sin prisa y sin clases. Al final nos sentamos a ver las fotos juntos.</p>
+        <p class="entradilla">Una mañana recorriendo un barrio de Madrid en grupo, con la cámara, sin prisa y sin clases. Al final nos sentamos a ver las fotos juntos. Un grupo de fotografía callejera abierto a cualquiera, con aportación libre.</p>
         <p style="font-size:1.1rem;"><strong>Próxima salida:</strong> <span data-proxima>cargando…</span></p>
         <div class="botones"><a class="boton color" href="#apuntarse">Apuntarme</a><a class="boton claro" href="#como-funciona">Cómo funciona</a></div>
         <div class="carrusel" data-visor data-galeria-salidas style="margin-top:40px;"></div>
@@ -337,8 +337,8 @@ def construir(g):
     </section>'''
     faq_schema = {"@type": "FAQPage", "mainEntity": [
         {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": re.sub(r'<[^>]+>', '', a)}} for q, a in FAQ_SALIDAS]}
-    escribir('/salidas/', pagina('/salidas/', 'Salidas fotográficas en Madrid · Mirar Despacio',
-        'Salidas de fotografía callejera en grupo por barrios de Madrid: paseo, tarjetas de misión y visionado de fotos al final. Contribución libre y cualquier cámara vale.',
+    escribir('/salidas/', pagina('/salidas/', 'Salidas fotográficas en Madrid · Grupo de fotografía callejera',
+        'Salidas fotográficas en grupo por barrios de Madrid: paseo con retos y fotos comentadas al final. Aportación libre, grupos pequeños y vale cualquier cámara, también el móvil.',
         cuerpo, schema=[faq_schema], og_img=cld(datos['galeria'][1]['src'], 'f_auto,q_auto,w_1200'),
         extra_pie=g['PROXIMA_JS'] + EVENTO_JS + GALERIA_JS))
 
@@ -469,9 +469,9 @@ def construir(g):
     cuerpo = f"""
     <section class="portada">
       <div class="envoltura estrecho">
-        <p class="antetitulo">Talleres · Madrid</p>
-        <h1>Aprender <em>disparando.</em></h1>
-        <p class="entradilla">Talleres de 3 a 4 horas por las calles de Madrid, en grupos de {max(t['plazas'] for t in td['talleres'])} personas como mucho. Mucha práctica, poca teoría y alguien al lado para resolver dudas en el momento.</p>
+        <p class="antetitulo">Aprender disparando</p>
+        <h1>Talleres de fotografía callejera <em>en Madrid.</em></h1>
+        <p class="entradilla">Talleres de fotografía de calle de 3 a 4 horas por Madrid, en grupos de {max(t['plazas'] for t in td['talleres'])} personas como mucho. Mucha práctica, poca teoría y alguien al lado para resolver dudas en el momento.</p>
         <p><span class="nota" style="font-size:1.35rem;">te llevas</span> el manual del taller en la web, una chuleta de bolsillo, pegatinas y un mes de <a href="/mirar-despacio-plus/">Mirar Despacio+</a> para seguir practicando.</p>
         <div class="botones"><a class="boton" href="#talleres">Ver talleres</a><a class="boton claro" href="/regalo/">🎁 Regalar un taller</a></div>
       </div>
@@ -522,6 +522,7 @@ def construir(g):
       <div class="envoltura estrecho">
         <p class="antetitulo">Preguntas</p>
         <h2>Antes de <em>reservar.</em></h2>
+        <details class="faq"><summary>¿Qué se aprende en un taller de fotografía callejera?</summary><p>A moverte por la calle con la cámara lista: leer la luz, anticipar lo que va a pasar, componer rápido y acercarte a la gente con respeto. Es la fotografía de calle (o <i>street photography</i>) de toda la vida, pero con alguien al lado que te corrige en el momento. Cada taller se centra en una cosa: la noche, la hora dorada, la composición o los primeros pasos con tu cámara.</p></details>
         <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, trae la cámara que quieras aprender a usar: réflex, mirrorless o compacta. Y para el de composición vale cualquier cosa, también el móvil.</p></details>
         <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, con tarjeta, en la página de pago segura de Stripe. Los precios llevan el IVA incluido. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
         <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a>. Si avisas con al menos 7 días de antelación, te devuelvo el importe entero o te paso la plaza a otra fecha, lo que prefieras. Con menos de 7 días ya tengo el material y el sitio preparados para ti, así que no hay devolución, pero puedes pasar la plaza a otra fecha o regalársela a otra persona. Todo el detalle está en las <a href="/condiciones/">condiciones de venta</a>.</p></details>
@@ -547,7 +548,7 @@ def construir(g):
             "description": t['descripcion'], "startDate": ed['fechaISO'],
             "eventStatus": "https://schema.org/EventScheduled", "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
             "location": {"@type": "Place", "name": f"{ed.get('zona') or 'Centro'} de Madrid", "address": {"@type": "PostalAddress", "addressLocality": "Madrid", "addressRegion": "Madrid", "addressCountry": "ES"}},
-            "image": [PORTADA], "organizer": {"@id": DOM + "/#org"},
+            "image": [DOM + f"/assets/talleres/{t['id']}.jpg" if _os.path.exists(_os.path.join(_os.path.dirname(__file__), '..', 'MirarDespacio', 'assets', 'talleres', t['id'] + '.jpg')) else PORTADA], "organizer": {"@id": DOM + "/#org"},
             "performer": {"@type": "Person", "name": "Otto Kols", "url": "https://ottokols.es/"},
             "offers": {"@type": "Offer", "url": DOM + "/talleres/#" + t['id'], "price": t['precio'], "priceCurrency": "EUR", "availability": "https://schema.org/InStock"},
             "url": DOM + "/talleres/#" + t['id'],
@@ -563,28 +564,28 @@ def construir(g):
             'para': ['Ya haces fotos, pero de noche te salen movidas, oscuras o con ruido.', 'Te gustan los escaparates, los neones y las siluetas, y no sabes cómo sacarles partido.', 'Quieres practicar con alguien al lado que te resuelva las dudas en el momento.'],
             'foto_alt': 'Una farmacia de guardia y una pareja paseando de noche por el centro de Madrid',
             'title': 'Taller de fotografía nocturna en Madrid · Mirar Despacio',
-            'desc': 'Taller de fotografía callejera nocturna por el centro de Madrid: luz artificial, ISO y velocidad sin miedo, siluetas y reflejos. Grupos de 8 y consumición al final.',
+            'desc': 'Taller de fotografía callejera nocturna en Madrid, {precio} €: luz artificial, ISO y velocidad sin miedo, siluetas y reflejos. Grupos de {plazas} y algo para tomar al final.',
         },
         'atardecer': {
             'h1': 'La calle <em>a la hora dorada.</em>',
             'promesa': 'Aprovecha la mejor luz del día sin que se te escape: del sol rasante a la hora azul.',
             'para': ['Ya disparas y quieres sacar partido a la luz de la tarde.', 'Te gustan las sombras largas, los contraluces y las siluetas.', 'Quieres entender por qué unas fotos de atardecer funcionan y otras no.'],
             'title': 'Taller de fotografía al atardecer en Madrid · Mirar Despacio',
-            'desc': 'Taller de fotografía callejera al atardecer en Madrid: luz rasante, contraluces, sombras largas y hora azul. Grupos de 8, mucha práctica y consumición al final.',
+            'desc': 'Taller de fotografía callejera al atardecer en Madrid, {precio} €: luz rasante, contraluces, sombras largas y hora azul. Grupos de {plazas} y algo para tomar al final.',
         },
         'iniciacion': {
             'h1': 'Sal del <em>modo automático.</em>',
             'promesa': 'En una mañana entiendes tu cámara y empiezas a decidir tú, no ella.',
             'para': ['Tienes una cámara y casi siempre disparas en automático.', 'ISO, diafragma y velocidad te suenan, pero no sabes cuándo tocar cada uno.', 'Prefieres aprender en la calle, disparando, y no con diapositivas.'],
             'title': 'Taller de iniciación a la fotografía en Madrid · Mirar Despacio',
-            'desc': 'Taller de iniciación a la fotografía en Madrid: los ajustes de tu cámara, el triángulo de exposición y la composición, aprendidos disparando por la calle. Grupos de 8.',
+            'desc': 'Taller de iniciación a la fotografía en Madrid, {precio} €: sal del modo automático y entiende ISO, diafragma y velocidad disparando por la calle. Grupos de {plazas}.',
         },
         'composicion': {
             'h1': 'Deja de hacer fotos <em>por inercia.</em>',
             'promesa': 'Aprende a decidir el encuadre antes de disparar. Con la cámara que tengas, también con el móvil.',
             'para': ['Haces muchas fotos y casi todas se parecen.', 'Sientes que el problema no es tu cámara, sino dónde pones el marco.', 'Quieres ejercicios concretos para mirar de otra manera.'],
             'title': 'Taller de composición fotográfica en Madrid · Mirar Despacio',
-            'desc': 'Taller de composición fotográfica en la calle, en Madrid: encuadre, líneas, capas, luz y espacio negativo, con ejercicios cortos. Vale cualquier cámara, también el móvil.',
+            'desc': 'Taller de composición fotográfica en Madrid, {precio} €: encuadre, líneas, capas y espacio negativo con ejercicios en la calle. Vale el móvil. Grupos de {plazas}.',
         },
     }
     for t in td['talleres']:
@@ -667,12 +668,12 @@ def construir(g):
         for e in evs:
             e['url'] = DOM + ruta
             e['offers']['url'] = DOM + ruta
-        escribir(ruta, pagina(ruta, L['title'], L['desc'], cuerpo_t,
+        escribir(ruta, pagina(ruta, L['title'], L['desc'].format(precio=t['precio'], plazas=t['plazas']), cuerpo_t,
             schema=[{"@type": "Course", "name": f"Taller {t['titulo']}", "description": t['descripcion'], "provider": {"@id": DOM + "/#org"}, "url": DOM + ruta}] + evs,
             extra_pie=TALLERES_JS + RESENAS_JS))
 
-    escribir('/talleres/', pagina('/talleres/', 'Talleres de fotografía callejera en Madrid · Mirar Despacio',
-        'Talleres de fotografía callejera en Madrid: nocturna, atardecer, composición e iniciación. Grupos de 8 personas y mucha práctica en la calle. También para regalar.',
+    escribir('/talleres/', pagina('/talleres/', 'Taller de fotografía callejera en Madrid · Mirar Despacio',
+        f"Taller de fotografía callejera en Madrid desde {min(t['precio'] for t in td['talleres'])} €: nocturna, atardecer, composición e iniciación. Grupos de {max(t['plazas'] for t in td['talleres'])} y mucha calle. También para regalar.",
         cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ REGALO
@@ -1129,6 +1130,7 @@ FAQ_SALIDAS = [
     ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. Al final solemos tomar algo; las consumiciones las paga cada uno."),
     ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora <a href=\"/salidas/barrio-de-las-letras/\">Barrio de las Letras</a>, <a href=\"/salidas/malasana/\">Malasaña</a>, <a href=\"/salidas/tribunal-chueca/\">Tribunal y Chueca</a>, <a href=\"/salidas/huertas/\">Huertas</a> y la <a href=\"/salidas/gran-via/\">Gran Vía</a>. El punto de encuentro lo confirmo por email a quien se apunta."),
     ("¿Cuántas personas vienen?", "Somos grupos pequeños, de hasta unas diez personas, para que el ritmo sea tranquilo y dé tiempo a ver las fotos de todos."),
+    ("¿Es un grupo de fotografía? ¿Cómo me uno?", "Sí: Mirar Despacio es un grupo de fotografía callejera en Madrid abierto a cualquiera. Para unirte basta con apuntarte a una salida; si dejas tu teléfono te añado a la comunidad de WhatsApp, donde aviso de las próximas fechas y compartimos fotos. Y si quieres aprender algo concreto, están los <a href=\"/talleres/\">talleres de fotografía callejera</a>."),
 ]
 
 EVENTO_JS = '''

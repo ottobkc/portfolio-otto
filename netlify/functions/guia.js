@@ -3,7 +3,7 @@
 // Guarda la suscripción en Firestore (colección «suscriptores», id = email) y manda el correo con el enlace al PDF.
 // «avisos» es el consentimiento aparte para recibir novedades (salidas y talleres); sin él solo se manda la guía.
 const { db, FieldValue } = require('../lib/firestore');
-const { enviar } = require('../lib/correo');
+const { enviar, esc, remitente } = require('../lib/correo');
 const { tarjeta, aTexto } = require('../lib/plantillas-salida');
 const { urlBaja } = require('../lib/avisos');
 
@@ -32,6 +32,15 @@ function correo(email, nombre, avisos) {
   return { para: email, asunto: 'Tu guía: 10 ejercicios para volver a disfrutar haciendo fotos', html, texto: aTexto(html) };
 }
 
+// Aviso a Otto cuando alguien nuevo pide la guía (no en las repeticiones del mismo correo).
+function avisoGuia(email, nombre, avisos, origen) {
+  const filas = [['Email', email], ['Nombre', nombre || '—'], ['Desde', origen], ['Acepta novedades', avisos ? 'Sí' : 'No (solo se le puede escribir por la guía)']];
+  const html = `<!doctype html><html><body style="font:15px/1.5 system-ui,sans-serif;color:#1a1814;">
+<table style="border-collapse:collapse;">${filas.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6b655a;">${esc(k)}</td><td style="padding:4px 0;">${esc(v)}</td></tr>`).join('')}</table>
+<p><a href="https://ottokols.es/crm/#suscriptores">Ver suscriptores en el CRM</a></p></body></html>`;
+  return enviar({ para: process.env.AVISO_A || remitente(), asunto: `Guía: nuevo suscriptor (${email})`, html, texto: aTexto(html) });
+}
+
 exports.handler = async (event) => {
   const h = cab((event.headers || {}).origin);
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: h, body: '' };
@@ -53,12 +62,14 @@ exports.handler = async (event) => {
     console.error('guia', e.message);
     return { statusCode: 502, headers: h, body: '{"error":"correo"}' };
   }
+  const origen = limpio(b.origen, 80) || 'web';
   await ref.set({
-    email, ...(nombre ? { nombre } : {}), origen: limpio(b.origen, 80) || 'web',
+    email, ...(nombre ? { nombre } : {}), origen,
     guia: true, guiaEnviadaEn: FieldValue.serverTimestamp(),
     ...(avisos ? { aceptaNovedades: true, consentimientoEn: FieldValue.serverTimestamp() } : {}),
     ...(antes.exists ? {} : { creado: FieldValue.serverTimestamp() }),
   }, { merge: true });
+  if (!antes.exists) await avisoGuia(email, nombre, avisos, origen).catch((e) => console.error('aviso guia', e.message));
   return { statusCode: 200, headers: h, body: '{"ok":true}' };
 };
 
