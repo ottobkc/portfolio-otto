@@ -28,6 +28,10 @@
 [functions."copia-seguridad"]
   schedule = "0 6 * * 1"
 
+# Aviso diario a IndexNow (Bing) de las páginas cambiadas en las dos webs
+[functions."indexnow"]
+  schedule = "40 8 * * *"
+
 # -----------------------------------------------
 # SEGURIDAD — en todas las páginas
 # Que ninguna otra web pueda meter estas páginas en un marco, HTTPS siempre, etc.
