@@ -112,3 +112,10 @@
   [headers.values]
     Content-Type = "application/manifest+json; charset=utf-8"
     Cache-Control = "public, max-age=3600"
+
+# Retirado el amigo invisible (nov. 2026)
+[[redirects]]
+  from   = "/amigo-invisible/*"
+  to     = "/salidas/"
+  status = 301
+  force  = true

@@ -27,12 +27,8 @@
   // Franja de regalos (no en la propia página de regalos ni en zonas privadas)
   if (!/^\/(regalo|socios|cuaderno|acceso|talleres\/ficha)(\/|$)/.test(location.pathname) && nav) {
     var a = document.createElement('a');
-    // Hasta el cierre de inscripciones, en salidas, juegos y muro se anuncia el amigo invisible; en el resto, los regalos
-    var amigo = new Date().toISOString().slice(0, 10) <= '2026-12-10' && /^\/(salidas|juego|juegos|muro|amigo-invisible)(\/|$)/.test(location.pathname);
-    if (/^\/amigo-invisible/.test(location.pathname)) amigo = false;
-    a.className = 'md-franja'; a.href = amigo ? '/amigo-invisible/' : '/regalo/';
-    a.innerHTML = amigo ? '📷 <b>Amigo invisible fotográfico.</b> Este año el regalo es una foto · presencial o a distancia · <u>Me apunto</u>'
-      : '🎁 <b>Regala un taller esta Navidad.</b> Tarjeta regalo al momento y la fecha la elige quien lo recibe · <u>Ver regalos</u>';
+    a.className = 'md-franja'; a.href = '/regalo/';
+    a.innerHTML = '🎁 <b>Regala un taller esta Navidad.</b> Tarjeta regalo al momento y la fecha la elige quien lo recibe · <u>Ver regalos</u>';
     a.addEventListener('click', function () { try { window.umami && umami.track('navidad-franja'); } catch (e) {} });
     nav.parentNode.insertBefore(a, nav);
   }
