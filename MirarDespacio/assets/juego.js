@@ -44,6 +44,21 @@
     paraguas: { uno: 'paraguas', nombre: 'paraguas', pts: 15, w: 30, h: 54, alto: [0, 0], vel: 0.9 },
     gato:     { uno: 'gato', nombre: 'gatos', pts: 25, w: 24, h: 18, alto: [0, 0], vel: 1.6 },
   };
+  // ---------- Navidad: del 1 de diciembre al 6 de enero (para probar: ?navidad=1 / ?navidad=0) ----------
+  // Mismos personajes por dentro (mismas claves y puntos, así el ranking sigue valiendo), otro disfraz.
+  var NAVIDAD = (function () {
+    try { var q = new URLSearchParams(location.search).get('navidad'); if (q === '1') return true; if (q === '0') return false; } catch (e) {}
+    var d = new Date(), m = d.getMonth();
+    return m === 11 || (m === 0 && d.getDate() <= 6);
+  })();
+  var VERDE = '#2f7d4f', ROJO = '#c8312b', BLANCO = '#ffffff';
+  if (NAVIDAD) {
+    TIPOS.perro.uno = 'reno'; TIPOS.perro.nombre = 'renos'; TIPOS.perro.h = 34;
+    TIPOS.gato.uno = 'pingüino'; TIPOS.gato.nombre = 'pingüinos'; TIPOS.gato.w = 20; TIPOS.gato.h = 26;
+    TIPOS.paraguas.uno = 'muñeco de nieve'; TIPOS.paraguas.nombre = 'muñecos de nieve'; TIPOS.paraguas.h = 50;
+    TIPOS.bici.uno = 'elfo en bici'; TIPOS.bici.nombre = 'elfos en bici';
+    TIPOS.globo.uno = 'bola de Navidad'; TIPOS.globo.nombre = 'bolas de Navidad'; TIPOS.globo.h = 40;
+  }
   var LISTA = Object.keys(TIPOS);
   // Carrete: si le haces foto, ganas una vida. Si se escapa, no pasa nada.
   var VIDAS_MAX = 5;
@@ -307,6 +322,16 @@
     for (var vuelta = 0; off < W; vuelta++) {
       for (var i = 0; i < anchos.length && off < W; i++) {
         ctx.fillRect(off, SUELO - altos[i], anchos[i], altos[i]);
+        if (NAVIDAD) {
+          // nieve en el tejado y guirnalda de luces de colores que parpadean
+          ctx.fillStyle = BLANCO; ctx.fillRect(off - 2, SUELO - altos[i] - 4, anchos[i] + 4, 5);
+          var colores = [ROJO, C.naranja, VERDE, C.rosa];
+          for (var lx = off + 4, n = 0; lx < off + anchos[i] - 2; lx += 9, n++) {
+            var enc = Math.floor(performance.now() / 500 + n) % 3 !== 0;
+            ctx.fillStyle = enc ? colores[(n + i) % 4] : C.linea;
+            ctx.beginPath(); ctx.arc(lx, SUELO - altos[i] + 4 + 2 * Math.sin(n * 1.3), 2, 0, 7); ctx.fill();
+          }
+        }
         ctx.fillStyle = C.crema;
         for (var vy = SUELO - altos[i] + 12; vy < SUELO - 20; vy += 22)
           for (var vx = off + 8; vx < off + anchos[i] - 12; vx += 16) ctx.fillRect(vx, vy, 7, 10);
@@ -315,7 +340,10 @@
       }
     }
 
+    if (NAVIDAD) nieve();
+
     // Suelo
+    if (NAVIDAD) { ctx.fillStyle = BLANCO; ctx.fillRect(0, SUELO - 3, W, 4); }
     ctx.fillStyle = C.tinta; ctx.fillRect(0, SUELO, W, 2);
     ctx.fillStyle = C.linea;
     var guion = 34, d0 = -((e.fondo * 4) % guion);
@@ -387,10 +415,23 @@
     if (e.fase !== 'jugando') pantalla(e);
   }
 
+  // Copos que caen (sin estado: la posición sale del tiempo y del número de copo)
+  function nieve() {
+    var t = performance.now() / 1000;
+    ctx.fillStyle = 'rgba(154,147,135,.55)';
+    for (var i = 0; i < 70; i++) {
+      var a = (i * 97.13) % 1, b = (i * 53.71) % 1, r = 1 + (i % 3) * 0.7;
+      var y = ((b * H + t * (14 + r * 9)) % (SUELO + 10)) - 6;
+      var x = ((a * W - estado.fondo * 0.6 + Math.sin(t * 0.8 + i) * 8) % W + W) % W;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+    }
+  }
+
   function pantalla(e) {
     ctx.fillStyle = 'rgba(245,243,239,.86)'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; ctx.fillStyle = C.tinta;
     if (e.fase === 'inicio') {
+      if (NAVIDAD) { ctx.fillStyle = ROJO; ctx.font = '600 14px Jost, system-ui, sans-serif'; ctx.fillText('Edición de Navidad', W / 2, H / 2 - 62); ctx.fillStyle = C.tinta; }
       ctx.font = '400 ' + Math.min(34, W / 12) + 'px Georgia, serif';
       ctx.fillText('Mira, encuadra, dispara.', W / 2, H / 2 - 24);
       ctx.font = '400 15px Jost, system-ui, sans-serif'; ctx.fillStyle = C.suave;
@@ -459,7 +500,11 @@
     ctx.beginPath(); ctx.moveTo(x, suelo - 30); ctx.lineTo(x + 2, suelo - 60); ctx.stroke();
     // cabeza y gorra
     ctx.beginPath(); ctx.arc(x + 3, suelo - 70, 8, 0, 7); ctx.fill();
-    ctx.fillStyle = C.naranja; ctx.fillRect(x - 4, suelo - 80, 14, 4); ctx.fillRect(x + 6, suelo - 78, 8, 3);
+    if (NAVIDAD) {
+      ctx.fillStyle = ROJO; ctx.beginPath(); ctx.moveTo(x - 5, suelo - 76); ctx.lineTo(x + 11, suelo - 76); ctx.lineTo(x - 6, suelo - 92); ctx.fill();
+      ctx.fillStyle = BLANCO; ctx.fillRect(x - 6, suelo - 78, 18, 4);
+      ctx.beginPath(); ctx.arc(x - 6, suelo - 92, 3, 0, 7); ctx.fill();
+    } else { ctx.fillStyle = C.naranja; ctx.fillRect(x - 4, suelo - 80, 14, 4); ctx.fillRect(x + 6, suelo - 78, 8, 3); }
     // brazos hacia la cámara
     ctx.strokeStyle = C.tinta; ctx.lineWidth = 3.5;
     ctx.beginPath(); ctx.moveTo(x + 2, suelo - 54); ctx.lineTo(x + 14, suelo - 62); ctx.stroke();
@@ -470,9 +515,66 @@
     ctx.strokeStyle = C.rosa; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x + 12, suelo - 68); ctx.lineTo(x + 1, suelo - 50); ctx.stroke();
   }
 
+  function dibujarNavidad(c) {
+    var x = c.x, y = c.y, f = c.fase;
+    switch (c.tipo) {
+      case 'perro': // reno con la nariz roja
+        ctx.fillStyle = '#8a5a3c'; ctx.fillRect(x + 6, y + 15, 24, 11);
+        ctx.beginPath(); ctx.arc(x + 5, y + 14, 6, 0, 7); ctx.fill();
+        ctx.strokeStyle = '#8a5a3c'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(x + 9, y + 25); ctx.lineTo(x + 9 + 3 * Math.sin(f), y + 34);
+        ctx.moveTo(x + 26, y + 25); ctx.lineTo(x + 26 - 3 * Math.sin(f), y + 34); ctx.stroke();
+        ctx.strokeStyle = C.suave; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x + 4, y + 9); ctx.lineTo(x + 1, y + 1); ctx.moveTo(x + 2, y + 4); ctx.lineTo(x - 3, y + 2);
+        ctx.moveTo(x + 8, y + 9); ctx.lineTo(x + 11, y + 1); ctx.moveTo(x + 10, y + 4); ctx.lineTo(x + 15, y + 2); ctx.stroke();
+        ctx.fillStyle = ROJO; ctx.beginPath(); ctx.arc(x - 1, y + 15, 2.6, 0, 7); ctx.fill();
+        return true;
+      case 'gato': { // pingüino que anda de lado a lado
+        var b = Math.sin(f) * 1.5;
+        ctx.fillStyle = C.tinta; ctx.beginPath(); ctx.ellipse(x + 10 + b, y + 14, 8, 11, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = BLANCO; ctx.beginPath(); ctx.ellipse(x + 9 + b, y + 16, 5, 8, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = BLANCO; ctx.beginPath(); ctx.arc(x + 6 + b, y + 7, 1.6, 0, 7); ctx.fill();
+        ctx.fillStyle = C.naranja; ctx.beginPath(); ctx.moveTo(x + 3 + b, y + 8); ctx.lineTo(x - 2 + b, y + 10); ctx.lineTo(x + 3 + b, y + 11); ctx.fill();
+        ctx.fillRect(x + 4 + b, y + 24, 5, 2); ctx.fillRect(x + 11 + b, y + 24, 5, 2);
+        return true;
+      }
+      case 'paraguas': { // muñeco de nieve que se desliza
+        var w = Math.sin(f / 2) * 1.5;
+        ctx.strokeStyle = C.gris; ctx.lineWidth = 1.5; ctx.fillStyle = BLANCO;
+        [[15, 38, 12], [15, 21, 9], [15, 8, 7]].forEach(function (k) { ctx.beginPath(); ctx.arc(x + k[0] + w * (k[1] < 30 ? 1 : 0), y + k[1], k[2], 0, 7); ctx.fill(); ctx.stroke(); });
+        ctx.fillStyle = C.tinta; ctx.fillRect(x + 9 + w, y - 1, 12, 3); ctx.fillRect(x + 11 + w, y - 9, 8, 8);
+        ctx.fillStyle = C.naranja; ctx.beginPath(); ctx.moveTo(x + 9 + w, y + 8); ctx.lineTo(x + 2 + w, y + 9); ctx.lineTo(x + 9 + w, y + 10); ctx.fill();
+        ctx.fillStyle = ROJO; ctx.fillRect(x + 8 + w, y + 13, 14, 3);
+        return true;
+      }
+      case 'bici': // elfo en bici: la bici normal y el ciclista de verde con gorro de punta
+        ctx.strokeStyle = C.tinta; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(x + 8, y + 32, 8, 0, 7); ctx.arc(x + 38, y + 32, 8, 0, 7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + 8, y + 32); ctx.lineTo(x + 20, y + 20); ctx.lineTo(x + 34, y + 20); ctx.lineTo(x + 38, y + 32);
+        ctx.moveTo(x + 20, y + 20); ctx.lineTo(x + 24, y + 32); ctx.stroke();
+        ctx.strokeStyle = VERDE; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(x + 24, y + 18); ctx.lineTo(x + 20, y + 4); ctx.lineTo(x + 12, y + 14); ctx.stroke();
+        ctx.fillStyle = '#e9c9a8'; ctx.beginPath(); ctx.arc(x + 20, y, 5, 0, 7); ctx.fill();
+        ctx.fillStyle = VERDE; ctx.beginPath(); ctx.moveTo(x + 14, y - 3); ctx.lineTo(x + 26, y - 3); ctx.lineTo(x + 30, y - 14 + Math.sin(f) * 1.5); ctx.fill();
+        ctx.fillStyle = ROJO; ctx.beginPath(); ctx.arc(x + 30, y - 14 + Math.sin(f) * 1.5, 2.2, 0, 7); ctx.fill();
+        return true;
+      case 'globo': { // bola de Navidad colgando de su cinta
+        var bb = 2 * Math.sin(f / 3);
+        ctx.strokeStyle = ROJO; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 11, y); ctx.lineTo(x + 11, y + 13 + bb); ctx.stroke();
+        ctx.fillStyle = '#c9a46a'; ctx.fillRect(x + 8, y + 11 + bb, 6, 4);
+        ctx.fillStyle = C.rosa; ctx.beginPath(); ctx.arc(x + 11, y + 26 + bb, 11, 0, 7); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.arc(x + 7, y + 22 + bb, 3, 0, 7); ctx.fill();
+        ctx.strokeStyle = '#c9a46a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x + 1, y + 27 + bb); ctx.quadraticCurveTo(x + 11, y + 32 + bb, x + 21, y + 27 + bb); ctx.stroke();
+        return true;
+      }
+    }
+    return false;
+  }
+
   function dibujarCosa(c) {
     var x = c.x, y = c.y, f = c.fase;
     ctx.lineCap = 'round';
+    if (NAVIDAD && dibujarNavidad(c)) return;
     switch (c.tipo) {
       case 'paloma':
         ctx.fillStyle = C.gris; ctx.beginPath(); ctx.ellipse(x + 13, y + 11, 11, 7, 0, 0, 7); ctx.fill();
