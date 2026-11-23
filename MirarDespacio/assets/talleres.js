@@ -51,6 +51,16 @@
     return (d.ediciones || []).filter(function (e) { return e.taller === tallerId && e.activa && !pasada(e); });
   }
 
+  // Plazas: quién se ha apuntado ya (anima a decidirse) y aviso destacado cuando quedan pocas
+  function textoPlazas(info) {
+    var libres = info.libres, ocup = info.ocupadas || 0;
+    if (libres === 0) return '<span class="aviso">Completo</span>';
+    var quedan = 'quedan ' + libres + (libres === 1 ? ' plaza' : ' plazas');
+    if (libres <= 3) return '<span class="oferta" style="margin:0;font-weight:600;">' + (libres === 1 ? '¡Última plaza!' : '¡Últimas ' + libres + ' plazas!') + '</span>';
+    if (ocup > 0) return '<span class="aviso">' + ocup + (ocup === 1 ? ' persona apuntada' : ' personas apuntadas') + ' · ' + quedan + '</span>';
+    return '<span class="aviso">' + quedan.charAt(0).toUpperCase() + quedan.slice(1) + '</span>';
+  }
+
   function pintarEdiciones(caja, d, pl) {
     var t = buscar(d.talleres, caja.dataset.ediciones);
     var eds = edicionesDe(d, caja.dataset.ediciones);
@@ -66,7 +76,7 @@
       var fila = document.createElement('div');
       fila.className = 'edicion';
       var txt = '<span><strong>' + esc(e.fecha) + '</strong> · ' + esc(e.hora || (t && t.hora) || '') + ' h' + (e.zona ? ' · ' + esc(e.zona) : '') +
-        (libres === null ? '' : '<br><span class="aviso">' + (libres === 0 ? 'Completo' : 'Quedan ' + libres + (libres === 1 ? ' plaza' : ' plazas')) + '</span>') + '</span>';
+        (libres === null ? '' : '<br>' + textoPlazas(info)) + '</span>';
       var boton = libres === 0
         ? '<a class="boton claro" href="mailto:' + EMAIL + '?subject=' + encodeURIComponent('Lista de espera · ' + (t ? t.titulo : '') + ' ' + e.fecha) + '">Lista de espera</a>'
         : '<a class="boton" data-reservar>Reservar</a>';

@@ -523,6 +523,7 @@ def construir(g):
         <p class="antetitulo">Preguntas</p>
         <h2>Antes de <em>reservar.</em></h2>
         <details class="faq"><summary>¿Qué se aprende en un taller de fotografía callejera?</summary><p>A moverte por la calle con la cámara lista: leer la luz, anticipar lo que va a pasar, componer rápido y acercarte a la gente con respeto. Es la fotografía de calle (o <i>street photography</i>) de toda la vida, pero con alguien al lado que te corrige en el momento. Cada taller se centra en una cosa: la noche, la hora dorada, la composición o los primeros pasos con tu cámara.</p></details>
+        <details class="faq"><summary>¿Es un curso de fotografía?</summary><p>Es un curso corto: una mañana o una tarde, de 3 a 4 horas, centrado en un solo tema y casi todo en la calle. Si buscas un curso de fotografía para principiantes en Madrid, empieza por <a href="/talleres/iniciacion/">Primeros pasos</a>; si ya disparas, elige el de <a href="/talleres/nocturna/">noche</a>, el de <a href="/talleres/atardecer/">atardecer</a> o el de <a href="/talleres/composicion/">composición</a>. Y si prefieres algo a tu medida, están las <a href="/tutorias/">tutorías</a>.</p></details>
         <details class="faq"><summary>¿Necesito una cámara buena?</summary><p>No. Vale cualquier cámara que te deje cambiar ajustes, y en los talleres nocturno y de atardecer también el móvil si lo usas en modo manual. Para el de primeros pasos, trae la cámara que quieras aprender a usar: réflex, mirrorless o compacta. Y para el de composición vale cualquier cosa, también el móvil.</p></details>
         <details class="faq"><summary>¿Cómo se paga?</summary><p>Al reservar, con tarjeta, en la página de pago segura de Stripe. Los precios llevan el IVA incluido. Te llega al momento un email con la confirmación y, unos días antes, otro con el punto de encuentro.</p></details>
         <details class="faq"><summary>¿Y si al final no puedo ir?</summary><p>Escríbeme cuanto antes a <a href="mailto:{EMAIL}">{EMAIL}</a>. Si avisas con al menos 7 días de antelación, te devuelvo el importe entero o te paso la plaza a otra fecha, lo que prefieras. Con menos de 7 días ya tengo el material y el sitio preparados para ti, así que no hay devolución, pero puedes pasar la plaza a otra fecha o regalársela a otra persona. Todo el detalle está en las <a href="/condiciones/">condiciones de venta</a>.</p></details>
@@ -563,28 +564,28 @@ def construir(g):
             'promesa': 'Vuelve a casa con fotos nocturnas que te gusten, y sabiendo cómo las hiciste.',
             'para': ['Ya haces fotos, pero de noche te salen movidas, oscuras o con ruido.', 'Te gustan los escaparates, los neones y las siluetas, y no sabes cómo sacarles partido.', 'Quieres practicar con alguien al lado que te resuelva las dudas en el momento.'],
             'foto_alt': 'Una farmacia de guardia y una pareja paseando de noche por el centro de Madrid',
-            'title': 'Taller de fotografía nocturna en Madrid · Mirar Despacio',
+            'title': 'Taller de fotografía nocturna en Madrid · Curso corto · Mirar Despacio',
             'desc': 'Taller de fotografía callejera nocturna en Madrid, {precio} €: luz artificial, ISO y velocidad sin miedo, siluetas y reflejos. Grupos de {plazas} y algo para tomar al final.',
         },
         'atardecer': {
             'h1': 'La calle <em>a la hora dorada.</em>',
             'promesa': 'Aprovecha la mejor luz del día sin que se te escape: del sol rasante a la hora azul.',
             'para': ['Ya disparas y quieres sacar partido a la luz de la tarde.', 'Te gustan las sombras largas, los contraluces y las siluetas.', 'Quieres entender por qué unas fotos de atardecer funcionan y otras no.'],
-            'title': 'Taller de fotografía al atardecer en Madrid · Mirar Despacio',
+            'title': 'Taller de fotografía al atardecer en Madrid · Curso corto · Mirar Despacio',
             'desc': 'Taller de fotografía callejera al atardecer en Madrid, {precio} €: luz rasante, contraluces, sombras largas y hora azul. Grupos de {plazas} y algo para tomar al final.',
         },
         'iniciacion': {
             'h1': 'Sal del <em>modo automático.</em>',
             'promesa': 'En una mañana entiendes tu cámara y empiezas a decidir tú, no ella.',
             'para': ['Tienes una cámara y casi siempre disparas en automático.', 'ISO, diafragma y velocidad te suenan, pero no sabes cuándo tocar cada uno.', 'Prefieres aprender en la calle, disparando, y no con diapositivas.'],
-            'title': 'Taller de iniciación a la fotografía en Madrid · Mirar Despacio',
-            'desc': 'Taller de iniciación a la fotografía en Madrid, {precio} €: sal del modo automático y entiende ISO, diafragma y velocidad disparando por la calle. Grupos de {plazas}.',
+            'title': 'Curso de iniciación a la fotografía en Madrid · Taller de una mañana',
+            'desc': 'Curso de fotografía para principiantes en Madrid, {precio} €: sal del modo automático y entiende ISO, diafragma y velocidad disparando por la calle. Grupos de {plazas}.',
         },
         'composicion': {
             'h1': 'Deja de hacer fotos <em>por inercia.</em>',
             'promesa': 'Aprende a decidir el encuadre antes de disparar. Con la cámara que tengas, también con el móvil.',
             'para': ['Haces muchas fotos y casi todas se parecen.', 'Sientes que el problema no es tu cámara, sino dónde pones el marco.', 'Quieres ejercicios concretos para mirar de otra manera.'],
-            'title': 'Taller de composición fotográfica en Madrid · Mirar Despacio',
+            'title': 'Taller de composición fotográfica en Madrid · Curso corto · Mirar Despacio',
             'desc': 'Taller de composición fotográfica en Madrid, {precio} €: encuadre, líneas, capas y espacio negativo con ejercicios en la calle. Vale el móvil. Grupos de {plazas}.',
         },
     }
@@ -672,22 +673,34 @@ def construir(g):
             schema=[{"@type": "Course", "name": f"Taller {t['titulo']}", "description": t['descripcion'], "provider": {"@id": DOM + "/#org"}, "url": DOM + ruta}] + evs,
             extra_pie=TALLERES_JS + RESENAS_JS))
 
-    escribir('/talleres/', pagina('/talleres/', 'Taller de fotografía callejera en Madrid · Mirar Despacio',
+    escribir('/talleres/', pagina('/talleres/', 'Taller y curso de fotografía callejera en Madrid · Mirar Despacio',
         f"Taller de fotografía callejera en Madrid desde {min(t['precio'] for t in td['talleres'])} €: nocturna, atardecer, composición e iniciación. Grupos de {max(t['plazas'] for t in td['talleres'])} y mucha calle. También para regalar.",
         cuerpo, schema=[taller_schema], extra_pie=TALLERES_JS + RESENAS_JS))
 
     # ------------------------------------------------------------ REGALO
     regalos_t = ''.join(f"""<li><span>Taller {html.escape(t['titulo'])}</span><span><span data-taller-precio="{t['id']}">{precio_html(t)}</span> · <a data-bono="{t['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20el%20taller%20{html.escape(t['titulo'])}">Regalar</a></span></li>""" for t in td['talleres'])
     regalos_p = ''.join(f"""<li><span>Mirar Despacio+ · {r['meses']} {'mes' if r['meses'] == 1 else 'meses'}{' con salidas' if r['nivel'] == 'con-salidas' else ' online (sin salidas)'}</span><span><span data-regalo-plus-precio="{r['id']}">{precio_html(r)}</span> · <a data-regalo-plus="{r['id']}" href="mailto:{EMAIL}?subject=Quiero%20regalar%20Mirar%20Despacio%2B">Regalar</a></span></li>""" for r in td['regalosPlus'])
-    cuerpo = f"""
+    cuerpo_regalo = f"""
     <section class="portada" id="regalo">
       <div class="envoltura estrecho">
-        <div id="sinCodigo" hidden>
-          <p class="antetitulo">Regalos</p>
+        <div id="sinCodigo">
+          <p class="antetitulo">Tarjeta regalo · Madrid</p>
           <h1>Regala <em>mirar despacio.</em></h1>
-          <p class="entradilla">Un taller o unos meses de Mirar Despacio+. Al pagar te llega al momento una tarjeta regalo con un código, para imprimir o reenviar. Quien la recibe la canjea aquí y elige fecha. Vale un año.</p>
+          <p class="entradilla">Un regalo original para quien hace fotos: un taller de fotografía callejera por Madrid o unos meses de Mirar Despacio+. Al pagar te llega al momento una tarjeta regalo con un código, para imprimir o reenviar. Quien la recibe la canjea aquí y elige fecha. Vale un año.</p>
           <ul class="datos" style="margin-top:28px;">{regalos_t}{regalos_p}</ul>
           <p class="acepta-condiciones">Al comprar aceptas las <a href="/condiciones/">condiciones de venta</a>.</p>
+          <div style="margin-top:48px;">
+            <p class="antetitulo">¿Cuál regalo?</p>
+            <h2>Un regalo para <em>quien hace fotos.</em></h2>
+            <ul class="lista">
+              <li><strong>Si acaba de estrenar cámara</strong> o siempre dispara en automático: <a href="/talleres/iniciacion/">Primeros pasos</a>, un curso de fotografía de una mañana para principiantes.</li>
+              <li><strong>Si ya hace fotos y le gusta salir de noche:</strong> el <a href="/talleres/nocturna/">taller de fotografía nocturna</a> por el centro de Madrid.</li>
+              <li><strong>Si le gusta la luz de la tarde:</strong> el <a href="/talleres/atardecer/">taller de fotografía al atardecer</a>.</li>
+              <li><strong>Si hace fotos con el móvil:</strong> el de <a href="/talleres/composicion/">composición en la calle</a>, donde vale cualquier cámara.</li>
+              <li><strong>Si prefieres algo que dure:</strong> unos meses de <a href="/mirar-despacio-plus/">Mirar Despacio+</a>, con retos, manuales y las <a href="/salidas/">salidas fotográficas</a>.</li>
+            </ul>
+            <p>Una experiencia en Madrid para regalar en Navidad, en Reyes o por un cumpleaños, sin tener que acertar con la fecha: la elige quien lo recibe.</p>
+          </div>
           <div style="margin-top:56px;">
             <p class="antetitulo">¿Te han regalado algo?</p>
             <h2>Canjea tu <em>código.</em></h2>
@@ -698,6 +711,7 @@ def construir(g):
             </form>
           </div>
         </div>
+        <script>if (new URLSearchParams(location.search).get('c')) document.getElementById('sinCodigo').hidden = true;</script>
 
         <div id="conCodigo" hidden>
           <div class="tarjeta-regalo">
@@ -827,9 +841,9 @@ def construir(g):
         'Cuéntame qué cámara llevas, tu nivel y qué esperas del taller.',
         cuerpo, extra_head='<meta name="robots" content="noindex">', extra_pie=FICHA_JS))
 
-    escribir('/regalo/', pagina('/regalo/', 'Regalos · Mirar Despacio',
-        'Regala un taller de fotografía callejera o unos meses de Mirar Despacio+, o canjea el código de tu regalo.',
-        cuerpo, extra_pie=TALLERES_JS))
+    escribir('/regalo/', pagina('/regalo/', 'Regalo para fotógrafos en Madrid: taller de fotografía · Mirar Despacio',
+        f"Regalo original para quien hace fotos: taller de fotografía callejera en Madrid desde {min(t['precio'] for t in td['talleres'])} € o meses de Mirar Despacio+. Tarjeta regalo al momento.",
+        cuerpo_regalo, extra_pie=TALLERES_JS))
 
     # ------------------------------------------------------------ TIENDA
     # Los productos salen del CRM (sección Tienda) a través de /api/tienda: cada producto nuevo
