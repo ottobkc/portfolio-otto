@@ -32,6 +32,10 @@
 [functions."indexnow"]
   schedule = "40 8 * * *"
 
+# Amigo invisible de Navidad: sorteo, recordatorio y entrega a distancia (lib/amigo.js)
+[functions."amigo-invisible-tareas"]
+  schedule = "5 9 * * *"
+
 # -----------------------------------------------
 # SEGURIDAD — en todas las páginas
 # Que ninguna otra web pueda meter estas páginas en un marco, HTTPS siempre, etc.
