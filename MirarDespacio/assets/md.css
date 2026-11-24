@@ -465,7 +465,10 @@ html.visor-abierto { overflow: hidden; }
 h2 em { background: none; -webkit-text-fill-color: currentColor; color: inherit; }
 
 /* Portada: la foto manda y se sale por la derecha */
-.portada .rejilla { grid-template-columns: .95fr 1.05fr; }
-.portada figure img { aspect-ratio: 5/4; max-height: 74vh; }
 .portada { padding-top: clamp(32px, 5vw, 64px); }
 @media (max-width: 820px) { .portada figure { margin-right: 0; } }
+
+/* Portada con el logotipo (nov. 2026) */
+.portada .md-logo-portada{display:flex;align-items:center;justify-content:center;margin:0}
+.portada .md-logo-portada img{aspect-ratio:auto;max-height:none;width:100%;max-width:560px;height:auto;object-fit:contain;filter:none;box-shadow:none;border-radius:0}
+@media (max-width:820px){.portada .md-logo-portada img{max-width:300px}}
