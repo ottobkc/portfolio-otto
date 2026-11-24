@@ -244,3 +244,25 @@ p { margin: 0 0 1em; }
 .aviso-navidad b { font-weight: 500; color: #f3c6a0; }
 .aviso-navidad u { text-decoration: none; margin-left: 8px; border-bottom: 1px solid currentColor; white-space: nowrap; }
 .aviso-navidad:hover u { color: #f3c6a0; }
+
+/* ===================== Sello propio (propuesta nov. 2026) =====================
+   Botones de «visor»: texto mono en mayúsculas con flecha y una línea que crece. */
+.btn {
+  border: 0; border-bottom: 1px solid currentColor; padding: 10px 2px 8px; background: none;
+  text-transform: uppercase; letter-spacing: .08em; font-size: 13px; position: relative;
+}
+.btn::after { content: '→'; display: inline-block; margin-left: 10px; transition: transform .2s; }
+.btn:hover { transform: none; }
+.btn:hover::after { transform: translateX(4px); }
+.btn.lleno { background: none; color: var(--tinta); border-bottom-width: 2px; }
+.btn.lleno::before { /* esquinas de visor */
+  content: ''; position: absolute; inset: -6px -10px -4px; pointer-events: none;
+  background:
+    linear-gradient(var(--lapiz), var(--lapiz)) left top / 8px 1.5px no-repeat,
+    linear-gradient(var(--lapiz), var(--lapiz)) left top / 1.5px 8px no-repeat,
+    linear-gradient(var(--lapiz), var(--lapiz)) right bottom / 8px 1.5px no-repeat,
+    linear-gradient(var(--lapiz), var(--lapiz)) right bottom / 1.5px 8px no-repeat;
+}
+.escena .btn { background: none; color: var(--tungsteno); border-color: var(--tungsteno); }
+.botones { gap: 30px; }
+h2 em { font-style: normal; }
