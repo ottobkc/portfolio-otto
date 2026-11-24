@@ -465,9 +465,7 @@ html.visor-abierto { overflow: hidden; }
 h2 em { background: none; -webkit-text-fill-color: currentColor; color: inherit; }
 
 /* Portada: la foto manda y se sale por la derecha */
-.portada .rejilla { grid-template-columns: .85fr 1.15fr; }
-.portada figure { margin-right: calc((100vw - 100%) / -2); }
+.portada .rejilla { grid-template-columns: .95fr 1.05fr; }
 .portada figure img { aspect-ratio: 5/4; max-height: 74vh; }
 .portada { padding-top: clamp(32px, 5vw, 64px); }
-.portada figure::after { content: 'Parque del Retiro · 35 mm · f/8'; display: block; font: 12px ui-monospace, Menlo, monospace; color: var(--gris); margin-top: 8px; }
 @media (max-width: 820px) { .portada figure { margin-right: 0; } }
