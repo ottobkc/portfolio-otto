@@ -82,8 +82,8 @@ def construir(g):
             <a class="boton claro" href="/podcast/">Escuchar el podcast</a>
           </div>
         </div>
-        <figure class="revelar md-logo-portada">
-          <img src="/assets/logo-md-ig.png" alt="Logotipo de Mirar Despacio" width="900" height="300" fetchpriority="high">
+        <figure class="revelar">
+          <img src="{PORTADA}" alt="Fotografía de calle en Madrid" width="880" height="1100" fetchpriority="high">
         </figure>
       </div>
     </section>
