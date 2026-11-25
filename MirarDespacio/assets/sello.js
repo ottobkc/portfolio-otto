@@ -101,4 +101,39 @@
     var nota = document.createElement('span'); nota.className = 'md-nota'; nota.setAttribute('aria-hidden', 'true'); nota.textContent = 'esta ✓';
     marco.appendChild(nota);
   }
+
+  // ---------- Puntero de cámara y flash al hacer clic (o al tocar en el móvil) ----------
+  var calma = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var raton = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  function camara(c) {
+    return "url(\"data:image/svg+xml," + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
+      '<path d="M5 10h5l2-3h8l2 3h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V12a2 2 0 0 1 2-2z" fill="#fff" stroke="#17191c" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<circle cx="16" cy="18" r="5" fill="' + c + '" stroke="#17191c" stroke-width="1.6"/>' +
+      '<circle cx="25" cy="13.5" r="1.2" fill="#e8347a"/></svg>') + "\") 16 18";
+  }
+  if (raton) {
+    var cur = document.createElement('style');
+    cur.textContent = 'html,body{cursor:' + camara('#fff') + ',auto}' +
+      'a,button,[role=button],label,summary,select{cursor:' + camara('#e8821a') + ',pointer}' +
+      'input,textarea,[contenteditable]{cursor:text}';
+    document.head.appendChild(cur);
+  }
+  if (!calma) {
+    var fl = document.createElement('style');
+    fl.textContent = '.md-flash{position:fixed;width:180px;height:180px;margin:-90px 0 0 -90px;border-radius:50%;pointer-events:none;z-index:2147483646;' +
+      'background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(255,250,235,.55) 28%,rgba(255,250,235,0) 70%);animation:mdFlash .32s ease-out forwards}' +
+      '@keyframes mdFlash{0%{opacity:0;transform:scale(.3)}18%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}';
+    document.head.appendChild(fl);
+    var ultimo = 0;
+    addEventListener('pointerdown', function (e) {
+      if (e.button > 0) return;
+      // en el móvil, solo al tocar algo que se pueda pulsar
+      if (e.pointerType !== 'mouse' && !e.target.closest('a,button,[role=button],label,summary')) return;
+      var t = Date.now(); if (t - ultimo < 350) return; ultimo = t;   // nunca más de ~3 flashes por segundo
+      var f = document.createElement('div'); f.className = 'md-flash';
+      f.style.left = e.clientX + 'px'; f.style.top = e.clientY + 'px';
+      document.body.appendChild(f); setTimeout(function () { f.remove(); }, 400);
+    }, { passive: true });
+  }
 })();
