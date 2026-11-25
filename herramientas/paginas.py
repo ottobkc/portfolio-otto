@@ -70,6 +70,22 @@ def construir(g):
     salida_fotos = datos.get('ultimaSalida', {}).get('fotos', [])
 
     # ------------------------------------------------------------ PORTADA
+    con_fotos = [x for x in datos.get('salidas', []) if x.get('fotos')]
+    fotos_salidas_portada = ''
+    if con_fotos:
+        ult = con_fotos[0]
+        fotos_salidas_portada = f'''
+    <section class="seccion">
+      <div class="envoltura">
+        <p class="antetitulo">Desde las salidas</p>
+        <h2 class="revelar">Así es una <em>mañana.</em></h2>
+        <div class="galeria revelar" data-visor style="margin-top:28px;">
+          {''.join(f'<button data-foto="{cld(u, "f_auto,q_auto,w_1600")}"><img src="{cld(u, "f_auto,q_auto,w_600")}" alt="Foto de la salida de Mirar Despacio por {ult['titulo']}" loading="lazy" width="600" height="800"></button>' for u in ult['fotos'][:4])}
+        </div>
+        <p class="revelar" style="margin-top:18px;">{ult['titulo']}, {ult['fecha'].lower()}. <a href="/salidas/">Todas las salidas →</a></p>
+      </div>
+    </section>
+'''
     cuerpo = f'''
     <section class="portada">
       <div class="envoltura rejilla">
@@ -98,16 +114,8 @@ def construir(g):
       </div>
     </section>
 
-    <section class="seccion" id="agenda-portada">
-      <div class="envoltura">
-        <p class="antetitulo">Próximas fechas</p>
-        <h2 class="revelar">Salidas y <em>talleres.</em></h2>
-        <div id="agenda" style="margin-top:24px;"></div>
-        <div class="botones"><a class="boton claro" href="/agenda/">Ver el calendario completo</a></div>
-      </div>
-    </section>
 {resenas_seccion(clase='seccion papel')}
-
+{fotos_salidas_portada}
     <section class="seccion">
       <div class="envoltura">
         <p class="antetitulo">Qué es</p>
@@ -119,26 +127,20 @@ def construir(g):
           <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres de fotografía callejera y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
-        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y para practicar en casa: <a href="/juegos/">los juegos</a> (el del fotógrafo y el del triángulo de exposición). Lo que vamos mirando entre todos está en <a href="/muro/">el muro</a>. Y si quieres salir por tu cuenta, empieza por la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a>.</p>
+        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y además: <a href="/juegos/">los juegos</a>, <a href="/muro/">el muro</a> con las fotos de todos, la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a> y el <a href="/pegatinas/">mapa de pegatinas</a>.</p>
       </div>
-    </section>
+    </section>'''
+    escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid',
+        'Fotografía callejera en Madrid: salidas en grupo, talleres, tutorías, podcast y una comunidad para aprender a mirar antes de disparar.',
+        cuerpo, schema=[{"@type": "WebSite", "@id": DOM + "/#web", "url": DOM + "/", "name": "Mirar Despacio", "inLanguage": "es-ES", "publisher": {"@id": DOM + "/#org"}}],
+        extra_pie=PROXIMA_JS + RESENAS_JS))
 
-    <section class="seccion oscura">
-      <div class="envoltura rejilla-2" style="align-items:center;gap:48px;">
-        <div class="revelar">
-          <p class="antetitulo">El podcast</p>
-          <h2>Episodios para escuchar <em>caminando.</em></h2>
-          <p class="entradilla">Sobre la vergüenza de fotografiar a desconocidos, qué hacer si te piden borrar una foto, publicar en el vacío del algoritmo o encontrar tu estilo sin buscarlo.</p>
-          <div class="botones"><a class="boton claro" href="/podcast/">Todos los episodios</a></div>
-        </div>
-        {reproductor('1uNhbeNInYusHKHv8UpA0m', 1, clase='revelar')}
-      </div>
-    </section>
-
-    <section class="seccion papel" id="mapa-pegatinas">
+    # ------------------------------------------------------------ MAPA DE PEGATINAS (antes en la portada)
+    cuerpo = '''
+    <section class="seccion" id="mapa-pegatinas" style="padding-top:clamp(32px,5vw,64px);">
       <div class="envoltura">
         <p class="antetitulo">Mapa de pegatinas</p>
-        <h2>¿Has visto una <em>pegatina?</em></h2>
+        <h1>¿Has visto una <em>pegatina?</em></h1>
         <p>Si te has cruzado con una pegatina de Mirar Despacio, hazle una foto y márcala en el mapa.</p>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
         <div id="stickerMap" style="height:420px;border-radius:6px;overflow:hidden;margin:20px 0;"></div>
@@ -156,20 +158,10 @@ def construir(g):
         </form>
       </div>
     </section>
-
-    <section class="seccion">
-      <div class="envoltura">
-        <p class="antetitulo">Desde la calle</p>
-        <h2 class="revelar">El tipo de <em>imágenes.</em></h2>
-        <div class="galeria revelar" data-visor style="margin-top:28px;">
-          {''.join(f'<button data-foto="{cld(f["src"], "f_auto,q_auto,w_1600")}"><img src="{cld(f["src"], "f_auto,q_auto,w_600")}" alt="{f.get("alt","Fotografía de calle en Madrid")}" loading="lazy" width="600" height="800"></button>' for f in datos['galeria'])}
-        </div>
-      </div>
-    </section>'''
-    escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid',
-        'Fotografía callejera en Madrid: salidas en grupo, talleres, tutorías, podcast y una comunidad para aprender a mirar antes de disparar.',
-        cuerpo, schema=[{"@type": "WebSite", "@id": DOM + "/#web", "url": DOM + "/", "name": "Mirar Despacio", "inLanguage": "es-ES", "publisher": {"@id": DOM + "/#org"}}],
-        extra_pie=PROXIMA_JS + MAPA_JS + AGENDA_PORTADA_JS + RESENAS_JS))
+'''
+    escribir('/pegatinas/', pagina('/pegatinas/', 'Mapa de pegatinas · Mirar Despacio',
+        'Si te has cruzado con una pegatina de Mirar Despacio, hazle una foto y márcala en el mapa.',
+        cuerpo, extra_pie=MAPA_JS))
 
     # ------------------------------------------------------------ PODCAST
     lista = '\n'.join(
@@ -324,7 +316,7 @@ def construir(g):
     <section class="seccion papel">
       <div class="envoltura estrecho" style="text-align:center;">
         <span class="nota">¿has visto una pegatina?</span>
-        <p style="margin-top:10px;">Márcala en el <a href="/#mapa-pegatinas">mapa de pegatinas</a> de la portada.</p>
+        <p style="margin-top:10px;">Márcala en el <a href="/pegatinas/">mapa de pegatinas</a>.</p>
       </div>
     </section>
 
