@@ -65,11 +65,14 @@ async function productos() {
 
 exports.handler = async (event) => {
   const o = event.headers.origin || '';
-  const cab = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60', 'Access-Control-Allow-Origin': ORIGENES.test(o) ? o : 'https://mirardespacio.es', Vary: 'Origin' };
+  // La tienda se pinta en el servidor de mirardespacio.es pidiendo esto en cada visita: si cada vez se
+  // leía Firestore (y la función estaba «fría»), la página tardaba 1-3 s más que las demás. Ahora la
+  // CDN de Netlify guarda la respuesta y la renueva por detrás: un cambio del CRM tarda como mucho ~2 min.
+  const cab = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60', 'Netlify-CDN-Cache-Control': 'public, durable, s-maxage=120, stale-while-revalidate=86400', 'Access-Control-Allow-Origin': ORIGENES.test(o) ? o : 'https://mirardespacio.es', Vary: 'Origin' };
   try {
     return { statusCode: 200, headers: cab, body: JSON.stringify(await productos()) };
   } catch (e) {
     console.error('tienda', e.message);
-    return { statusCode: 500, headers: cab, body: '[]' };
+    return { statusCode: 500, headers: { ...cab, 'Cache-Control': 'no-store', 'Netlify-CDN-Cache-Control': 'no-store' }, body: '[]' };
   }
 };
