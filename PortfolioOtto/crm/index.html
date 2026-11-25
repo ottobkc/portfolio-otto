@@ -727,8 +727,12 @@
   <!-- SUSCRIPTORES (guía gratis) -->
   <div class="view" id="view-suscriptores">
     <div class="card">
+      <select id="suscLista" onchange="cargarSuscriptores()" style="margin-bottom:12px;">
+        <option value="suscriptores">Mirar Despacio · guía de 10 ejercicios</option>
+        <option value="suscriptores_ok">Otto Kols · guía de poses (retratos)</option>
+      </select>
       <div class="card-title" id="suscResumen">Cargando…</div>
-      <div class="person-meta">Solo a quien acepta novedades se le puede escribir para anunciar salidas o talleres. Al resto solo se le mandó la guía.</div>
+      <div class="person-meta">Solo a quien acepta novedades se le puede escribir para anunciar algo (salidas y talleres en Mirar Despacio; sesiones en Otto Kols). Al resto solo se le mandó la guía. Cada lista tiene su propio permiso.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
         <button onclick="copiarSuscriptores()">Copiar emails que aceptan novedades</button>
         <button class="secondary" onclick="csvSuscriptores()">Descargar CSV</button>
@@ -1569,7 +1573,7 @@ const ORIGEN_GUIA = (o) => String(o || '').replace(/^barra /, 'Barra · ').repla
 window.cargarSuscriptores = async function() {
   const el = document.getElementById('suscList');
   try {
-    const snap = await getDocs(collection(db, 'suscriptores'));
+    const snap = await getDocs(collection(db, document.getElementById('suscLista').value));
     suscriptores = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (fechaDe(b.creado || b.guiaEnviadaEn) || 0) - (fechaDe(a.creado || a.guiaEnviadaEn) || 0));
   } catch (e) { el.innerHTML = '<div class="empty">Error: ' + escapeHtml(e.message) + '</div>'; return; }
@@ -1601,7 +1605,7 @@ window.csvSuscriptores = function() {
     return [x.email || x.id, x.nombre || '', f ? f.toISOString() : '', x.origen || '', x.aceptaNovedades ? 'si' : 'no'];
   }));
   const blob = new Blob(['\ufeff' + filas.map(r => r.map(q).join(';')).join('\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'suscriptores-guia.csv'; a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = document.getElementById('suscLista').value === 'suscriptores_ok' ? 'suscriptores-poses-ottokols.csv' : 'suscriptores-guia.csv'; a.click();
 };
 
 // ---------- RESEÑAS (textos pegados a mano) ----------
@@ -2670,7 +2674,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity', 'suscriptores', 'resenas_textos'];
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity', 'suscriptores', 'suscriptores_ok', 'resenas_textos'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);
