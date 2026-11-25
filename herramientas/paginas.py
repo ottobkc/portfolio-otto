@@ -764,7 +764,7 @@ def construir(g):
             <p class="aviso">Te la mando por correo. Tus datos solo los uso para eso y, si lo marcas, para los avisos. <a href="/privacidad/">Privacidad</a>.</p>
           </form>
         </div>
-        <div><img src="/assets/guia-portada.jpg" alt="Portada de la guía: una pareja mayor cruzando una calle de noche, en blanco y negro" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;box-shadow:0 10px 30px rgba(26,24,20,.18);" width="760" height="1077"></div>
+        <div><img src="/assets/guia-portada.jpg" alt="Portada de la guía: una pareja mayor cruzando una calle de noche, en blanco y negro" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;box-shadow:0 10px 30px rgba(23,25,28,.18);" width="760" height="1077"></div>
       </div>
     </section>"""
     escribir('/guia/', pagina('/guia/', '10 ejercicios para volver a disfrutar haciendo fotos · Mirar Despacio',
@@ -1061,6 +1061,28 @@ def construir(g):
     escribir('/juego/', pagina('/juego/', 'El juego del fotógrafo · Mirar Despacio',
         'Un pequeño juego de Mirar Despacio: un fotógrafo camina por la calle y tiene que fotografiar todo lo que pasa antes de que le arrolle.',
         cuerpo, extra_pie=JUEGO_JS))
+
+
+    cuerpo = '''
+    <section class="portada test-portada">
+      <div class="envoltura estrecho">
+        <p class="antetitulo">Un test de 2 minutos</p>
+        <h1>¿Qué fotógrafo de calle <em>eres?</em></h1>
+        <p class="entradilla">Diez preguntas sobre cómo miras la calle. Al final te digo a qué gran fotógrafo se parece tu forma de mirar, entre más de 40 autores, y te dejo un reto para tu próxima salida.</p>
+        <div id="test-fotografo" class="test-caja" aria-live="polite"><noscript>Este test necesita JavaScript.</noscript></div>
+      </div>
+    </section>
+    <section class="seccion papel">
+      <div class="envoltura estrecho">
+        <h2>Cómo <em>funciona.</em></h2>
+        <p>Cada respuesta suma en diez rasgos: blanco y negro o color, distancia, humor, geometría, paciencia, gente, intimidad, crudeza, poesía y mirada social. El resultado es el autor con el perfil más parecido al tuyo. Es un juego para descubrir autores, no un examen: muchos de ellos cambiaron de estilo a lo largo de su vida.</p>
+        <p>No se guarda nada de lo que contestas.</p>
+      </div>
+    </section>'''
+    escribir('/juegos/que-fotografo-eres/', pagina('/juegos/que-fotografo-eres/', '¿Qué fotógrafo de calle eres? · Test de Mirar Despacio',
+        'Test de fotografía callejera: diez preguntas para descubrir a qué gran fotógrafo de calle se parece tu forma de mirar, entre más de 40 autores, con un reto para tu próxima salida.',
+        cuerpo, extra_pie=f'''
+  <script defer src="{g['v']('test-fotografo.js')}"></script>'''))
 
 
     cuerpo = '''

@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <style>
     :root {
-      --papel: #f5f3ef;
-      --papel-2: #ebe6dd;
-      --tinta: #1a1814;
-      --gris: #6b655a;
-      --linea: #d8d1c4;
+      --papel: #fbfbfa;
+      --papel-2: #f1f1ef;
+      --tinta: #17191c;
+      --gris: #62676e;
+      --linea: #dcdcd8;
       --naranja: #e8821a;
       --rosa: #e8347a;
       --azul: #2b4a6f;
@@ -28,7 +28,7 @@
 
     /* Portada: el degradado del cielo de noviembre, de la hora dorada a la hora azul */
     .portada { background: linear-gradient(180deg, #f2c27a 0%, #e8821a 34%, #b9466a 62%, #2b4a6f 100%); color: #fff; padding: 56px 0 44px; position: relative; overflow: hidden; }
-    .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(26,24,20,.0) 0 22px, rgba(26,24,20,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
+    .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(23,25,28,.0) 0 22px, rgba(23,25,28,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
     .marca { font: 600 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; opacity: .9; }
     .portada .envoltura { position: relative; }
     .logo-md { position: absolute; top: -8px; right: 20px; z-index: 1; }
@@ -121,10 +121,11 @@
     @media print { nav.indice { display: none; } .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
   </style>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
 
@@ -472,5 +473,6 @@
   <script src="/js/ejercicios-taller.js" data-taller="atardecer"></script>
   <script src="/js/horas-luz.js"></script>
   <script src="/js/instalar.js" defer></script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

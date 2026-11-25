@@ -9,9 +9,9 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
-      --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
-      --accent: #c8a97a; --accent2: #5a8a5e; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce;
+      --bg: #fbfbfa; --bg2: #f1f1ef; --bg3: #e6e6e3;
+      --ink: #17191c; --ink-faint: #3d4147; --muted: #62676e;
+      --accent: #c8a97a; --accent2: #5a8a5e; --md-orange: #e8821a; --md-pink: #e8347a; --border: #dcdcd8;
       --font-serif: Georgia, 'Times New Roman', serif;
       --font-sans: 'Jost', sans-serif;
       --max: 960px;
@@ -20,7 +20,7 @@
     body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: clamp(14px, 1.5vw, 16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
     a { color: inherit; text-decoration: none; }
 
-    nav { background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    nav { background: rgba(251,251,250,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
     .nav-logo { font-family: var(--font-serif); font-size: 1rem; }
     .nav-back { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
     .nav-back:hover { color: var(--ink); }
@@ -97,8 +97,8 @@
     .settings-label { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
     .settings-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
     .pill {
-      background: rgba(245,243,239,0.1);
-      border: 1px solid rgba(245,243,239,0.15);
+      background: rgba(251,251,250,0.1);
+      border: 1px solid rgba(251,251,250,0.15);
       color: var(--bg);
       font-size: 0.78rem;
       padding: 0.35rem 0.85rem;
@@ -153,10 +153,11 @@
   <!-- Umami Analytics -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
 
@@ -516,5 +517,6 @@
 
   <script src="/js/sesion.js"></script>
   <script src="/js/acceso.js"></script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

@@ -20,7 +20,7 @@
   if (instalada) { try { if (!sessionStorage.getItem('md_app_abierta')) { sessionStorage.setItem('md_app_abierta', '1'); evento('app-abierta'); } } catch (e) { /* nada */ } return; }
   try { var c = Number(localStorage.getItem(CLAVE) || 0); if (c && Date.now() - c < 60 * 864e5) return; } catch (e) { /* nada */ }
 
-  var css = '.md-inst{position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:440px;margin:0 auto;background:#1a1814;color:#f5f3ef;' +
+  var css = '.md-inst{position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;max-width:440px;margin:0 auto;background:#17191c;color:#fbfbfa;' +
     'border-radius:16px;padding:14px 16px 14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);font:15px/1.45 Inter,"Helvetica Neue",Arial,sans-serif;display:flex;gap:12px;align-items:flex-start}' +
     '.md-inst img{width:44px;height:44px;border-radius:10px;flex:0 0 auto}.md-inst b{display:block;font-weight:600;margin-bottom:2px}' +
     '.md-inst p{margin:0;color:#d9d4ca}.md-inst .md-acc{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}' +

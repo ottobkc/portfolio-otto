@@ -9,8 +9,8 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de; --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
-      --accent: #c8a97a; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce; --ok: #5a8a5e;
+      --bg: #fbfbfa; --bg2: #f1f1ef; --bg3: #e6e6e3; --ink: #17191c; --ink-faint: #3d4147; --muted: #62676e;
+      --accent: #c8a97a; --md-orange: #e8821a; --md-pink: #e8347a; --border: #dcdcd8; --ok: #5a8a5e;
       --grad: linear-gradient(90deg, var(--md-orange), var(--md-pink));
       --font-serif: Georgia, 'Times New Roman', serif; --font-sans: 'Jost', sans-serif; --font-mano: 'Caveat', cursive;
       --max: 960px;
@@ -22,7 +22,7 @@
     [hidden] { display: none !important; }
     button, input, select, textarea { font: inherit; color: inherit; }
 
-    nav { background: rgba(245,243,239,.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px;
+    nav { background: rgba(251,251,250,.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px;
       display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
     .nav-logo { font-family: var(--font-serif); }
     .nav-right { display: flex; align-items: center; gap: 1.25rem; }
@@ -134,10 +134,11 @@
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
   <nav>
@@ -364,10 +365,10 @@
         var div = document.createElement('div'); div.className = 'montura' + (si ? '' : ' no');
         var cv = document.createElement('canvas'); cv.width = 260; cv.height = 250;
         var cx = cv.getContext('2d'); cx.scale(1.6, 1.6);   // lienzo lógico de 162×156
-        var dib = M.crear(cx, { tinta: '#1a1814', naranja: '#e8821a', rosa: '#e8347a', crema: '#f5f3ef' });
+        var dib = M.crear(cx, { tinta: '#17191c', naranja: '#e8821a', rosa: '#e8347a', crema: '#fbfbfa' });
         if (si) dib.escena(k, 76, 146, 1.3); else { var r = dib.dibujar(k, 76, 146, 1.3); if (r.cupula) dib.cupula(76, 146, 1.3); }
         if (!si) { cx.globalCompositeOperation = 'source-in'; cx.fillStyle = '#cfc9bf'; cx.fillRect(0, 0, 163, 157); cx.globalCompositeOperation = 'source-over'; }
-        cx.fillStyle = '#1a1814'; cx.fillRect(6, 146, 150, 1.5);
+        cx.fillStyle = '#17191c'; cx.fillRect(6, 146, 150, 1.5);
         div.appendChild(cv);
         div.insertAdjacentHTML('beforeend', '<span>' + (si ? esc(M.MONTURAS[k].nombre) : '???') + '</span>' +
           (si ? '<button class="comp" type="button" data-montura="' + k + '">📲 Compartir</button>' : ''));
@@ -499,5 +500,6 @@
   })();
   </script>
   <script src="/js/instalar.js" defer></script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

@@ -12,26 +12,27 @@
   <link rel="stylesheet" href="/assets/md.css?v=252e2e29">
   <link rel="stylesheet" href="/assets/triangulo.css?v=1f1f5043">
   <style>
-    #app-loading { display:flex; align-items:center; justify-content:center; min-height:100svh; color:#7a756f; font:300 .85rem 'Jost',sans-serif; letter-spacing:.1em; text-transform:uppercase; }
+    #app-loading { display:flex; align-items:center; justify-content:center; min-height:100svh; color:#62676e; font:300 .85rem 'Jost',sans-serif; letter-spacing:.1em; text-transform:uppercase; }
     #app-root { display:none; }
-    .plus-nav { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:14px 0; border-bottom:1px solid rgba(26,24,20,.12); }
-    .plus-nav a, .plus-nav button { display:inline-flex; align-items:center; font:400 .72rem 'Jost',sans-serif; letter-spacing:.1em; text-transform:uppercase; color:#6b655a; text-decoration:none; background:none; border:1px solid rgba(26,24,20,.18); padding:.45rem .9rem; cursor:pointer; min-height:44px; }
-    .plus-nav .marca { border:0; padding:0; color:#1a1814; font-size:.9rem; letter-spacing:.04em; text-transform:none; }
-    .ranking-dia { margin-top:18px; padding:16px 18px; border:1px solid rgba(26,24,20,.14); border-radius:12px; background:#fff; }
+    .plus-nav { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:14px 0; border-bottom:1px solid rgba(23,25,28,.12); }
+    .plus-nav a, .plus-nav button { display:inline-flex; align-items:center; font:400 .72rem 'Jost',sans-serif; letter-spacing:.1em; text-transform:uppercase; color:#62676e; text-decoration:none; background:none; border:1px solid rgba(23,25,28,.18); padding:.45rem .9rem; cursor:pointer; min-height:44px; }
+    .plus-nav .marca { border:0; padding:0; color:#17191c; font-size:.9rem; letter-spacing:.04em; text-transform:none; }
+    .ranking-dia { margin-top:18px; padding:16px 18px; border:1px solid rgba(23,25,28,.14); border-radius:12px; background:#fff; }
     .ranking-dia h3 { margin:0 0 10px; font-size:1rem; }
     .ranking-dia ol { list-style:none; margin:0; padding:0; }
-    .ranking-dia li { display:grid; grid-template-columns:2rem 1fr auto; gap:8px; padding:6px 0; border-bottom:1px solid rgba(26,24,20,.08); }
+    .ranking-dia li { display:grid; grid-template-columns:2rem 1fr auto; gap:8px; padding:6px 0; border-bottom:1px solid rgba(23,25,28,.08); }
     .ranking-dia li.yo { font-weight:500; color:#b3530c; }
     .ranking-dia .pts { font-variant-numeric:tabular-nums; }
     .ranking-dia .mio { margin:10px 0 0; }
-    .ranking-dia .nota { margin:6px 0 0; font-size:.85rem; color:#6b655a; }
+    .ranking-dia .nota { margin:6px 0 0; font-size:.85rem; color:#62676e; }
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
   <div id="app-loading">Verificando acceso…</div>
@@ -164,5 +165,6 @@
   <script src="/assets/triangulo-nucleo.js?v=fe9439c9"></script>
   <script src="/socios/triangulo-plus.js"></script>
   <script src="/assets/triangulo.js?v=f8226d16"></script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

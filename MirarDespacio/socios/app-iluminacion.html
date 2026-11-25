@@ -9,9 +9,9 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f5f3ef; --bg2: #eeecea; --bg3: #e6e3de;
-      --ink: #1a1814; --ink-faint: #4a4742; --muted: #7a756f;
-      --accent: #c8a97a; --accent2: #5a8a5e; --md-orange: #e8821a; --md-pink: #e8347a; --border: #d8d4ce;
+      --bg: #fbfbfa; --bg2: #f1f1ef; --bg3: #e6e6e3;
+      --ink: #17191c; --ink-faint: #3d4147; --muted: #62676e;
+      --accent: #c8a97a; --accent2: #5a8a5e; --md-orange: #e8821a; --md-pink: #e8347a; --border: #dcdcd8;
       --font-serif: Georgia, 'Times New Roman', serif;
       --font-sans: 'Jost', sans-serif;
       --max: 1100px;
@@ -20,7 +20,7 @@
     body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-weight: 300; font-size: clamp(14px,1.5vw,16px); line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100svh; }
     a { color: inherit; text-decoration: none; }
 
-    nav { background: rgba(245,243,239,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(6px); }
+    nav { background: rgba(251,251,250,0.95); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; backdrop-filter: blur(6px); }
     .nav-logo { font-family: var(--font-serif); font-size: 1rem; }
     .nav-back { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
     .nav-back:hover { color: var(--ink); }
@@ -150,10 +150,11 @@
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
 
@@ -163,7 +164,7 @@
 </nav>
 
 <div class="page-header">
-  <p class="page-label">Herramientas · Mirar Despacio + &nbsp;<span style="background:#1a1814;color:#c8a97a;font-size:0.6rem;letter-spacing:0.15em;padding:2px 7px;vertical-align:middle;">BETA</span></p>
+  <p class="page-label">Herramientas · Mirar Despacio + &nbsp;<span style="background:#17191c;color:#c8a97a;font-size:0.6rem;letter-spacing:0.15em;padding:2px 7px;vertical-align:middle;">BETA</span></p>
   <h1>Simulador de <em>iluminación.</em></h1>
   <p>Coloca los elementos en el estudio y construye tu montaje. Usa la guía para saber cómo conseguir un resultado concreto.</p>
   <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--muted);border-left:2px solid var(--border);padding-left:0.75rem;">Versión beta · en pruebas. Puede contener errores o cambiar. Si encuentras algo raro, <a href="mailto:info@mirardespacio.es" style="color:var(--md-orange);text-decoration:underline;">cuéntamelo</a>.</p>
@@ -199,7 +200,7 @@
         <div class="legend-item"><div class="legend-dot" style="background:#e8821a"></div>Flash key</div>
         <div class="legend-item"><div class="legend-dot" style="background:#c8a97a"></div>Flash fill / pelo</div>
         <div class="legend-item"><div class="legend-dot" style="background:#5a8a5e"></div>Reflector</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#1a1814"></div>Sujeto · Cámara</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#17191c"></div>Sujeto · Cámara</div>
       </div>
     </div>
 
@@ -261,9 +262,9 @@ const DEFS = {
   softbox:    { label: 'Softbox',     color: '#e8821a', r: 28, shape: 'softbox',   emitsLight: true,  info: { name: 'Softbox', desc: 'Fuente grande que produce luz suave. Cuanto más grande y más cerca, más suave.', tips: ['Acércalo al sujeto para más suavidad.','Rectangular: catch-light rectangular en los ojos.','Con grid interior: reduce el derrame lateral.'] } },
   paraguas:   { label: 'Paraguas',    color: '#e8821a', r: 26, shape: 'paraguas',  emitsLight: true,  info: { name: 'Paraguas', desc: 'Luz amplia y envolvente. Más económico que el softbox, pero derrama luz por todos lados.', tips: ['Difusor blanco: luz suave hacia adelante.','Reflectante plateado: flash apunta al interior y rebota.','Difícil de controlar en espacios pequeños.'] } },
   reflector:  { label: 'Reflector',   color: '#5a8a5e', r: 24, shape: 'reflector', emitsLight: false, info: { name: 'Reflector', desc: 'Devuelve la luz de la key sin necesitar un segundo flash. Versátil y con resultado natural.', tips: ['Plateado: más contraste y temperatura fría.','Dorado: calidez. Blanco: relleno neutro.','Acércalo para más relleno; aléjalo para menos.'] } },
-  sujeto:     { label: 'Sujeto',      color: '#1a1814', r: 24, shape: 'sujeto',    emitsLight: false, info: { name: 'Sujeto', desc: 'El punto de referencia del montaje. Todo lo demás se coloca en relación a él.', tips: ['El fotómetro siempre se mide en su posición.','Su distancia al fondo afecta al derrame de luz.','La dirección en la que mira define qué lado iluminar.'] } },
+  sujeto:     { label: 'Sujeto',      color: '#17191c', r: 24, shape: 'sujeto',    emitsLight: false, info: { name: 'Sujeto', desc: 'El punto de referencia del montaje. Todo lo demás se coloca en relación a él.', tips: ['El fotómetro siempre se mide en su posición.','Su distancia al fondo afecta al derrame de luz.','La dirección en la que mira define qué lado iluminar.'] } },
   camara:     { label: 'Cámara',      color: '#3a3632', r: 20, shape: 'camara',    emitsLight: false, info: { name: 'Cámara', desc: 'Su posición define el eje de referencia para las luces.', tips: ['Velocidad máxima: velocidad de sync (1/200 o 1/250).','La apertura controla la exposición del flash.','El ISO afecta a la sensibilidad al flash.'] } },
-  fondo:      { label: 'Fondo',       color: '#d8d4ce', r: 50, shape: 'fondo',     emitsLight: false, info: { name: 'Fondo', desc: 'Papel, tela o vinilo. Su distancia al sujeto es clave para controlar la luz de fondo.', tips: ['Mínimo 2 m entre sujeto y fondo para high key.','Fondo negro: absorbe la luz, no necesita iluminación.','Papel blanco requiere luces propias para quemarlo a blanco puro.'] } },
+  fondo:      { label: 'Fondo',       color: '#dcdcd8', r: 50, shape: 'fondo',     emitsLight: false, info: { name: 'Fondo', desc: 'Papel, tela o vinilo. Su distancia al sujeto es clave para controlar la luz de fondo.', tips: ['Mínimo 2 m entre sujeto y fondo para high key.','Fondo negro: absorbe la luz, no necesita iluminación.','Papel blanco requiere luces propias para quemarlo a blanco puro.'] } },
 };
 
 // ── DIBUJO ───────────────────────────────────────
@@ -272,7 +273,7 @@ function draw() {
 
   // Suelo referencia
   ctx.save();
-  ctx.strokeStyle = '#d8d4ce'; ctx.lineWidth = 1; ctx.setLineDash([4,6]);
+  ctx.strokeStyle = '#dcdcd8'; ctx.lineWidth = 1; ctx.setLineDash([4,6]);
   ctx.beginPath(); ctx.moveTo(0, H*0.85); ctx.lineTo(W, H*0.85); ctx.stroke();
   ctx.setLineDash([]); ctx.restore();
 
@@ -370,7 +371,7 @@ function drawEl(el) {
     case 'sujeto':
       ctx.fillStyle='#c8c4be'; ctx.strokeStyle=def.color; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.ellipse(0,s*0.35,s*0.42,s*0.6,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle='#d8d4ce';
+      ctx.fillStyle='#dcdcd8';
       ctx.beginPath(); ctx.arc(0,-s*0.3,s*0.42,0,Math.PI*2); ctx.fill(); ctx.stroke();
       break;
     case 'camara':
@@ -378,18 +379,18 @@ function drawEl(el) {
       ctx.beginPath(); ctx.roundRect(-s*0.6,-s*0.42,s*1.2,s*0.84,4); ctx.fill();
       ctx.fillStyle='#2a2824'; ctx.beginPath(); ctx.arc(0,0,s*0.32,0,Math.PI*2); ctx.fill();
       ctx.strokeStyle='#c8a97a'; ctx.lineWidth=1.5; ctx.stroke();
-      ctx.fillStyle='#1a1814'; ctx.beginPath(); ctx.arc(0,0,s*0.16,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#17191c'; ctx.beginPath(); ctx.arc(0,0,s*0.16,0,Math.PI*2); ctx.fill();
       break;
     case 'fondo':
-      ctx.fillStyle='#e8e5e0'; ctx.strokeStyle='#d8d4ce'; ctx.lineWidth=1.5;
+      ctx.fillStyle='#e8e5e0'; ctx.strokeStyle='#dcdcd8'; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.roundRect(-s,-s*0.35,s*2,s*0.7,4); ctx.fill(); ctx.stroke();
-      ctx.fillStyle='#7a756f'; ctx.font=`${s*0.18}px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle='#62676e'; ctx.font=`${s*0.18}px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('FONDO',0,0);
       break;
   }
 
   // Etiqueta
-  ctx.fillStyle = isSel ? '#e8821a' : '#7a756f';
+  ctx.fillStyle = isSel ? '#e8821a' : '#62676e';
   ctx.font=`10px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='top';
   ctx.fillText(def.label, 0, s*0.75);
 
@@ -510,8 +511,8 @@ const guideSVGs = {
 // Helper: sujeto cenital en cx,cy con frente apuntando a ang (radianes, 0=derecha)
 // Se dibuja inline en cada SVG
 
-'fondo-blanco': `<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
-  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+'fondo-blanco': `<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #dcdcd8;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
 
   <!-- Fondo (pared/papel) arriba -->
   <rect x="30" y="22" width="240" height="10" rx="1" fill="#3a3632"/>
@@ -534,7 +535,7 @@ const guideSVGs = {
   </g>
 
   <!-- Separación ≥ 2m -->
-  <line x1="30" y1="110" x2="270" y2="110" stroke="#d8d4ce" stroke-width="0.8" stroke-dasharray="3,4"/>
+  <line x1="30" y1="110" x2="270" y2="110" stroke="#dcdcd8" stroke-width="0.8" stroke-dasharray="3,4"/>
   <text x="150" y="108" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c0392b">≥ 2 metros</text>
 
   <!-- Key arriba izquierda del sujeto -->
@@ -551,20 +552,20 @@ const guideSVGs = {
   </g>
 
   <!-- Sujeto cenital -->
-  <circle cx="150" cy="168" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <circle cx="150" cy="168" r="18" fill="#dcdcd8" stroke="#17191c" stroke-width="1.5"/>
   <!-- Indicador de frente (mirando hacia la cámara, abajo) -->
-  <line x1="150" y1="168" x2="150" y2="186" stroke="#1a1814" stroke-width="2"/>
-  <text x="150" y="162" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <line x1="150" y1="168" x2="150" y2="186" stroke="#17191c" stroke-width="2"/>
+  <text x="150" y="162" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">S</text>
 
   <!-- Cámara abajo -->
   <g transform="translate(150,218)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">CÁMARA</text>
   </g>
   <!-- Eje óptico cámara-sujeto -->
-  <line x1="150" y1="186" x2="150" y2="207" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <line x1="150" y1="186" x2="150" y2="207" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
 
   <!-- Rayos key y fill al sujeto -->
   <line x1="95" y1="160" x2="135" y2="162" stroke="#e8821a" stroke-width="1.5" stroke-dasharray="4,2" opacity="0.7"/>
@@ -574,11 +575,11 @@ const guideSVGs = {
   <text x="150" y="78" text-anchor="middle" font-family="Jost,sans-serif" font-size="7.5" fill="#c8a97a" font-weight="500">fondo +2 EV sobre sujeto</text>
 </svg>`,
 
-'silueta': `<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
-  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+'silueta': `<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #dcdcd8;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
 
   <!-- Fondo iluminado -->
-  <rect x="30" y="22" width="240" height="10" rx="1" fill="white" stroke="#d8d4ce" stroke-width="1"/>
+  <rect x="30" y="22" width="240" height="10" rx="1" fill="white" stroke="#dcdcd8" stroke-width="1"/>
   <text x="150" y="19" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#3a3632">FONDO ILUMINADO</text>
 
   <!-- Flash detrás del sujeto apuntando al fondo -->
@@ -591,18 +592,18 @@ const guideSVGs = {
   </g>
 
   <!-- Sujeto cenital en silueta -->
-  <circle cx="150" cy="155" r="18" fill="#1a1814" stroke="#3a3632" stroke-width="1.5"/>
-  <text x="150" y="159" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#d8d4ce">S</text>
+  <circle cx="150" cy="155" r="18" fill="#17191c" stroke="#3a3632" stroke-width="1.5"/>
+  <text x="150" y="159" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#dcdcd8">S</text>
 
   <!-- Sin luz frontal — indicador -->
-  <line x1="150" y1="173" x2="150" y2="195" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <line x1="150" y1="173" x2="150" y2="195" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
 
   <!-- Cámara -->
   <g transform="translate(150,218)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">CÁMARA</text>
   </g>
 
   <!-- Cruz "sin luz frontal" -->
@@ -611,15 +612,15 @@ const guideSVGs = {
   <text x="80" y="172" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c0392b">sin luz</text>
   <text x="80" y="180" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c0392b">frontal</text>
 
-  <text x="150" y="234" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Flash detrás · cámara de frente · sujeto sin iluminar</text>
+  <text x="150" y="234" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e">Flash detrás · cámara de frente · sujeto sin iluminar</text>
 </svg>`,
 
-'retrato-suave': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
-  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+'retrato-suave': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #dcdcd8;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
 
   <!-- Fondo -->
   <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
-  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">FONDO</text>
 
   <!-- Softbox centrado arriba (clamshell key) -->
   <g transform="translate(150,65)">
@@ -632,9 +633,9 @@ const guideSVGs = {
   </g>
 
   <!-- Sujeto -->
-  <circle cx="150" cy="158" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
-  <line x1="150" y1="158" x2="150" y2="176" stroke="#1a1814" stroke-width="2"/>
-  <text x="150" y="153" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <circle cx="150" cy="158" r="18" fill="#dcdcd8" stroke="#17191c" stroke-width="1.5"/>
+  <line x1="150" y1="158" x2="150" y2="176" stroke="#17191c" stroke-width="2"/>
+  <text x="150" y="153" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">S</text>
 
   <!-- Reflector debajo del sujeto (entre sujeto y cámara) -->
   <!-- Media luna representada como arco -->
@@ -644,28 +645,28 @@ const guideSVGs = {
 
   <!-- Cámara -->
   <g transform="translate(150,245)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">CÁMARA</text>
   </g>
 
   <!-- Eje vertical -->
   <line x1="150" y1="80" x2="150" y2="140" stroke="#e8821a" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>
-  <line x1="150" y1="176" x2="150" y2="235" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <line x1="150" y1="176" x2="150" y2="235" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
 
   <!-- Ratio -->
   <text x="52" y="125" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#e8821a">key</text>
   <text x="248" y="205" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#5a8a5e">fill</text>
-  <text x="150" y="258" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Clamshell · ratio 2:1 o 3:1</text>
+  <text x="150" y="258" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e">Clamshell · ratio 2:1 o 3:1</text>
 </svg>`,
 
-'retrato-caracter': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
-  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+'retrato-caracter': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #dcdcd8;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
 
   <!-- Fondo -->
   <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
-  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">FONDO</text>
 
   <!-- Key lateral izquierda, a 45° -->
   <g transform="translate(62,118) rotate(-45)">
@@ -678,13 +679,13 @@ const guideSVGs = {
   <text x="78" y="160" font-family="Jost,sans-serif" font-size="7" fill="#e8821a">45°</text>
 
   <!-- Sujeto -->
-  <circle cx="155" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <circle cx="155" cy="148" r="18" fill="#dcdcd8" stroke="#17191c" stroke-width="1.5"/>
   <!-- Frente mirando a la cámara (abajo-derecha) -->
-  <line x1="155" y1="148" x2="166" y2="162" stroke="#1a1814" stroke-width="2"/>
-  <text x="155" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <line x1="155" y1="148" x2="166" y2="162" stroke="#17191c" stroke-width="2"/>
+  <text x="155" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">S</text>
   <!-- Zona iluminada / sombra -->
   <path d="M 137,138 A 18,18 0 0,0 137,160" fill="#e8821a" opacity="0.15"/>
-  <path d="M 155,130 A 18,18 0 0,1 173,148 A 18,18 0 0,1 155,166 L 155,130Z" fill="#1a1814" opacity="0.25"/>
+  <path d="M 155,130 A 18,18 0 0,1 173,148 A 18,18 0 0,1 155,166 L 155,130Z" fill="#17191c" opacity="0.25"/>
 
   <!-- Sin fill — espacio vacío con texto -->
   <text x="228" y="130" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#c0392b">sin fill</text>
@@ -701,23 +702,23 @@ const guideSVGs = {
 
   <!-- Cámara abajo derecha -->
   <g transform="translate(230,218)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">CÁMARA</text>
   </g>
   <!-- Eje cámara-sujeto -->
-  <line x1="166" y1="162" x2="215" y2="207" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <line x1="166" y1="162" x2="215" y2="207" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
 
-  <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Key lateral 45° · sin fill · ratio ≥ 4:1</text>
+  <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e">Key lateral 45° · sin fill · ratio ≥ 4:1</text>
 </svg>`,
 
-'separar-fondo': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
-  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+'separar-fondo': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #dcdcd8;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
 
   <!-- Fondo -->
   <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.5"/>
-  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">FONDO</text>
 
   <!-- Flash de pelo detrás y encima del sujeto (en planta: detrás) -->
   <g transform="translate(150,62)">
@@ -743,34 +744,34 @@ const guideSVGs = {
   </g>
 
   <!-- Sujeto -->
-  <circle cx="150" cy="160" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <circle cx="150" cy="160" r="18" fill="#dcdcd8" stroke="#17191c" stroke-width="1.5"/>
   <!-- Rim light aura -->
   <circle cx="150" cy="160" r="21" fill="none" stroke="#b87a1a" stroke-width="2" stroke-dasharray="3,2" opacity="0.6"/>
-  <line x1="150" y1="160" x2="150" y2="178" stroke="#1a1814" stroke-width="2"/>
-  <text x="150" y="155" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <line x1="150" y1="160" x2="150" y2="178" stroke="#17191c" stroke-width="2"/>
+  <text x="150" y="155" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">S</text>
 
   <!-- Separación al fondo -->
-  <line x1="30" y1="110" x2="270" y2="110" stroke="#d8d4ce" stroke-width="0.8" stroke-dasharray="2,4"/>
-  <text x="270" y="108" text-anchor="end" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">distancia</text>
+  <line x1="30" y1="110" x2="270" y2="110" stroke="#dcdcd8" stroke-width="0.8" stroke-dasharray="2,4"/>
+  <text x="270" y="108" text-anchor="end" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">distancia</text>
 
   <!-- Cámara -->
   <g transform="translate(150,228)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">CÁMARA</text>
   </g>
-  <line x1="150" y1="178" x2="150" y2="217" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <line x1="150" y1="178" x2="150" y2="217" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
 
-  <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Flash pelo detrás · key lateral · fondo alejado</text>
+  <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e">Flash pelo detrás · key lateral · fondo alejado</text>
 </svg>`,
 
-'luz-ventana': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
-  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
+'luz-ventana': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #dcdcd8;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e" letter-spacing="1">VISTA CENITAL · PLANO DESDE ARRIBA</text>
 
   <!-- Fondo -->
   <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
-  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">FONDO</text>
 
   <!-- Softbox vertical (strip) lateral izquierda — en planta es un rectángulo estrecho -->
   <g transform="translate(42,148)">
@@ -783,11 +784,11 @@ const guideSVGs = {
   </g>
 
   <!-- Sujeto -->
-  <circle cx="155" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <circle cx="155" cy="148" r="18" fill="#dcdcd8" stroke="#17191c" stroke-width="1.5"/>
   <!-- Sombra lado contrario suave -->
-  <path d="M 155,130 A 18,18 0 0,1 173,148 A 18,18 0 0,1 155,166 L155,130Z" fill="#1a1814" opacity="0.18"/>
-  <line x1="155" y1="148" x2="155" y2="166" stroke="#1a1814" stroke-width="2"/>
-  <text x="155" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <path d="M 155,130 A 18,18 0 0,1 173,148 A 18,18 0 0,1 155,166 L155,130Z" fill="#17191c" opacity="0.18"/>
+  <line x1="155" y1="148" x2="155" y2="166" stroke="#17191c" stroke-width="2"/>
+  <text x="155" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">S</text>
 
   <!-- Reflector lado derecho, opcional -->
   <path d="M 205,125 A 30,28 0 0,1 205,170" fill="#5a8a5e" opacity="0.18" stroke="#5a8a5e" stroke-width="1.5" stroke-dasharray="3,2"/>
@@ -799,17 +800,17 @@ const guideSVGs = {
 
   <!-- Cámara -->
   <g transform="translate(155,225)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">CÁMARA</text>
   </g>
-  <line x1="155" y1="166" x2="155" y2="214" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <line x1="155" y1="166" x2="155" y2="214" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
 
-  <text x="150" y="252" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f">Softbox lateral 90° · reflector opcional enfrente</text>
+  <text x="150" y="252" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e">Softbox lateral 90° · reflector opcional enfrente</text>
 </svg>`,
 
-'relleno-exterior': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#d8eef8;border:1px solid #d8d4ce;">
+'relleno-exterior': `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#d8eef8;border:1px solid #dcdcd8;">
   <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#5a7a8a" letter-spacing="1">VISTA CENITAL · EXTERIOR</text>
 
   <!-- Sol (fuente ambiente) — arriba lejos, luz vienendo de arriba -->
@@ -821,14 +822,14 @@ const guideSVGs = {
   <line x1="162" y1="57" x2="168" y2="85" stroke="#e8c21a" stroke-width="1" stroke-dasharray="4,3" opacity="0.35"/>
 
   <!-- Sujeto de espaldas al sol (frente a la cámara, abajo) -->
-  <circle cx="150" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
+  <circle cx="150" cy="148" r="18" fill="#dcdcd8" stroke="#17191c" stroke-width="1.5"/>
   <!-- Rim de sol en la parte de arriba del círculo -->
   <path d="M 133,140 A 18,18 0 0,1 167,140" fill="none" stroke="#e8c21a" stroke-width="3" opacity="0.7"/>
   <!-- Frente mirando a la cámara (abajo) -->
-  <line x1="150" y1="148" x2="150" y2="166" stroke="#1a1814" stroke-width="2"/>
-  <text x="150" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <line x1="150" y1="148" x2="150" y2="166" stroke="#17191c" stroke-width="2"/>
+  <text x="150" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">S</text>
   <!-- Sombra sol en cara (parte delantera) -->
-  <path d="M 133,148 A 18,18 0 0,0 167,148" fill="#1a1814" opacity="0.2"/>
+  <path d="M 133,148 A 18,18 0 0,0 167,148" fill="#17191c" opacity="0.2"/>
 
   <!-- Flash de relleno frontal (entre cámara y sujeto, o al lado de la cámara) -->
   <g transform="translate(90,210)">
@@ -840,21 +841,21 @@ const guideSVGs = {
 
   <!-- Cámara -->
   <g transform="translate(200,218)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">CÁMARA</text>
   </g>
   <!-- Eje cámara-sujeto -->
-  <line x1="185" y1="210" x2="162" y2="164" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
+  <line x1="185" y1="210" x2="162" y2="164" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
 
   <text x="150" y="255" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#5a7a8a">Sol detrás · contraluz · flash de relleno frontal</text>
 </svg>`,
 
-  'fotometro': `<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #d8d4ce;">
-  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#7a756f" letter-spacing="1">VISTA CENITAL · USO DEL FOTÓMETRO</text>
+  'fotometro': `<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin-bottom:0.75rem;background:#f0eeea;border:1px solid #dcdcd8;">
+  <text x="150" y="13" text-anchor="middle" font-family="Jost,sans-serif" font-size="7" fill="#62676e" letter-spacing="1">VISTA CENITAL · USO DEL FOTÓMETRO</text>
   <rect x="30" y="22" width="240" height="8" rx="1" fill="#3a3632" opacity="0.4"/>
-  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">FONDO</text>
+  <text x="150" y="20" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">FONDO</text>
   <g transform="translate(45,120) rotate(-20)">
     <polygon points="-16,0 16,0 9,50 -9,50" fill="#e8821a" opacity="0.18"/>
     <rect x="-18" y="-14" width="36" height="16" rx="2" fill="#e8821a"/>
@@ -867,33 +868,33 @@ const guideSVGs = {
     <text x="0" y="-1" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="white">FILL</text>
   </g>
   <text x="272" y="88" text-anchor="end" font-family="Jost,sans-serif" font-size="6.5" fill="#c8a97a">paso 3: mide solo FILL</text>
-  <circle cx="150" cy="148" r="18" fill="#d8d4ce" stroke="#1a1814" stroke-width="1.5"/>
-  <line x1="150" y1="148" x2="150" y2="166" stroke="#1a1814" stroke-width="2"/>
-  <text x="150" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">S</text>
+  <circle cx="150" cy="148" r="18" fill="#dcdcd8" stroke="#17191c" stroke-width="1.5"/>
+  <line x1="150" y1="148" x2="150" y2="166" stroke="#17191c" stroke-width="2"/>
+  <text x="150" y="143" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">S</text>
   <g transform="translate(150,148)">
-    <circle cx="-11" cy="-11" r="7" fill="white" stroke="#7a756f" stroke-width="1.2" opacity="0.95"/>
-    <text x="-11" y="-8" text-anchor="middle" font-family="Jost,sans-serif" font-size="5" fill="#7a756f">⊙</text>
+    <circle cx="-11" cy="-11" r="7" fill="white" stroke="#62676e" stroke-width="1.2" opacity="0.95"/>
+    <text x="-11" y="-8" text-anchor="middle" font-family="Jost,sans-serif" font-size="5" fill="#62676e">⊙</text>
     <rect x="-5" y="-4" width="22" height="28" rx="3" fill="#2a2824"/>
     <rect x="-2" y="-1" width="16" height="10" rx="1" fill="#1a3a1a"/>
     <text x="6" y="7" text-anchor="middle" font-family="Jost,sans-serif" font-size="5.5" fill="#c8a97a" font-weight="500">f/8</text>
     <circle cx="6" cy="18" r="3.5" fill="#e8821a"/>
   </g>
-  <line x1="139" y1="137" x2="96" y2="112" stroke="#7a756f" stroke-width="1" stroke-dasharray="3,2"/>
-  <polygon points="99,109 90,116 101,114" fill="#7a756f"/>
-  <text x="112" y="108" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">esfera apunta a la fuente</text>
+  <line x1="139" y1="137" x2="96" y2="112" stroke="#62676e" stroke-width="1" stroke-dasharray="3,2"/>
+  <polygon points="99,109 90,116 101,114" fill="#62676e"/>
+  <text x="112" y="108" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">esfera apunta a la fuente</text>
   <rect x="176" y="126" width="76" height="38" rx="2" fill="#1a3a1a" opacity="0.92"/>
   <text x="214" y="139" text-anchor="middle" font-family="Jost,sans-serif" font-size="6" fill="#7a9a7a">ISO 100 · 1/125s</text>
   <text x="214" y="154" text-anchor="middle" font-family="Jost,sans-serif" font-size="10" fill="#c8a97a" font-weight="500">f / 8</text>
   <line x1="176" y1="145" x2="166" y2="148" stroke="#c8a97a" stroke-width="1"/>
   <g transform="translate(150,228)">
-    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#1a1814"/>
+    <rect x="-16" y="-10" width="32" height="18" rx="3" fill="#17191c"/>
     <circle cx="0" cy="0" r="6" fill="#3a3632" stroke="#c8a97a" stroke-width="1"/>
-    <circle cx="0" cy="0" r="2" fill="#1a1814"/>
-    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#7a756f">CÁMARA</text>
+    <circle cx="0" cy="0" r="2" fill="#17191c"/>
+    <text x="0" y="16" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#62676e">CÁMARA</text>
   </g>
-  <line x1="150" y1="166" x2="150" y2="217" stroke="#d8d4ce" stroke-width="1" stroke-dasharray="2,3"/>
-  <rect x="18" y="252" width="264" height="42" rx="2" fill="#eeecea"/>
-  <text x="150" y="263" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#1a1814">1. Fija ISO + velocidad de sync en el fotómetro</text>
+  <line x1="150" y1="166" x2="150" y2="217" stroke="#dcdcd8" stroke-width="1" stroke-dasharray="2,3"/>
+  <rect x="18" y="252" width="264" height="42" rx="2" fill="#f1f1ef"/>
+  <text x="150" y="263" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#17191c">1. Fija ISO + velocidad de sync en el fotómetro</text>
   <text x="150" y="273" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#e8821a">2. Dispara KEY sola, esfera hacia KEY → anota (ej. f/8)</text>
   <text x="150" y="283" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#c8a97a">3. Dispara FILL sola, esfera hacia FILL → anota (ej. f/5.6)</text>
   <text x="150" y="293" text-anchor="middle" font-family="Jost,sans-serif" font-size="6.5" fill="#5a8a5e">4. Usa en cámara la apertura de KEY. Ratio: 1 stop = 2:1</text>
@@ -1045,5 +1046,6 @@ draw();
 </script>
   <script src="/js/sesion.js"></script>
   <script src="/js/acceso.js"></script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

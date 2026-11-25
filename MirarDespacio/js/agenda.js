@@ -14,7 +14,7 @@
   var hora = function (iso) { return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' }); };
 
   var CSS = '' +
-    '.mda{--mda-tinta:#1a1814;--mda-gris:#6b655a;--mda-linea:#d8d2c6;--mda-papel:#ebe7df;--mda-crema:#f5f3ef;--mda-naranja:#e8821a;--mda-rosa:#e8347a;color:var(--mda-tinta)}' +
+    '.mda{--mda-tinta:#17191c;--mda-gris:#62676e;--mda-linea:#dcdcd8;--mda-papel:#f1f1ef;--mda-crema:#fbfbfa;--mda-naranja:#e8821a;--mda-rosa:#e8347a;color:var(--mda-tinta)}' +
     '.mda-grid-wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:32px;align-items:start}' +
     '.mda-cab{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}' +
     '.mda-cab h3{margin:0;font-family:Georgia,serif;font-weight:400;font-size:1.35rem;text-transform:capitalize}' +
@@ -30,7 +30,7 @@
     '.mda-leyenda{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:.82rem;color:var(--mda-gris)}' +
     '.mda-leyenda span{display:inline-flex;align-items:center;gap:6px}' +
     '.mda-lista{display:grid;gap:12px}' +
-    '.mda-ev{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(26,24,20,.06);border-left:4px solid var(--mda-naranja);transition:box-shadow .2s}' +
+    '.mda-ev{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;padding:14px;background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(23,25,28,.06);border-left:4px solid var(--mda-naranja);transition:box-shadow .2s}' +
     '.mda-ev.taller{border-left-color:var(--mda-rosa)}.mda-ev.reto{border-left-color:var(--mda-tinta)}' +
     '.mda-ev.marcado{box-shadow:0 0 0 2px var(--mda-rosa)}' +
     '.mda-fecha{text-align:center;line-height:1.05}.mda-fecha b{display:block;font-family:Georgia,serif;font-weight:400;font-size:1.9rem}' +

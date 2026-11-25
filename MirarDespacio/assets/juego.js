@@ -7,7 +7,7 @@
   var canvas = document.getElementById('juego');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var C = { crema: '#f5f3ef', papel: '#ebe7df', tinta: '#1a1814', suave: '#4a453c', gris: '#9a9387', linea: '#d8d2c6', naranja: '#e8821a', rosa: '#e8347a' };
+  var C = { crema: '#fbfbfa', papel: '#f1f1ef', tinta: '#17191c', suave: '#3d4147', gris: '#9a9387', linea: '#dcdcd8', naranja: '#e8821a', rosa: '#e8347a' };
   var W = 0, H = 0, SUELO = 0, dpr = 1;
 
   function medir() {
@@ -428,7 +428,7 @@
   }
 
   function pantalla(e) {
-    ctx.fillStyle = 'rgba(245,243,239,.86)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(251,251,250,.86)'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; ctx.fillStyle = C.tinta;
     if (e.fase === 'inicio') {
       if (NAVIDAD) { ctx.fillStyle = ROJO; ctx.font = '600 14px Jost, system-ui, sans-serif'; ctx.fillText('Edición de Navidad', W / 2, H / 2 - 62); ctx.fillStyle = C.tinta; }

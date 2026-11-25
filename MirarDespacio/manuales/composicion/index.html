@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <style>
     :root {
-      --papel: #f5f3ef;
-      --papel-2: #ebe6dd;
-      --tinta: #1a1814;
-      --gris: #6b655a;
-      --linea: #d8d1c4;
+      --papel: #fbfbfa;
+      --papel-2: #f1f1ef;
+      --tinta: #17191c;
+      --gris: #62676e;
+      --linea: #dcdcd8;
       --naranja: #e8821a;
       --rosa: #e8347a;
       --azul: #2b4a6f;
@@ -28,7 +28,7 @@
 
     /* Portada: el degradado del cielo de noviembre, de la hora dorada a la hora azul */
     .portada { background: linear-gradient(180deg, #f2c27a 0%, #e8821a 34%, #b9466a 62%, #2b4a6f 100%); color: #fff; padding: 56px 0 44px; position: relative; overflow: hidden; }
-    .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(26,24,20,.0) 0 22px, rgba(26,24,20,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
+    .portada::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: repeating-linear-gradient(90deg, rgba(23,25,28,.0) 0 22px, rgba(23,25,28,.22) 22px 23px); mask: linear-gradient(transparent, #000); pointer-events: none; }
     .marca { font: 600 12px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; opacity: .9; }
     .portada .envoltura { position: relative; }
     .logo-md { position: absolute; top: -8px; right: 20px; z-index: 1; }
@@ -138,20 +138,21 @@
     @media (max-width: 560px) { .sim .controles { grid-template-columns: 1fr; } }
 
     /* Portada de este manual */
-    .portada { background: #ebe6dd; color: var(--tinta); }
+    .portada { background: #f1f1ef; color: var(--tinta); }
     .portada::after { height: 100%; background:
-      linear-gradient(90deg, transparent calc(33.33% - 1px), rgba(26,24,20,.16) calc(33.33% - 1px) 33.33%, transparent 33.33% calc(66.66% - 1px), rgba(26,24,20,.16) calc(66.66% - 1px) 66.66%, transparent 66.66%),
-      linear-gradient(180deg, transparent calc(33.33% - 1px), rgba(26,24,20,.16) calc(33.33% - 1px) 33.33%, transparent 33.33% calc(66.66% - 1px), rgba(26,24,20,.16) calc(66.66% - 1px) 66.66%, transparent 66.66%);
+      linear-gradient(90deg, transparent calc(33.33% - 1px), rgba(23,25,28,.16) calc(33.33% - 1px) 33.33%, transparent 33.33% calc(66.66% - 1px), rgba(23,25,28,.16) calc(66.66% - 1px) 66.66%, transparent 66.66%),
+      linear-gradient(180deg, transparent calc(33.33% - 1px), rgba(23,25,28,.16) calc(33.33% - 1px) 33.33%, transparent 33.33% calc(66.66% - 1px), rgba(23,25,28,.16) calc(66.66% - 1px) 66.66%, transparent 66.66%);
       mask: none; }
     .portada .marca { color: var(--naranja); }
     .portada h1 em { color: var(--rosa); }
     .portada .nota { color: var(--naranja); }
   </style>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
 
@@ -204,11 +205,11 @@
       <h2>Qué dejas dentro <em>y qué fuera.</em></h2>
       <p>Componer es, sobre todo, decidir qué no sale. La calle está llena de cosas, y una foto se entiende cuando tiene una idea clara y pocas cosas que la distraigan.</p>
       <div class="esquema">
-        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#1a1814" stroke-width="1.5"/><rect x="26" y="20" width="44" height="32" fill="none" stroke="#e8347a" stroke-width="2" stroke-dasharray="3 2"/><circle cx="44" cy="38" r="5" fill="#e8821a"/><circle cx="16" cy="56" r="3" fill="#bbb"/><circle cx="80" cy="16" r="3" fill="#bbb"/></svg>
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#17191c" stroke-width="1.5"/><rect x="26" y="20" width="44" height="32" fill="none" stroke="#e8347a" stroke-width="2" stroke-dasharray="3 2"/><circle cx="44" cy="38" r="5" fill="#e8821a"/><circle cx="16" cy="56" r="3" fill="#bbb"/><circle cx="80" cy="16" r="3" fill="#bbb"/></svg>
         <div><h3>Acércate, y luego un paso más</h3><p>La mayoría de las fotos mejoran acercándose. Si dudas entre dos encuadres, prueba el más cerrado. Lo que sobra en los bordes compite con lo importante.</p></div>
       </div>
       <div class="esquema">
-        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#1a1814" stroke-width="1.5"/><line x1="8" y1="64" x2="88" y2="8" stroke="#1a1814" stroke-width="1"/><circle cx="12" cy="40" r="4" fill="#e8821a"/><path d="M60 20 l10 10 M70 20 l-10 10" stroke="#bbb" stroke-width="2"/></svg>
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#17191c" stroke-width="1.5"/><line x1="8" y1="64" x2="88" y2="8" stroke="#17191c" stroke-width="1"/><circle cx="12" cy="40" r="4" fill="#e8821a"/><path d="M60 20 l10 10 M70 20 l-10 10" stroke="#bbb" stroke-width="2"/></svg>
         <div><h3>Dónde colocar lo importante</h3><p>En el centro la foto se queda quieta y estable; fuera del centro, sobre las líneas de los tercios, gana tensión y recorrido. Ninguna es mejor: elige según lo que quieras contar.</p></div>
       </div>
       <h3>Los bordes</h3>
@@ -225,11 +226,11 @@
       <p class="antetitulo">Líneas, capas y profundidad</p>
       <h2>Una foto plana <em>con fondo.</em></h2>
       <div class="esquema">
-        <svg viewBox="0 0 96 72" aria-hidden="true"><path d="M4 70 L48 30 M30 70 L52 30 M92 70 L56 30 M70 70 L54 30" stroke="#1a1814" stroke-width="1.5" fill="none"/><circle cx="52" cy="28" r="4" fill="#e8347a"/></svg>
+        <svg viewBox="0 0 96 72" aria-hidden="true"><path d="M4 70 L48 30 M30 70 L52 30 M92 70 L56 30 M70 70 L54 30" stroke="#17191c" stroke-width="1.5" fill="none"/><circle cx="52" cy="28" r="4" fill="#e8347a"/></svg>
         <div><h3>Líneas que llevan la mirada</h3><p>Bordillos, raíles, barandillas, sombras, la fuga de una calle. La mirada sigue las líneas: haz que lleven a algo, y coloca a la persona donde terminan.</p></div>
       </div>
       <div class="esquema">
-        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="0" y="48" width="96" height="24" fill="#1a1814"/><rect x="0" y="28" width="96" height="20" fill="#6b655a"/><rect x="0" y="0" width="96" height="28" fill="#ebe6dd"/><circle cx="24" cy="42" r="6" fill="#e8821a"/></svg>
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="0" y="48" width="96" height="24" fill="#17191c"/><rect x="0" y="28" width="96" height="20" fill="#62676e"/><rect x="0" y="0" width="96" height="28" fill="#f1f1ef"/><circle cx="24" cy="42" r="6" fill="#e8821a"/></svg>
         <div><h3>Capas: delante, en medio, detrás</h3><p>Una foto con algo en primer plano, algo en el plano medio y algo al fondo se lee como un espacio en el que se puede entrar. Busca un primer plano (una esquina, un hombro, un cristal) y dispara a través de él.</p></div>
       </div>
       <h3>Encuadre dentro del encuadre</h3>
@@ -241,7 +242,7 @@
       <p class="antetitulo">Luz y sombra como forma</p>
       <h2>La luz también <em>compone.</em></h2>
       <div class="esquema">
-        <svg viewBox="0 0 96 72" aria-hidden="true"><rect width="96" height="72" fill="#1a1814"/><path d="M30 0 L66 0 L80 72 L44 72 Z" fill="#f2c27a"/><circle cx="60" cy="44" r="5" fill="#1a1814"/></svg>
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect width="96" height="72" fill="#17191c"/><path d="M30 0 L66 0 L80 72 L44 72 Z" fill="#f2c27a"/><circle cx="60" cy="44" r="5" fill="#17191c"/></svg>
         <div><h3>Manchas de luz</h3><p>Una franja de sol entre dos sombras es un escenario. Expón para la luz (compensa a negativo) y todo lo demás se va a negro: solo queda lo que está iluminado.</p></div>
       </div>
       <ul class="lista">
@@ -256,7 +257,7 @@
       <p class="antetitulo">Equilibrio, tensión y espacio negativo</p>
       <h2>El vacío <em>también pesa.</em></h2>
       <div class="esquema">
-        <svg viewBox="0 0 96 72" aria-hidden="true"><rect width="96" height="72" fill="#ebe6dd"/><circle cx="78" cy="58" r="4" fill="#e8347a"/></svg>
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect width="96" height="72" fill="#f1f1ef"/><circle cx="78" cy="58" r="4" fill="#e8347a"/></svg>
         <div><h3>Espacio negativo</h3><p>Una figura pequeña en un espacio grande y vacío (una pared, el cielo, una plaza) dice soledad, escala, calma. Deja que el vacío ocupe casi todo el encuadre.</p></div>
       </div>
       <h3>Equilibrio</h3>
@@ -273,7 +274,7 @@
       <p class="antetitulo">Romper las reglas</p>
       <h2>Pero <em>a propósito.</em></h2>
       <div class="esquema">
-        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#1a1814" stroke-width="1.5"/><line x1="8" y1="64" x2="88" y2="8" stroke="#1a1814" stroke-width="1"/><circle cx="12" cy="40" r="4" fill="#e8821a"/><path d="M60 20 l10 10 M70 20 l-10 10" stroke="#e8347a" stroke-width="2"/></svg>
+        <svg viewBox="0 0 96 72" aria-hidden="true"><rect x="8" y="8" width="80" height="56" fill="none" stroke="#17191c" stroke-width="1.5"/><line x1="8" y1="64" x2="88" y2="8" stroke="#17191c" stroke-width="1"/><circle cx="12" cy="40" r="4" fill="#e8821a"/><path d="M60 20 l10 10 M70 20 l-10 10" stroke="#e8347a" stroke-width="2"/></svg>
         <div><h3>Las reglas son puntos de partida</h3><p>El horizonte torcido, la persona pegada al borde, la cabeza cortada, todo en el centro. Cualquier regla se puede romper si se nota que es una decisión y no un descuido.</p></div>
       </div>
       <p>La diferencia entre un error y una decisión es la intención: si vas a romper una regla, rómpela del todo. Un horizonte un poco torcido parece un fallo; uno muy inclinado, una elección.</p>
@@ -444,5 +445,6 @@
   <script src="/js/hilo.js"></script>
   <script src="/js/ejercicios-taller.js" data-taller="composicion"></script>
   <script src="/js/instalar.js" defer></script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

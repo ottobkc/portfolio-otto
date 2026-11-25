@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
   <link rel="stylesheet" href="/assets/fuentes/fuentes.css">
   <style>
-    :root { --crema:#f5f3ef; --tinta:#1a1814; --gris:#6b655a; --linea:#d8d2c6; --rosa:#e8347a; }
+    :root { --crema:#fbfbfa; --tinta:#17191c; --gris:#62676e; --linea:#dcdcd8; --rosa:#e8347a; }
     * { box-sizing: border-box; }
     body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--crema); color:var(--tinta);
            font:17px/1.6 "Inter",system-ui,sans-serif; padding:24px 16px; }
@@ -41,10 +41,11 @@
   </style>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es" data-exclude-search="true"></script>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
   <main>
@@ -258,5 +259,6 @@
       }).catch(function () { texto('No se ha podido cargar el acceso. Recarga la página.'); });
     })();
   </script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

@@ -77,7 +77,7 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   <meta property="og:description" content="{html.escape(descripcion)}">
   <meta property="og:image" content="{og_img}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#f5f3ef">
+  <meta name="theme-color" content="#fbfbfa">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
@@ -87,12 +87,13 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
 {ld}
   </script>
   <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI}" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>{extra_head}
+  <link rel="stylesheet" href="{v('tema.css')}">
 </head>
 <body>
   <a class="oculto-visual" href="#contenido">Saltar al contenido</a>
   <header class="nav">
     <div class="envoltura">
-      <a class="marca" href="/"><img src="{cld(LOGO, 'w_80')}" alt="" width="34" height="34"><span>Mirar Despacio</span></a>
+      <a class="marca" href="/"><img class="marca-logo" src="/assets/logo-md-cabecera.webp" alt="" width="120" height="40"><span>Mirar Despacio</span></a>
       <button class="nav-boton" aria-label="Menú" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
       <ul>
 {nav}
@@ -131,7 +132,8 @@ def pagina(ruta, titulo, descripcion, cuerpo, schema=None, og_img=PORTADA, extra
   </footer>
   <script src="{v('md.js')}"></script>
   <script defer src="/js/guia.js"></script>
-  <script defer src="{v('navidad.js')}"></script>{extra_pie}
+  <script defer src="{v('navidad.js')}"></script>
+  <script defer src="{v('sello.js')}"></script>{extra_pie}
 </body>
 </html>
 '''

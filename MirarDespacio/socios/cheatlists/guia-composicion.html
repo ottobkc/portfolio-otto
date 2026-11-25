@@ -7,8 +7,8 @@
     @import url('/assets/fuentes/fuentes.css');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f5f3ef; --ink: #1a1814; --muted: #7a756f; --accent: #c8a97a;
-      --accent2: #5a8a5e; --border: #d8d4ce;
+      --bg: #fbfbfa; --ink: #17191c; --muted: #62676e; --accent: #c8a97a;
+      --accent2: #5a8a5e; --border: #dcdcd8;
       --md-orange: #e8821a;
       --md-pink: #e8347a;
       --font-serif: Georgia, 'Times New Roman', serif;
@@ -28,7 +28,7 @@
     .header-right { text-align: right; font-size: 7pt; color: var(--muted); letter-spacing: 0.08em; line-height: 1.8; padding-top: 4px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .block { background: #eeecea; border-left: 2.5px solid var(--accent); padding: 9px 11px; }
+    .block { background: #f1f1ef; border-left: 2.5px solid var(--accent); padding: 9px 11px; }
     .block.green { border-left-color: var(--accent2); }
     .block.plain { background: transparent; border-left-color: var(--border); border-left-width: 1px; }
     .block-label { font-size: 6.5pt; letter-spacing: 0.2em; text-transform: uppercase; background: linear-gradient(90deg, var(--md-orange), var(--md-pink));
@@ -59,7 +59,7 @@
       margin: 6px 0;
     }
     .thirds-cell {
-      background: #eeecea;
+      background: #f1f1ef;
     }
     .thirds-cell.active {
       background: rgba(200,169,122,0.18);
@@ -87,10 +87,11 @@
   <!-- Umami Analytics -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="8f2ba4b0-e3aa-4d28-b1ec-282e448736f8" data-domains="mirardespacio.es,ottokols.es,www.ottokols.es" data-exclude-hash="true"></script>
   <link rel="manifest" href="/app.webmanifest">
-  <meta name="theme-color" content="#1a1814">
+  <meta name="theme-color" content="#17191c">
   <link rel="apple-touch-icon" href="/assets/app-180.png">
   <meta name="apple-mobile-web-app-title" content="Mirar Despacio">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="/assets/tema.css?v=35cc1193">
 </head>
 <body>
 
@@ -212,5 +213,6 @@
 
   <script src="/js/sesion.js"></script>
   <script src="/js/acceso.js"></script>
+  <script defer src="/assets/sello.js?v=9bfad32f"></script>
 </body>
 </html>

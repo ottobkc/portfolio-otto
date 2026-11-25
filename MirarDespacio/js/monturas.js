@@ -118,7 +118,7 @@
         case 'avestruz': {
           linea(x - 2, s - 50, x - 4 + 8 * p, s - 2, '#e8a0a8', 3); linea(x + 6, s - 50, x + 4 + 8 * q, s - 2, '#e8a0a8', 3);
           elipse(x, s - 60, 22, 12, '#2a2622');
-          elipse(x - 20, s - 64, 8, 6, '#f5f3ef', '#bdb2a2');                                     // plumas de la cola
+          elipse(x - 20, s - 64, 8, 6, '#fbfbfa', '#bdb2a2');                                     // plumas de la cola
           linea(x + 16, s - 64, x + 26, s - 100, '#e8a0a8', 4);
           elipse(x + 28, s - 102, 6, 5, '#e8a0a8'); ctx.fillStyle = '#d8a35a'; ctx.beginPath(); ctx.moveTo(x + 33, s - 103); ctx.lineTo(x + 40, s - 101); ctx.lineTo(x + 33, s - 99); ctx.fill();
           circulo(x + 29, s - 104, 1.4, C.tinta);
@@ -180,7 +180,7 @@
         }
         case 'nube': {
           var y2 = s - 52 + bob;
-          [[-22, 6, 14], [-6, 0, 18], [14, 2, 16], [28, 8, 11], [2, 10, 16]].forEach(function (c) { elipse(x + c[0], y2 + c[1], c[2], c[2] * 0.8, '#fff', '#cfc8bb'); });
+          [[-22, 6, 14], [-6, 0, 18], [14, 2, 16], [28, 8, 11], [2, 10, 16]].forEach(function (c) { elipse(x + c[0], y2 + c[1], c[2], c[2] * 0.8, '#fff', '#dcdcd8'); });
           [[-22, 6, 13], [-6, 0, 17], [14, 2, 15], [28, 8, 10], [2, 10, 15]].forEach(function (c) { elipse(x + c[0], y2 + c[1], c[2], c[2] * 0.8, '#fff'); });
           return { alto: s - (y2 - 12) - 30 };
         }
@@ -245,7 +245,7 @@
 
   // ---------- Imagen para compartir en Instagram (post 1080×1350 o historia 1080×1920) ----------
   // o = { formato, antetitulo, titulo, subtitulo, pie, logo, dibujar(ctx, cx, cy, ancho, alto) }
-  var PAL = { tinta: '#1a1814', naranja: '#e8821a', rosa: '#e8347a', crema: '#f5f3ef', gris: '#7a756f' };
+  var PAL = { tinta: '#17191c', naranja: '#e8821a', rosa: '#e8347a', crema: '#fbfbfa', gris: '#62676e' };
   function cargar(src) { return new Promise(function (ok) { var i = new Image(); i.onload = function () { ok(i); }; i.onerror = function () { ok(null); }; i.src = src; }); }
   function tarjeta(o) {
     var historia = o.formato === 'historia', W = 1080, H = historia ? 1920 : 1350;

@@ -13,10 +13,10 @@
     '.hilo-msg{margin:8px 0;padding:8px 12px;border-radius:10px;font-size:.95rem;line-height:1.45;white-space:pre-line;max-width:92%}' +
     '.hilo-msg small{display:block;opacity:.65;font-size:.75rem;margin-bottom:2px;white-space:normal}' +
     '.hilo-msg.otto{background:rgba(232,52,122,.09);border-left:3px solid #e8347a}' +
-    '.hilo-msg.persona{background:rgba(26,24,20,.07);margin-left:auto}' +
+    '.hilo-msg.persona{background:rgba(23,25,28,.07);margin-left:auto}' +
     '.hilo-form{display:grid;gap:6px;margin-top:8px}' +
     '.hilo-form textarea{width:100%;box-sizing:border-box;min-height:64px;padding:8px 10px;border:1px solid rgba(122,117,111,.5);border-radius:8px;font:inherit;font-size:.95rem;background:#fff;color:inherit}' +
-    '.hilo-form button{justify-self:start;padding:8px 16px;border:0;border-radius:999px;background:#1a1814;color:#fff;font:inherit;font-size:.9rem;cursor:pointer}' +
+    '.hilo-form button{justify-self:start;padding:8px 16px;border:0;border-radius:999px;background:#17191c;color:#fff;font:inherit;font-size:.9rem;cursor:pointer}' +
     '.hilo-form button[disabled]{opacity:.5}' +
     '.hilo-wa{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 14px;border:1px solid rgba(122,117,111,.55);border-radius:999px;background:#fff;color:inherit;font:inherit;font-size:.85rem;cursor:pointer}' +
     '.hilo-wa:hover{border-color:#25a244}.hilo-wa[disabled]{opacity:.5}' +
