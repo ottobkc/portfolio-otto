@@ -125,7 +125,7 @@ def construir(g):
           <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres de fotografía callejera y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
-        <p class="revelar" style="margin-top:32px;"><span class="nota" style="font-size:1.4rem;">¿y quién está detrás?</span> Yo, Otto: fotógrafo en Madrid. <a href="/sobre-mi/">Te cuento cómo empezó esto →</a></p>
+        <p class="revelar" style="margin-top:32px;"><span class="nota" style="font-size:1.4rem;">¿y quién está detrás?</span> Yo, Otto: fotógrafo en Madrid de retrato, paisaje y, sobre todo, fotografía callejera. <a href="/sobre-mi/">Te cuento cómo empezó esto →</a></p>
       </div>
     </section>'''
     escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid',
@@ -933,7 +933,7 @@ def construir(g):
         <p class="antetitulo">De dónde viene esto</p>
         <h2>Menos fotos, <em>mejor mirada.</em></h2>
         <p>Llevo muchos años haciendo fotos, buena parte de ellos por mi cuenta, aprendiendo a base de salir y equivocarme. Con el tiempo descubrí que lo mío es la fotografía de calle. Pero no la de disparar sin ton ni son a todo lo que se mueve, sino la de sentir la calle: pararme, observar cómo se mueven la luz y la gente, y adivinar lo que está a punto de pasar antes de que pase.</p>
-        <p>Mirar Despacio nació como proyecto final de un curso de producción de podcast de RTVE: un podcast sobre fotografía de calle y sobre esa forma de mirar. Salieron veinte episodios sobre la vergüenza de fotografiar a desconocidos, publicar sin que nadie te vea o encontrar tu estilo sin buscarlo. Y del podcast salieron las salidas: mañanas en grupo por barrios de Madrid, con retos para obligarnos a mirar distinto y un rato al final para ver las fotos juntos.</p>
+        <p>El podcast de Mirar Despacio nació como proyecto final de un curso de producción de podcast de RTVE: un podcast sobre fotografía de calle y sobre esa forma de mirar. Salieron veinte episodios sobre la vergüenza de fotografiar a desconocidos, publicar sin que nadie te vea o encontrar tu estilo sin buscarlo. Y del podcast salieron las salidas: mañanas en grupo por barrios de Madrid, con retos para obligarnos a mirar distinto y un rato al final para ver las fotos juntos.</p>
         <p>Hoy Mirar Despacio son salidas, talleres, tutorías y una pequeña comunidad que hace un reto cada mes, viva donde viva.</p>
       </div>
     </section>
