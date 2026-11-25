@@ -189,9 +189,9 @@
   }
   if (raton) {
     var cur = document.createElement('style');
-    cur.textContent = 'html,body{cursor:' + camara('#fff') + ',auto}' +
-      'a,button,[role=button],label,summary,select{cursor:' + camara('#e8821a') + ',pointer}' +
-      'input,textarea,[contenteditable]{cursor:text}';
+    cur.textContent = 'html,body,*{cursor:' + camara('#fff') + ',auto!important}' +
+      'a,a *,button,button *,[role=button],[role=button] *,label,summary,select,.boton,.tarjeta,.tarjeta *{cursor:' + camara('#e8821a') + ',pointer!important}' +
+      'input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]),textarea,[contenteditable]{cursor:text!important}';
     document.head.appendChild(cur);
   }
   if (!calma) {
@@ -210,5 +210,16 @@
       f.style.left = e.clientX + 'px'; f.style.top = e.clientY + 'px';
       document.body.appendChild(f); setTimeout(function () { f.remove(); }, 400);
     }, { passive: true });
+    // Al pulsar un enlace a otra página, esperamos un instante para que se vea el flash antes de cambiar.
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href]');
+      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+      var u; try { u = new URL(a.href, location.href); } catch (er) { return; }
+      if (!/^https?:$/.test(u.protocol)) return;
+      if (u.origin === location.origin && u.pathname === location.pathname && u.search === location.search) return; // mismo sitio de la página
+      e.preventDefault();
+      setTimeout(function () { location.href = a.href; }, 170);
+    });
   }
 })();

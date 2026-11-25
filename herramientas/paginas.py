@@ -125,7 +125,7 @@ def construir(g):
           <a class="tarjeta revelar" href="/talleres/"><span class="num">03</span><h3>Talleres de fotografía callejera y tutorías</h3><p>Talleres en grupos pequeños por Madrid (nocturna, atardecer, composición, primeros pasos) o una tutoría a solas conmigo, presencial u online.</p><span class="mas">Aprender disparando →</span></a>
           <a class="tarjeta revelar" href="/mirar-despacio-plus/"><span class="num">04</span><h3>Mirar Despacio+</h3><p>La comunidad: salidas incluidas, retos y guías cada mes, feedback de tus fotos y grupo privado.</p><span class="mas">Cómo funciona →</span></a>
         </div>
-        <p class="revelar" style="margin-top:28px;">¿Quién está detrás? <a href="/sobre-mi/">Hola, soy Otto</a>. Y además: <a href="/juegos/">los juegos</a>, <a href="/muro/">el muro</a> con las fotos de todos y la guía de <a href="/fotografia-callejera-madrid/">fotografía callejera en Madrid</a>.</p>
+        <p class="revelar" style="margin-top:32px;"><span class="nota" style="font-size:1.4rem;">¿y quién está detrás?</span> Yo, Otto: fotógrafo en Madrid. <a href="/sobre-mi/">Te cuento cómo empezó esto →</a></p>
       </div>
     </section>'''
     escribir('/', pagina('/', 'Mirar Despacio · Fotografía callejera en Madrid',

@@ -137,3 +137,7 @@ nav:has(.nav-logo){height:64px;
 .hd-tabla th{text-align:left;font-weight:600;font-size:.8rem;color:var(--gris,#62676e);border-bottom:1.5px solid var(--tinta,#17191c);padding:6px 8px 6px 0}
 .hd-tabla td{padding:9px 8px 9px 0;border-bottom:1px solid var(--linea,#dcdcd8)}
 .hd-tabla td:first-child{text-transform:capitalize}
+
+/* Sin numeración de plantilla (01, 02, 03) en las tarjetas; los pasos numerados de formularios y manuales, a mano */
+.tarjeta .num{display:none}
+h3 .num,.paso .num,span.num:not(.tarjeta .num){font-family:'Caveat',cursive;font-style:normal;font-weight:600}
