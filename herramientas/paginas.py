@@ -71,7 +71,7 @@ def construir(g):
 
     # ------------------------------------------------------------ PORTADA
     fotos_salidas_portada = '''
-    <section class="seccion">
+    <section class="seccion oscura">
       <div class="envoltura">
         <p class="antetitulo">Desde las salidas</p>
         <h2 class="revelar">Así son las <em>mañanas.</em></h2>
@@ -98,7 +98,7 @@ def construir(g):
       </div>
     </section>
 
-    <section class="seccion papel">
+    <section class="seccion oscura">
       <div class="envoltura estrecho" style="text-align:center;">
         <span class="nota">¿por dónde empiezo?</span>
         <h2 class="revelar" style="margin-top:10px;">Ven a una <em>salida.</em></h2>
@@ -187,7 +187,7 @@ def construir(g):
       </div>
     </section>
 
-    <section class="seccion">
+    <section class="seccion oscura">
       <div class="envoltura estrecho">
         <p class="antetitulo">Temporada 1 · 20 episodios</p>
         <h2>Todos los <em>episodios.</em></h2>

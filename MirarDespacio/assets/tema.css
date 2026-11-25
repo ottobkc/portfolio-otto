@@ -141,3 +141,20 @@ nav:has(.nav-logo){height:64px;
 /* Sin numeración de plantilla (01, 02, 03) en las tarjetas; los pasos numerados de formularios y manuales, a mano */
 .tarjeta .num{display:none}
 h3 .num,.paso .num,span.num:not(.tarjeta .num){font-family:'Caveat',cursive;font-style:normal;font-weight:600}
+
+/* Secciones oscuras («cuarto oscuro»): para las fotos y las llamadas; el texto largo va en claro */
+.seccion.oscura{background:#16181b;color:#ecedea}
+.seccion.oscura h1,.seccion.oscura h2,.seccion.oscura h3{color:#f6f6f4}
+.seccion.oscura p,.seccion.oscura .entradilla,.seccion.oscura li{color:#c3c6ca}
+.seccion.oscura strong,.seccion.oscura b{color:#f6f6f4}
+.seccion.oscura a:not(.boton){color:#f3b47a}
+.seccion.oscura .antetitulo{color:#f07aa8}
+.seccion.oscura .md-fotograma{color:#8d9298}
+.seccion.oscura .boton,.seccion.oscura .boton.color,.seccion.oscura .boton.claro{color:#fff}
+.seccion.oscura .tarjeta{background:#202327;border-color:#30343a}
+.seccion.oscura .tarjeta p{color:#b9bcc1}
+.seccion.oscura .aviso{color:#9ea3a9}
+.seccion.oscura{--mda-crema:#16181b;--mda-papel:#202327;--mda-tinta:#f6f6f4;--mda-gris:#b9bcc1;--mda-linea:#30343a}
+.seccion.oscura .mda-ev{background:#202327;box-shadow:none}
+.seccion.oscura .mda-ev *:not(a){color:#d9dbde!important}
+.seccion.oscura .mda-ev h3,.seccion.oscura .mda-ev strong,.seccion.oscura .mda-ev b{color:#f6f6f4!important}
