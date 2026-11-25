@@ -151,15 +151,7 @@
     });
   }
 
-  // ---------- Grano (una sola imagen, quieta) ----------
-  try {
-    var c = document.createElement('canvas'); c.width = c.height = 180;
-    var x = c.getContext('2d'), img = x.createImageData(180, 180);
-    for (var i = 0; i < img.data.length; i += 4) { var v = Math.random() * 255 | 0; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
-    x.putImageData(img, 0, 0);
-    var g = document.createElement('div'); g.className = 'md-grano'; g.style.backgroundImage = 'url(' + c.toDataURL() + ')';
-    document.body.appendChild(g);
-  } catch (e) {}
+  // (El grano ya lo pone md.css; aquí no se repite.)
 
   // ---------- Portada: fotograma de la hoja de contactos marcado con lápiz graso ----------
   var fig = conVisor && location.pathname === '/' && document.querySelector('.portada figure');

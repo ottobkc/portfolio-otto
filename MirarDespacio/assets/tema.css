@@ -158,3 +158,8 @@ h3 .num,.paso .num,span.num:not(.tarjeta .num){font-family:'Caveat',cursive;font
 .seccion.oscura .mda-ev{background:#202327;box-shadow:none}
 .seccion.oscura .mda-ev *:not(a){color:#d9dbde!important}
 .seccion.oscura .mda-ev h3,.seccion.oscura .mda-ev strong,.seccion.oscura .mda-ev b{color:#f6f6f4!important}
+
+/* iPhone (Safari 26): la barra de estado toma el color del elemento fijo que toca arriba.
+   El grano de pantalla completa la tapaba y se veía la página pasar por encima del menú:
+   el grano empieza ahora debajo de la barra. */
+body::before{top:64px}
