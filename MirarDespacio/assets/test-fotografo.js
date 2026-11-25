@@ -165,11 +165,8 @@
       '<p><a href="https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(a[1] + ' fotografía') + '" target="_blank" rel="noopener">Mira sus fotos ↗</a></p>' +
       '<div class="test-reto"><span class="nota">tu reto para la próxima vez que salgas</span><p>' + esc(a[5]) + '</p></div>' +
       '<div class="test-siguiente">' +
-        '<h3>Y ahora, a la calle</h3>' +
-        '<p data-test-proxima>Ven a una salida en grupo por Madrid y prueba el reto con más gente.</p>' +
-        '<div class="botones"><a class="boton color" href="/salidas/#apuntarse" data-umami-event="test-fotografo-salida">Apuntarme a la próxima salida</a></div>' +
-        '<p style="margin-top:18px;">¿Quieres trabajar esta forma de mirar con calma? El taller que más encaja: <a href="' + t[1] + '" data-umami-event="test-fotografo-taller">' + esc(t[0]) + ' →</a></p>' +
-        '<p>Y si quieres un reto nuevo cada mes, está <a href="/mirar-despacio-plus/" data-umami-event="test-fotografo-mdplus">Mirar Despacio+ →</a></p>' +
+        '<p data-test-proxima>Si te apetece probar el reto en compañía, en las <a href="/salidas/" data-umami-event="test-fotografo-salida">salidas de Mirar Despacio</a> salimos en grupo por Madrid.</p>' +
+        '<p class="aviso">Para trabajarlo con calma: el taller <a href="' + t[1] + '" data-umami-event="test-fotografo-taller">' + esc(t[0]) + '</a>, o un reto nuevo cada mes en <a href="/mirar-despacio-plus/" data-umami-event="test-fotografo-mdplus">Mirar Despacio+</a>.</p>' +
       '</div>' +
       '<div class="botones">' +
         '<button type="button" class="boton claro test-compartir">Compartir mi resultado</button>' +
@@ -184,7 +181,7 @@
           !(x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime());
       })[0];
       var el = raiz.querySelector('[data-test-proxima]');
-      if (s && el) el.innerHTML = 'Próxima salida: <b>' + esc(s.fecha) + (pend(s.zona) ? '' : ' · ' + esc(s.zona)) + (pend(s.hora) ? '' : ' · ' + esc(s.hora) + ' h') + '</b>. En grupo, con cualquier cámara y con aportación libre.';
+      if (s && el) el.innerHTML = 'Si te apetece probar el reto en compañía, la próxima <a href="/salidas/" data-umami-event="test-fotografo-salida">salida</a> es el ' + esc(s.fecha) + (pend(s.zona) ? '' : ', por ' + esc(s.zona)) + '.';
     }).catch(function () {});
 
     raiz.querySelector('.test-otra').addEventListener('click', function () {

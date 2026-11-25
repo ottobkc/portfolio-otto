@@ -1,7 +1,7 @@
 /* Sello de Mirar Despacio: la web como una cámara de carrete en la calle.
  * - Visor abajo a la izquierda: la luz que hay ahora (salida y puesta de sol reales) en Madrid o en la
  *   ciudad que elija cada uno (se guarda en su navegador). Al pulsarlo se abre una nota con la
- *   explicación, ajustes orientativos y la próxima salida.
+ *   explicación y ajustes orientativos (sin publicidad de salidas: eso ya está en la página).
  * - A la derecha (solo ordenador): los ajustes y el contador del carrete, que avanza al bajar.
  * - Grano muy suave y quieto. Número de fotograma en cada titular. Portada como hoja de contactos.
  * - Puntero de cámara (solo con ratón) y un flash pequeño al hacer clic o al tocar un botón.
@@ -107,7 +107,6 @@
       var n = Math.min(36, 1 + vistos);
       der.textContent = 'si sales ahora: ' + exp + ' · ' + (n < 10 ? '0' : '') + n + '/36';
     }
-    var proxima = null;
     function pintaPanel(l) {
       var opciones = CIUDADES.map(function (c) { return '<option' + (c === ciudad ? ' selected' : '') + '>' + c[0] + '</option>'; }).join('');
       panel.innerHTML =
@@ -115,8 +114,7 @@
         '<p class="md-luz-tit">La luz ahora en <label class="md-luz-sel"><span class="oculto-visual">Ciudad</span><select>' + opciones + '</select></label></p>' +
         '<p class="md-luz-frase">' + l[1] + '</p>' +
         '<p class="md-luz-exp"><b>Si sales ahora a hacer fotos:</b> ' + l[2] + '</p>' +
-        '<p class="md-luz-nota">Son ajustes orientativos para empezar; luego mira la foto y corrige. Se calcula con la salida y la puesta de sol reales de cada día.</p>' +
-        (proxima ? '<a class="md-luz-salida" href="/salidas/">Próxima salida en Madrid: ' + proxima + ' →</a>' : '');
+        '<p class="md-luz-nota">Son ajustes orientativos para empezar; luego mira la foto y corrige. Se calcula con la salida y la puesta de sol reales de cada día.</p>';
       panel.querySelector('select').addEventListener('change', function (e) {
         CIUDADES.forEach(function (c) { if (c[0] === e.target.value) ciudad = c; });
         try { localStorage.setItem('md-ciudad', ciudad[0]); } catch (er) {}
@@ -133,17 +131,6 @@
     }
     function abrir() {
       panel.hidden = false; izq.setAttribute('aria-expanded', 'true'); pintaPanel(luz());
-      if (proxima === null) {
-        proxima = '';
-        fetch('/salidas-data.json').then(function (r) { return r.json(); }).then(function (d) {
-          var pend = function (v) { return !v || /^por (determinar|confirmar|anunciar)/i.test(String(v).trim()); };
-          var p = (d.proximas || []).filter(function (x) {
-            return x.activa && !pend(x.fecha) && !(x.fechaISO && new Date(x.fechaISO).getTime() + 4 * 3600e3 < Date.now()) &&
-              !(x.publicaDesde && Date.now() < new Date(x.publicaDesde).getTime());
-          })[0];
-          if (p) { proxima = p.fecha + (pend(p.zona) ? '' : ' · ' + p.zona) + (pend(p.hora) ? '' : ' · ' + p.hora + ' h'); if (!panel.hidden) pintaPanel(luz()); }
-        }).catch(function () {});
-      }
     }
     function cerrar() { panel.hidden = true; izq.setAttribute('aria-expanded', 'false'); izq.focus(); }
     izq.addEventListener('click', function () { panel.hidden ? abrir() : cerrar(); });
