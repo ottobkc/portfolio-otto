@@ -163,3 +163,11 @@ h3 .num,.paso .num,span.num:not(.tarjeta .num){font-family:'Caveat',cursive;font
    El grano de pantalla completa la tapaba y se veía la página pasar por encima del menú:
    el grano empieza ahora debajo de la barra. */
 body::before{top:64px}
+/* En oscuro, los títulos enlazados en blanco y los enlaces pequeños en rosa (no todo naranja) */
+.seccion.oscura h2 a,.seccion.oscura h3 a{color:#f6f6f4!important}
+.seccion.oscura .etiqueta a,.seccion.oscura small a{color:#f07aa8!important}
+/* Podcast: número del episodio a mano y enlaces «Ver episodio · Spotify» en rosa */
+.episodio .n{font-family:'Caveat',cursive;font-style:normal;font-weight:600;font-size:2rem;color:var(--gris,#62676e)}
+.episodio .etiqueta a{color:#d63a78;text-decoration-color:rgba(214,58,120,.35);text-underline-offset:3px}
+.episodio h3 a{color:inherit;text-decoration:none}
+.episodio h3 a:hover{text-decoration:underline;text-decoration-color:#e8347a}

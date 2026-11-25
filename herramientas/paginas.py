@@ -187,7 +187,7 @@ def construir(g):
       </div>
     </section>
 
-    <section class="seccion oscura">
+    <section class="seccion">
       <div class="envoltura estrecho">
         <p class="antetitulo">Temporada 1 · 20 episodios</p>
         <h2>Todos los <em>episodios.</em></h2>
