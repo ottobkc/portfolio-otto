@@ -121,3 +121,19 @@ nav:has(.nav-logo){height:64px;
 .test-reto p{margin:6px 0 0;font-size:1.05rem}
 .test-siguiente{margin-top:28px;padding-top:24px;border-top:1px solid var(--linea,#dcdcd8)}
 .test-siguiente h3{margin:0 0 6px}
+
+/* Hora dorada hoy en Madrid */
+.hd-hoy{margin-top:28px}
+.hd-fecha{font:13px ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--gris,#62676e);margin:0 0 6px}
+.hd-ahora{font-size:1.15rem;margin:0 0 18px}
+.hd-tramos{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.hd-t{padding:14px 16px;border-radius:10px;color:#fff;display:flex;flex-direction:column;gap:2px}
+.hd-t span{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;opacity:.9}
+.hd-t b{font:700 1.5rem/1.2 var(--f-titulo,sans-serif)}
+.hd-t small{font-size:.82rem;opacity:.9}
+.hd-t.dorada{background:linear-gradient(135deg,#f0a540,#e8662e)}
+.hd-t.azul{background:linear-gradient(135deg,#2f4f78,#1d2c45)}
+.hd-tabla{width:100%;border-collapse:collapse;font-size:.95rem;font-variant-numeric:tabular-nums;min-width:440px}
+.hd-tabla th{text-align:left;font-weight:600;font-size:.8rem;color:var(--gris,#62676e);border-bottom:1.5px solid var(--tinta,#17191c);padding:6px 8px 6px 0}
+.hd-tabla td{padding:9px 8px 9px 0;border-bottom:1px solid var(--linea,#dcdcd8)}
+.hd-tabla td:first-child{text-transform:capitalize}

@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>10 ejercicios para volver a disfrutar haciendo fotos · Mirar Despacio</title>
+<!-- Guía gratis de Mirar Despacio (A5). Para regenerar el PDF: python3 hacer_pdf.py -->
+<style>@font-face{font-family:'Tit';src:url(../../MirarDespacio/assets/fuentes/atkinson-hyperlegible-next-latin-400-normal.woff2);font-weight:400;font-style:normal}
+@font-face{font-family:'Tit';src:url(../../MirarDespacio/assets/fuentes/atkinson-hyperlegible-next-latin-700-normal.woff2);font-weight:700;font-style:normal}
+@font-face{font-family:'Tit';src:url(../../MirarDespacio/assets/fuentes/atkinson-hyperlegible-next-latin-700-italic.woff2);font-weight:700;font-style:italic}
+@font-face{font-family:'Tit';src:url(../../MirarDespacio/assets/fuentes/onest-latin-700-normal.woff2);font-weight:700;font-style:normal;unicode-range:U+0030-0039}
+@font-face{font-family:'Tit';src:url(../../MirarDespacio/assets/fuentes/onest-latin-700-normal.woff2);font-weight:700;font-style:italic;unicode-range:U+0030-0039}
+@font-face{font-family:'Txt';src:url(../../MirarDespacio/assets/fuentes/onest-latin-400-normal.woff2);font-weight:400;font-style:normal}
+@font-face{font-family:'Txt';src:url(../../MirarDespacio/assets/fuentes/onest-latin-600-normal.woff2);font-weight:600;font-style:normal}
+@font-face{font-family:'Mano';src:url(../../MirarDespacio/assets/fuentes/caveat-latin-600-normal.woff2);font-weight:600;font-style:normal}
+@font-face{font-family:'Mono';src:url(../../MirarDespacio/assets/fuentes/ibm-plex-mono-latin-400-normal.woff2);font-weight:400;font-style:normal}
+@page{size:148mm 210mm;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fbfbfa}
+body{color:#17191c;font:400 9.6pt/1.55 'Txt',sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pag{width:148mm;height:210mm;position:relative;overflow:hidden;page-break-after:always;background:#fbfbfa}
+.pag:last-child{page-break-after:auto}
+.dentro{position:absolute;inset:16mm 15mm 14mm}
+.grano{position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none}
+h1,h2{font-family:'Tit',sans-serif;font-weight:700;letter-spacing:-.015em}
+em.c{font-style:italic;color:#e8662e}
+.mono{font:400 6.6pt/1 'Mono',monospace;letter-spacing:.14em;color:#62676e;text-transform:uppercase}
+.mano{font:600 13pt/1.1 'Mano',cursive;color:#e8347a}
+/* película */
+.pelicula{height:7mm;background:#17191c;position:relative;margin:0 -15mm}
+.pelicula::before,.pelicula::after{content:"";position:absolute;left:0;right:0;height:1.4mm;background:radial-gradient(circle,#fbfbfa 0 .45mm,transparent .55mm) 0 0/3.2mm 1.4mm repeat-x;opacity:.85}
+.pelicula::before{top:.6mm}.pelicula::after{bottom:.6mm}
+.pelicula span{position:absolute;left:15mm;top:50%;transform:translateY(-50%);font:400 5.8pt/1 'Mono',monospace;letter-spacing:.2em;color:#e8821a}
+/* portada */
+.portada{background:#111}
+.portada img.foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portada .sombra{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 45%,rgba(0,0,0,.82) 100%)}
+.portada .logo{position:absolute;top:13mm;left:14mm;height:11mm}
+.portada .tit{position:absolute;left:14mm;right:14mm;bottom:20mm;color:#fff}
+.portada h1{font-size:25pt;line-height:1.06}
+.portada .mano{color:#fff;position:absolute;right:14mm;top:15mm;transform:rotate(-4deg);font-size:14pt}
+.portada .pie{position:absolute;left:14mm;bottom:11mm;color:rgba(255,255,255,.75)}
+/* intro */
+.intro h2{font-size:22pt;margin:16mm 0 7mm}
+.intro p{margin:0 0 4mm;font-size:10.2pt}
+.intro .firma{margin-top:12mm}
+.intro .firma .mano{font-size:20pt;color:#17191c}
+/* ejercicio */
+.ej .cab{display:flex;justify-content:space-between;align-items:baseline;margin:9mm 0 0}
+.ej .num{font:700 44pt/1 'Tit',sans-serif;color:#17191c;letter-spacing:-.03em}
+.ej .num small{font:400 7pt/1 'Mono',monospace;letter-spacing:.14em;color:#e8821a;vertical-align:top;margin-left:2mm}
+.ej h2{font-size:17pt;margin:4mm 0 4mm;line-height:1.15}
+.ej p.txt{font-size:10.4pt}
+.porque{margin:8mm 0 0 2mm;padding-left:4mm;border-left:.6mm solid #e8821a}
+.porque .mano{display:block;margin-bottom:1mm}
+.porque p{font-size:9.6pt;color:#3d4147}
+.nota{position:absolute;left:15mm;right:15mm;bottom:14mm;height:50mm;border-radius:1.5mm;background:#f1f1ef;padding:4mm 5mm;
+  background-image:repeating-linear-gradient(180deg,transparent 0 6.4mm,#dcdcd8 6.4mm 6.65mm);background-origin:content-box;background-clip:content-box;background-color:#f1f1ef}
+.nota .lab{position:absolute;top:2.6mm;left:5mm;font:600 11pt/1 'Mano',cursive;color:#62676e}
+.nota .hecho{position:absolute;top:3.2mm;right:5mm;font:400 6.4pt/1 'Mono',monospace;letter-spacing:.1em;color:#62676e}
+.nota .hecho b{display:inline-block;width:2.6mm;height:2.6mm;border:.3mm solid #62676e;border-radius:.4mm;vertical-align:-.5mm;margin-right:1.4mm}
+/* final */
+.fin{background:#17191c;color:#e9e9e6}
+.fin h2{font-size:22pt;margin:18mm 0 7mm;color:#fff}
+.fin p{font-size:9.8pt;margin:0 0 4.5mm;color:#c9cbcd}
+.fin b{color:#fff;font-weight:600}
+.fin a{color:#f0a35a;text-decoration:none;border-bottom:.25mm solid #e8347a}
+.fin .firma{position:absolute;left:15mm;bottom:22mm;font:600 22pt/1 'Mano',cursive;color:#fff;transform:rotate(-3deg)}
+.fin .logo{position:absolute;right:15mm;bottom:20mm;height:10mm;opacity:.9}
+.fin .grano{opacity:.1}
+</style></head><body><section class="pag portada"><img class="foto" src="portada-foto.jpg" alt="">
+<img class="logo" src="logo-md-blanco.png" alt="Mirar Despacio"><span class="mano">para llevar en el bolsillo</span>
+<div class="tit"><h1>10 ejercicios para volver a <em class="c">disfrutar haciendo fotos.</em></h1></div>
+<p class="pie mono" style="color:rgba(255,255,255,.75)">▸ 00A · Mirar Despacio · Otto Kols · Madrid</p></section><section class="pag intro"><div class="dentro">
+<p class="mono">▸ antes de salir</p>
+<h2>Antes de <em class="c">empezar.</em></h2>
+<p>Hacemos cientos de fotos y miramos muy pocas. No es culpa de la cámara: es que vamos deprisa.</p>
+<p>Estos ejercicios no te enseñan ajustes. Te proponen una manera de salir a la calle. Elige uno, sal con él y olvídate del resto. Vale cualquier cámara, también el móvil.</p>
+<p>No hace falta hacerlos en orden ni hacerlos todos. Con uno a la semana tienes para un par de meses de mirar distinto.</p>
+<div class="firma"><span class="mano">Menos fotos, mejor mirada.</span><br><span class="mano" style="font-size:16pt;color:#62676e">— Otto</span></div>
+</div></section><section class="pag ej"><div class="pelicula"><span>▸ 01A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 12A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">01<small>de 10</small></span></div>
+<h2>Una hora, una focal</h2>
+<p class="txt">Sal con un solo objetivo fijo, o con el móvil sin tocar el zoom, durante una hora. Si quieres algo más cerca, te acercas tú. Si no cabe, das un paso atrás.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Tus pies hacen el trabajo del zoom, y empiezas a pensar desde dónde miras.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 02A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 13A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">02<small>de 10</small></span></div>
+<h2>Diez fotos del mismo sitio</h2>
+<p class="txt">Elige una esquina, una plaza o un portal y quédate veinte minutos. Haz diez fotos sin moverte más de unos metros.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Las primeras tres son las obvias. A partir de la cuarta empiezas a ver lo que no se ve.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 03A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 14A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">03<small>de 10</small></span></div>
+<h2>Primero el escenario</h2>
+<p class="txt">Busca un fondo que te guste (una pared con luz, un cartel, un escaparate) y espera a que alguien pase por él. No persigas a nadie: deja que la calle venga.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Aprendes a prever en vez de reaccionar.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 04A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 15A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">04<small>de 10</small></span></div>
+<h2>Fotografía la luz</h2>
+<p class="txt">Durante un paseo, no fotografíes cosas: fotografía dónde cae la luz. Un rayo en una fachada, un charco brillante, una cara iluminada de lado.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>La luz decide qué es importante en una foto antes que el tema.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 05A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 16A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">05<small>de 10</small></span></div>
+<h2>Doce disparos</h2>
+<p class="txt">Sal con la regla de hacer solo doce fotos, como un carrete corto. Antes de cada disparo, pregúntate por qué esa y no otra.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Cuando cada foto cuesta, miras mucho más antes de apretar.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 06A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 17A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">06<small>de 10</small></span></div>
+<h2>Sin mirar la pantalla</h2>
+<p class="txt">Haz todo el paseo sin revisar ninguna foto. Ni una. Míralas al llegar a casa, con calma.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Dejas de corregir y empiezas a fiarte de tu mirada. Y la sorpresa al llegar a casa engancha.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 07A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 18A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">07<small>de 10</small></span></div>
+<h2>Un marco dentro del marco</h2>
+<p class="txt">Busca puertas, ventanas, huecos, reflejos o arcos que encuadren algo dentro de tu foto.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Ordena la imagen y lleva la mirada de quien la ve justo donde tú quieres.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 08A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 19A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">08<small>de 10</small></span></div>
+<h2>Un color</h2>
+<p class="txt">Elige un color antes de salir (rojo, amarillo, verde…) y fotografía solo lo que lo tenga.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Te obliga a mirar la ciudad con un filtro, y encuentras cosas que siempre estaban ahí.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 09A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 20A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">09<small>de 10</small></span></div>
+<h2>Solo sombras</h2>
+<p class="txt">Una salida dedicada a las sombras: de personas, de farolas, de barandillas. Mejor a primera hora o al atardecer, cuando son largas.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Descubres formas que no existen cuando miras el objeto directamente.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag ej"><div class="pelicula"><span>▸ 10A &nbsp;·&nbsp; MIRAR DESPACIO &nbsp;·&nbsp; 21A</span></div><div class="dentro" style="top:7mm">
+<div class="cab"><span class="num">10<small>de 10</small></span></div>
+<h2>La foto que borrarías</h2>
+<p class="txt">Busca en tu móvil una foto que ibas a borrar. Antes de hacerlo, piensa qué te hizo pararte a hacerla. Vuelve al sitio, o a uno parecido, e inténtalo otra vez.</p>
+<div class="porque"><span class="mano">por qué funciona</span><p>Casi siempre había algo. Esta vez sabes qué estás buscando.</p></div>
+</div>
+<div class="nota"><span class="lab">tu nota:</span><span class="hecho"><b></b>hecho el ___ / ___</span></div></section><section class="pag fin"><div class="dentro">
+<p class="mono" style="color:#8c9096">▸ y después</p>
+<h2>¿Y si lo hacemos <em class="c">juntos?</em></h2>
+<p>Estos ejercicios nacieron en las salidas de Mirar Despacio: paseos en grupo por los barrios de Madrid, con retos parecidos y fotos que vemos juntos al final.</p>
+<p><b>Salidas en grupo</b> · aportación libre · <a href="https://mirardespacio.es/salidas/">mirardespacio.es/salidas</a></p>
+<p><b>Talleres</b> de noche, atardecer, composición e iniciación · <a href="https://mirardespacio.es/talleres/">mirardespacio.es/talleres</a></p>
+<p><b>Mirar Despacio+</b> · un reto al mes y comunidad, también si no vives en Madrid · <a href="https://mirardespacio.es/mirar-despacio-plus/">mirardespacio.es/mirar-despacio-plus</a></p>
+<p>Si haces alguno, enséñamelo: etiqueta <b>#mirardespacio</b> en Instagram.</p>
+</div><span class="firma">Otto</span><img class="logo" src="logo-md-blanco.png" alt=""></section></body></html>

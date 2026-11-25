@@ -83,9 +83,10 @@
     var min = function (a) { return Math.round((a - ahora) / 6e4); };
     var aPuesta = min(s.pone), aSalida = min(s.sale), azulFin = new Date(s.pone.getTime() + 35 * 6e4);
     var proxSalida = aSalida > 0 ? s.sale : m.sale;
-    if (aSalida > 0 && aSalida <= 40) return ['amanecer', 'Está amaneciendo. El sol sale a las ' + hm(s.sale) + '.', 'f/2.8 · 1/60 · ISO 1600'];
-    if (aSalida <= 0 && aSalida > -60) return ['luz de mañana', 'Primera hora: luz baja y suave hasta las ' + hm(new Date(s.sale.getTime() + 60 * 6e4)) + '.', 'f/5.6 · 1/250 · ISO 400'];
-    if (aPuesta > 60 && aSalida <= 0) return ['luz de día', 'Luz de día. El sol se pone a las ' + hm(s.pone) + '.', 'f/8 · 1/250 · ISO 200'];
+    if (aSalida > 40) return ['de noche', 'Es de noche. Hoy el sol sale a las ' + hm(s.sale) + '.', 'f/2 · 1/60 · ISO 3200'];
+    if (aSalida > 0) return ['amanecer', 'Está amaneciendo. El sol sale a las ' + hm(s.sale) + '.', 'f/2.8 · 1/60 · ISO 1600'];
+    if (aSalida > -60) return ['luz de mañana', 'Primera hora: luz baja y suave hasta las ' + hm(new Date(s.sale.getTime() + 60 * 6e4)) + '.', 'f/5.6 · 1/250 · ISO 400'];
+    if (aPuesta > 45) return ['luz de día', 'Luz de día. El sol se pone a las ' + hm(s.pone) + '.', 'f/8 · 1/250 · ISO 200'];
     if (aPuesta > 0) return ['hora dorada', 'Hora dorada: el sol se pone a las ' + hm(s.pone) + '.', 'f/5.6 · 1/250 · ISO 400'];
     if (ahora < azulFin) return ['hora azul', 'Hora azul hasta las ' + hm(azulFin) + ': el mejor rato para fotos de noche con algo de cielo.', 'f/2.8 · 1/60 · ISO 1600'];
     return ['de noche', 'Es de noche. Mañana el sol sale a las ' + hm(proxSalida) + '.', 'f/2 · 1/60 · ISO 3200'];
@@ -114,7 +115,8 @@
         '<p class="md-luz-tit">La luz ahora en <label class="md-luz-sel"><span class="oculto-visual">Ciudad</span><select>' + opciones + '</select></label></p>' +
         '<p class="md-luz-frase">' + l[1] + '</p>' +
         '<p class="md-luz-exp"><b>Si sales ahora a hacer fotos:</b> ' + l[2] + '</p>' +
-        '<p class="md-luz-nota">Son ajustes orientativos para empezar; luego mira la foto y corrige. Se calcula con la salida y la puesta de sol reales de cada día.</p>';
+        '<p class="md-luz-nota">Son ajustes orientativos para empezar; luego mira la foto y corrige. Se calcula con la salida y la puesta de sol reales de cada día.</p>' +
+        (ciudad[0] === 'Madrid' ? '<a class="md-luz-salida" href="/hora-dorada-madrid/">Horas de luz de toda la semana →</a>' : '');
       panel.querySelector('select').addEventListener('change', function (e) {
         CIUDADES.forEach(function (c) { if (c[0] === e.target.value) ciudad = c; });
         try { localStorage.setItem('md-ciudad', ciudad[0]); } catch (er) {}

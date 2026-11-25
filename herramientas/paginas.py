@@ -1088,6 +1088,40 @@ def construir(g):
     cuerpo = '''
     <section class="portada">
       <div class="envoltura estrecho">
+        <p class="antetitulo">Luz de Madrid</p>
+        <h1>Hora dorada hoy <em>en Madrid.</em></h1>
+        <p class="entradilla">A qué hora empieza y termina hoy la hora dorada y la hora azul en Madrid, calculado con la salida y la puesta de sol de cada día.</p>
+        <div id="hd-hoy" class="hd-hoy" aria-live="polite"><noscript>Esta página calcula las horas en tu navegador: necesita JavaScript.</noscript></div>
+      </div>
+    </section>
+    <section class="seccion papel">
+      <div class="envoltura estrecho">
+        <h2>Los próximos <em>siete días.</em></h2>
+        <div id="hd-semana" style="overflow-x:auto;"></div>
+        <p class="aviso" style="margin-top:14px;">Horas de Madrid. Calculadas para el centro de la ciudad: con edificios altos o montañas delante, el sol se va antes.</p>
+      </div>
+    </section>
+    <section class="seccion">
+      <div class="envoltura estrecho">
+        <h2>Qué es la <em>hora dorada.</em></h2>
+        <p>Es el rato en que el sol está muy bajo, justo después de salir o justo antes de ponerse. La luz llega de lado, es cálida y suave, y las sombras se alargan. Las fachadas se encienden de naranja y la gente se recorta a contraluz.</p>
+        <p>La <b>hora azul</b> llega después de la puesta (o antes del amanecer): el sol ya no se ve, el cielo se queda azul intenso y se encienden las farolas y los escaparates. Es el mejor momento para fotos de noche que todavía tienen algo de cielo.</p>
+        <h3 style="margin-top:32px;">Para empezar con la cámara</h3>
+        <p><b>Hora dorada:</b> f/5.6 · 1/250 · ISO 400. <b>Hora azul:</b> f/2.8 · 1/60 · ISO 1600. Son puntos de partida: dispara, mira la foto y corrige. En contraluz, baja la exposición para no quemar el cielo.</p>
+        <h3 style="margin-top:32px;">Dónde mirarla en Madrid</h3>
+        <p>Calles largas orientadas al oeste, donde el sol entra al final de la tarde: la Gran Vía, la calle de Alcalá o la de Atocha. Miradores como el Templo de Debod o las Vistillas para siluetas. Y Madrid Río para el reflejo en el agua.</p>
+        <p style="margin-top:28px;"><span class="nota" style="font-size:1.35rem;">y si quieres aprenderla en la calle,</span> está el taller <a href="/talleres/atardecer/">Callejera al atardecer</a>.</p>
+      </div>
+    </section>'''
+    escribir('/hora-dorada-madrid/', pagina('/hora-dorada-madrid/', 'Hora dorada hoy en Madrid · Horario de la hora dorada y la hora azul',
+        'A qué hora es hoy la hora dorada y la hora azul en Madrid, y los próximos siete días. Con ajustes de cámara para empezar y sitios donde verla.',
+        cuerpo, extra_pie=f'''
+  <script defer src="{g['v']('hora-dorada.js')}"></script>'''))
+
+
+    cuerpo = '''
+    <section class="portada">
+      <div class="envoltura estrecho">
         <span class="nota">vaya</span>
         <h1>Esta página <em>no existe.</em></h1>
         <p class="entradilla">A veces lo interesante está fuera del encuadre. Prueba por aquí:</p>
@@ -1164,6 +1198,9 @@ GALERIA_JS = '''
 
 FAQ_SALIDAS = [
     ("¿Cuánto cuesta una salida?", "No tiene precio fijo. Funciona como un free tour: al final cada persona contribuye lo que considere, y si ese día no puedes, no pasa nada. Si eres de Mirar Despacio+, la salida está incluida."),
+    ("Voy a ir solo y no conozco a nadie, ¿es raro?", "Para nada: casi todo el mundo viene solo la primera vez. Empezamos con una ronda rápida de presentaciones y, en cuanto sacas tu primera tarjeta de misión, ya estás comentando con alguien. Y si eres de pocas palabras, tampoco pasa nada: aquí se viene a mirar."),
+    ("Me da vergüenza hacer fotos a desconocidos", "Es lo más normal, y de eso va un <a href=\"/podcast/05-como-vencer-la-verguenza-al-hacer-fotos/\">episodio entero del podcast</a>. Nadie te obliga a nada: las tarjetas van de menos a más y puedes empezar por sombras, reflejos o detalles. Antes de salir hablamos de lo que conviene evitar y de cómo fotografiar a la gente con respeto."),
+    ("¿Y si mis fotos son malas? Me da corte enseñarlas", "En el visionado nadie juzga. Cada uno enseña las que quiere, o ninguna, y hablamos de lo que vemos, no de si está bien o mal. Muchas veces la foto que más gusta es la que su autor iba a borrar."),
     ("¿Necesito saber de fotografía o una cámara buena?", "No. Vienen personas con réflex, con compactas, con analógicas y con el móvil. Las tarjetas de misión se adaptan a cada nivel."),
     ("¿Cuánto dura?", "Unas tres horas, normalmente de 10:00 a 13:00: paseo y después visionado de fotos en una terraza. Al final solemos tomar algo; las consumiciones las paga cada uno."),
     ("¿Dónde son las salidas?", "Cada salida es en un barrio distinto de Madrid: hasta ahora <a href=\"/salidas/barrio-de-las-letras/\">Barrio de las Letras</a>, <a href=\"/salidas/malasana/\">Malasaña</a>, <a href=\"/salidas/tribunal-chueca/\">Tribunal y Chueca</a>, <a href=\"/salidas/huertas/\">Huertas</a> y la <a href=\"/salidas/gran-via/\">Gran Vía</a>. El punto de encuentro lo confirmo por email a quien se apunta."),

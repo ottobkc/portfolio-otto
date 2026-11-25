@@ -379,6 +379,7 @@
     <button class="item" data-tab="tienda"><span class="ico">◫</span>Tienda <span id="tiendaPendientes" class="badge" style="display:none" title="Pedidos por preparar"></span></button>
     <button class="item" data-tab="regalos"><span class="ico">✧</span>Regalos</button>
     <button class="item" data-tab="suscriptores"><span class="ico">✉</span>Suscriptores</button>
+    <button class="item" data-tab="resenas"><span class="ico">★</span>Reseñas</button>
     <div class="pie">
       <button class="tema" id="botonTema" type="button" onclick="cambiarTema()"></button>
       <button class="salir" type="button" onclick="doLogout()">Cerrar sesión</button>
@@ -737,6 +738,24 @@
     <div id="suscList"></div>
   </div>
 
+  <!-- RESEÑAS (textos de opiniones de Google que la API no da) -->
+  <div class="view" id="view-resenas">
+    <div class="card">
+      <div class="card-title">Añadir una opinión</div>
+      <div class="person-meta">Copia el texto tal cual de tu ficha de Google y pon el nombre como aparece allí. Sale en la web junto a la nota de Google (puede tardar hasta una hora).</div>
+      <div class="row" style="margin-top:12px;">
+        <select id="rsFicha"><option value="md">Mirar Despacio</option><option value="ok">Otto Kols</option></select>
+        <input id="rsAutor" placeholder="Nombre (como sale en Google)" maxlength="60">
+        <select id="rsNota"><option value="5">★★★★★</option><option value="4">★★★★</option></select>
+      </div>
+      <textarea id="rsTexto" rows="5" placeholder="Texto de la opinión" maxlength="1200" style="margin-top:8px;"></textarea>
+      <input id="rsUrl" placeholder="Enlace a su perfil de Google (opcional)" style="margin-top:8px;">
+      <div style="display:flex;gap:8px;margin-top:12px;"><button onclick="guardarResena()">Guardar</button></div>
+      <div class="copy-hint" id="rsHint"></div>
+    </div>
+    <div id="rsList"></div>
+  </div>
+
   <!-- EXPORTAR VIEW -->
   <div class="view" id="view-exportar">
     <div class="card">
@@ -947,6 +966,7 @@ const TITULOS = {
   contabilidad: ['Contabilidad', 'Facturas, cobros, gastos y suscripciones'], tienda: ['Tienda', 'Productos, stock y pedidos'],
   regalos: ['Regalos', 'Bonos regalo vendidos: talleres y Mirar Despacio+'],
   suscriptores: ['Suscriptores', 'Quién ha pedido la guía gratis'],
+  resenas: ['Reseñas', 'Textos de opiniones de Google para las webs'],
 };
 document.querySelectorAll('[data-tab]').forEach(t => {
   t.addEventListener('click', () => showTab(t.dataset.tab));
@@ -992,6 +1012,7 @@ window.showTab = function(name) {
   if (name === 'tienda') cargarModulos().then(([, t]) => t.mostrar());
   if (name === 'regalos') renderBonos();
   if (name === 'suscriptores') cargarSuscriptores();
+  if (name === 'resenas') cargarResenas();
 };
 
 // Abrir la sección indicada en la dirección (p. ej. ./#tienda desde Galerías de clientes)
@@ -1581,6 +1602,53 @@ window.csvSuscriptores = function() {
   }));
   const blob = new Blob(['\ufeff' + filas.map(r => r.map(q).join(';')).join('\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'suscriptores-guia.csv'; a.click();
+};
+
+// ---------- RESEÑAS (textos pegados a mano) ----------
+let resenasTextos = [];
+window.cargarResenas = async function() {
+  const el = document.getElementById('rsList');
+  try {
+    const snap = await getDocs(collection(db, 'resenas_textos'));
+    resenasTextos = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.orden || 0) - (a.orden || 0));
+  } catch (e) { el.innerHTML = '<div class="empty">Error: ' + escapeHtml(e.message) + '</div>'; return; }
+  if (!resenasTextos.length) { el.innerHTML = '<div class="empty">Aún no has pegado ninguna opinión</div>'; return; }
+  el.innerHTML = '';
+  resenasTextos.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'person-row';
+    div.innerHTML = `<div class="person-main">
+      <div class="person-name">${escapeHtml(r.autor || '')} · ${'★'.repeat(Number(r.nota) || 5)} <span class="badge">${r.ficha === 'ok' ? 'Otto Kols' : 'Mirar Despacio'}</span>${r.visible === false ? ' <span class="badge" style="background:#b5654f;">oculta</span>' : ''}</div>
+      <div class="person-meta" style="white-space:pre-wrap;">${escapeHtml(r.texto || '')}</div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="secondary" onclick="ocultarResena('${r.id}', ${r.visible === false})">${r.visible === false ? 'Mostrar' : 'Ocultar'}</button>
+        <button class="secondary" onclick="borrarResena('${r.id}')">Borrar</button>
+      </div>
+    </div>`;
+    el.appendChild(div);
+  });
+};
+window.guardarResena = async function() {
+  const hint = document.getElementById('rsHint');
+  const autor = document.getElementById('rsAutor').value.trim(), texto = document.getElementById('rsTexto').value.trim();
+  if (!autor || !texto) { hint.textContent = 'Falta el nombre o el texto'; return; }
+  const url = document.getElementById('rsUrl').value.trim();
+  try {
+    await addDoc(collection(db, 'resenas_textos'), {
+      ficha: document.getElementById('rsFicha').value, autor, texto,
+      nota: Number(document.getElementById('rsNota').value), autorUrl: /^https:\/\//.test(url) ? url : '',
+      visible: true, orden: Date.now(),
+    });
+    document.getElementById('rsAutor').value = ''; document.getElementById('rsTexto').value = ''; document.getElementById('rsUrl').value = '';
+    hint.textContent = 'Guardada ✓'; cargarResenas();
+  } catch (e) { hint.textContent = 'Error: ' + e.message; }
+};
+window.ocultarResena = async function(id, mostrar) {
+  try { await setDoc(doc(db, 'resenas_textos', id), { visible: !!mostrar }, { merge: true }); cargarResenas(); } catch (e) { alert(e.message); }
+};
+window.borrarResena = async function(id) {
+  if (!confirm('¿Borrar esta opinión de la web? (en Google sigue)')) return;
+  try { await deleteDoc(doc(db, 'resenas_textos', id)); cargarResenas(); } catch (e) { alert(e.message); }
 };
 
 // ---------- REGALOS (bonos) ----------
@@ -2602,7 +2670,7 @@ window.copyExport = function() {
 };
 
 // ---------- COPIA DE SEGURIDAD ----------
-const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity', 'suscriptores'];
+const COLECCIONES = ['events', 'people', 'signups', 'ingresos', 'bonos', 'facturas', 'contadores', 'suscripciones_gasto', 'ajustes', 'productos', 'pedidos', 'pegatinas', 'accesos', 'miembros_actividad', 'ranking', 'jugadores', 'fotos', 'retos', 'cambios_acceso', 'triangulo_jugadores', 'triangulo_ranking', 'triangulo_dias', 'cuentas', 'respaldo_identity', 'suscriptores', 'resenas_textos'];
 function limpiarDato(v) {
   if (v && typeof v.toDate === 'function') return { __fecha: v.toDate().toISOString() };
   if (Array.isArray(v)) return v.map(limpiarDato);

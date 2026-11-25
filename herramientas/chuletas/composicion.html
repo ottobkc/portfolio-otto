@@ -6,20 +6,26 @@
 <!-- Tarjeta de bolsillo A6 (105 × 148 mm) a doble cara, con 3 mm de sangrado por cada lado.
      Para regenerar el PDF: abrir en Chrome → Imprimir → Guardar como PDF, márgenes «Ninguno», con gráficos de fondo.
      El QR lleva a https://mirardespacio.es/acceso/?a=manual-composicion · El logo (logo-md-blanco.png) va en esta misma carpeta. -->
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-/*FUENTES*/
+/* Letra de Mirar Despacio (nov. 2026): los nombres antiguos apuntan a la letra nueva */
+@font-face{font-family:'Fraunces';src:url(../../MirarDespacio/assets/fuentes/atkinson-hyperlegible-next-latin-700-normal.woff2);font-weight:100 1000;font-style:normal}
+@font-face{font-family:'Fraunces';src:url(../../MirarDespacio/assets/fuentes/atkinson-hyperlegible-next-latin-700-italic.woff2);font-weight:100 1000;font-style:italic}
+@font-face{font-family:'Fraunces';src:url(../../MirarDespacio/assets/fuentes/onest-latin-700-normal.woff2);font-weight:100 1000;font-style:normal;unicode-range:U+0030-0039}
+@font-face{font-family:'Fraunces';src:url(../../MirarDespacio/assets/fuentes/onest-latin-700-normal.woff2);font-weight:100 1000;font-style:italic;unicode-range:U+0030-0039}
+@font-face{font-family:'Inter';src:url(../../MirarDespacio/assets/fuentes/onest-latin-400-normal.woff2);font-weight:100 499;font-style:normal}
+@font-face{font-family:'Inter';src:url(../../MirarDespacio/assets/fuentes/onest-latin-600-normal.woff2);font-weight:500 1000;font-style:normal}
+@font-face{font-family:'Caveat';src:url(../../MirarDespacio/assets/fuentes/caveat-latin-600-normal.woff2);font-weight:100 1000;font-style:normal}
 
 @page { size: 111mm 154mm; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { background: #f5f3ef; }
-body { color: #1a1814; font: 400 7.6pt/1.38 'Inter', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.cara { width: 111mm; height: 154mm; position: relative; overflow: hidden; page-break-after: always; background: #f5f3ef; }
+html, body { background: #fbfbfa; }
+body { color: #17191c; font: 400 7.6pt/1.38 'Inter', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.cara { width: 111mm; height: 154mm; position: relative; overflow: hidden; page-break-after: always; background: #fbfbfa; }
 .cara:last-child { page-break-after: auto; }
 /* zona segura: 3 mm de sangrado + 5 mm de margen */
 .seguro { position: absolute; inset: 8mm; display: flex; flex-direction: column; }
 .cielo { position: absolute; left: 0; right: 0; top: 0; height: 47mm; background: linear-gradient(180deg, #f2c27a 0%, #e8821a 38%, #b9466a 70%, #2b4a6f 100%); }
-.cielo::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 15mm; background: repeating-linear-gradient(90deg, transparent 0 4.2mm, rgba(26,24,20,.22) 4.2mm 4.45mm); }
+.cielo::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 15mm; background: repeating-linear-gradient(90deg, transparent 0 4.2mm, rgba(23,25,28,.22) 4.2mm 4.45mm); }
 .titulo { color: #fff; position: relative; height: 39mm; }
 .marca { font: 600 5.6pt/1 'Inter', sans-serif; letter-spacing: .24em; text-transform: uppercase; opacity: .92; }
 h1 { font: 300 23pt/1 'Fraunces', serif; margin-top: 4mm; letter-spacing: -.01em; }
@@ -30,18 +36,18 @@ h2 { font: 600 5.8pt/1 'Inter', sans-serif; letter-spacing: .2em; text-transform
 .barra { display: grid; grid-template-columns: 1.25fr 1fr 1fr 1fr; border-radius: 1.6mm; overflow: hidden; }
 .barra div { padding: 1.6mm 1.8mm; color: #fff; font: 400 6.2pt/1.25 'Inter', sans-serif; }
 .barra b { display: block; font: 500 9.5pt/1.1 'Fraunces', serif; }
-.barra div:nth-child(1) { background: #e9a64a; color: #1a1814; }
+.barra div:nth-child(1) { background: #e9a64a; color: #17191c; }
 .barra div:nth-child(2) { background: #e8821a; }
 .barra div:nth-child(3) { background: #9c4466; }
 .barra div:nth-child(4) { background: #2b4a6f; }
 .mano { font: 600 10pt/1.05 'Caveat', cursive; color: #e8347a; }
 .reloj .mano { margin-top: 1.6mm; }
 table { width: 100%; border-collapse: collapse; margin-top: 1mm; }
-th { text-align: left; font: 600 5.4pt/1 'Inter', sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #6b655a; padding: 0 1mm 1.2mm 0; border-bottom: .3mm solid #1a1814; }
-td { padding: 1.25mm 1mm 1.25mm 0; border-bottom: .2mm solid #d8d1c4; vertical-align: top; white-space: nowrap; }
+th { text-align: left; font: 600 5.4pt/1 'Inter', sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #62676e; padding: 0 1mm 1.2mm 0; border-bottom: .3mm solid #17191c; }
+td { padding: 1.25mm 1mm 1.25mm 0; border-bottom: .2mm solid #dcdcd8; vertical-align: top; white-space: nowrap; }
 td:first-child { font-weight: 600; white-space: normal; }
 .ajustes { margin-top: 4.5mm; }
-.pie { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline; color: #6b655a; font-size: 6pt; }
+.pie { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline; color: #62676e; font-size: 6pt; }
 /* Reverso */
 .reverso .franja { position: absolute; left: 0; right: 0; top: 0; height: 6mm; background: linear-gradient(90deg, #f2c27a, #e8821a 35%, #b9466a 70%, #2b4a6f); }
 .reverso h3 { font: 300 15pt/1.05 'Fraunces', serif; margin: 1mm 0 3mm; }
@@ -50,13 +56,13 @@ ol { list-style: none; counter-reset: c; }
 ol li { counter-increment: c; position: relative; padding-left: 6mm; margin-bottom: 2mm; }
 ol li::before { content: counter(c); position: absolute; left: 0; top: -.4mm; font: 500 10pt/1 'Fraunces', serif; color: #e8821a; }
 ol li b { font-weight: 600; }
-.arreglos { margin-top: 2.5mm; border-top: .2mm solid #d8d1c4; padding-top: 2.5mm; }
+.arreglos { margin-top: 2.5mm; border-top: .2mm solid #dcdcd8; padding-top: 2.5mm; }
 .arreglos p { margin-bottom: 1.2mm; }
 .arreglos p b { font-weight: 600; }
-.qr { margin-top: auto; display: flex; gap: 4mm; align-items: center; background: #ebe6dd; border-radius: 2mm; padding: 3mm; }
+.qr { margin-top: auto; display: flex; gap: 4mm; align-items: center; background: #f1f1ef; border-radius: 2mm; padding: 3mm; }
 .qr svg { width: 21mm; height: 21mm; flex: none; background: #fff; padding: 1.2mm; border-radius: 1mm; }
 .qr p { font-size: 7pt; }
-.qr .mano { font-size: 12pt; color: #1a1814; display: block; margin-bottom: 1mm; }
+.qr .mano { font-size: 12pt; color: #17191c; display: block; margin-bottom: 1mm; }
 
 .logo { position: absolute; top: -1mm; right: 0; width: 25mm; height: auto; }
 .barra.c2 { grid-template-columns: 1fr 1fr; }
@@ -66,8 +72,8 @@ table.texto td { white-space: normal; }
 table.texto td:first-child { width: 27%; }
 .pasos { font: 500 9pt/1 'Fraunces', serif; letter-spacing: .02em; margin-top: 1.6mm; }
 
-.cielo { background: #1a1814; }
-.titulo h1 em { color: #e8821a; } .cielo::after { height: 100%; background: linear-gradient(90deg, transparent 36.7mm, rgba(245,243,239,.22) 36.7mm 36.95mm, transparent 36.95mm 74mm, rgba(245,243,239,.22) 74mm 74.25mm, transparent 74.25mm), linear-gradient(180deg, transparent 15.6mm, rgba(245,243,239,.22) 15.6mm 15.85mm, transparent 15.85mm 31.2mm, rgba(245,243,239,.22) 31.2mm 31.45mm, transparent 31.45mm); } .reverso .franja { background: #1a1814; }
+.cielo { background: #17191c; }
+.titulo h1 em { color: #e8821a; } .cielo::after { height: 100%; background: linear-gradient(90deg, transparent 36.7mm, rgba(245,243,239,.22) 36.7mm 36.95mm, transparent 36.95mm 74mm, rgba(245,243,239,.22) 74mm 74.25mm, transparent 74.25mm), linear-gradient(180deg, transparent 15.6mm, rgba(245,243,239,.22) 15.6mm 15.85mm, transparent 15.85mm 31.2mm, rgba(245,243,239,.22) 31.2mm 31.45mm, transparent 31.45mm); } .reverso .franja { background: #17191c; }
 </style>
 </head>
 <body>

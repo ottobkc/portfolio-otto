@@ -9,6 +9,8 @@
 //
 // Se consulta a Google como mucho cada 6 horas por ficha (se guarda en Firestore, colección cache):
 // así el coste es prácticamente cero y la web no depende de Google para cargar.
+// Google solo devuelve hasta 5 opiniones y elige cuáles (y a veces ninguna con texto): por eso Otto
+// puede pegar textos de opiniones reales desde el CRM (colección resenas_textos).
 // Google solo devuelve hasta 5 opiniones y elige cuáles; las normas piden enseñar el nombre del autor
 // con enlace y dejar claro que son de Google.
 const { db, FieldValue } = require('../lib/firestore');
@@ -68,5 +70,20 @@ exports.handler = async (event) => {
     }
   }
   if (!datos || !datos.total) return vacio;
+
+  // Textos que Otto pega a mano desde el CRM (pestaña «Reseñas»): son opiniones reales de Google
+  // que la API no devuelve. Van primero; si Google ya trae la de esa misma persona, no se repite.
+  try {
+    const snap = await db().collection('resenas_textos').where('ficha', '==', ficha).get();
+    const manuales = snap.docs.map((d) => d.data()).filter((r) => r.visible !== false && r.texto)
+      .sort((a, b) => (b.orden || 0) - (a.orden || 0))
+      .map((r) => ({ autor: limpio(r.autor, 60), autorUrl: r.autorUrl || '', nota: Number(r.nota) || 5, texto: limpio(r.texto, 1200), cuando: r.cuando || '' }));
+    if (manuales.length) {
+      const ya = new Set(manuales.map((r) => r.autor.toLowerCase()));
+      datos = { ...datos, resenas: manuales.concat((datos.resenas || []).filter((r) => !ya.has(String(r.autor).toLowerCase()))) };
+    }
+  } catch (e) {
+    console.error('resenas manuales', ficha, e.message);
+  }
   return { statusCode: 200, headers: cab, body: JSON.stringify(datos) };
 };
