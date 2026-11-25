@@ -4,10 +4,21 @@
   var boton = document.querySelector('.nav-boton');
   var menu = document.querySelector('.nav ul');
   if (boton && menu) {
-    boton.addEventListener('click', function () {
-      var abierto = menu.classList.toggle('abierto');
-      boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    var ponMenu = function (abrir) {
+      menu.classList.toggle('abierto', abrir);
+      boton.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+      document.documentElement.classList.toggle('menu-abierto', abrir);  // la página de detrás no se mueve
+    };
+    boton.addEventListener('click', function () { ponMenu(!menu.classList.contains('abierto')); });
+    // Se cierra al elegir algo (también los enlaces a otra parte de la misma página),
+    // al tocar fuera, con Escape, al volver atrás en el navegador y al girar a horizontal ancho.
+    menu.addEventListener('click', function (e) { if (e.target.closest('a')) ponMenu(false); });
+    document.addEventListener('click', function (e) {
+      if (menu.classList.contains('abierto') && !menu.contains(e.target) && !boton.contains(e.target)) ponMenu(false);
     });
+    addEventListener('keydown', function (e) { if (e.key === 'Escape' && menu.classList.contains('abierto')) { ponMenu(false); boton.focus(); } });
+    addEventListener('pageshow', function () { ponMenu(false); });
+    addEventListener('resize', function () { if (innerWidth > 820 && menu.classList.contains('abierto')) ponMenu(false); });
   }
 
   // Aparición suave al hacer scroll

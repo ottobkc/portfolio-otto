@@ -13,6 +13,9 @@ for p in RAIZ.rglob('*.html'):
     else: t = t.replace('</head>', '  ' + TEMA + '\n</head>', 1)
     if '/assets/sello.js' in t: t = re.sub(r'<script defer src="/assets/sello\.js[^"]*"></script>', SELLO, t)
     else: t = t.replace('</body>', '  ' + SELLO + '\n</body>', 1)
+    # versiones al día de los archivos comunes (para que el navegador no use una copia vieja)
+    for comun in ('md.css', 'md.js', 'navidad.js'):
+        t = re.sub(r'/assets/' + re.escape(comun) + r'\?v=[0-9a-f]+', v(comun), t)
     # logotipo completo en la cabecera (igual que en generar.py)
     t = re.sub(r'<a class="marca" href="/"><img [^>]*>', '<a class="marca" href="/"><img class="marca-logo" src="/assets/logo-md-cabecera.webp" alt="" width="120" height="40">', t)
     if t != s: p.write_text(t, encoding='utf-8'); n += 1

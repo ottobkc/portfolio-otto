@@ -295,7 +295,11 @@
     .m-top button { margin-left: auto; background: transparent; color: var(--sb-fg); font-size: 20px; padding: 4px 8px; }
     main.contenido { padding: 18px 14px calc(90px + env(safe-area-inset-bottom)); }
     .cabecera { margin-bottom: 14px; } h1 { font-size: 27px; }
-    .m-bar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; justify-content: space-around; padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
+    #app { min-height: 100dvh; }
+    /* La barra de abajo: se esconde mientras está el teclado abierto (en iPhone se quedaba flotando a media pantalla) */
+    body.teclado .m-bar, body.teclado #syncStatus { display: none !important; }
+    html.menu-abierto, html.menu-abierto body { overflow: hidden; }
+    .m-bar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; transform: translateZ(0); -webkit-backface-visibility: hidden; justify-content: space-around; padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); }
     .m-bar button { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; color: var(--muted); font: 500 11px 'Inter', sans-serif; padding: 4px 6px; position: relative; }
     .m-bar button b { font-size: 18px; font-weight: 400; }
     .m-bar button.active { color: var(--acc); }
@@ -948,11 +952,28 @@ document.querySelectorAll('[data-tab]').forEach(t => {
   t.addEventListener('click', () => showTab(t.dataset.tab));
 });
 window.abrirMenu = function() { document.getElementById('menu').classList.add('abierto'); };
+// Con el menú lateral abierto, la página de detrás no se desplaza
+new MutationObserver(() => {
+  document.documentElement.classList.toggle('menu-abierto', document.getElementById('menu').classList.contains('abierto'));
+}).observe(document.getElementById('menu'), { attributes: true, attributeFilter: ['class'] });
+// Teclado abierto en el móvil: escondemos la barra de abajo para que no se quede flotando
+(function () {
+  const campo = (el) => el && el.matches && el.matches('input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=file]), textarea, select, [contenteditable]');
+  const marca = () => {
+    const vv = window.visualViewport;
+    const tecladoVV = vv ? (window.innerHeight - vv.height > 140) : false;
+    document.body.classList.toggle('teclado', tecladoVV || campo(document.activeElement));
+  };
+  document.addEventListener('focusin', marca);
+  document.addEventListener('focusout', () => setTimeout(marca, 120));
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', marca);
+})();
 document.addEventListener('click', (e) => {
   const m = document.getElementById('menu');
   if (m.classList.contains('abierto') && !m.contains(e.target) && !e.target.closest('.m-top button, .m-bar button:not([data-tab])')) m.classList.remove('abierto');
 });
 window.showTab = function(name) {
+  document.getElementById('menu').classList.remove('abierto');
   const seccion = name === 'event-detail' ? 'salidas' : name;
   document.querySelectorAll('[data-tab]').forEach(t => t.classList.toggle('active', t.dataset.tab === seccion));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));

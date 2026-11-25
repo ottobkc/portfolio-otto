@@ -74,7 +74,8 @@ body::before {
     flex-direction: column; gap: 0; background: var(--crema);
     border-bottom: 1px solid var(--linea); padding: 8px var(--gutter) 16px;
   }
-  .nav ul.abierto { display: flex; }
+  .nav ul.abierto { display: flex; height: calc(100dvh - 64px); overflow-y: auto; overscroll-behavior: contain; }
+  html.menu-abierto, html.menu-abierto body { overflow: hidden; }
   .nav ul a { display: block; padding: 12px 0; font-size: 1.05rem; }
   .nav ul a.nav-plus { display: inline-block; padding: 9px 18px; margin-top: 6px; }
 }
